@@ -12,7 +12,14 @@ Initial paths:
 
 - `/apps/`
 - `/quizzes/`
+- `/quizzes/readiness-score/`
 - `/lead-magnets/`
 - `/sandbox/`
 
-DNS is still the final activation step. Do not add paid services, tracking, lead capture, or public campaign routing without Brian's exact approval.
+Root and `www` now route through Railway over HTTPS.
+
+Current live preview:
+
+- `/quizzes/readiness-score/` is a no-capture, browser-only Job Search Readiness Score preview.
+
+Do not add paid services, tracking, lead capture, real user data storage, email automation, or public campaign routing without Brian's exact approval.

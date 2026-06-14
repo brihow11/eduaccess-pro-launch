@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Job Search Readiness Score | EduAccess</title>
+  <meta name="description" content="A no-capture Job Search Readiness Score preview from EduAccess by Job Seeker Pro.">
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body class="tool-page">
+  <header class="tool-header">
+    <a class="back" href="/">EduAccess</a>
+    <nav aria-label="Tool sections">
+      <a href="/apps/">Apps</a>
+      <a href="/quizzes/">Quizzes</a>
+      <a href="/lead-magnets/">Lead Magnets</a>
+      <a href="/sandbox/">Sandbox</a>
+    </nav>
+  </header>
+
+  <main class="score-shell">
+    <section class="score-hero">
+      <div>
+        <p class="label">No-capture preview</p>
+        <h1>Job Search Readiness Score</h1>
+        <p class="lede">A quick self-check for job seekers, students, and career teams. Nothing is submitted or saved here; this is a public preview Ranger can improve safely before any live funnel or lead capture is approved.</p>
+      </div>
+      <aside class="score-panel" aria-live="polite">
+        <span>Your preview score</span>
+        <strong id="scoreValue">0%</strong>
+        <p id="scoreMessage">Check the items that are already true for your job search.</p>
+      </aside>
+    </section>
+
+    <section class="checklist" aria-label="Readiness checklist">
+      <article class="check-group">
+        <h2>Positioning</h2>
+        <label><input type="checkbox" data-score="8"> I can explain the role I want in one clear sentence.</label>
+        <label><input type="checkbox" data-score="8"> My resume shows outcomes, not only responsibilities.</label>
+        <label><input type="checkbox" data-score="8"> My LinkedIn headline and About section match my target role.</label>
+      </article>
+
+      <article class="check-group">
+        <h2>Search Motion</h2>
+        <label><input type="checkbox" data-score="8"> I have a weekly target list of companies or roles.</label>
+        <label><input type="checkbox" data-score="8"> I track applications, outreach, referrals, and follow-up dates.</label>
+        <label><input type="checkbox" data-score="8"> I send thoughtful follow-ups instead of only waiting for replies.</label>
+      </article>
+
+      <article class="check-group">
+        <h2>Interview Readiness</h2>
+        <label><input type="checkbox" data-score="8"> I have 5-7 strong stories ready for common interview questions.</label>
+        <label><input type="checkbox" data-score="8"> I can connect my experience to the employer's real problems.</label>
+        <label><input type="checkbox" data-score="8"> I practice out loud before important interviews.</label>
+      </article>
+
+      <article class="check-group">
+        <h2>Support System</h2>
+        <label><input type="checkbox" data-score="7"> Someone has reviewed my resume or LinkedIn with honest feedback.</label>
+        <label><input type="checkbox" data-score="7"> I know which part of my search is currently weakest.</label>
+        <label><input type="checkbox" data-score="14"> I have a simple plan for the next seven days.</label>
+      </article>
+    </section>
+
+    <section class="result-band">
+      <div>
+        <h2 id="resultTitle">Start with the honest baseline.</h2>
+        <p id="resultCopy">Use this preview to spot the next practical move. A future approved version can add scoring logic, saved results, email follow-up, and partner reporting, but this page intentionally does none of that yet.</p>
+      </div>
+      <a class="button" href="/lead-magnets/">View free resources</a>
+    </section>
+  </main>
+
+  <script>
+    const boxes = Array.from(document.querySelectorAll("[data-score]"));
+    const scoreValue = document.querySelector("#scoreValue");
+    const scoreMessage = document.querySelector("#scoreMessage");
+    const resultTitle = document.querySelector("#resultTitle");
+    const resultCopy = document.querySelector("#resultCopy");
+
+    const states = [
+      {
+        min: 0,
+        title: "Start with the honest baseline.",
+        message: "Check the items that are already true for your job search.",
+        copy: "Use this preview to spot the next practical move. A future approved version can add scoring logic, saved results, email follow-up, and partner reporting, but this page intentionally does none of that yet."
+      },
+      {
+        min: 34,
+        title: "You have momentum, but the system is not tight yet.",
+        message: "Pick one weak area and turn it into a seven-day action plan.",
+        copy: "Most job searches stall because effort is scattered. Tighten the target role, follow-up rhythm, and interview stories before adding more applications."
+      },
+      {
+        min: 67,
+        title: "You are close to a stronger search engine.",
+        message: "Your next gains likely come from feedback, outreach quality, and interview practice.",
+        copy: "At this stage, small upgrades matter: sharper proof on the resume, better employer-specific stories, and consistent follow-up after every promising conversation."
+      },
+      {
+        min: 90,
+        title: "You are operating with a real job-search system.",
+        message: "Now protect consistency and use feedback loops.",
+        copy: "Keep tracking what works, keep asking for feedback, and use every interview or employer conversation to sharpen the next one."
+      }
+    ];
+
+    function updateScore() {
+      const score = boxes.reduce((total, box) => total + (box.checked ? Number(box.dataset.score) : 0), 0);
+      const state = states.reduce((current, item) => score >= item.min ? item : current, states[0]);
+      scoreValue.textContent = `${score}%`;
+      scoreMessage.textContent = state.message;
+      resultTitle.textContent = state.title;
+      resultCopy.textContent = state.copy;
+    }
+
+    boxes.forEach((box) => box.addEventListener("change", updateScore));
+    updateScore();
+  </script>
+</body>
+</html>
