@@ -4,6 +4,10 @@ No-spend public launch home for Job Seeker Pro / EduAccess experiments.
 
 Primary domain target: `eduaccess.pro`
 
+Hosting target: Railway.
+
+DNS manager: Namecheap.
+
 Initial paths:
 
 - `/apps/`

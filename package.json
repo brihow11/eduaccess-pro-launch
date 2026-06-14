@@ -1,0 +1,12 @@
+{
+  "name": "eduaccess-pro-launch",
+  "version": "1.0.0",
+  "private": true,
+  "description": "EduAccess by Job Seeker Pro launch home.",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
