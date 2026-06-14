@@ -1,0 +1,360 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>EduAccess | Job Seeker Pro</title>
+  <meta name="description" content="EduAccess by Job Seeker Pro helps career teams and job seekers turn readiness into interviews, follow-up, and offers.">
+  <link rel="preconnect" href="https://images.unsplash.com">
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #18212f;
+      --muted: #526071;
+      --line: #d9e0e8;
+      --paper: #fbfcfd;
+      --panel: #ffffff;
+      --red: #b4232a;
+      --green: #28715d;
+      --blue: #1f4f82;
+      --gold: #b9842f;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: var(--ink);
+      background: var(--paper);
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    header {
+      position: absolute;
+      inset: 0 0 auto;
+      z-index: 2;
+      padding: 22px clamp(18px, 4vw, 52px);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      color: white;
+    }
+
+    .brand {
+      font-weight: 800;
+      letter-spacing: 0;
+      font-size: 1rem;
+    }
+
+    nav {
+      display: flex;
+      gap: 18px;
+      font-size: .92rem;
+      font-weight: 650;
+    }
+
+    nav a {
+      opacity: .9;
+    }
+
+    .hero {
+      min-height: 86vh;
+      display: grid;
+      align-items: end;
+      padding: 112px clamp(20px, 5vw, 72px) 52px;
+      color: white;
+      background:
+        linear-gradient(90deg, rgba(14, 24, 36, .84), rgba(14, 24, 36, .42)),
+        url("https://images.unsplash.com/photo-1551836022-d5d88e9218df?auto=format&fit=crop&w=1800&q=82") center / cover;
+    }
+
+    .hero-inner {
+      width: min(860px, 100%);
+    }
+
+    .eyebrow {
+      margin: 0 0 12px;
+      color: #dce9f7;
+      font-size: .88rem;
+      font-weight: 750;
+      text-transform: uppercase;
+      letter-spacing: 0;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(3rem, 8vw, 6.75rem);
+      line-height: .92;
+      letter-spacing: 0;
+      max-width: 790px;
+    }
+
+    .hero p {
+      margin: 24px 0 0;
+      max-width: 690px;
+      font-size: clamp(1.05rem, 2vw, 1.28rem);
+      line-height: 1.55;
+      color: #eff5fb;
+    }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 30px;
+    }
+
+    .button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 44px;
+      padding: 0 18px;
+      border-radius: 8px;
+      font-weight: 760;
+      border: 1px solid rgba(255, 255, 255, .44);
+      background: rgba(255, 255, 255, .14);
+      backdrop-filter: blur(8px);
+    }
+
+    .button.primary {
+      border-color: #ffffff;
+      background: #ffffff;
+      color: var(--ink);
+    }
+
+    main {
+      position: relative;
+    }
+
+    .strip {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      border-bottom: 1px solid var(--line);
+      background: #ffffff;
+    }
+
+    .metric {
+      min-height: 118px;
+      padding: 24px clamp(18px, 3vw, 36px);
+      border-right: 1px solid var(--line);
+    }
+
+    .metric:last-child {
+      border-right: 0;
+    }
+
+    .metric strong {
+      display: block;
+      color: var(--red);
+      font-size: 1.08rem;
+      margin-bottom: 8px;
+    }
+
+    .metric span {
+      color: var(--muted);
+      line-height: 1.45;
+    }
+
+    .section {
+      width: min(1160px, calc(100% - 40px));
+      margin: 0 auto;
+      padding: 64px 0;
+    }
+
+    .section h2 {
+      margin: 0 0 14px;
+      font-size: clamp(2rem, 4vw, 3.2rem);
+      line-height: 1;
+      letter-spacing: 0;
+    }
+
+    .section > p {
+      margin: 0;
+      max-width: 760px;
+      color: var(--muted);
+      font-size: 1.05rem;
+      line-height: 1.6;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 16px;
+      margin-top: 30px;
+    }
+
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 22px;
+      min-height: 220px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      box-shadow: 0 10px 24px rgba(24, 33, 47, .05);
+    }
+
+    .card b {
+      font-size: 1.15rem;
+    }
+
+    .card p {
+      color: var(--muted);
+      line-height: 1.5;
+      margin: 14px 0 20px;
+    }
+
+    .card .tag {
+      color: var(--green);
+      font-size: .86rem;
+      font-weight: 760;
+    }
+
+    .band {
+      background: #172334;
+      color: white;
+    }
+
+    .band .section {
+      display: grid;
+      grid-template-columns: 1.1fr .9fr;
+      gap: 34px;
+      align-items: center;
+    }
+
+    .band p {
+      color: #d4dde8;
+    }
+
+    .steps {
+      display: grid;
+      gap: 12px;
+    }
+
+    .step {
+      border: 1px solid rgba(255, 255, 255, .18);
+      border-radius: 8px;
+      padding: 18px;
+      background: rgba(255, 255, 255, .06);
+    }
+
+    .step strong {
+      display: block;
+      margin-bottom: 6px;
+      color: #ffffff;
+    }
+
+    footer {
+      padding: 32px clamp(20px, 5vw, 72px);
+      display: flex;
+      justify-content: space-between;
+      gap: 18px;
+      color: var(--muted);
+      border-top: 1px solid var(--line);
+      background: #ffffff;
+      flex-wrap: wrap;
+    }
+
+    @media (max-width: 900px) {
+      nav {
+        display: none;
+      }
+
+      .strip,
+      .grid,
+      .band .section {
+        grid-template-columns: 1fr;
+      }
+
+      .metric {
+        border-right: 0;
+        border-bottom: 1px solid var(--line);
+      }
+
+      .metric:last-child {
+        border-bottom: 0;
+      }
+
+      .hero {
+        min-height: 84vh;
+        padding-top: 92px;
+      }
+
+      h1 {
+        font-size: clamp(3rem, 18vw, 5.6rem);
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <a class="brand" href="/">Job Seeker Pro / EduAccess</a>
+    <nav aria-label="Primary">
+      <a href="/apps/">Apps</a>
+      <a href="/quizzes/">Quizzes</a>
+      <a href="/lead-magnets/">Lead Magnets</a>
+      <a href="/sandbox/">Sandbox</a>
+    </nav>
+  </header>
+
+  <section class="hero">
+    <div class="hero-inner">
+      <p class="eyebrow">Career readiness systems for modern job search</p>
+      <h1>EduAccess</h1>
+      <p>Launch home for Job Seeker Pro tools that help students, job seekers, and career teams move from scattered effort to sharper resumes, better outreach, stronger interviews, and real hiring momentum.</p>
+      <div class="actions">
+        <a class="button primary" href="/quizzes/">Start With Readiness</a>
+        <a class="button" href="/lead-magnets/">View Free Resources</a>
+      </div>
+    </div>
+  </section>
+
+  <main>
+    <section class="strip" aria-label="Program focus">
+      <div class="metric"><strong>BRAVE system</strong><span>A practical five-step job search method built around positioning, outreach, follow-up, and interview readiness.</span></div>
+      <div class="metric"><strong>ACE readiness</strong><span>Support for education and career-services partners that need scalable job search preparation.</span></div>
+      <div class="metric"><strong>Scout AI</strong><span>Private experiments and future app paths for job search tools, dashboards, and readiness workflows.</span></div>
+      <div class="metric"><strong>Ranger lab</strong><span>A controlled launch place for new quizzes, mini apps, lead magnets, and sandbox prototypes.</span></div>
+    </section>
+
+    <section class="section">
+      <h2>Built for job seekers and the teams helping them.</h2>
+      <p>EduAccess is the public doorway for Job Seeker Pro experiments that can become practical career tools: readiness checks, guided templates, coaching assets, partner pilots, and private sandbox tests before anything touches real student or customer data.</p>
+      <div class="grid">
+        <a class="card" href="/apps/"><span><b>Apps</b><p>Mini tools and job search utilities will live here after private review and safe launch approval.</p></span><span class="tag">/apps</span></a>
+        <a class="card" href="/quizzes/"><span><b>Quizzes</b><p>Readiness scores, intake flows, and guided assessments will start here before lead capture is enabled.</p></span><span class="tag">/quizzes</span></a>
+        <a class="card" href="/lead-magnets/"><span><b>Lead Magnets</b><p>Downloadable guides, checklists, and templates will be organized here as public resources.</p></span><span class="tag">/lead-magnets</span></a>
+        <a class="card" href="/sandbox/"><span><b>Sandbox</b><p>Fake-data previews and internal experiments will stay separated from production and real users.</p></span><span class="tag">/sandbox</span></a>
+      </div>
+    </section>
+
+    <section class="band">
+      <div class="section">
+        <div>
+          <h2>A launch place, not a dumping ground.</h2>
+          <p>Every public path should have a clear job: help a job seeker, support a partner conversation, validate a product idea, or prepare a revenue-facing offer. Ranger can use this structure to ship faster while keeping spend, DNS, data, and public-impact decisions visible.</p>
+        </div>
+        <div class="steps">
+          <div class="step"><strong>Private first</strong><span>Draft, test, and review with fake data before real users.</span></div>
+          <div class="step"><strong>Public with purpose</strong><span>Launch only when the audience, owner, and stop rules are clear.</span></div>
+          <div class="step"><strong>Durable memory</strong><span>Document each experiment so Codex or Ranger can resume without guessing.</span></div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <span>EduAccess by Job Seeker Pro</span>
+    <span>Launch home for Ranger-built career readiness tools.</span>
+  </footer>
+</body>
+</html>
