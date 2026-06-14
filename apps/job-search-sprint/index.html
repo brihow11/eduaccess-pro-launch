@@ -1,0 +1,232 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>7-Day Job Search Sprint Planner | EduAccess</title>
+  <meta name="description" content="A no-capture EduAccess mini app for planning a practical seven-day job search sprint.">
+  <link rel="stylesheet" href="/style.css?v=20260614-sprint">
+</head>
+<body class="tool-page sprint-page">
+  <header class="tool-header">
+    <a class="back" href="/">EduAccess</a>
+    <nav aria-label="Tool sections">
+      <a href="/apps/">Apps</a>
+      <a href="/quizzes/">Quizzes</a>
+      <a href="/lead-magnets/">Lead Magnets</a>
+      <a href="/sandbox/">Sandbox</a>
+    </nav>
+  </header>
+
+  <main class="sprint-shell" aria-label="7-Day Job Search Sprint Planner">
+    <section class="sprint-hero">
+      <div>
+        <p class="label">No-capture mini app</p>
+        <h1>7-Day Job Search Sprint Planner</h1>
+        <p class="lede">Build a balanced week of job-search actions without submitting, saving, tracking, or sending anything. This is a public preview Ranger can improve safely before any live account, lead capture, or partner workflow is approved.</p>
+      </div>
+      <aside class="sprint-score" aria-live="polite">
+        <span>Preview progress</span>
+        <strong id="progressValue">0%</strong>
+        <p id="progressMessage">Select a mission, read the steps, then mark it complete.</p>
+      </aside>
+    </section>
+
+    <section class="sprint-workspace">
+      <section class="sprint-board" aria-label="Sprint mission board">
+        <div class="sprint-board-head">
+          <div>
+            <h2>This week's five moves</h2>
+            <p>Each mission is a small action that helps a job seeker move from scattered effort to a tighter system.</p>
+          </div>
+          <div class="sprint-badge" id="statusBadge">Ready</div>
+        </div>
+        <div class="sprint-lanes" id="missionCards"></div>
+      </section>
+
+      <aside class="sprint-mission" aria-label="Selected mission">
+        <div class="sprint-mission-title">
+          <h2 id="missionTitle">Research</h2>
+          <span id="missionPoints">10 pts</span>
+        </div>
+        <p id="missionDescription">Find one role, one company signal, and one reason the work fits your target.</p>
+        <ul class="mission-steps" id="missionSteps"></ul>
+        <div class="sprint-actions">
+          <button class="button mission-button" id="completeButton" type="button">Complete Mission</button>
+          <button class="reset-button" id="resetButton" type="button" aria-label="Reset sprint" title="Reset sprint">
+            <svg width="21" height="21" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M20 12a8 8 0 1 1-2.34-5.66" stroke="currentColor" stroke-width="2.1" stroke-linecap="round"/>
+              <path d="M20 4v5h-5" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
+        </div>
+      </aside>
+    </section>
+
+    <section class="sprint-progress">
+      <div class="progress-copy">
+        <h2 id="resultTitle">Start with one concrete move.</h2>
+        <p id="resultText">Complete all five missions to finish the local sprint. Nothing leaves this browser session.</p>
+      </div>
+      <div class="meter-wrap">
+        <div class="meter-label">
+          <span>Sprint completion</span>
+          <strong id="doneValue">0/5</strong>
+        </div>
+        <div class="meter" aria-hidden="true">
+          <div class="meter-fill" id="progressFill"></div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const missions = [
+      {
+        id: "research",
+        title: "Research",
+        points: 10,
+        time: "15 min",
+        description: "Find one role, one company signal, and one reason the work fits your target.",
+        steps: ["Choose one target role.", "Write one company signal.", "Name the match in one sentence."],
+        icon: '<path d="M4 5h16v14H4z" stroke="currentColor" stroke-width="2" fill="none"/><path d="M8 9h8M8 13h5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>'
+      },
+      {
+        id: "network",
+        title: "Network",
+        points: 15,
+        time: "20 min",
+        description: "Plan one warm outreach note that asks for insight, not a job.",
+        steps: ["Pick one person or role type.", "Draft a short insight question.", "Save the follow-up date."],
+        icon: '<circle cx="8" cy="9" r="3" stroke="currentColor" stroke-width="2" fill="none"/><circle cx="17" cy="15" r="3" stroke="currentColor" stroke-width="2" fill="none"/><path d="M10.5 10.8 14.5 13.2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>'
+      },
+      {
+        id: "apply",
+        title: "Apply",
+        points: 20,
+        time: "30 min",
+        description: "Turn one application into a sharper sales message.",
+        steps: ["Name the employer problem.", "Match two proof points.", "Write a targeted opening line."],
+        icon: '<path d="M7 4h7l5 5v11H7z" stroke="currentColor" stroke-width="2" fill="none"/><path d="M14 4v6h6M10 14h6M10 17h4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>'
+      },
+      {
+        id: "follow",
+        title: "Follow Up",
+        points: 15,
+        time: "10 min",
+        description: "Keep momentum by planning one respectful follow-up.",
+        steps: ["Pick one open conversation.", "Write the next nudge.", "Set the timing."],
+        icon: '<path d="M5 12a7 7 0 0 1 11.9-5" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/><path d="M17 4v5h-5M19 12a7 7 0 0 1-11.9 5" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/><path d="M7 20v-5h5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>'
+      },
+      {
+        id: "practice",
+        title: "Practice",
+        points: 20,
+        time: "25 min",
+        description: "Practice one answer that proves value instead of reciting history.",
+        steps: ["Pick one common interview question.", "Answer with situation, action, result.", "Tighten to 90 seconds."],
+        icon: '<rect x="4" y="5" width="16" height="12" rx="3" stroke="currentColor" stroke-width="2" fill="none"/><path d="M9 20h6M12 17v3M9 10h.01M12 10h.01M15 10h.01" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/>'
+      }
+    ];
+
+    const completed = new Set();
+    let selectedId = missions[0].id;
+
+    const missionCards = document.querySelector("#missionCards");
+    const progressValue = document.querySelector("#progressValue");
+    const progressMessage = document.querySelector("#progressMessage");
+    const doneValue = document.querySelector("#doneValue");
+    const statusBadge = document.querySelector("#statusBadge");
+    const missionTitle = document.querySelector("#missionTitle");
+    const missionPoints = document.querySelector("#missionPoints");
+    const missionDescription = document.querySelector("#missionDescription");
+    const missionSteps = document.querySelector("#missionSteps");
+    const completeButton = document.querySelector("#completeButton");
+    const resetButton = document.querySelector("#resetButton");
+    const progressFill = document.querySelector("#progressFill");
+    const resultTitle = document.querySelector("#resultTitle");
+    const resultText = document.querySelector("#resultText");
+
+    function currentMission() {
+      return missions.find((mission) => mission.id === selectedId) || missions[0];
+    }
+
+    function renderCards() {
+      missionCards.innerHTML = missions.map((mission) => {
+        const done = completed.has(mission.id);
+        const selected = mission.id === selectedId;
+        return `
+          <button class="mission-card ${selected ? "is-selected" : ""} ${done ? "is-done" : ""}" type="button" data-mission="${mission.id}" aria-pressed="${selected}">
+            <span class="mission-icon" aria-hidden="true"><svg width="28" height="28" viewBox="0 0 24 24">${mission.icon}</svg></span>
+            <h3>${mission.title}</h3>
+            <p>${mission.description}</p>
+            <span class="mission-meta"><span>${mission.time}</span><span>${done ? "Done" : mission.points + " pts"}</span></span>
+          </button>
+        `;
+      }).join("");
+
+      missionCards.querySelectorAll(".mission-card").forEach((card) => {
+        card.addEventListener("click", () => {
+          selectedId = card.dataset.mission;
+          render();
+        });
+      });
+    }
+
+    function renderMission() {
+      const mission = currentMission();
+      const done = completed.has(mission.id);
+      missionTitle.textContent = mission.title;
+      missionPoints.textContent = `${mission.points} pts`;
+      missionDescription.textContent = mission.description;
+      missionSteps.innerHTML = mission.steps.map((step) => `<li>${step}</li>`).join("");
+      completeButton.disabled = done;
+      completeButton.textContent = done ? "Mission Complete" : "Complete Mission";
+    }
+
+    function renderProgress() {
+      const doneCount = completed.size;
+      const percent = Math.round((doneCount / missions.length) * 100);
+      progressValue.textContent = `${percent}%`;
+      doneValue.textContent = `${doneCount}/${missions.length}`;
+      progressFill.style.width = `${percent}%`;
+      statusBadge.textContent = doneCount === missions.length ? "Sprint Complete" : doneCount > 0 ? "In Motion" : "Ready";
+
+      if (doneCount === missions.length) {
+        progressMessage.textContent = "Sprint complete. You built a balanced local job-search plan.";
+        resultTitle.textContent = "You finished the local sprint.";
+        resultText.textContent = "Use this as a preview of the kind of guided planning Ranger can turn into richer public or partner tools after the lane is approved.";
+      } else if (doneCount > 0) {
+        progressMessage.textContent = "Keep moving. The strongest job searches stack small, specific actions.";
+        resultTitle.textContent = "The week is taking shape.";
+        resultText.textContent = `Complete ${missions.length - doneCount} more mission${missions.length - doneCount === 1 ? "" : "s"} to finish the local sprint.`;
+      } else {
+        progressMessage.textContent = "Select a mission, read the steps, then mark it complete.";
+        resultTitle.textContent = "Start with one concrete move.";
+        resultText.textContent = "Complete all five missions to finish the local sprint. Nothing leaves this browser session.";
+      }
+    }
+
+    function render() {
+      renderCards();
+      renderMission();
+      renderProgress();
+    }
+
+    completeButton.addEventListener("click", () => {
+      completed.add(selectedId);
+      const next = missions.find((mission) => !completed.has(mission.id));
+      if (next) selectedId = next.id;
+      render();
+    });
+
+    resetButton.addEventListener("click", () => {
+      completed.clear();
+      selectedId = missions[0].id;
+      render();
+    });
+
+    render();
+  </script>
+</body>
+</html>
