@@ -1,0 +1,340 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Interview Question Decoder | EduAccess</title>
+  <meta name="description" content="A no-capture EduAccess mini app for decoding common interview questions into a practical answer plan.">
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="/style.css?v=20260619-proof3">
+</head>
+<body class="tool-page proof-page decoder-page">
+  <header class="tool-header">
+    <a class="back" href="/">EduAccess</a>
+    <nav aria-label="Tool sections">
+      <a href="/apps/">Apps</a>
+      <a href="/quizzes/">Quizzes</a>
+      <a href="/lead-magnets/">Lead Magnets</a>
+      <a href="/sandbox/">Sandbox</a>
+    </nav>
+  </header>
+
+  <main class="proof-shell" aria-label="Interview Question Decoder">
+    <section class="proof-hero">
+      <div>
+        <p class="label">No-capture mini app</p>
+        <h1>Interview Question Decoder</h1>
+        <p class="lede">Choose a broad question family, interviewer signal, and answer style. Get a practical answer plan without entering names, companies, job posts, resumes, private stories, saved data, tracking, or outside-site calls.</p>
+      </div>
+      <aside class="proof-status" aria-live="polite">
+        <span>Answer move</span>
+        <strong id="decoderMove">Decode the question</strong>
+        <p id="decoderMessage">Choose one option in each row to build a local interview answer plan.</p>
+      </aside>
+    </section>
+
+    <section class="proof-workspace">
+      <section class="proof-board" aria-label="Interview question choices">
+        <div class="proof-board-head">
+          <div>
+            <h2>Find the real test behind the question</h2>
+            <p>Use categories only. Keep employer names, private work stories, salary details, application details, and identifying information out of this page.</p>
+          </div>
+          <button class="reset-button" id="decoderReset" type="button" aria-label="Reset decoder" title="Reset decoder">
+            <svg width="21" height="21" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M20 12a8 8 0 1 1-2.34-5.66" stroke="currentColor" stroke-width="2.1" stroke-linecap="round"/>
+              <path d="M20 4v5h-5" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
+        </div>
+
+        <div class="proof-group" aria-label="Question family">
+          <h3>Question Family</h3>
+          <div class="proof-options" id="familyOptions"></div>
+        </div>
+
+        <div class="proof-group" aria-label="Interviewer signal">
+          <h3>Interviewer Signal</h3>
+          <div class="proof-options" id="signalOptions"></div>
+        </div>
+
+        <div class="proof-group" aria-label="Answer style">
+          <h3>Answer Style</h3>
+          <div class="proof-options" id="styleOptions"></div>
+        </div>
+      </section>
+
+      <aside class="proof-plan" aria-label="Generated local interview answer plan">
+        <div class="proof-plan-head">
+          <h2>Answer Plan</h2>
+          <span id="decoderReadiness">Baseline</span>
+        </div>
+        <ol id="decoderSteps"></ol>
+        <div class="story-actions">
+          <button class="button mission-button" id="copyDecoderPlan" type="button">Copy Plan</button>
+          <span id="decoderCopyStatus" aria-live="polite">Local plan only</span>
+        </div>
+      </aside>
+    </section>
+
+    <section class="proof-guidance">
+      <article>
+        <h2>Every question has a job.</h2>
+        <p>The interviewer is usually testing risk, judgment, motivation, self-awareness, ownership, communication, or proof of fit.</p>
+      </article>
+      <article>
+        <h2>Answer the test, not only the words.</h2>
+        <p>A strong answer names the signal, gives a clean proof point, and closes with why it matters for the role.</p>
+      </article>
+      <article>
+        <h2>What stays gated here</h2>
+        <p>No AI rewriting, resume parsing, saved answers, tracking, lead capture, interview recording, account connection, or live coaching workflow is active.</p>
+      </article>
+    </section>
+  </main>
+
+  <script>
+    const decoderGroups = {
+      family: [
+        { id: "overview", label: "Tell me about yourself", hint: "They want a focused career map, not a full life story." },
+        { id: "behavioral", label: "Tell me about a time", hint: "They want proof of behavior under real conditions." },
+        { id: "risk", label: "Weakness or gap", hint: "They want honesty, ownership, and lower hiring risk." },
+        { id: "fit", label: "Why this role", hint: "They want motivation, relevance, and informed interest." }
+      ],
+      signal: [
+        { id: "judgment", label: "Judgment", hint: "How you decide, prioritize, and handle tradeoffs." },
+        { id: "ownership", label: "Ownership", hint: "Whether you take responsibility and follow through." },
+        { id: "collaboration", label: "Collaboration", hint: "How you work with people, conflict, and feedback." },
+        { id: "learning", label: "Learning agility", hint: "How you improve when the situation changes." }
+      ],
+      style: [
+        { id: "map", label: "30-second map", hint: "Short setup, clear direction, and one useful proof point." },
+        { id: "proof", label: "STAR proof", hint: "Situation, task, action, result, and skill signal." },
+        { id: "reset", label: "Risk reset", hint: "Name the concern, show change, and lower the risk." },
+        { id: "fit", label: "Bridge to fit", hint: "Connect your proof to the role or team need." }
+      ]
+    };
+
+    const decoderSelections = {
+      family: "",
+      signal: "",
+      style: ""
+    };
+
+    const familyOptions = document.querySelector("#familyOptions");
+    const signalOptions = document.querySelector("#signalOptions");
+    const styleOptions = document.querySelector("#styleOptions");
+    const decoderMove = document.querySelector("#decoderMove");
+    const decoderMessage = document.querySelector("#decoderMessage");
+    const decoderReadiness = document.querySelector("#decoderReadiness");
+    const decoderSteps = document.querySelector("#decoderSteps");
+    const copyDecoderPlan = document.querySelector("#copyDecoderPlan");
+    const decoderCopyStatus = document.querySelector("#decoderCopyStatus");
+    const decoderReset = document.querySelector("#decoderReset");
+
+    function decoderTitle(group, id) {
+      const option = decoderGroups[group].find((item) => item.id === id);
+      return option ? option.label : "";
+    }
+
+    function decoderPickedCount() {
+      return Object.values(decoderSelections).filter(Boolean).length;
+    }
+
+    function buildDecoderRecommendation() {
+      const { family, signal, style } = decoderSelections;
+
+      if (decoderPickedCount() < 3) {
+        return {
+          move: "Decode the question",
+          readiness: "Baseline",
+          message: "Choose one option in each row to build a local interview answer plan.",
+          steps: [
+            "Choose the broad interview question family.",
+            "Choose the interviewer signal you want to prove.",
+            "Choose the answer style that fits the moment."
+          ]
+        };
+      }
+
+      if (family === "risk" || style === "reset") {
+        return {
+          move: "Control the risk",
+          readiness: "Risk-aware answer",
+          message: "This answer should show self-awareness, change, and a practical safeguard so the concern does not become the whole story.",
+          steps: [
+            "Name the concern briefly without overexplaining or sounding defensive.",
+            "Show the adjustment you made: habit, system, feedback loop, training, or better decision rule.",
+            "Add a safe proof placeholder that shows the improvement in action.",
+            "Close by connecting the lesson to the role, so the interviewer sees lower future risk."
+          ]
+        };
+      }
+
+      if (family === "overview" || style === "map") {
+        return {
+          move: "Frame your lane",
+          readiness: "Clear opening answer",
+          message: "The best opening answer gives a simple map: where you have been, what you are strong at, and why this direction makes sense.",
+          steps: [
+            "Start with one sentence that names your professional lane or direction.",
+            "Add two proof anchors: a work area, result type, customer group, tool, or responsibility.",
+            "Connect those anchors to the role without naming private employer or application details here.",
+            "Finish with the reason you are excited to solve this kind of problem next."
+          ]
+        };
+      }
+
+      if (family === "fit" || style === "fit") {
+        return {
+          move: "Bridge to fit",
+          readiness: "Role-fit answer",
+          message: "A fit answer should sound informed, useful, and specific enough to separate you from generic applicants.",
+          steps: [
+            "Name the broad role problem or team need you believe this position solves.",
+            "Choose one proof placeholder that shows you have handled a similar responsibility.",
+            "Explain the connection between your proof and the work they need done.",
+            "Close with curiosity about the team, priorities, or success measures."
+          ]
+        };
+      }
+
+      if (signal === "collaboration") {
+        return {
+          move: "Show working style",
+          readiness: "Collaboration proof",
+          message: "Collaboration answers should show how you communicate, handle tension, and help the group reach a useful outcome.",
+          steps: [
+            "Set up the people context: cross-functional work, feedback, conflict, handoff, or shared goal.",
+            "Name your specific action, not only what the team did.",
+            "Show the outcome and how the relationship, process, or decision improved.",
+            "Close with the collaboration rule you still use."
+          ]
+        };
+      }
+
+      if (signal === "learning") {
+        return {
+          move: "Show adaptation",
+          readiness: "Learning proof",
+          message: "Learning-agility answers should prove you can notice a gap, adjust quickly, and apply the lesson.",
+          steps: [
+            "Name the change, mistake, new tool, new customer need, or unfamiliar problem.",
+            "Show how you learned: feedback, research, practice, training, or experiment.",
+            "Use one result placeholder that proves the learning turned into better action.",
+            "Close with how you would apply that same learning loop in this role."
+          ]
+        };
+      }
+
+      if (signal === "ownership") {
+        return {
+          move: "Prove follow-through",
+          readiness: "Ownership proof",
+          message: "Ownership answers work when they show you saw the problem, acted without waiting, and carried the outcome responsibly.",
+          steps: [
+            "Set the situation with one clear problem or gap.",
+            "Name the action you personally owned.",
+            "Add the result, handoff, or improvement that came from that ownership.",
+            "Close with how you keep work visible and accountable."
+          ]
+        };
+      }
+
+      return {
+        move: "Prove the signal",
+        readiness: "Interview-ready answer",
+        message: "A strong answer should make the interviewer confident about the signal they are testing.",
+        steps: [
+          "Restate the question as the signal you need to prove.",
+          "Choose one safe story placeholder with a clear situation, action, and result.",
+          "Keep the answer focused on your behavior and decision-making.",
+          "Close by naming why that proof matters for the role."
+        ]
+      };
+    }
+
+    function renderDecoderGroup(groupName, container) {
+      container.innerHTML = decoderGroups[groupName].map((option) => {
+        const active = decoderSelections[groupName] === option.id;
+        return `
+          <button class="proof-option ${active ? "is-active" : ""}" type="button" data-group="${groupName}" data-option="${option.id}" aria-pressed="${active}">
+            <strong>${option.label}</strong>
+            <span>${option.hint}</span>
+          </button>
+        `;
+      }).join("");
+
+      container.querySelectorAll(".proof-option").forEach((button) => {
+        button.addEventListener("click", () => {
+          decoderSelections[button.dataset.group] = button.dataset.option;
+          renderDecoder();
+        });
+      });
+    }
+
+    function renderDecoderPlan() {
+      const result = buildDecoderRecommendation();
+      const context = [
+        decoderTitle("family", decoderSelections.family),
+        decoderTitle("signal", decoderSelections.signal),
+        decoderTitle("style", decoderSelections.style)
+      ].filter(Boolean).join(" / ");
+
+      decoderMove.textContent = result.move;
+      decoderMessage.textContent = result.message;
+      decoderReadiness.textContent = context || result.readiness;
+      decoderSteps.innerHTML = result.steps.map((step) => `<li>${step}</li>`).join("");
+      decoderCopyStatus.textContent = "Local plan only";
+    }
+
+    function renderDecoder() {
+      renderDecoderGroup("family", familyOptions);
+      renderDecoderGroup("signal", signalOptions);
+      renderDecoderGroup("style", styleOptions);
+      renderDecoderPlan();
+    }
+
+    function currentDecoderPlanText() {
+      const heading = `${decoderMove.textContent} - ${decoderReadiness.textContent}`;
+      const steps = Array.from(decoderSteps.querySelectorAll("li"))
+        .map((item, index) => `${index + 1}. ${item.textContent}`)
+        .join("\n");
+      return `${heading}\n${steps}`;
+    }
+
+    copyDecoderPlan.addEventListener("click", async () => {
+      try {
+        await navigator.clipboard.writeText(currentDecoderPlanText());
+        decoderCopyStatus.textContent = "Copied locally";
+      } catch (error) {
+        try {
+          const selection = window.getSelection();
+          const range = document.createRange();
+          range.selectNodeContents(decoderSteps);
+          selection.removeAllRanges();
+          selection.addRange(range);
+          const copied = document.execCommand("copy");
+          if (copied) {
+            selection.removeAllRanges();
+            decoderCopyStatus.textContent = "Copied locally";
+          } else {
+            decoderCopyStatus.textContent = "Plan text selected";
+          }
+        } catch (fallbackError) {
+          decoderCopyStatus.textContent = "Plan text selected";
+        }
+      }
+    });
+
+    decoderReset.addEventListener("click", () => {
+      decoderSelections.family = "";
+      decoderSelections.signal = "";
+      decoderSelections.style = "";
+      renderDecoder();
+    });
+
+    renderDecoder();
+  </script>
+</body>
+</html>
