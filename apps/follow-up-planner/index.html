@@ -1,0 +1,320 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Follow-Up Planner | EduAccess</title>
+  <meta name="description" content="A no-capture EduAccess mini app for choosing a smart job search follow-up move.">
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="/style.css?v=20260619-follow">
+</head>
+<body class="tool-page follow-page">
+  <header class="tool-header">
+    <a class="back" href="/">EduAccess</a>
+    <nav aria-label="Tool sections">
+      <a href="/apps/">Apps</a>
+      <a href="/quizzes/">Quizzes</a>
+      <a href="/lead-magnets/">Lead Magnets</a>
+      <a href="/sandbox/">Sandbox</a>
+    </nav>
+  </header>
+
+  <main class="follow-shell" aria-label="Follow-Up Planner">
+    <section class="follow-hero">
+      <div>
+        <p class="label">No-capture mini app</p>
+        <h1>Follow-Up Planner</h1>
+        <p class="lede">Pick the moment, relationship, and signal. Get a simple next move without saving anything, tracking anything, using an account link, or making an outside-site call.</p>
+      </div>
+      <aside class="follow-status" aria-live="polite">
+        <span>Next move</span>
+        <strong id="followMove">Pick a situation</strong>
+        <p id="followMessage">Choose one option in each row to build a local follow-up plan.</p>
+      </aside>
+    </section>
+
+    <section class="follow-workspace">
+      <section class="follow-board" aria-label="Follow-up choices">
+        <div class="follow-board-head">
+          <div>
+            <h2>Choose the situation</h2>
+            <p>Use broad categories only. Do not enter names, employer details, private notes, or application data.</p>
+          </div>
+          <button class="reset-button" id="followReset" type="button" aria-label="Reset planner" title="Reset planner">
+            <svg width="21" height="21" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M20 12a8 8 0 1 1-2.34-5.66" stroke="currentColor" stroke-width="2.1" stroke-linecap="round"/>
+              <path d="M20 4v5h-5" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
+        </div>
+
+        <div class="follow-group" aria-label="Job search moment">
+          <h3>Moment</h3>
+          <div class="follow-options" id="stageOptions"></div>
+        </div>
+
+        <div class="follow-group" aria-label="Time since last touch">
+          <h3>Timing</h3>
+          <div class="follow-options" id="timingOptions"></div>
+        </div>
+
+        <div class="follow-group" aria-label="Relationship signal">
+          <h3>Signal</h3>
+          <div class="follow-options" id="signalOptions"></div>
+        </div>
+      </section>
+
+      <aside class="follow-plan" aria-label="Generated local follow-up plan">
+        <div class="follow-plan-head">
+          <h2>Plan</h2>
+          <span id="followReadiness">Baseline</span>
+        </div>
+        <ol id="followSteps"></ol>
+        <div class="story-actions">
+          <button class="button mission-button" id="copyFollowPlan" type="button">Copy Plan</button>
+          <span id="followCopyStatus" aria-live="polite">Local plan only</span>
+        </div>
+      </aside>
+    </section>
+
+    <section class="follow-guidance">
+      <article>
+        <h2>Follow up with a reason.</h2>
+        <p>The best follow-up gives the other person an easy next step: confirm timing, share a useful update, or reopen the conversation with value.</p>
+      </article>
+      <article>
+        <h2>Match the relationship.</h2>
+        <p>A warm contact can handle a more personal note. A cold application usually needs a short, useful nudge without pressure.</p>
+      </article>
+      <article>
+        <h2>What stays gated here</h2>
+        <p>No forms, saved answers, tracking, email sends, CRM routing, account-connected AI, or partner reporting is active.</p>
+      </article>
+    </section>
+  </main>
+
+  <script>
+    const optionGroups = {
+      stage: [
+        { id: "application", label: "Application sent", hint: "You applied and have not heard back." },
+        { id: "interview", label: "Interview done", hint: "You already had a screen, interview, or panel." },
+        { id: "referral", label: "Referral intro", hint: "Someone opened a door or made an introduction." },
+        { id: "networking", label: "Networking conversation", hint: "You had a helpful career conversation." }
+      ],
+      timing: [
+        { id: "today", label: "Today", hint: "Same-day or less than 24 hours." },
+        { id: "two", label: "2-3 days", hint: "A short gap since the last touch." },
+        { id: "week", label: "5-7 days", hint: "Enough time for a useful nudge." },
+        { id: "stale", label: "10+ days", hint: "The conversation may need fresh value." }
+      ],
+      signal: [
+        { id: "warm", label: "Warm contact", hint: "They know you or replied positively." },
+        { id: "neutral", label: "Neutral process", hint: "A recruiter, hiring process, or open loop." },
+        { id: "cold", label: "Cold application", hint: "No relationship or reply yet." }
+      ]
+    };
+
+    const selections = {
+      stage: "",
+      timing: "",
+      signal: ""
+    };
+
+    const stageOptions = document.querySelector("#stageOptions");
+    const timingOptions = document.querySelector("#timingOptions");
+    const signalOptions = document.querySelector("#signalOptions");
+    const followMove = document.querySelector("#followMove");
+    const followMessage = document.querySelector("#followMessage");
+    const followReadiness = document.querySelector("#followReadiness");
+    const followSteps = document.querySelector("#followSteps");
+    const copyFollowPlan = document.querySelector("#copyFollowPlan");
+    const followCopyStatus = document.querySelector("#followCopyStatus");
+    const followReset = document.querySelector("#followReset");
+
+    function titleFor(group, id) {
+      const option = optionGroups[group].find((item) => item.id === id);
+      return option ? option.label : "";
+    }
+
+    function selectedCount() {
+      return Object.values(selections).filter(Boolean).length;
+    }
+
+    function recommendation() {
+      const { stage, timing, signal } = selections;
+
+      if (selectedCount() < 3) {
+        return {
+          move: "Pick a situation",
+          readiness: "Baseline",
+          message: "Choose one option in each row to build a local follow-up plan.",
+          steps: [
+            "Choose the job search moment.",
+            "Choose the timing since the last touch.",
+            "Choose the relationship signal."
+          ]
+        };
+      }
+
+      if (timing === "today" && stage !== "interview") {
+        return {
+          move: "Wait and prepare",
+          readiness: "Too soon",
+          message: "Give the other person a little space, then follow up with a useful reason.",
+          steps: [
+            "Do not send a same-day nudge unless they asked for something.",
+            "Write a one-sentence value update you could send later.",
+            "Set a reminder for the next reasonable follow-up window."
+          ]
+        };
+      }
+
+      if (stage === "interview" && timing === "today") {
+        return {
+          move: "Thank them today",
+          readiness: "Ready",
+          message: "A same-day thank-you is useful after an interview when it is short and specific.",
+          steps: [
+            "Thank them for the conversation.",
+            "Mention one specific topic or priority from the interview.",
+            "Reinforce the proof that fits that priority.",
+            "Close with appreciation, not pressure."
+          ]
+        };
+      }
+
+      if (signal === "warm" && (stage === "referral" || stage === "networking")) {
+        return {
+          move: "Send a warm update",
+          readiness: "Ready",
+          message: "A warm contact deserves a clear, low-pressure update with an easy next step.",
+          steps: [
+            "Thank them for the help or conversation.",
+            "Share one useful update or action you took.",
+            "Ask for one small next step, not a broad favor.",
+            "Keep it short enough to answer from a phone."
+          ]
+        };
+      }
+
+      if (timing === "stale") {
+        return {
+          move: "Reopen with value",
+          readiness: "Needs fresh value",
+          message: "After 10+ days, lead with relevance instead of asking for an update only.",
+          steps: [
+            "Open with a short context reminder.",
+            "Add one relevant proof point, article, insight, or company-specific observation.",
+            "Ask whether there is a better person, timing, or next step.",
+            "Make it easy for them to ignore or redirect without guilt."
+          ]
+        };
+      }
+
+      if (signal === "cold") {
+        return {
+          move: "Nudge gently",
+          readiness: "Careful",
+          message: "Cold follow-up works best when it is brief, useful, and not emotionally loaded.",
+          steps: [
+            "Use one sentence of context.",
+            "Tie your follow-up to the role, problem, or team priority.",
+            "Ask one simple question about timing or fit.",
+            "Do not send repeated nudges without a new reason."
+          ]
+        };
+      }
+
+      return {
+        move: "Follow up clearly",
+        readiness: "Ready",
+        message: "This is a good window for a direct, respectful follow-up.",
+        steps: [
+          "Reference the exact open loop.",
+          "Add one short proof point or useful update.",
+          "Ask for one clear next step.",
+          "End with a calm, appreciative line."
+        ]
+      };
+    }
+
+    function renderGroup(groupName, container) {
+      container.innerHTML = optionGroups[groupName].map((option) => {
+        const active = selections[groupName] === option.id;
+        return `
+          <button class="follow-option ${active ? "is-active" : ""}" type="button" data-group="${groupName}" data-option="${option.id}" aria-pressed="${active}">
+            <strong>${option.label}</strong>
+            <span>${option.hint}</span>
+          </button>
+        `;
+      }).join("");
+
+      container.querySelectorAll(".follow-option").forEach((button) => {
+        button.addEventListener("click", () => {
+          selections[button.dataset.group] = button.dataset.option;
+          renderPlanner();
+        });
+      });
+    }
+
+    function renderPlan() {
+      const result = recommendation();
+      const context = [
+        titleFor("stage", selections.stage),
+        titleFor("timing", selections.timing),
+        titleFor("signal", selections.signal)
+      ].filter(Boolean).join(" / ");
+
+      followMove.textContent = result.move;
+      followMessage.textContent = result.message;
+      followReadiness.textContent = context || result.readiness;
+      followSteps.innerHTML = result.steps.map((step) => `<li>${step}</li>`).join("");
+      followCopyStatus.textContent = "Local plan only";
+    }
+
+    function renderPlanner() {
+      renderGroup("stage", stageOptions);
+      renderGroup("timing", timingOptions);
+      renderGroup("signal", signalOptions);
+      renderPlan();
+    }
+
+    function currentPlanText() {
+      const heading = `${followMove.textContent} - ${followReadiness.textContent}`;
+      const steps = Array.from(followSteps.querySelectorAll("li"))
+        .map((item, index) => `${index + 1}. ${item.textContent}`)
+        .join("\n");
+      return `${heading}\n${steps}`;
+    }
+
+    copyFollowPlan.addEventListener("click", async () => {
+      try {
+        await navigator.clipboard.writeText(currentPlanText());
+        followCopyStatus.textContent = "Copied locally";
+      } catch (error) {
+        try {
+          const selection = window.getSelection();
+          const range = document.createRange();
+          range.selectNodeContents(followSteps);
+          selection.removeAllRanges();
+          selection.addRange(range);
+          const copied = document.execCommand("copy");
+          selection.removeAllRanges();
+          followCopyStatus.textContent = copied ? "Copied locally" : "Plan text selected";
+        } catch (fallbackError) {
+          followCopyStatus.textContent = "Plan text selected";
+        }
+      }
+    });
+
+    followReset.addEventListener("click", () => {
+      selections.stage = "";
+      selections.timing = "";
+      selections.signal = "";
+      renderPlanner();
+    });
+
+    renderPlanner();
+  </script>
+</body>
+</html>

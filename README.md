@@ -11,6 +11,7 @@ DNS manager: Namecheap.
 Initial paths:
 
 - `/apps/`
+- `/apps/follow-up-planner/`
 - `/apps/job-search-sprint/`
 - `/apps/interview-story-builder/`
 - `/apps/ai-readiness-planner/`
@@ -25,6 +26,7 @@ Root and `www` now route through Railway over HTTPS.
 Current live preview:
 
 - `/quizzes/readiness-score/` is a no-capture, browser-only Job Search Readiness Score preview.
+- `/apps/follow-up-planner/` is a no-capture, browser-only Follow-Up Planner preview.
 - `/apps/job-search-sprint/` is a no-capture, browser-only 7-Day Job Search Sprint Planner preview.
 - `/apps/interview-story-builder/` is a no-capture, browser-only Interview Story Builder preview.
 - `/apps/ai-readiness-planner/` is a no-capture, browser-only AI Readiness Planner preview.
