@@ -1,0 +1,322 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Layoff Defense Map | EduAccess</title>
+  <meta name="description" content="A no-capture EduAccess mini app for choosing a practical layoff-defense move.">
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="/style.css?v=20260619-defense">
+</head>
+<body class="tool-page defense-page">
+  <header class="tool-header">
+    <a class="back" href="/">EduAccess</a>
+    <nav aria-label="Tool sections">
+      <a href="/apps/">Apps</a>
+      <a href="/quizzes/">Quizzes</a>
+      <a href="/lead-magnets/">Lead Magnets</a>
+      <a href="/sandbox/">Sandbox</a>
+    </nav>
+  </header>
+
+  <main class="defense-shell" aria-label="Layoff Defense Map">
+    <section class="defense-hero">
+      <div>
+        <p class="label">No-capture mini app</p>
+        <h1>Layoff Defense Map</h1>
+        <p class="lede">Choose a risk signal, time runway, and strongest asset. Get a practical protection plan without entering private job details, saving data, tracking behavior, or making outside-site calls.</p>
+      </div>
+      <aside class="defense-status" aria-live="polite">
+        <span>Defense move</span>
+        <strong id="defenseMove">Map the risk</strong>
+        <p id="defenseMessage">Choose one option in each row to build a local layoff-defense plan.</p>
+      </aside>
+    </section>
+
+    <section class="defense-workspace">
+      <section class="defense-board" aria-label="Layoff defense choices">
+        <div class="defense-board-head">
+          <div>
+            <h2>Pick broad signals only</h2>
+            <p>Use categories, not employer names, manager names, confidential company details, or personal records.</p>
+          </div>
+          <button class="reset-button" id="defenseReset" type="button" aria-label="Reset map" title="Reset map">
+            <svg width="21" height="21" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M20 12a8 8 0 1 1-2.34-5.66" stroke="currentColor" stroke-width="2.1" stroke-linecap="round"/>
+              <path d="M20 4v5h-5" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
+        </div>
+
+        <div class="defense-group" aria-label="Risk signal">
+          <h3>Risk Signal</h3>
+          <div class="defense-options" id="riskOptions"></div>
+        </div>
+
+        <div class="defense-group" aria-label="Time runway">
+          <h3>Runway</h3>
+          <div class="defense-options" id="runwayOptions"></div>
+        </div>
+
+        <div class="defense-group" aria-label="Strongest current asset">
+          <h3>Strongest Asset</h3>
+          <div class="defense-options" id="assetOptions"></div>
+        </div>
+      </section>
+
+      <aside class="defense-plan" aria-label="Generated local defense plan">
+        <div class="defense-plan-head">
+          <h2>Protection Plan</h2>
+          <span id="defenseReadiness">Baseline</span>
+        </div>
+        <ol id="defenseSteps"></ol>
+        <div class="story-actions">
+          <button class="button mission-button" id="copyDefensePlan" type="button">Copy Plan</button>
+          <span id="defenseCopyStatus" aria-live="polite">Local plan only</span>
+        </div>
+      </aside>
+    </section>
+
+    <section class="defense-guidance">
+      <article>
+        <h2>Do not wait for certainty.</h2>
+        <p>Layoff defense starts before the official announcement: sharpen proof, rebuild options, and make your value easier to see.</p>
+      </article>
+      <article>
+        <h2>Build two tracks.</h2>
+        <p>Protect the current role where possible, while quietly creating outside options so your next move is not rushed.</p>
+      </article>
+      <article>
+        <h2>What stays gated here</h2>
+        <p>No forms, saved answers, tracking, employer data, email sends, CRM routing, account-connected AI, or partner reporting is active.</p>
+      </article>
+    </section>
+  </main>
+
+  <script>
+    const defenseGroups = {
+      risk: [
+        { id: "quiet", label: "Quiet cuts", hint: "Budgets, hiring, or projects are tightening." },
+        { id: "role", label: "Role changed", hint: "Your work, manager, or priorities shifted." },
+        { id: "company", label: "Company unstable", hint: "Reorgs, missed numbers, or leadership churn." },
+        { id: "skill", label: "Skill gap", hint: "The market is moving faster than your current proof." }
+      ],
+      runway: [
+        { id: "week", label: "This week", hint: "You need protection moves immediately." },
+        { id: "thirty", label: "30 days", hint: "A short window to create options." },
+        { id: "sixty", label: "60 days", hint: "Enough time for a focused campaign." },
+        { id: "ninety", label: "90 days", hint: "A planning window, not a panic window." }
+      ],
+      asset: [
+        { id: "proof", label: "Proof", hint: "Clear outcomes, metrics, or visible wins." },
+        { id: "network", label: "Network", hint: "People who know your work or trust you." },
+        { id: "skill", label: "Skill", hint: "A marketable ability you can demonstrate." },
+        { id: "mobility", label: "Mobility", hint: "Flexibility on role, industry, location, or level." }
+      ]
+    };
+
+    const defenseSelections = {
+      risk: "",
+      runway: "",
+      asset: ""
+    };
+
+    const riskOptions = document.querySelector("#riskOptions");
+    const runwayOptions = document.querySelector("#runwayOptions");
+    const assetOptions = document.querySelector("#assetOptions");
+    const defenseMove = document.querySelector("#defenseMove");
+    const defenseMessage = document.querySelector("#defenseMessage");
+    const defenseReadiness = document.querySelector("#defenseReadiness");
+    const defenseSteps = document.querySelector("#defenseSteps");
+    const copyDefensePlan = document.querySelector("#copyDefensePlan");
+    const defenseCopyStatus = document.querySelector("#defenseCopyStatus");
+    const defenseReset = document.querySelector("#defenseReset");
+
+    function optionTitle(group, id) {
+      const option = defenseGroups[group].find((item) => item.id === id);
+      return option ? option.label : "";
+    }
+
+    function pickedCount() {
+      return Object.values(defenseSelections).filter(Boolean).length;
+    }
+
+    function buildRecommendation() {
+      const { risk, runway, asset } = defenseSelections;
+
+      if (pickedCount() < 3) {
+        return {
+          move: "Map the risk",
+          readiness: "Baseline",
+          message: "Choose one option in each row to build a local layoff-defense plan.",
+          steps: [
+            "Choose the broad risk signal.",
+            "Choose the time runway.",
+            "Choose the strongest current asset."
+          ]
+        };
+      }
+
+      if (runway === "week") {
+        return {
+          move: "Stabilize fast",
+          readiness: "Urgent",
+          message: "Use this week to protect income, proof, references, and next-step options.",
+          steps: [
+            "Export or summarize your non-confidential wins, numbers, and project outcomes.",
+            "Refresh your resume headline and one strongest proof story.",
+            "Message three trusted contacts for market insight, not a desperate job ask.",
+            "Identify two roles you could credibly apply for within 48 hours."
+          ]
+        };
+      }
+
+      if (asset === "network") {
+        return {
+          move: "Activate warm options",
+          readiness: "Ready",
+          message: "A trusted network is the fastest way to create options before the market gets noisy.",
+          steps: [
+            "Make a short list of ten people who know your work.",
+            "Send three low-pressure check-in notes this week.",
+            "Ask for market insight, team timing, or a useful introduction.",
+            "Track replies privately; do not turn this into a public panic post."
+          ]
+        };
+      }
+
+      if (risk === "skill" || asset === "skill") {
+        return {
+          move: "Build visible proof",
+          readiness: "Skill signal",
+          message: "Close the confidence gap with one small public or portfolio-ready proof asset.",
+          steps: [
+            "Pick one skill the market is rewarding in your target role.",
+            "Build one tiny proof artifact, case note, or before-and-after example.",
+            "Update your resume or LinkedIn with the proof, not just the skill name.",
+            "Practice a 45-second story that explains the result."
+          ]
+        };
+      }
+
+      if (risk === "company") {
+        return {
+          move: "Create outside options",
+          readiness: "Caution",
+          message: "Company instability calls for quiet option-building, not waiting for a final signal.",
+          steps: [
+            "Research five healthier companies that hire for your target work.",
+            "Compare your current proof against the job posts they use.",
+            "Apply or network into one role before you feel forced.",
+            "Keep internal performance steady while building the outside path."
+          ]
+        };
+      }
+
+      if (asset === "proof") {
+        return {
+          move: "Package your wins",
+          readiness: "Ready",
+          message: "Your strongest defense is making your value portable and easy to understand.",
+          steps: [
+            "Choose three wins from the last year.",
+            "Write each as problem, action, result, and business value.",
+            "Turn the strongest one into a resume bullet and interview story.",
+            "Share it with one trusted person for clarity feedback."
+          ]
+        };
+      }
+
+      return {
+        move: "Build a quiet runway",
+        readiness: "Steady",
+        message: "Use the window to protect the current role and create external options.",
+        steps: [
+          "Clarify your target role and top three proof points.",
+          "Refresh one resume version for that target.",
+          "Start two warm conversations per week.",
+          "Review your plan every Friday and adjust before stress forces it."
+        ]
+      };
+    }
+
+    function renderDefenseGroup(groupName, container) {
+      container.innerHTML = defenseGroups[groupName].map((option) => {
+        const active = defenseSelections[groupName] === option.id;
+        return `
+          <button class="defense-option ${active ? "is-active" : ""}" type="button" data-group="${groupName}" data-option="${option.id}" aria-pressed="${active}">
+            <strong>${option.label}</strong>
+            <span>${option.hint}</span>
+          </button>
+        `;
+      }).join("");
+
+      container.querySelectorAll(".defense-option").forEach((button) => {
+        button.addEventListener("click", () => {
+          defenseSelections[button.dataset.group] = button.dataset.option;
+          renderDefense();
+        });
+      });
+    }
+
+    function renderDefensePlan() {
+      const result = buildRecommendation();
+      const context = [
+        optionTitle("risk", defenseSelections.risk),
+        optionTitle("runway", defenseSelections.runway),
+        optionTitle("asset", defenseSelections.asset)
+      ].filter(Boolean).join(" / ");
+
+      defenseMove.textContent = result.move;
+      defenseMessage.textContent = result.message;
+      defenseReadiness.textContent = context || result.readiness;
+      defenseSteps.innerHTML = result.steps.map((step) => `<li>${step}</li>`).join("");
+      defenseCopyStatus.textContent = "Local plan only";
+    }
+
+    function renderDefense() {
+      renderDefenseGroup("risk", riskOptions);
+      renderDefenseGroup("runway", runwayOptions);
+      renderDefenseGroup("asset", assetOptions);
+      renderDefensePlan();
+    }
+
+    function currentDefensePlanText() {
+      const heading = `${defenseMove.textContent} - ${defenseReadiness.textContent}`;
+      const steps = Array.from(defenseSteps.querySelectorAll("li"))
+        .map((item, index) => `${index + 1}. ${item.textContent}`)
+        .join("\n");
+      return `${heading}\n${steps}`;
+    }
+
+    copyDefensePlan.addEventListener("click", async () => {
+      try {
+        await navigator.clipboard.writeText(currentDefensePlanText());
+        defenseCopyStatus.textContent = "Copied locally";
+      } catch (error) {
+        try {
+          const selection = window.getSelection();
+          const range = document.createRange();
+          range.selectNodeContents(defenseSteps);
+          selection.removeAllRanges();
+          selection.addRange(range);
+          const copied = document.execCommand("copy");
+          selection.removeAllRanges();
+          defenseCopyStatus.textContent = copied ? "Copied locally" : "Plan text selected";
+        } catch (fallbackError) {
+          defenseCopyStatus.textContent = "Plan text selected";
+        }
+      }
+    });
+
+    defenseReset.addEventListener("click", () => {
+      defenseSelections.risk = "";
+      defenseSelections.runway = "";
+      defenseSelections.asset = "";
+      renderDefense();
+    });
+
+    renderDefense();
+  </script>
+</body>
+</html>
