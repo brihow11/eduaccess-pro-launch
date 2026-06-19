@@ -1,0 +1,368 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Application Fit Triage | EduAccess</title>
+  <meta name="description" content="A no-capture EduAccess mini app for deciding whether to apply now, warm-path first, research more, or skip a job posting.">
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="/style.css?v=20260619-proof3">
+</head>
+<body class="tool-page proof-page triage-page">
+  <header class="tool-header">
+    <a class="back" href="/">EduAccess</a>
+    <nav aria-label="Tool sections">
+      <a href="/apps/">Apps</a>
+      <a href="/quizzes/">Quizzes</a>
+      <a href="/lead-magnets/">Lead Magnets</a>
+      <a href="/sandbox/">Sandbox</a>
+    </nav>
+  </header>
+
+  <main class="proof-shell" aria-label="Application Fit Triage">
+    <section class="proof-hero">
+      <div>
+        <p class="label">No-capture mini app</p>
+        <h1>Application Fit Triage</h1>
+        <p class="lede">Choose broad job-search signals and get a practical next move: apply now, warm-path first, research more, build proof, or skip. Keep job posts, employer names, resumes, salary details, private stories, saved data, tracking, and outside-site calls out of this page.</p>
+      </div>
+      <aside class="proof-status" aria-live="polite">
+        <span>Next move</span>
+        <strong id="triageMove">Triage the posting</strong>
+        <p id="triageMessage">Choose one option in each row to build a local application decision plan.</p>
+      </aside>
+    </section>
+
+    <section class="proof-workspace">
+      <section class="proof-board" aria-label="Application fit choices">
+        <div class="proof-board-head">
+          <div>
+            <h2>Decide before you spend energy</h2>
+            <p>Use categories only. Do not enter personal details, company names, job links, contact names, credentials, or private application information.</p>
+          </div>
+          <button class="reset-button" id="triageReset" type="button" aria-label="Reset triage" title="Reset triage">
+            <svg width="21" height="21" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M20 12a8 8 0 1 1-2.34-5.66" stroke="currentColor" stroke-width="2.1" stroke-linecap="round"/>
+              <path d="M20 4v5h-5" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
+        </div>
+
+        <div class="proof-group" aria-label="Role signal">
+          <h3>Role Signal</h3>
+          <div class="proof-options" id="roleOptions"></div>
+        </div>
+
+        <div class="proof-group" aria-label="Access path">
+          <h3>Access Path</h3>
+          <div class="proof-options" id="pathOptions"></div>
+        </div>
+
+        <div class="proof-group" aria-label="Proof strength">
+          <h3>Proof Strength</h3>
+          <div class="proof-options" id="proofOptions"></div>
+        </div>
+      </section>
+
+      <aside class="proof-plan" aria-label="Generated local application decision plan">
+        <div class="proof-plan-head">
+          <h2>Decision Plan</h2>
+          <span id="triageReadiness">Baseline</span>
+        </div>
+        <ol id="triageSteps"></ol>
+        <div class="story-actions">
+          <button class="button mission-button" id="copyTriagePlan" type="button">Copy Plan</button>
+          <span id="triageCopyStatus" aria-live="polite">Local plan only</span>
+        </div>
+      </aside>
+    </section>
+
+    <section class="proof-guidance">
+      <article>
+        <h2>Fit is not a feeling.</h2>
+        <p>A good application target has a role signal, an access path, and proof you can point to without overexplaining.</p>
+      </article>
+      <article>
+        <h2>Warm path beats cold volume.</h2>
+        <p>If a reasonable contact, recruiter path, or referral path exists, use it before spending all your energy on a cold application.</p>
+      </article>
+      <article>
+        <h2>What stays gated here</h2>
+        <p>No lead capture, resume upload, saved job tracking, AI rewriting, account connection, outreach automation, email sending, or recruiter contact workflow is active.</p>
+      </article>
+    </section>
+  </main>
+
+  <script>
+    const triageGroups = {
+      role: [
+        { id: "strong", label: "Strong fit", hint: "The role clearly matches your target work, level, and strengths." },
+        { id: "stretch", label: "Stretch role", hint: "Some signal is strong, but level, industry, or scope needs a bridge." },
+        { id: "unclear", label: "Unclear fit", hint: "The posting is vague, broad, or missing the details you need." },
+        { id: "low", label: "Low signal", hint: "The job looks misaligned, stale, generic, risky, or far outside your lane." }
+      ],
+      path: [
+        { id: "warm", label: "Warm contact", hint: "You may have a person, alumni link, community route, or referral path." },
+        { id: "direct", label: "Direct apply", hint: "The public application path is clear and the posting still looks active." },
+        { id: "recruiter", label: "Recruiter path", hint: "A recruiter, hiring team, or talent contact route seems available." },
+        { id: "none", label: "No access yet", hint: "You do not have a clear human path or reliable application route yet." }
+      ],
+      proof: [
+        { id: "clear", label: "Clear proof", hint: "You can point to direct evidence for the work they need done." },
+        { id: "transferable", label: "Transferable proof", hint: "Your evidence is relevant, but you need to translate it to this role." },
+        { id: "gap", label: "Proof gap", hint: "You want the role, but the strongest evidence is not ready yet." },
+        { id: "research", label: "Need research", hint: "You need more context before you can decide or tailor well." }
+      ]
+    };
+
+    const triageSelections = {
+      role: "",
+      path: "",
+      proof: ""
+    };
+
+    const roleOptions = document.querySelector("#roleOptions");
+    const pathOptions = document.querySelector("#pathOptions");
+    const proofOptions = document.querySelector("#proofOptions");
+    const triageMove = document.querySelector("#triageMove");
+    const triageMessage = document.querySelector("#triageMessage");
+    const triageReadiness = document.querySelector("#triageReadiness");
+    const triageSteps = document.querySelector("#triageSteps");
+    const copyTriagePlan = document.querySelector("#copyTriagePlan");
+    const triageCopyStatus = document.querySelector("#triageCopyStatus");
+    const triageReset = document.querySelector("#triageReset");
+
+    function triageTitle(group, id) {
+      const option = triageGroups[group].find((item) => item.id === id);
+      return option ? option.label : "";
+    }
+
+    function triagePickedCount() {
+      return Object.values(triageSelections).filter(Boolean).length;
+    }
+
+    function buildTriageRecommendation() {
+      const { role, path, proof } = triageSelections;
+
+      if (triagePickedCount() < 3) {
+        return {
+          move: "Triage the posting",
+          readiness: "Baseline",
+          message: "Choose one option in each row to build a local application decision plan.",
+          steps: [
+            "Choose the role signal.",
+            "Choose the access path.",
+            "Choose the proof strength."
+          ]
+        };
+      }
+
+      if (role === "low") {
+        return {
+          move: "Skip or save",
+          readiness: "Low-priority target",
+          message: "This looks like a low-return application. Protect your time unless a new signal changes the decision.",
+          steps: [
+            "Do not spend premium tailoring time on this posting yet.",
+            "Save one note about why it looked weak, stale, risky, or misaligned.",
+            "Only revisit if a warmer path, better role signal, or clearer proof match appears.",
+            "Move your energy to a stronger target with better proof and access."
+          ]
+        };
+      }
+
+      if (proof === "gap") {
+        return {
+          move: "Build proof first",
+          readiness: "Proof gap",
+          message: "You may like the role, but the next useful action is strengthening evidence before applying.",
+          steps: [
+            "Name the missing proof in plain language: skill, result, tool, scope, or industry context.",
+            "Choose one small proof-building action, such as a project, portfolio note, story draft, or resume bullet.",
+            "Use the posting to guide what evidence to build, without copying private job details here.",
+            "Recheck the posting only after you can explain why you are credible for the role."
+          ]
+        };
+      }
+
+      if (proof === "research" || role === "unclear") {
+        return {
+          move: "Research before applying",
+          readiness: "Needs context",
+          message: "The fit is not clear enough yet. Research should decide whether this becomes an application, warm path, or skip.",
+          steps: [
+            "Look for role clarity: team, level, responsibilities, success measures, and recent company context.",
+            "Check whether the posting is current and whether the role appears in more than one reliable place.",
+            "Write one sentence about the problem this role seems to solve.",
+            "Apply only if the research creates a clearer role signal or access path."
+          ]
+        };
+      }
+
+      if (path === "warm") {
+        return {
+          move: "Warm-path first",
+          readiness: "Human route available",
+          message: "Use the human path before sending a cold application. A small warm move can raise the odds.",
+          steps: [
+            "Choose the safest warm route: alumni, past coworker, community contact, friend-of-friend, or public recruiter path.",
+            "Prepare a short proof-based note that asks for insight, not a job favor.",
+            "Keep the message specific, respectful, and easy to ignore.",
+            "Apply after the warm attempt, or sooner if the posting has a clear deadline."
+          ]
+        };
+      }
+
+      if (path === "recruiter") {
+        return {
+          move: "Apply with recruiter bridge",
+          readiness: "Recruiter route",
+          message: "You have enough signal to apply, plus a possible recruiter path that can add context.",
+          steps: [
+            "Submit a clean application if the posting is active and aligned.",
+            "Prepare a two-sentence recruiter note with one proof point and the role category.",
+            "Avoid sending private documents or sensitive details unless the channel is verified.",
+            "Track the next follow-up date outside this page."
+          ]
+        };
+      }
+
+      if (role === "strong" && proof === "clear") {
+        return {
+          move: "Apply with proof",
+          readiness: "Strong target",
+          message: "This is worth a focused application because role fit and proof are both clear.",
+          steps: [
+            "Tailor the top of your resume or answer notes around the strongest role signal.",
+            "Use one direct proof point that shows you have done similar work.",
+            "Submit through the clear application path.",
+            "Plan one appropriate follow-up or warm-path attempt after applying."
+          ]
+        };
+      }
+
+      if (role === "stretch" || proof === "transferable") {
+        return {
+          move: "Apply with bridge",
+          readiness: "Stretch target",
+          message: "This can be worth applying if you translate your transferable proof clearly.",
+          steps: [
+            "Name the gap honestly: level, tool, industry, scope, or domain.",
+            "Choose the strongest transferable proof that lowers concern about that gap.",
+            "Write a bridge sentence connecting your proof to the role's likely problem.",
+            "Apply if the bridge sounds credible without exaggerating."
+          ]
+        };
+      }
+
+      if (path === "none") {
+        return {
+          move: "Find access first",
+          readiness: "Access gap",
+          message: "The application may still be usable, but finding one better route can prevent wasted effort.",
+          steps: [
+            "Check whether the company, team, recruiter, or role owner has a public professional presence.",
+            "Look for a safe connection path before heavy tailoring.",
+            "If no path appears, do a quick direct application only if the role signal is strong.",
+            "Move on if the posting stays vague or low-signal."
+          ]
+        };
+      }
+
+      return {
+        move: "Triage before applying",
+        readiness: "Decision needed",
+        message: "You have enough information to make a cleaner decision before investing more time.",
+        steps: [
+          "Write one sentence about why this role fits your target.",
+          "Choose the proof point that would make a stranger believe you can do the work.",
+          "Choose the best available access path.",
+          "Apply only if the proof and path justify the time."
+        ]
+      };
+    }
+
+    function renderTriageGroup(groupName, container) {
+      container.innerHTML = triageGroups[groupName].map((option) => {
+        const active = triageSelections[groupName] === option.id;
+        return `
+          <button class="proof-option ${active ? "is-active" : ""}" type="button" data-group="${groupName}" data-option="${option.id}" aria-pressed="${active}">
+            <strong>${option.label}</strong>
+            <span>${option.hint}</span>
+          </button>
+        `;
+      }).join("");
+
+      container.querySelectorAll(".proof-option").forEach((button) => {
+        button.addEventListener("click", () => {
+          triageSelections[button.dataset.group] = button.dataset.option;
+          renderTriage();
+        });
+      });
+    }
+
+    function renderTriagePlan() {
+      const result = buildTriageRecommendation();
+      const context = [
+        triageTitle("role", triageSelections.role),
+        triageTitle("path", triageSelections.path),
+        triageTitle("proof", triageSelections.proof)
+      ].filter(Boolean).join(" / ");
+
+      triageMove.textContent = result.move;
+      triageMessage.textContent = result.message;
+      triageReadiness.textContent = context || result.readiness;
+      triageSteps.innerHTML = result.steps.map((step) => `<li>${step}</li>`).join("");
+      triageCopyStatus.textContent = "Local plan only";
+    }
+
+    function renderTriage() {
+      renderTriageGroup("role", roleOptions);
+      renderTriageGroup("path", pathOptions);
+      renderTriageGroup("proof", proofOptions);
+      renderTriagePlan();
+    }
+
+    function currentTriagePlanText() {
+      const heading = `${triageMove.textContent} - ${triageReadiness.textContent}`;
+      const steps = Array.from(triageSteps.querySelectorAll("li"))
+        .map((item, index) => `${index + 1}. ${item.textContent}`)
+        .join("\n");
+      return `${heading}\n${steps}`;
+    }
+
+    copyTriagePlan.addEventListener("click", async () => {
+      try {
+        await navigator.clipboard.writeText(currentTriagePlanText());
+        triageCopyStatus.textContent = "Copied locally";
+      } catch (error) {
+        try {
+          const selection = window.getSelection();
+          const range = document.createRange();
+          range.selectNodeContents(triageSteps);
+          selection.removeAllRanges();
+          selection.addRange(range);
+          const copied = document.execCommand("copy");
+          if (copied) {
+            selection.removeAllRanges();
+            triageCopyStatus.textContent = "Copied locally";
+          } else {
+            triageCopyStatus.textContent = "Plan text selected";
+          }
+        } catch (fallbackError) {
+          triageCopyStatus.textContent = "Plan text selected";
+        }
+      }
+    });
+
+    triageReset.addEventListener("click", () => {
+      triageSelections.role = "";
+      triageSelections.path = "";
+      triageSelections.proof = "";
+      renderTriage();
+    });
+
+    renderTriage();
+  </script>
+</body>
+</html>
