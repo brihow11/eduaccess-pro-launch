@@ -11,6 +11,7 @@ DNS manager: Namecheap.
 Initial paths:
 
 - `/apps/`
+- `/apps/offer-readiness-builder/`
 - `/apps/application-fit-triage/`
 - `/apps/interview-question-decoder/`
 - `/apps/networking-ask-builder/`
@@ -30,6 +31,7 @@ Root and `www` now route through Railway over HTTPS.
 
 Current live preview:
 
+- `/apps/offer-readiness-builder/` is a no-capture, browser-only Offer Readiness Builder preview.
 - `/apps/application-fit-triage/` is a no-capture, browser-only Application Fit Triage preview.
 - `/quizzes/readiness-score/` is a no-capture, browser-only Job Search Readiness Score preview.
 - `/apps/interview-question-decoder/` is a no-capture, browser-only Interview Question Decoder preview.
