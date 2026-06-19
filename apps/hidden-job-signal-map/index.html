@@ -1,0 +1,326 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Hidden Job Signal Map | EduAccess</title>
+  <meta name="description" content="A no-capture EduAccess mini app for choosing a warm hidden-job search move from public signals, relationship paths, and proof angles.">
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="/style.css?v=20260619-signal1">
+</head>
+<body class="tool-page signal-page">
+  <header class="tool-header signal-header">
+    <a class="back" href="/">EduAccess</a>
+    <nav aria-label="Tool sections">
+      <a href="/apps/" aria-current="page">Apps</a>
+      <a href="/quizzes/">Quizzes</a>
+      <a href="/lead-magnets/">Lead Magnets</a>
+      <a href="/sandbox/">Sandbox</a>
+    </nav>
+  </header>
+
+  <main class="signal-shell" aria-label="Hidden Job Signal Map">
+    <section class="signal-title">
+      <div>
+        <h1>Hidden Job Signal Map</h1>
+        <p>Find the opportunity before it becomes a posting. Choose three signals and get a warm, practical next move.</p>
+      </div>
+      <button class="signal-reset" id="signalReset" type="button" aria-label="Reset hidden job signal map" title="Reset hidden job signal map">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M20 12a8 8 0 1 1-2.34-5.66" stroke="currentColor" stroke-width="2.1" stroke-linecap="round"/>
+          <path d="M20 4v5h-5" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <span>Reset</span>
+      </button>
+    </section>
+
+    <section class="signal-workspace">
+      <aside class="signal-panel signal-choices" aria-label="Hidden job signal choices">
+        <div class="signal-choice-header">
+          <h2>Choose three signals</h2>
+          <span id="signalCount">3/3</span>
+        </div>
+
+        <div class="signal-group" aria-label="Public signal">
+          <div class="signal-group-title">
+            <span class="signal-group-icon signal-teal" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none">
+                <path d="M4 13a8 8 0 0 1 16 0" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                <path d="M8 13a4 4 0 0 1 8 0" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                <path d="M12 13v6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+              </svg>
+            </span>
+            <div>
+              <h3>Public signal</h3>
+              <p>What is visible in the market?</p>
+            </div>
+          </div>
+          <div class="signal-options" id="publicOptions"></div>
+        </div>
+
+        <div class="signal-group" aria-label="Warm path">
+          <div class="signal-group-title">
+            <span class="signal-group-icon signal-amber" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none">
+                <path d="M8.5 11a3 3 0 1 0 0-6 3 3 0 0 0 0 6ZM15.5 11a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z" stroke="currentColor" stroke-width="2"/>
+                <path d="M3.5 19c.7-3.1 2.5-4.8 5-4.8 1.4 0 2.5.5 3.5 1.5 1-1 2.1-1.5 3.5-1.5 2.5 0 4.3 1.7 5 4.8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+              </svg>
+            </span>
+            <div>
+              <h3>Warm path</h3>
+              <p>Who can open the door?</p>
+            </div>
+          </div>
+          <div class="signal-options" id="pathOptions"></div>
+        </div>
+
+        <div class="signal-group" aria-label="Proof angle">
+          <div class="signal-group-title">
+            <span class="signal-group-icon signal-blue" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none">
+                <path d="M12 3 19 6v5c0 4.5-2.6 8-7 10-4.4-2-7-5.5-7-10V6l7-3Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+                <path d="m9 12 2 2 4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </span>
+            <div>
+              <h3>Proof angle</h3>
+              <p>What value story fits now?</p>
+            </div>
+          </div>
+          <div class="signal-options" id="proofOptions"></div>
+        </div>
+      </aside>
+
+      <section class="signal-panel signal-result" aria-label="Suggested hidden job move">
+        <div class="signal-result-top">
+          <div>
+            <span class="signal-mini-label">Suggested move</span>
+            <h2 id="signalMove">Use a market signal to start a warm conversation</h2>
+          </div>
+          <span class="signal-fit" id="signalFit">Low risk</span>
+        </div>
+
+        <div class="signal-flow" aria-label="Selected signal path">
+          <div><strong id="flowPublic">Leadership changes</strong><span>public signal</span></div>
+          <svg viewBox="0 0 48 16" fill="none" aria-hidden="true"><path d="M2 8h40M35 2l7 6-7 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <div><strong id="flowPath">Former colleague</strong><span>warm path</span></div>
+          <svg viewBox="0 0 48 16" fill="none" aria-hidden="true"><path d="M2 8h40M35 2l7 6-7 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <div><strong id="flowProof">Measurable impact</strong><span>proof angle</span></div>
+        </div>
+
+        <p class="signal-summary" id="signalSummary">Use a leadership change as a reason to reconnect with someone warm, then position your proof around measurable impact.</p>
+
+        <div class="signal-metrics" aria-label="Move quality markers">
+          <div><span>Warmth</span><strong id="warmthScore">High</strong></div>
+          <div><span>Visibility</span><strong id="visibilityScore">Low-medium</strong></div>
+          <div><span>Timing</span><strong id="timingScore">Now</strong></div>
+          <div><span>Risk</span><strong id="riskScore">Low</strong></div>
+        </div>
+
+        <div class="signal-plan-grid">
+          <div>
+            <h3>Short action plan</h3>
+            <ol id="signalSteps"></ol>
+          </div>
+          <aside class="signal-script" aria-label="Message starter">
+            <strong>Message starter</strong>
+            <p id="signalScript">Hi [Name], I saw the leadership update at [Company]. It made me think of the kind of team priorities I have helped with: measurable improvements, clearer process, and useful follow-through. Would you be open to a quick perspective conversation?</p>
+          </aside>
+        </div>
+
+        <button class="button signal-copy" id="copySignalPlan" type="button">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <rect x="8" y="8" width="11" height="13" rx="1.5" stroke="currentColor" stroke-width="2"/>
+            <path d="M5 16H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h11a1 1 0 0 1 1 1v1" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+          <span>Copy plan</span>
+        </button>
+        <p class="signal-privacy" id="signalCopyStatus" aria-live="polite">No forms. No tracking. No saved data. No capture.</p>
+      </section>
+
+      <aside class="signal-panel signal-map" aria-label="Hidden job signal illustration">
+        <img src="./hidden-job-signal-map.png" alt="Illustrated city map with signal pins and a warm path route">
+        <div class="signal-map-callout signal-callout-a"><strong>Public signal</strong><span>Find a reason to reach out.</span></div>
+        <div class="signal-map-callout signal-callout-b"><strong>Warm path</strong><span>Use a trusted bridge.</span></div>
+        <div class="signal-map-callout signal-callout-c"><strong>Opportunity ahead</strong><span>Move before the posting.</span></div>
+        <div class="signal-legend">
+          <span><i class="solid"></i> Strong signal</span>
+          <span><i class="dashed"></i> Emerging signal</span>
+          <span><i class="risk"></i> Risk watch</span>
+        </div>
+      </aside>
+    </section>
+
+    <section class="signal-guidance" aria-label="More ways to use this map">
+      <article>
+        <h2>Scan before applying</h2>
+        <p>Look for public changes that create a useful reason to start a conversation.</p>
+      </article>
+      <article>
+        <h2>Use warm proof</h2>
+        <p>A connection plus a clear value story beats another cold application.</p>
+      </article>
+      <article>
+        <h2>Keep it light</h2>
+        <p>Ask for perspective first. Let the opportunity conversation develop naturally.</p>
+      </article>
+    </section>
+  </main>
+
+  <script>
+    const signalGroups = {
+      public: [
+        { id: "growth", label: "Company growth or funding", short: "Growth or funding", summary: "Use visible growth as the reason to ask where the team is expanding.", visibility: "Medium", timing: "This week" },
+        { id: "leadership", label: "Leadership changes", short: "Leadership changes", summary: "Use a leadership change as a reason to ask what priorities are shifting.", visibility: "Low-medium", timing: "Now" },
+        { id: "product", label: "New product or initiative", short: "New initiative", summary: "Use a new initiative as the bridge to relevant proof and a useful conversation.", visibility: "Medium-high", timing: "Soon" },
+        { id: "hiring", label: "Hiring pattern or stealth team", short: "Hiring pattern", summary: "Use repeated adjacent roles to infer a need before your exact role is posted.", visibility: "Low", timing: "Watch" },
+        { id: "event", label: "Event, talk, or podcast", short: "Public event", summary: "Use a public mention as a natural way to start a low-pressure conversation.", visibility: "High", timing: "Now" }
+      ],
+      path: [
+        { id: "former", label: "Former colleague", short: "Former colleague", warmth: "High", ask: "Ask for current context and permission to explore an intro." },
+        { id: "alumni", label: "Alumni from my school", short: "Alumni path", warmth: "Medium", ask: "Ask for perspective from someone with a shared background." },
+        { id: "second", label: "2nd degree connection", short: "2nd degree connection", warmth: "Medium-high", ask: "Ask the shared contact for a specific low-friction bridge." },
+        { id: "community", label: "Community or membership", short: "Community path", warmth: "Medium", ask: "Use shared group context to open a thoughtful conversation." },
+        { id: "vendor", label: "Client or vendor contact", short: "Client/vendor contact", warmth: "High", ask: "Use past working trust to ask what problem the team is solving now." }
+      ],
+      proof: [
+        { id: "pain", label: "Solve their current pain", short: "Current pain", risk: "Low", angle: "name the pain you can help reduce" },
+        { id: "impact", label: "Deliver measurable impact", short: "Measurable impact", risk: "Low", angle: "show a before-and-after result" },
+        { id: "expertise", label: "Bring specialized expertise", short: "Specialized expertise", risk: "Medium", angle: "connect one specific skill to their initiative" },
+        { id: "speed", label: "Increase speed or efficiency", short: "Speed or efficiency", risk: "Low", angle: "show how you helped work move faster" },
+        { id: "risk", label: "Reduce risk or cost", short: "Risk or cost", risk: "Low-medium", angle: "show how you prevented waste, confusion, or delay" }
+      ]
+    };
+
+    const signalSelections = {
+      public: "leadership",
+      path: "former",
+      proof: "impact"
+    };
+
+    const publicOptions = document.querySelector("#publicOptions");
+    const pathOptions = document.querySelector("#pathOptions");
+    const proofOptions = document.querySelector("#proofOptions");
+    const signalCount = document.querySelector("#signalCount");
+    const signalMove = document.querySelector("#signalMove");
+    const signalFit = document.querySelector("#signalFit");
+    const flowPublic = document.querySelector("#flowPublic");
+    const flowPath = document.querySelector("#flowPath");
+    const flowProof = document.querySelector("#flowProof");
+    const signalSummary = document.querySelector("#signalSummary");
+    const warmthScore = document.querySelector("#warmthScore");
+    const visibilityScore = document.querySelector("#visibilityScore");
+    const timingScore = document.querySelector("#timingScore");
+    const riskScore = document.querySelector("#riskScore");
+    const signalSteps = document.querySelector("#signalSteps");
+    const signalScript = document.querySelector("#signalScript");
+    const signalReset = document.querySelector("#signalReset");
+    const copySignalPlan = document.querySelector("#copySignalPlan");
+    const signalCopyStatus = document.querySelector("#signalCopyStatus");
+
+    function findSignal(group, id) {
+      return signalGroups[group].find((option) => option.id === id);
+    }
+
+    function renderSignalOptions(groupName, container) {
+      container.innerHTML = signalGroups[groupName].map((option) => {
+        const isActive = signalSelections[groupName] === option.id;
+        const active = isActive ? " is-active" : "";
+        return `
+          <button class="signal-option${active}" type="button" data-group="${groupName}" data-id="${option.id}" aria-pressed="${isActive}">
+            <span>${option.label}</span>
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <circle cx="12" cy="12" r="8" stroke="currentColor" stroke-width="2"/>
+              <path d="m8.5 12 2.3 2.3 4.8-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
+        `;
+      }).join("");
+    }
+
+    function buildSignalPlan() {
+      const publicSignal = findSignal("public", signalSelections.public);
+      const path = findSignal("path", signalSelections.path);
+      const proof = findSignal("proof", signalSelections.proof);
+      const move = `${publicSignal.short} + ${path.short}`;
+      const summary = `${publicSignal.summary} Then use ${path.short.toLowerCase()} and ${proof.angle}.`;
+      const steps = [
+        `Scan the company for the ${publicSignal.label.toLowerCase()} signal and write down the most specific clue.`,
+        path.ask,
+        `Frame your note around ${proof.angle}.`,
+        "Ask for a short perspective conversation before asking about a job.",
+        "If the conversation is useful, ask who else is close to the need."
+      ];
+      const script = `Hi [Name], I noticed ${publicSignal.label.toLowerCase()} at [Company]. It made me wonder what priorities are changing behind the scenes. I have helped teams ${proof.angle}. Would you be open to a quick perspective conversation or a pointer to the right person?`;
+
+      return { publicSignal, path, proof, move, summary, steps, script };
+    }
+
+    function updateSignalPlan() {
+      renderSignalOptions("public", publicOptions);
+      renderSignalOptions("path", pathOptions);
+      renderSignalOptions("proof", proofOptions);
+
+      const plan = buildSignalPlan();
+      signalCount.textContent = `${Object.keys(signalSelections).length}/3`;
+      signalMove.textContent = plan.move;
+      signalFit.textContent = plan.proof.risk.includes("Medium") ? "Review tone" : "Low risk";
+      flowPublic.textContent = plan.publicSignal.short;
+      flowPath.textContent = plan.path.short;
+      flowProof.textContent = plan.proof.short;
+      signalSummary.textContent = plan.summary;
+      warmthScore.textContent = plan.path.warmth;
+      visibilityScore.textContent = plan.publicSignal.visibility;
+      timingScore.textContent = plan.publicSignal.timing;
+      riskScore.textContent = plan.proof.risk;
+      signalSteps.innerHTML = plan.steps.map((step) => `<li>${step}</li>`).join("");
+      signalScript.textContent = plan.script;
+      signalCopyStatus.textContent = "No forms. No tracking. No saved data. No capture.";
+    }
+
+    function planText() {
+      const plan = buildSignalPlan();
+      return [
+        "Hidden Job Signal Map",
+        `Suggested move: ${plan.move}`,
+        `Summary: ${plan.summary}`,
+        "Short action plan:",
+        ...plan.steps.map((step, index) => `${index + 1}. ${step}`),
+        `Message starter: ${plan.script}`
+      ].join("\n");
+    }
+
+    document.addEventListener("click", async (event) => {
+      const option = event.target.closest(".signal-option");
+      if (option) {
+        signalSelections[option.dataset.group] = option.dataset.id;
+        updateSignalPlan();
+      }
+    });
+
+    signalReset.addEventListener("click", () => {
+      signalSelections.public = "leadership";
+      signalSelections.path = "former";
+      signalSelections.proof = "impact";
+      updateSignalPlan();
+    });
+
+    copySignalPlan.addEventListener("click", async () => {
+      const text = planText();
+      try {
+        await navigator.clipboard.writeText(text);
+        signalCopyStatus.textContent = "Plan copied locally. Nothing was sent or saved.";
+      } catch (error) {
+        const range = document.createRange();
+        range.selectNodeContents(document.querySelector(".signal-result"));
+        const selection = window.getSelection();
+        selection.removeAllRanges();
+        selection.addRange(range);
+        signalCopyStatus.textContent = "Clipboard was blocked, so the plan is selected locally.";
+      }
+    });
+
+    updateSignalPlan();
+  </script>
+</body>
+</html>
