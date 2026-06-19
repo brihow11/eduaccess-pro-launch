@@ -11,6 +11,7 @@ DNS manager: Namecheap.
 Initial paths:
 
 - `/apps/`
+- `/apps/ghosting-recovery-planner/`
 - `/apps/reference-readiness-builder/`
 - `/apps/warm-intro-pathfinder/`
 - `/apps/hidden-job-signal-map/`
@@ -36,6 +37,7 @@ Root and `www` now route through Railway over HTTPS.
 
 Current live preview:
 
+- `/apps/ghosting-recovery-planner/` is a no-capture, browser-only Ghosting Recovery Planner preview.
 - `/apps/reference-readiness-builder/` is a no-capture, browser-only Reference Readiness Builder preview.
 - `/apps/warm-intro-pathfinder/` is a no-capture, browser-only Warm Intro Pathfinder preview.
 - `/apps/hidden-job-signal-map/` is a no-capture, browser-only Hidden Job Signal Map preview.
