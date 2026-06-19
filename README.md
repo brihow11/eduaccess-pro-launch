@@ -11,6 +11,7 @@ DNS manager: Namecheap.
 Initial paths:
 
 - `/apps/`
+- `/apps/reference-readiness-builder/`
 - `/apps/warm-intro-pathfinder/`
 - `/apps/hidden-job-signal-map/`
 - `/apps/career-pivot-map/`
@@ -35,6 +36,7 @@ Root and `www` now route through Railway over HTTPS.
 
 Current live preview:
 
+- `/apps/reference-readiness-builder/` is a no-capture, browser-only Reference Readiness Builder preview.
 - `/apps/warm-intro-pathfinder/` is a no-capture, browser-only Warm Intro Pathfinder preview.
 - `/apps/hidden-job-signal-map/` is a no-capture, browser-only Hidden Job Signal Map preview.
 - `/apps/career-pivot-map/` is a no-capture, browser-only Career Pivot Map preview.

@@ -1,0 +1,325 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Reference Readiness Builder | EduAccess</title>
+  <meta name="description" content="A no-capture EduAccess mini app for choosing a practical reference-prep move without typing private contact, employer, or offer details.">
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="/style.css?v=20260619-reference1">
+</head>
+<body class="tool-page signal-page">
+  <header class="tool-header signal-header">
+    <a class="back" href="/">EduAccess</a>
+    <nav aria-label="Tool sections">
+      <a href="/apps/" aria-current="page">Apps</a>
+      <a href="/quizzes/">Quizzes</a>
+      <a href="/lead-magnets/">Lead Magnets</a>
+      <a href="/sandbox/">Sandbox</a>
+    </nav>
+  </header>
+
+  <main class="signal-shell" aria-label="Reference Readiness Builder">
+    <section class="signal-title">
+      <div>
+        <h1>Reference Readiness Builder</h1>
+        <p>Choose the reference relationship, hiring moment, and next ask. Get a clean plan for preparing a reference without oversharing private details.</p>
+      </div>
+      <button class="signal-reset" id="referenceReset" type="button" aria-label="Reset reference readiness builder" title="Reset reference readiness builder">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M20 12a8 8 0 1 1-2.34-5.66" stroke="currentColor" stroke-width="2.1" stroke-linecap="round"/>
+          <path d="M20 4v5h-5" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <span>Reset</span>
+      </button>
+    </section>
+
+    <section class="signal-workspace">
+      <aside class="signal-panel signal-choices" aria-label="Reference readiness choices">
+        <div class="signal-choice-header">
+          <h2>Choose three inputs</h2>
+          <span id="referenceCount">3/3</span>
+        </div>
+
+        <div class="signal-group" aria-label="Reference relationship">
+          <div class="signal-group-title">
+            <span class="signal-group-icon signal-teal" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none">
+                <path d="M8 11a3 3 0 1 0 0-6 3 3 0 0 0 0 6ZM16 11a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z" stroke="currentColor" stroke-width="2"/>
+                <path d="M3.5 20c.7-3.2 2.4-5 4.5-5 1.6 0 2.8.7 4 2 .9-1.3 2.3-2 4-2 2.1 0 3.8 1.8 4.5 5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+              </svg>
+            </span>
+            <div>
+              <h3>Reference relationship</h3>
+              <p>Who can speak credibly for you?</p>
+            </div>
+          </div>
+          <div class="signal-options" id="relationshipOptions"></div>
+        </div>
+
+        <div class="signal-group" aria-label="Hiring moment">
+          <div class="signal-group-title">
+            <span class="signal-group-icon signal-amber" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none">
+                <path d="M5 5h14v14H5z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+                <path d="M8 9h8M8 13h5M15 17l2 2 4-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </span>
+            <div>
+              <h3>Hiring moment</h3>
+              <p>Why prepare the reference now?</p>
+            </div>
+          </div>
+          <div class="signal-options" id="momentOptions"></div>
+        </div>
+
+        <div class="signal-group" aria-label="Next ask">
+          <div class="signal-group-title">
+            <span class="signal-group-icon signal-blue" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none">
+                <path d="M4 5h16v10H8l-4 4V5Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+                <path d="M8 9h8M8 12h5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+              </svg>
+            </span>
+            <div>
+              <h3>Next ask</h3>
+              <p>What should the first message do?</p>
+            </div>
+          </div>
+          <div class="signal-options" id="askOptions"></div>
+        </div>
+      </aside>
+
+      <section class="signal-panel signal-result" aria-label="Suggested reference readiness move">
+        <div class="signal-result-top">
+          <div>
+            <span class="signal-mini-label">Suggested move</span>
+            <h2 id="referenceMove">Prepare a trusted manager before the final step</h2>
+          </div>
+          <span class="signal-fit" id="referenceFit">High trust</span>
+        </div>
+
+        <div class="signal-flow" aria-label="Selected reference readiness path">
+          <div><strong id="flowRelationship">Former manager</strong><span>relationship</span></div>
+          <svg viewBox="0 0 48 16" fill="none" aria-hidden="true"><path d="M2 8h40M35 2l7 6-7 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <div><strong id="flowMoment">Final interview</strong><span>hiring moment</span></div>
+          <svg viewBox="0 0 48 16" fill="none" aria-hidden="true"><path d="M2 8h40M35 2l7 6-7 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <div><strong id="flowAsk">Align proof story</strong><span>next ask</span></div>
+        </div>
+
+        <p class="signal-summary" id="referenceSummary">Use the final interview moment to brief a former manager on the role theme and align one proof story before the employer asks.</p>
+
+        <div class="signal-metrics" aria-label="Reference quality markers">
+          <div><span>Trust</span><strong id="trustScore">High</strong></div>
+          <div><span>Timing</span><strong id="timingScore">Now</strong></div>
+          <div><span>Prep lift</span><strong id="liftScore">Light</strong></div>
+          <div><span>Risk</span><strong id="riskScore">Low</strong></div>
+        </div>
+
+        <div class="signal-plan-grid">
+          <div>
+            <h3>Short action plan</h3>
+            <ol id="referenceSteps"></ol>
+          </div>
+          <aside class="signal-script" aria-label="Reference message starter">
+            <strong>Message starter</strong>
+            <p id="referenceScript">Hi [Name], I am in a late interview stage and wanted to check whether you would be comfortable serving as a reference if asked. I can send a short role summary and the one proof story that seems most relevant.</p>
+          </aside>
+        </div>
+
+        <button class="button signal-copy" id="copyReferencePlan" type="button">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <rect x="8" y="8" width="11" height="13" rx="1.5" stroke="currentColor" stroke-width="2"/>
+            <path d="M5 16H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h11a1 1 0 0 1 1 1v1" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+          <span>Copy plan</span>
+        </button>
+        <p class="signal-privacy" id="referenceCopyStatus" aria-live="polite">No forms. No tracking. No saved data. No capture.</p>
+      </section>
+
+      <aside class="signal-panel signal-map" aria-label="Reference readiness map illustration">
+        <img src="../hidden-job-signal-map/hidden-job-signal-map.png" alt="Illustrated city map with signal pins and a route between career checkpoints">
+        <div class="signal-map-callout signal-callout-a"><strong>Trusted voice</strong><span>Pick someone who saw your work.</span></div>
+        <div class="signal-map-callout signal-callout-b"><strong>Role context</strong><span>Give them the right lens.</span></div>
+        <div class="signal-map-callout signal-callout-c"><strong>Proof story</strong><span>Make the memory easy to recall.</span></div>
+        <div class="signal-legend">
+          <span><i class="solid"></i> Ready reference</span>
+          <span><i class="dashed"></i> Needs context</span>
+          <span><i class="risk"></i> Tone watch</span>
+        </div>
+      </aside>
+    </section>
+
+    <section class="signal-guidance" aria-label="More ways to use reference readiness">
+      <article>
+        <h2>Ask before listing</h2>
+        <p>A reference should know they may be contacted before their name is shared.</p>
+      </article>
+      <article>
+        <h2>Give a short brief</h2>
+        <p>One role summary and one proof story are easier to remember than a full resume.</p>
+      </article>
+      <article>
+        <h2>Protect the relationship</h2>
+        <p>Keep the message respectful, specific, and easy to decline.</p>
+      </article>
+    </section>
+  </main>
+
+  <script>
+    const referenceGroups = {
+      relationship: [
+        { id: "manager", label: "Former manager", short: "Former manager", trust: "High", risk: "Low", voice: "someone who can speak to ownership, reliability, and results" },
+        { id: "teammate", label: "Close teammate", short: "Teammate", trust: "Medium-high", risk: "Low", voice: "someone who can speak to collaboration and day-to-day execution" },
+        { id: "stakeholder", label: "Client or stakeholder", short: "Stakeholder", trust: "High", risk: "Low-medium", voice: "someone who can speak to service, judgment, and follow-through" },
+        { id: "mentor", label: "Professor or mentor", short: "Mentor", trust: "Medium", risk: "Low", voice: "someone who can speak to growth, discipline, and potential" },
+        { id: "community", label: "Volunteer or community lead", short: "Community lead", trust: "Medium", risk: "Low", voice: "someone who can speak to initiative and character" }
+      ],
+      moment: [
+        { id: "final", label: "Final interview stage", short: "Final interview", timing: "Now", lift: "Light", reason: "the employer may ask soon" },
+        { id: "offer", label: "Offer feels close", short: "Offer close", timing: "Today", lift: "Light", reason: "a reference check may be the last proof step" },
+        { id: "recruiter", label: "Recruiter mentioned references", short: "Recruiter asked", timing: "Immediate", lift: "Medium", reason: "the request is no longer hypothetical" },
+        { id: "referral", label: "Internal referral path", short: "Referral path", timing: "Soon", lift: "Medium", reason: "the relationship may need careful context" },
+        { id: "bench", label: "Building reference bench", short: "Reference bench", timing: "This week", lift: "Light", reason: "preparing early reduces pressure later" }
+      ],
+      ask: [
+        { id: "availability", label: "Confirm availability", short: "Confirm availability", fit: "Easy yes", ask: "confirm they are comfortable being contacted" },
+        { id: "context", label: "Share role context", short: "Share role context", fit: "Helpful", ask: "send a short role summary so they know the lens" },
+        { id: "proof", label: "Align proof story", short: "Align proof story", fit: "High trust", ask: "align one relevant work example they can remember quickly" },
+        { id: "permission", label: "Permission to list", short: "Permission to list", fit: "Respectful", ask: "ask permission before sharing their name or contact details" },
+        { id: "thanks", label: "Thank-you follow-up", short: "Thank-you follow-up", fit: "Relationship care", ask: "thank them and keep them updated after the process" }
+      ]
+    };
+
+    const referenceSelections = {
+      relationship: "manager",
+      moment: "final",
+      ask: "proof"
+    };
+
+    const relationshipOptions = document.querySelector("#relationshipOptions");
+    const momentOptions = document.querySelector("#momentOptions");
+    const askOptions = document.querySelector("#askOptions");
+    const referenceCount = document.querySelector("#referenceCount");
+    const referenceMove = document.querySelector("#referenceMove");
+    const referenceFit = document.querySelector("#referenceFit");
+    const flowRelationship = document.querySelector("#flowRelationship");
+    const flowMoment = document.querySelector("#flowMoment");
+    const flowAsk = document.querySelector("#flowAsk");
+    const referenceSummary = document.querySelector("#referenceSummary");
+    const trustScore = document.querySelector("#trustScore");
+    const timingScore = document.querySelector("#timingScore");
+    const liftScore = document.querySelector("#liftScore");
+    const riskScore = document.querySelector("#riskScore");
+    const referenceSteps = document.querySelector("#referenceSteps");
+    const referenceScript = document.querySelector("#referenceScript");
+    const referenceReset = document.querySelector("#referenceReset");
+    const copyReferencePlan = document.querySelector("#copyReferencePlan");
+    const referenceCopyStatus = document.querySelector("#referenceCopyStatus");
+
+    function findReference(group, id) {
+      return referenceGroups[group].find((option) => option.id === id);
+    }
+
+    function renderReferenceOptions(groupName, container) {
+      container.innerHTML = referenceGroups[groupName].map((option) => {
+        const isActive = referenceSelections[groupName] === option.id;
+        const active = isActive ? " is-active" : "";
+        return `
+          <button class="signal-option${active}" type="button" data-group="${groupName}" data-id="${option.id}" aria-pressed="${isActive}">
+            <span>${option.label}</span>
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <circle cx="12" cy="12" r="8" stroke="currentColor" stroke-width="2"/>
+              <path d="m8.5 12 2.3 2.3 4.8-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
+        `;
+      }).join("");
+    }
+
+    function buildReferencePlan() {
+      const relationship = findReference("relationship", referenceSelections.relationship);
+      const moment = findReference("moment", referenceSelections.moment);
+      const ask = findReference("ask", referenceSelections.ask);
+      const move = `${relationship.short} + ${moment.short}`;
+      const summary = `Use ${moment.label.toLowerCase()} because ${moment.reason}. Prepare ${relationship.voice}, then ${ask.ask}.`;
+      const steps = [
+        `Ask the ${relationship.label.toLowerCase()} before listing them anywhere.`,
+        `Share a two-sentence context note because ${moment.reason}.`,
+        `Make the first ask to ${ask.ask}.`,
+        "Give one proof story they can remember without reading your whole resume.",
+        "Send a thank-you note and update them after the hiring step."
+      ];
+      const script = `Hi [Name], I am at the ${moment.label.toLowerCase()} point and wanted to ask before I list any references. Would you be comfortable if an employer contacted you? I can send a short role summary and one proof story that may be useful.`;
+
+      return { relationship, moment, ask, move, summary, steps, script };
+    }
+
+    function updateReferencePlan() {
+      renderReferenceOptions("relationship", relationshipOptions);
+      renderReferenceOptions("moment", momentOptions);
+      renderReferenceOptions("ask", askOptions);
+
+      const plan = buildReferencePlan();
+      referenceCount.textContent = `${Object.keys(referenceSelections).length}/3`;
+      referenceMove.textContent = plan.move;
+      referenceFit.textContent = plan.ask.fit;
+      flowRelationship.textContent = plan.relationship.short;
+      flowMoment.textContent = plan.moment.short;
+      flowAsk.textContent = plan.ask.short;
+      referenceSummary.textContent = plan.summary;
+      trustScore.textContent = plan.relationship.trust;
+      timingScore.textContent = plan.moment.timing;
+      liftScore.textContent = plan.moment.lift;
+      riskScore.textContent = plan.relationship.risk;
+      referenceSteps.innerHTML = plan.steps.map((step) => `<li>${step}</li>`).join("");
+      referenceScript.textContent = plan.script;
+      referenceCopyStatus.textContent = "No forms. No tracking. No saved data. No capture.";
+    }
+
+    function referencePlanText() {
+      const plan = buildReferencePlan();
+      return [
+        "Reference Readiness Builder",
+        `Suggested move: ${plan.move}`,
+        `Summary: ${plan.summary}`,
+        "Short action plan:",
+        ...plan.steps.map((step, index) => `${index + 1}. ${step}`),
+        `Message starter: ${plan.script}`
+      ].join("\n");
+    }
+
+    document.addEventListener("click", async (event) => {
+      const option = event.target.closest(".signal-option");
+      if (option) {
+        referenceSelections[option.dataset.group] = option.dataset.id;
+        updateReferencePlan();
+      }
+    });
+
+    referenceReset.addEventListener("click", () => {
+      referenceSelections.relationship = "manager";
+      referenceSelections.moment = "final";
+      referenceSelections.ask = "proof";
+      updateReferencePlan();
+    });
+
+    copyReferencePlan.addEventListener("click", async () => {
+      const text = referencePlanText();
+      try {
+        await navigator.clipboard.writeText(text);
+        referenceCopyStatus.textContent = "Plan copied locally. Nothing was sent or saved.";
+      } catch (error) {
+        const range = document.createRange();
+        range.selectNodeContents(document.querySelector(".signal-result"));
+        const selection = window.getSelection();
+        selection.removeAllRanges();
+        selection.addRange(range);
+        referenceCopyStatus.textContent = "Clipboard was blocked, so the plan is selected locally.";
+      }
+    });
+
+    updateReferencePlan();
+  </script>
+</body>
+</html>
