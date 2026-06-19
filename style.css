@@ -284,6 +284,13 @@ p {
     #f5f7fa;
 }
 
+.defense-page {
+  background:
+    linear-gradient(135deg, rgba(180, 35, 42, .09), transparent 34%),
+    linear-gradient(315deg, rgba(185, 132, 47, .13), transparent 32%),
+    #f5f7fa;
+}
+
 .story-shell {
   width: min(1160px, calc(100% - 40px));
   margin: 0 auto;
@@ -291,7 +298,8 @@ p {
 }
 
 .ai-shell,
-.follow-shell {
+.follow-shell,
+.defense-shell {
   width: min(1180px, calc(100% - 40px));
   margin: 0 auto;
   padding: 32px 0 56px;
@@ -319,7 +327,12 @@ p {
 .follow-status,
 .follow-board,
 .follow-plan,
-.follow-guidance article {
+.follow-guidance article,
+.defense-hero > div,
+.defense-status,
+.defense-board,
+.defense-plan,
+.defense-guidance article {
   background: rgba(255, 255, 255, .95);
   border: 1px solid var(--line);
   border-radius: 8px;
@@ -328,7 +341,8 @@ p {
 
 .story-hero > div,
 .ai-hero > div,
-.follow-hero > div {
+.follow-hero > div,
+.defense-hero > div {
   padding: clamp(28px, 5vw, 52px);
 }
 
@@ -353,6 +367,14 @@ p {
   margin-bottom: 18px;
 }
 
+.defense-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 350px;
+  gap: 22px;
+  align-items: stretch;
+  margin-bottom: 18px;
+}
+
 .ai-hero h1 {
   max-width: 840px;
   font-size: clamp(3rem, 7vw, 5.9rem);
@@ -363,9 +385,15 @@ p {
   font-size: clamp(3rem, 7vw, 5.8rem);
 }
 
+.defense-hero h1 {
+  max-width: 900px;
+  font-size: clamp(3rem, 7vw, 5.75rem);
+}
+
 .story-preview-card,
 .ai-meter,
-.follow-status {
+.follow-status,
+.defense-status {
   padding: 28px;
   display: flex;
   flex-direction: column;
@@ -374,14 +402,16 @@ p {
 
 .story-preview-card span,
 .ai-meter span,
-.follow-status span {
+.follow-status span,
+.defense-status span {
   color: var(--muted);
   font-weight: 760;
 }
 
 .story-preview-card strong,
 .ai-meter strong,
-.follow-status strong {
+.follow-status strong,
+.defense-status strong {
   display: block;
   margin: 10px 0;
   color: var(--green);
@@ -398,9 +428,15 @@ p {
   font-size: clamp(2.6rem, 6vw, 4.6rem);
 }
 
+.defense-status strong {
+  color: var(--red);
+  font-size: clamp(2.5rem, 6vw, 4.4rem);
+}
+
 .story-preview-card p,
 .ai-meter p,
-.follow-status p {
+.follow-status p,
+.defense-status p {
   margin: 0;
 }
 
@@ -415,7 +451,9 @@ p {
 .ai-board,
 .ai-plan,
 .follow-board,
-.follow-plan {
+.follow-plan,
+.defense-board,
+.defense-plan {
   padding: clamp(22px, 4vw, 30px);
 }
 
@@ -425,7 +463,9 @@ p {
 .ai-board-head,
 .ai-plan-head,
 .follow-board-head,
-.follow-plan-head {
+.follow-plan-head,
+.defense-board-head,
+.defense-plan-head {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -434,7 +474,8 @@ p {
 
 .story-input-head,
 .ai-board-head,
-.follow-board-head {
+.follow-board-head,
+.defense-board-head {
   margin-bottom: 18px;
 }
 
@@ -446,14 +487,18 @@ p {
 .ai-guidance h2,
 .follow-board-head h2,
 .follow-plan-head h2,
-.follow-guidance h2 {
+.follow-guidance h2,
+.defense-board-head h2,
+.defense-plan-head h2,
+.defense-guidance h2 {
   margin: 0;
   font-size: 1.9rem;
   line-height: 1.05;
 }
 
 .ai-board-head p,
-.follow-board-head p {
+.follow-board-head p,
+.defense-board-head p {
   margin: 8px 0 0;
   font-size: .98rem;
 }
@@ -468,7 +513,8 @@ p {
 .story-output-head span,
 .story-actions span,
 .ai-plan-head span,
-.follow-plan-head span {
+.follow-plan-head span,
+.defense-plan-head span {
   color: var(--muted);
   font-size: .9rem;
   font-weight: 760;
@@ -533,6 +579,12 @@ p {
   gap: 18px;
 }
 
+.defense-workspace {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 380px;
+  gap: 18px;
+}
+
 .ai-signal-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -544,18 +596,26 @@ p {
   gap: 18px;
 }
 
-.follow-group {
+.follow-group,
+.defense-board {
+  display: grid;
+  gap: 18px;
+}
+
+.defense-group {
   display: grid;
   gap: 10px;
 }
 
-.follow-group h3 {
+.follow-group h3,
+.defense-group h3 {
   margin: 0;
   font-size: 1.05rem;
   color: var(--ink);
 }
 
-.follow-options {
+.follow-options,
+.defense-options {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 10px;
@@ -565,7 +625,12 @@ p {
   grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
-.follow-option {
+.defense-group:nth-of-type(4) .defense-options {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.follow-option,
+.defense-option {
   min-height: 132px;
   padding: 15px;
   display: grid;
@@ -582,7 +647,9 @@ p {
 }
 
 .follow-option:hover,
-.follow-option:focus-visible {
+.follow-option:focus-visible,
+.defense-option:hover,
+.defense-option:focus-visible {
   outline: none;
   transform: translateY(-2px);
   border-color: var(--green);
@@ -594,12 +661,19 @@ p {
   background: linear-gradient(180deg, #ffffff, #e8f1fb);
 }
 
-.follow-option strong {
+.defense-option.is-active {
+  border-color: rgba(180, 35, 42, .48);
+  background: linear-gradient(180deg, #ffffff, #fae9ea);
+}
+
+.follow-option strong,
+.defense-option strong {
   font-size: 1rem;
   line-height: 1.18;
 }
 
-.follow-option span {
+.follow-option span,
+.defense-option span {
   color: var(--muted);
   font-size: .9rem;
   line-height: 1.42;
@@ -676,14 +750,16 @@ p {
 }
 
 .ai-plan,
-.follow-plan {
+.follow-plan,
+.defense-plan {
   display: grid;
   gap: 18px;
   align-content: start;
 }
 
 .ai-plan ol,
-.follow-plan ol {
+.follow-plan ol,
+.defense-plan ol {
   margin: 0;
   padding-left: 22px;
   display: grid;
@@ -693,12 +769,14 @@ p {
 }
 
 .ai-plan li,
-.follow-plan li {
+.follow-plan li,
+.defense-plan li {
   padding-left: 4px;
 }
 
 .ai-guidance,
-.follow-guidance {
+.follow-guidance,
+.defense-guidance {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 18px;
@@ -710,7 +788,8 @@ p {
 }
 
 .ai-guidance article,
-.follow-guidance article {
+.follow-guidance article,
+.defense-guidance article {
   padding: 24px;
 }
 
@@ -1211,7 +1290,12 @@ p {
   .follow-hero,
   .follow-workspace,
   .follow-options,
+  .defense-hero,
+  .defense-workspace,
+  .defense-options,
   .follow-group:nth-of-type(4) .follow-options,
+  .defense-group:nth-of-type(4) .defense-options,
+  .defense-guidance,
   .follow-guidance,
   .story-hero,
   .story-workspace,
