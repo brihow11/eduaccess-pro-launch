@@ -15,6 +15,10 @@
   box-sizing: border-box;
 }
 
+html {
+  overflow-x: hidden;
+}
+
 body {
   margin: 0;
   min-height: 100vh;
@@ -291,6 +295,14 @@ p {
     #f5f7fa;
 }
 
+.proof-page {
+  background:
+    linear-gradient(135deg, rgba(31, 79, 130, .1), transparent 34%),
+    linear-gradient(315deg, rgba(40, 113, 93, .11), transparent 32%),
+    #f5f7fa;
+  overflow-x: hidden;
+}
+
 .story-shell {
   width: min(1160px, calc(100% - 40px));
   margin: 0 auto;
@@ -299,7 +311,8 @@ p {
 
 .ai-shell,
 .follow-shell,
-.defense-shell {
+.defense-shell,
+.proof-shell {
   width: min(1180px, calc(100% - 40px));
   margin: 0 auto;
   padding: 32px 0 56px;
@@ -332,7 +345,12 @@ p {
 .defense-status,
 .defense-board,
 .defense-plan,
-.defense-guidance article {
+.defense-guidance article,
+.proof-hero > div,
+.proof-status,
+.proof-board,
+.proof-plan,
+.proof-guidance article {
   background: rgba(255, 255, 255, .95);
   border: 1px solid var(--line);
   border-radius: 8px;
@@ -342,7 +360,8 @@ p {
 .story-hero > div,
 .ai-hero > div,
 .follow-hero > div,
-.defense-hero > div {
+.defense-hero > div,
+.proof-hero > div {
   padding: clamp(28px, 5vw, 52px);
 }
 
@@ -375,6 +394,14 @@ p {
   margin-bottom: 18px;
 }
 
+.proof-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 350px;
+  gap: 22px;
+  align-items: stretch;
+  margin-bottom: 18px;
+}
+
 .ai-hero h1 {
   max-width: 840px;
   font-size: clamp(3rem, 7vw, 5.9rem);
@@ -390,10 +417,16 @@ p {
   font-size: clamp(3rem, 7vw, 5.75rem);
 }
 
+.proof-hero h1 {
+  max-width: 930px;
+  font-size: clamp(3rem, 7vw, 5.65rem);
+}
+
 .story-preview-card,
 .ai-meter,
 .follow-status,
-.defense-status {
+.defense-status,
+.proof-status {
   padding: 28px;
   display: flex;
   flex-direction: column;
@@ -403,7 +436,8 @@ p {
 .story-preview-card span,
 .ai-meter span,
 .follow-status span,
-.defense-status span {
+.defense-status span,
+.proof-status span {
   color: var(--muted);
   font-weight: 760;
 }
@@ -411,7 +445,8 @@ p {
 .story-preview-card strong,
 .ai-meter strong,
 .follow-status strong,
-.defense-status strong {
+.defense-status strong,
+.proof-status strong {
   display: block;
   margin: 10px 0;
   color: var(--green);
@@ -433,10 +468,16 @@ p {
   font-size: clamp(2.5rem, 6vw, 4.4rem);
 }
 
+.proof-status strong {
+  color: var(--blue);
+  font-size: clamp(2.5rem, 6vw, 4.4rem);
+}
+
 .story-preview-card p,
 .ai-meter p,
 .follow-status p,
-.defense-status p {
+.defense-status p,
+.proof-status p {
   margin: 0;
 }
 
@@ -453,7 +494,9 @@ p {
 .follow-board,
 .follow-plan,
 .defense-board,
-.defense-plan {
+.defense-plan,
+.proof-board,
+.proof-plan {
   padding: clamp(22px, 4vw, 30px);
 }
 
@@ -465,7 +508,9 @@ p {
 .follow-board-head,
 .follow-plan-head,
 .defense-board-head,
-.defense-plan-head {
+.defense-plan-head,
+.proof-board-head,
+.proof-plan-head {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -475,7 +520,8 @@ p {
 .story-input-head,
 .ai-board-head,
 .follow-board-head,
-.defense-board-head {
+.defense-board-head,
+.proof-board-head {
   margin-bottom: 18px;
 }
 
@@ -490,7 +536,10 @@ p {
 .follow-guidance h2,
 .defense-board-head h2,
 .defense-plan-head h2,
-.defense-guidance h2 {
+.defense-guidance h2,
+.proof-board-head h2,
+.proof-plan-head h2,
+.proof-guidance h2 {
   margin: 0;
   font-size: 1.9rem;
   line-height: 1.05;
@@ -498,7 +547,8 @@ p {
 
 .ai-board-head p,
 .follow-board-head p,
-.defense-board-head p {
+.defense-board-head p,
+.proof-board-head p {
   margin: 8px 0 0;
   font-size: .98rem;
 }
@@ -514,7 +564,8 @@ p {
 .story-actions span,
 .ai-plan-head span,
 .follow-plan-head span,
-.defense-plan-head span {
+.defense-plan-head span,
+.proof-plan-head span {
   color: var(--muted);
   font-size: .9rem;
   font-weight: 760;
@@ -585,6 +636,12 @@ p {
   gap: 18px;
 }
 
+.proof-workspace {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 380px;
+  gap: 18px;
+}
+
 .ai-signal-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -597,25 +654,30 @@ p {
 }
 
 .follow-group,
-.defense-board {
+.defense-board,
+.proof-board {
   display: grid;
   gap: 18px;
+  overflow: hidden;
 }
 
-.defense-group {
+.defense-group,
+.proof-group {
   display: grid;
   gap: 10px;
 }
 
 .follow-group h3,
-.defense-group h3 {
+.defense-group h3,
+.proof-group h3 {
   margin: 0;
   font-size: 1.05rem;
   color: var(--ink);
 }
 
 .follow-options,
-.defense-options {
+.defense-options,
+.proof-options {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 10px;
@@ -629,8 +691,13 @@ p {
   grid-template-columns: repeat(4, minmax(0, 1fr));
 }
 
+.proof-group:nth-of-type(4) .proof-options {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
 .follow-option,
-.defense-option {
+.defense-option,
+.proof-option {
   min-height: 132px;
   padding: 15px;
   display: grid;
@@ -649,7 +716,9 @@ p {
 .follow-option:hover,
 .follow-option:focus-visible,
 .defense-option:hover,
-.defense-option:focus-visible {
+.defense-option:focus-visible,
+.proof-option:hover,
+.proof-option:focus-visible {
   outline: none;
   transform: translateY(-2px);
   border-color: var(--green);
@@ -666,14 +735,21 @@ p {
   background: linear-gradient(180deg, #ffffff, #fae9ea);
 }
 
+.proof-option.is-active {
+  border-color: rgba(40, 113, 93, .5);
+  background: linear-gradient(180deg, #ffffff, #e8f6ef);
+}
+
 .follow-option strong,
-.defense-option strong {
+.defense-option strong,
+.proof-option strong {
   font-size: 1rem;
   line-height: 1.18;
 }
 
 .follow-option span,
-.defense-option span {
+.defense-option span,
+.proof-option span {
   color: var(--muted);
   font-size: .9rem;
   line-height: 1.42;
@@ -751,7 +827,8 @@ p {
 
 .ai-plan,
 .follow-plan,
-.defense-plan {
+.defense-plan,
+.proof-plan {
   display: grid;
   gap: 18px;
   align-content: start;
@@ -759,7 +836,8 @@ p {
 
 .ai-plan ol,
 .follow-plan ol,
-.defense-plan ol {
+.defense-plan ol,
+.proof-plan ol {
   margin: 0;
   padding-left: 22px;
   display: grid;
@@ -770,13 +848,15 @@ p {
 
 .ai-plan li,
 .follow-plan li,
-.defense-plan li {
+.defense-plan li,
+.proof-plan li {
   padding-left: 4px;
 }
 
 .ai-guidance,
 .follow-guidance,
-.defense-guidance {
+.defense-guidance,
+.proof-guidance {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 18px;
@@ -789,7 +869,8 @@ p {
 
 .ai-guidance article,
 .follow-guidance article,
-.defense-guidance article {
+.defense-guidance article,
+.proof-guidance article {
   padding: 24px;
 }
 
@@ -1293,10 +1374,15 @@ p {
   .defense-hero,
   .defense-workspace,
   .defense-options,
+  .proof-hero,
+  .proof-workspace,
+  .proof-options,
   .follow-group:nth-of-type(4) .follow-options,
   .defense-group:nth-of-type(4) .defense-options,
+  .proof-group:nth-of-type(4) .proof-options,
   .defense-guidance,
   .follow-guidance,
+  .proof-guidance,
   .story-hero,
   .story-workspace,
   .story-guidance,

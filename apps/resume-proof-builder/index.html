@@ -1,0 +1,340 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Resume Proof Builder | EduAccess</title>
+  <meta name="description" content="A no-capture EduAccess mini app for turning broad resume claims into practical proof plans.">
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="/style.css?v=20260619-proof3">
+</head>
+<body class="tool-page proof-page">
+  <header class="tool-header">
+    <a class="back" href="/">EduAccess</a>
+    <nav aria-label="Tool sections">
+      <a href="/apps/">Apps</a>
+      <a href="/quizzes/">Quizzes</a>
+      <a href="/lead-magnets/">Lead Magnets</a>
+      <a href="/sandbox/">Sandbox</a>
+    </nav>
+  </header>
+
+  <main class="proof-shell" aria-label="Resume Proof Builder">
+    <section class="proof-hero">
+      <div>
+        <p class="label">No-capture mini app</p>
+        <h1>Resume Proof Builder</h1>
+        <p class="lede">Pick a broad claim, proof signal, and target role lane. Get a practical plan for turning resume language into stronger evidence without entering names, employers, private numbers, saved data, tracking, or outside-site calls.</p>
+      </div>
+      <aside class="proof-status" aria-live="polite">
+        <span>Proof move</span>
+        <strong id="proofMove">Choose the proof</strong>
+        <p id="proofMessage">Choose one option in each row to build a local resume-proof plan.</p>
+      </aside>
+    </section>
+
+    <section class="proof-workspace">
+      <section class="proof-board" aria-label="Resume proof choices">
+        <div class="proof-board-head">
+          <div>
+            <h2>Build evidence, not buzzwords</h2>
+            <p>Use categories only. Keep employer names, client names, private metrics, proprietary details, and personal records out of this page.</p>
+          </div>
+          <button class="reset-button" id="proofReset" type="button" aria-label="Reset builder" title="Reset builder">
+            <svg width="21" height="21" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M20 12a8 8 0 1 1-2.34-5.66" stroke="currentColor" stroke-width="2.1" stroke-linecap="round"/>
+              <path d="M20 4v5h-5" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
+        </div>
+
+        <div class="proof-group" aria-label="Resume claim type">
+          <h3>Claim Type</h3>
+          <div class="proof-options" id="claimOptions"></div>
+        </div>
+
+        <div class="proof-group" aria-label="Proof signal">
+          <h3>Proof Signal</h3>
+          <div class="proof-options" id="signalOptions"></div>
+        </div>
+
+        <div class="proof-group" aria-label="Target role lane">
+          <h3>Role Lane</h3>
+          <div class="proof-options" id="laneOptions"></div>
+        </div>
+      </section>
+
+      <aside class="proof-plan" aria-label="Generated local resume-proof plan">
+        <div class="proof-plan-head">
+          <h2>Proof Plan</h2>
+          <span id="proofReadiness">Baseline</span>
+        </div>
+        <ol id="proofSteps"></ol>
+        <div class="story-actions">
+          <button class="button mission-button" id="copyProofPlan" type="button">Copy Plan</button>
+          <span id="proofCopyStatus" aria-live="polite">Local plan only</span>
+        </div>
+      </aside>
+    </section>
+
+    <section class="proof-guidance">
+      <article>
+        <h2>Proof beats adjectives.</h2>
+        <p>Hiring teams trust a clear result, before-and-after change, stakeholder signal, or repeatable process more than a polished claim.</p>
+      </article>
+      <article>
+        <h2>Keep it portable.</h2>
+        <p>Strong resume proof should travel across applications, interviews, LinkedIn, and networking conversations without exposing confidential details.</p>
+      </article>
+      <article>
+        <h2>What stays gated here</h2>
+        <p>No forms, saved answers, tracking, private resume upload, AI rewriting, partner reporting, email capture, or account-connected workflow is active.</p>
+      </article>
+    </section>
+  </main>
+
+  <script>
+    const proofGroups = {
+      claim: [
+        { id: "led", label: "Led work", hint: "You coordinated, trained, owned, or guided an effort." },
+        { id: "solved", label: "Solved problem", hint: "You removed friction, fixed errors, or improved outcomes." },
+        { id: "served", label: "Served customers", hint: "You supported people, clients, students, or users." },
+        { id: "improved", label: "Improved process", hint: "You made work faster, clearer, cheaper, or more reliable." }
+      ],
+      signal: [
+        { id: "number", label: "Number", hint: "A count, percent, time window, volume, or frequency." },
+        { id: "before", label: "Before / after", hint: "A clear change from old state to better state." },
+        { id: "stakeholder", label: "Stakeholder", hint: "Who benefited, approved, used, or depended on the work." },
+        { id: "method", label: "Tool or method", hint: "A system, workflow, checklist, platform, or habit you used." }
+      ],
+      lane: [
+        { id: "frontline", label: "Frontline", hint: "Service, support, operations, care, retail, or field work." },
+        { id: "operations", label: "Operations", hint: "Coordination, admin, process, project, or team support." },
+        { id: "sales", label: "Sales", hint: "Pipeline, customer, account, outreach, or revenue work." },
+        { id: "early", label: "Early career", hint: "Internship, student, first professional role, or career switch." }
+      ]
+    };
+
+    const proofSelections = {
+      claim: "",
+      signal: "",
+      lane: ""
+    };
+
+    const claimOptions = document.querySelector("#claimOptions");
+    const signalOptions = document.querySelector("#signalOptions");
+    const laneOptions = document.querySelector("#laneOptions");
+    const proofMove = document.querySelector("#proofMove");
+    const proofMessage = document.querySelector("#proofMessage");
+    const proofReadiness = document.querySelector("#proofReadiness");
+    const proofSteps = document.querySelector("#proofSteps");
+    const copyProofPlan = document.querySelector("#copyProofPlan");
+    const proofCopyStatus = document.querySelector("#proofCopyStatus");
+    const proofReset = document.querySelector("#proofReset");
+
+    function proofTitle(group, id) {
+      const option = proofGroups[group].find((item) => item.id === id);
+      return option ? option.label : "";
+    }
+
+    function proofPickedCount() {
+      return Object.values(proofSelections).filter(Boolean).length;
+    }
+
+    function buildProofRecommendation() {
+      const { claim, signal, lane } = proofSelections;
+
+      if (proofPickedCount() < 3) {
+        return {
+          move: "Choose the proof",
+          readiness: "Baseline",
+          message: "Choose one option in each row to build a local resume-proof plan.",
+          steps: [
+            "Choose the type of claim you want to strengthen.",
+            "Choose the proof signal that would make it believable.",
+            "Choose the role lane where the proof needs to land."
+          ]
+        };
+      }
+
+      if (signal === "number") {
+        return {
+          move: "Find the measurable edge",
+          readiness: "Metric ready",
+          message: "A simple number can turn a vague resume line into a credible proof point.",
+          steps: [
+            "List safe numbers you can use: volume, frequency, time saved, coverage, quality, or speed.",
+            "Choose one number that does not reveal confidential employer or customer details.",
+            "Pair the number with the action you owned and the result it created.",
+            "Draft the bullet as: action, proof number, and business or customer value."
+          ]
+        };
+      }
+
+      if (signal === "before") {
+        return {
+          move: "Show the change",
+          readiness: "Before-after",
+          message: "Before-and-after proof helps a hiring team see why your work mattered.",
+          steps: [
+            "Describe the starting problem in one plain sentence.",
+            "Name the action or habit you used to improve it.",
+            "Describe the better ending state without using private details.",
+            "Turn the bullet into: improved what, by doing what, for what outcome."
+          ]
+        };
+      }
+
+      if (signal === "stakeholder") {
+        return {
+          move: "Anchor the audience",
+          readiness: "Human proof",
+          message: "Stakeholder proof shows that real people benefited from your work.",
+          steps: [
+            "Name the broad group served: customers, students, patients, managers, teammates, or vendors.",
+            "Write down what became easier, faster, calmer, or clearer for that group.",
+            "Add one safe credibility signal, such as repeat use, handoff quality, or positive feedback.",
+            "Shape the bullet around who benefited and what changed for them."
+          ]
+        };
+      }
+
+      if (claim === "led") {
+        return {
+          move: "Prove ownership",
+          readiness: "Leadership proof",
+          message: "Leadership proof needs scope and follow-through, not a title.",
+          steps: [
+            "Define what you were responsible for coordinating or guiding.",
+            "Identify the handoffs, schedule, training, or decision points you managed.",
+            "Add one proof signal that shows the work actually moved forward.",
+            "Write the bullet so it shows ownership, action, and result."
+          ]
+        };
+      }
+
+      if (lane === "sales") {
+        return {
+          move: "Tie proof to momentum",
+          readiness: "Sales signal",
+          message: "For sales or customer-facing work, proof should connect activity to trust, pipeline, retention, or revenue support.",
+          steps: [
+            "Choose the activity that created customer or pipeline movement.",
+            "Find a safe signal: outreach volume, follow-up rhythm, conversion step, retention support, or account coverage.",
+            "Avoid naming private accounts, buyer details, or exact revenue unless approved.",
+            "Draft the bullet around momentum created and the customer or business value."
+          ]
+        };
+      }
+
+      if (lane === "early") {
+        return {
+          move: "Translate smaller proof",
+          readiness: "Entry proof",
+          message: "Early-career proof can come from school, projects, volunteering, service work, or part-time roles.",
+          steps: [
+            "Pick one real example where you had responsibility, consistency, or improvement.",
+            "Use a simple proof signal: frequency, deadline, audience, tool, or final output.",
+            "Connect the example to the work habit a target employer needs.",
+            "Write the bullet without inflating the scope."
+          ]
+        };
+      }
+
+      return {
+        move: "Package the proof",
+        readiness: "Resume ready",
+        message: "Use one safe signal to make the resume claim more specific, credible, and interview-ready.",
+        steps: [
+          "Pick one example that clearly matches the target role lane.",
+          "Remove private names, sensitive numbers, and internal-only details.",
+          "Add the strongest safe proof signal to the action you took.",
+          "Practice a short interview story that explains the situation, action, result, and lesson."
+        ]
+      };
+    }
+
+    function renderProofGroup(groupName, container) {
+      container.innerHTML = proofGroups[groupName].map((option) => {
+        const active = proofSelections[groupName] === option.id;
+        return `
+          <button class="proof-option ${active ? "is-active" : ""}" type="button" data-group="${groupName}" data-option="${option.id}" aria-pressed="${active}">
+            <strong>${option.label}</strong>
+            <span>${option.hint}</span>
+          </button>
+        `;
+      }).join("");
+
+      container.querySelectorAll(".proof-option").forEach((button) => {
+        button.addEventListener("click", () => {
+          proofSelections[button.dataset.group] = button.dataset.option;
+          renderProof();
+        });
+      });
+    }
+
+    function renderProofPlan() {
+      const result = buildProofRecommendation();
+      const context = [
+        proofTitle("claim", proofSelections.claim),
+        proofTitle("signal", proofSelections.signal),
+        proofTitle("lane", proofSelections.lane)
+      ].filter(Boolean).join(" / ");
+
+      proofMove.textContent = result.move;
+      proofMessage.textContent = result.message;
+      proofReadiness.textContent = context || result.readiness;
+      proofSteps.innerHTML = result.steps.map((step) => `<li>${step}</li>`).join("");
+      proofCopyStatus.textContent = "Local plan only";
+    }
+
+    function renderProof() {
+      renderProofGroup("claim", claimOptions);
+      renderProofGroup("signal", signalOptions);
+      renderProofGroup("lane", laneOptions);
+      renderProofPlan();
+    }
+
+    function currentProofPlanText() {
+      const heading = `${proofMove.textContent} - ${proofReadiness.textContent}`;
+      const steps = Array.from(proofSteps.querySelectorAll("li"))
+        .map((item, index) => `${index + 1}. ${item.textContent}`)
+        .join("\n");
+      return `${heading}\n${steps}`;
+    }
+
+    copyProofPlan.addEventListener("click", async () => {
+      try {
+        await navigator.clipboard.writeText(currentProofPlanText());
+        proofCopyStatus.textContent = "Copied locally";
+      } catch (error) {
+        try {
+          const selection = window.getSelection();
+          const range = document.createRange();
+          range.selectNodeContents(proofSteps);
+          selection.removeAllRanges();
+          selection.addRange(range);
+          const copied = document.execCommand("copy");
+          if (copied) {
+            selection.removeAllRanges();
+            proofCopyStatus.textContent = "Copied locally";
+          } else {
+            proofCopyStatus.textContent = "Plan text selected";
+          }
+        } catch (fallbackError) {
+          proofCopyStatus.textContent = "Plan text selected";
+        }
+      }
+    });
+
+    proofReset.addEventListener("click", () => {
+      proofSelections.claim = "";
+      proofSelections.signal = "";
+      proofSelections.lane = "";
+      renderProof();
+    });
+
+    renderProof();
+  </script>
+</body>
+</html>
