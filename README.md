@@ -11,6 +11,7 @@ DNS manager: Namecheap.
 Initial paths:
 
 - `/apps/`
+- `/apps/recruiter-screen-prep-builder/`
 - `/apps/ghosting-recovery-planner/`
 - `/apps/reference-readiness-builder/`
 - `/apps/warm-intro-pathfinder/`
@@ -37,6 +38,7 @@ Root and `www` now route through Railway over HTTPS.
 
 Current live preview:
 
+- `/apps/recruiter-screen-prep-builder/` is a no-capture, browser-only Recruiter Screen Prep Builder preview.
 - `/apps/ghosting-recovery-planner/` is a no-capture, browser-only Ghosting Recovery Planner preview.
 - `/apps/reference-readiness-builder/` is a no-capture, browser-only Reference Readiness Builder preview.
 - `/apps/warm-intro-pathfinder/` is a no-capture, browser-only Warm Intro Pathfinder preview.
