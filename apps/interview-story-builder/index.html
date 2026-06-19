@@ -1,0 +1,191 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Interview Story Builder | EduAccess</title>
+  <meta name="description" content="A no-capture EduAccess mini app for turning one work win into a clearer interview answer.">
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="/style.css?v=20260619-story">
+</head>
+<body class="tool-page story-page">
+  <header class="tool-header">
+    <a class="back" href="/">EduAccess</a>
+    <nav aria-label="Tool sections">
+      <a href="/apps/">Apps</a>
+      <a href="/quizzes/">Quizzes</a>
+      <a href="/lead-magnets/">Lead Magnets</a>
+      <a href="/sandbox/">Sandbox</a>
+    </nav>
+  </header>
+
+  <main class="story-shell" aria-label="Interview Story Builder">
+    <section class="story-hero">
+      <div>
+        <p class="label">No-capture mini app</p>
+        <h1>Interview Story Builder</h1>
+        <p class="lede">Turn one work win into a clear interview answer. Everything stays in this browser tab; there is no submit button, no tracking, no saved data, and no account connection.</p>
+      </div>
+      <aside class="story-preview-card" aria-live="polite">
+        <span>Answer shape</span>
+        <strong id="storyScore">0/5</strong>
+        <p id="storyNudge">Fill in one field to start shaping your proof story.</p>
+      </aside>
+    </section>
+
+    <section class="story-workspace">
+      <section class="story-inputs" aria-label="Story inputs">
+        <div class="story-input-head">
+          <h2>Build one proof story</h2>
+          <button class="reset-button" id="storyReset" type="button" aria-label="Reset story" title="Reset story">
+            <svg width="21" height="21" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M20 12a8 8 0 1 1-2.34-5.66" stroke="currentColor" stroke-width="2.1" stroke-linecap="round"/>
+              <path d="M20 4v5h-5" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
+        </div>
+
+        <label class="story-field">
+          <span>Target role</span>
+          <input id="roleInput" type="text" autocomplete="off" placeholder="Example: customer success manager">
+        </label>
+
+        <label class="story-field">
+          <span>Situation</span>
+          <textarea id="situationInput" rows="3" placeholder="What was happening?"></textarea>
+        </label>
+
+        <label class="story-field">
+          <span>Action</span>
+          <textarea id="actionInput" rows="3" placeholder="What did you do?"></textarea>
+        </label>
+
+        <label class="story-field">
+          <span>Result</span>
+          <textarea id="resultInput" rows="3" placeholder="What changed because of your work?"></textarea>
+        </label>
+
+        <label class="story-field">
+          <span>Skill signal</span>
+          <input id="skillInput" type="text" autocomplete="off" placeholder="Example: retention, communication, process improvement">
+        </label>
+      </section>
+
+      <aside class="story-output" aria-label="Generated story preview">
+        <div class="story-output-head">
+          <h2>Preview answer</h2>
+          <span id="wordCount">0 words</span>
+        </div>
+        <p id="storyPreview">Start with one real example. A strong interview answer usually names the situation, the action you took, the result, and the skill it proves.</p>
+        <div class="story-actions">
+          <button class="button mission-button" id="copyStory" type="button">Copy Preview</button>
+          <span id="copyStatus" aria-live="polite">Local preview only</span>
+        </div>
+      </aside>
+    </section>
+
+    <section class="story-guidance">
+      <article>
+        <h2>What makes it stronger</h2>
+        <ul>
+          <li>Lead with the problem, not your job title.</li>
+          <li>Name the action you controlled.</li>
+          <li>Use a number, scope, speed, or before-and-after result when you can.</li>
+        </ul>
+      </article>
+      <article>
+        <h2>What stays gated</h2>
+        <ul>
+          <li>No resumes, applications, names, email addresses, or private data should be entered here.</li>
+          <li>No lead capture, CRM routing, analytics, saved answers, or email follow-up is active.</li>
+          <li>Partner workflows and account-connected tools require Brian approval first.</li>
+        </ul>
+      </article>
+    </section>
+  </main>
+
+  <script>
+    const fields = {
+      role: document.querySelector("#roleInput"),
+      situation: document.querySelector("#situationInput"),
+      action: document.querySelector("#actionInput"),
+      result: document.querySelector("#resultInput"),
+      skill: document.querySelector("#skillInput")
+    };
+
+    const storyScore = document.querySelector("#storyScore");
+    const storyNudge = document.querySelector("#storyNudge");
+    const storyPreview = document.querySelector("#storyPreview");
+    const wordCount = document.querySelector("#wordCount");
+    const copyStory = document.querySelector("#copyStory");
+    const copyStatus = document.querySelector("#copyStatus");
+    const storyReset = document.querySelector("#storyReset");
+
+    function clean(value) {
+      return value.trim().replace(/\s+/g, " ");
+    }
+
+    function buildStory() {
+      const role = clean(fields.role.value);
+      const situation = clean(fields.situation.value);
+      const action = clean(fields.action.value);
+      const result = clean(fields.result.value);
+      const skill = clean(fields.skill.value);
+      const completed = [role, situation, action, result, skill].filter(Boolean).length;
+
+      if (completed === 0) {
+        return {
+          completed,
+          text: "Start with one real example. A strong interview answer usually names the situation, the action you took, the result, and the skill it proves.",
+          nudge: "Fill in one field to start shaping your proof story."
+        };
+      }
+
+      const roleText = role ? `For a ${role} role, ` : "For this role, ";
+      const situationText = situation || "the situation was clear but still needs detail";
+      const actionText = action || "I took a focused action that still needs detail";
+      const resultText = result || "the result still needs a specific outcome";
+      const skillText = skill || "a relevant skill";
+
+      return {
+        completed,
+        text: `${roleText}I would explain it this way: ${situationText}. My action was: ${actionText}. The result was ${resultText}. That story shows ${skillText} because it connects the problem, my action, and the outcome.`,
+        nudge: completed < 5 ? "Good start. Add the missing pieces until the answer has a role, situation, action, result, and skill signal." : "Ready to practice. Read it out loud and tighten it to about 90 seconds."
+      };
+    }
+
+    function renderStory() {
+      const story = buildStory();
+      const words = story.text.split(/\s+/).filter(Boolean).length;
+      storyScore.textContent = `${story.completed}/5`;
+      storyNudge.textContent = story.nudge;
+      storyPreview.textContent = story.text;
+      wordCount.textContent = `${words} word${words === 1 ? "" : "s"}`;
+      copyStatus.textContent = "Local preview only";
+    }
+
+    Object.values(fields).forEach((field) => {
+      field.addEventListener("input", renderStory);
+    });
+
+    copyStory.addEventListener("click", async () => {
+      const story = buildStory().text;
+      try {
+        await navigator.clipboard.writeText(story);
+        copyStatus.textContent = "Copied locally";
+      } catch (error) {
+        copyStatus.textContent = "Select the preview text to copy";
+      }
+    });
+
+    storyReset.addEventListener("click", () => {
+      Object.values(fields).forEach((field) => {
+        field.value = "";
+      });
+      renderStory();
+    });
+
+    renderStory();
+  </script>
+</body>
+</html>
