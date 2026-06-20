@@ -1,0 +1,321 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Panel Interview Role Map | EduAccess</title>
+  <meta name="description" content="A capture-ready EduAccess mini app for helping job seekers prepare panel interview answers without entering names, company details, compensation, or private work stories.">
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="/style.css?v=20260620-panel-role-map">
+</head>
+<body class="tool-page signal-page">
+  <header class="tool-header signal-header">
+    <a class="back" href="/">EduAccess</a>
+    <nav aria-label="Tool sections">
+      <a href="/apps/" aria-current="page">Apps</a>
+      <a href="/quizzes/">Quizzes</a>
+      <a href="/lead-magnets/">Lead Magnets</a>
+      <a href="/sandbox/">Sandbox</a>
+    </nav>
+  </header>
+
+  <main class="signal-shell" aria-label="Panel Interview Role Map">
+    <section class="signal-title">
+      <div>
+        <h1>Panel Interview Role Map</h1>
+        <p>Choose who is asking, what they are worried about, and how to close. This browser-only map helps a job seeker prepare sharper panel answers without entering real names, company details, compensation, interview notes, or private work stories.</p>
+      </div>
+      <button class="signal-reset" id="roleMapReset" type="button" aria-label="Reset Panel Interview Role Map" title="Reset Panel Interview Role Map">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M20 12a8 8 0 1 1-2.34-5.66" stroke="currentColor" stroke-width="2.1" stroke-linecap="round"/>
+          <path d="M20 4v5h-5" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <span>Reset</span>
+      </button>
+    </section>
+
+    <section class="signal-workspace">
+      <aside class="signal-panel signal-choices" aria-label="Panel interview role map choices">
+        <div class="signal-choice-header">
+          <h2>Map three signals</h2>
+          <span id="roleMapCount">3/3</span>
+        </div>
+
+        <div class="signal-group" aria-label="Panel role">
+          <div class="signal-group-title">
+            <span class="signal-group-icon signal-teal" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none">
+                <circle cx="12" cy="8" r="3.5" stroke="currentColor" stroke-width="2"/>
+                <path d="M5 20c1-4 3.3-6 7-6s6 2 7 6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+              </svg>
+            </span>
+            <div>
+              <h3>Panel role</h3>
+              <p>Who is asking?</p>
+            </div>
+          </div>
+          <div class="signal-options" id="panelRoleOptions"></div>
+        </div>
+
+        <div class="signal-group" aria-label="Panel concern">
+          <div class="signal-group-title">
+            <span class="signal-group-icon signal-amber" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none">
+                <path d="M12 4 3.5 19h17L12 4Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+                <path d="M12 9v4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                <path d="M12 17h.01" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
+              </svg>
+            </span>
+            <div>
+              <h3>Concern or risk</h3>
+              <p>What are they trying to avoid?</p>
+            </div>
+          </div>
+          <div class="signal-options" id="concernOptions"></div>
+        </div>
+
+        <div class="signal-group" aria-label="Closing move">
+          <div class="signal-group-title">
+            <span class="signal-group-icon signal-blue" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none">
+                <path d="M5 5v15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                <path d="M5 6h11l-2 4 2 4H5" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+              </svg>
+            </span>
+            <div>
+              <h3>Closing move</h3>
+              <p>How will the answer land?</p>
+            </div>
+          </div>
+          <div class="signal-options" id="closingMoveOptions"></div>
+        </div>
+      </aside>
+
+      <section class="signal-panel signal-result" aria-label="Suggested panel interview answer route">
+        <div class="signal-result-top">
+          <div>
+            <span class="signal-mini-label">Your panel route</span>
+            <h2 id="roleMapMove">Manager proof + team trust</h2>
+          </div>
+          <span class="signal-fit" id="roleMapFit">Outcome-ready</span>
+        </div>
+
+        <div class="signal-flow" aria-label="Selected panel interview path">
+          <div><strong id="flowPanelRole">Hiring manager</strong><span>perspective</span></div>
+          <svg viewBox="0 0 48 16" fill="none" aria-hidden="true"><path d="M2 8h40M35 2l7 6-7 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <div><strong id="flowConcern">Can deliver</strong><span>risk</span></div>
+          <svg viewBox="0 0 48 16" fill="none" aria-hidden="true"><path d="M2 8h40M35 2l7 6-7 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <div><strong id="flowClosingMove">Bridge to result</strong><span>close</span></div>
+        </div>
+
+        <p class="signal-summary" id="roleMapSummary">A strong panel answer speaks to the person asking, lowers their biggest risk, and ends with a clear bridge to the work they need done.</p>
+
+        <div class="signal-metrics" aria-label="Panel interview answer markers">
+          <div><span>Role</span><strong id="roleScore">Manager</strong></div>
+          <div><span>Risk</span><strong id="riskScore">Lower</strong></div>
+          <div><span>Close</span><strong id="closeScore">Clear</strong></div>
+          <div><span>Signal</span><strong id="signalScore">Useful</strong></div>
+        </div>
+
+        <div class="signal-plan-grid">
+          <div>
+            <h3>Answer route</h3>
+            <ol id="roleMapSteps"></ol>
+          </div>
+          <aside class="signal-script" aria-label="Panel interview answer starter">
+            <strong>Answer starter</strong>
+            <p id="roleMapScript">I would start by answering from the hiring manager's perspective: here is how I drive outcomes, reduce risk, and make the first priorities easier to execute.</p>
+          </aside>
+        </div>
+
+        <button class="button signal-copy" id="copyRoleMapPlan" type="button">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <rect x="8" y="8" width="11" height="13" rx="1.5" stroke="currentColor" stroke-width="2"/>
+            <path d="M5 16H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h11a1 1 0 0 1 1 1v1" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+          <span>Copy panel route</span>
+        </button>
+        <p class="signal-privacy" id="roleMapCopyStatus" aria-live="polite">Capture-ready preview. Kajabi opt-in path: Panel Interview Prep Kit; no live form, tracking, or saved data is active yet.</p>
+      </section>
+
+      <aside class="signal-panel signal-map" aria-label="Panel Interview Role Map illustration">
+        <img src="../hidden-job-signal-map/hidden-job-signal-map.png" alt="Illustrated route map with markers representing panel interview answer preparation">
+        <div class="signal-map-callout signal-callout-a"><strong>Perspective</strong><span>Answer the person asking.</span></div>
+        <div class="signal-map-callout signal-callout-b"><strong>Risk</strong><span>Reduce their biggest doubt.</span></div>
+        <div class="signal-map-callout signal-callout-c"><strong>Close</strong><span>Show how you help next.</span></div>
+        <div class="signal-legend">
+          <span><i class="solid"></i> Strong panel answer path</span>
+          <span><i class="dashed"></i> Role-specific bridge</span>
+          <span><i class="risk"></i> Generic-answer risk</span>
+        </div>
+      </aside>
+    </section>
+
+    <section class="signal-guidance" aria-label="More ways to prepare for panel interviews">
+      <article>
+        <h2>Speak to each seat</h2>
+        <p>A panel interview works better when the answer changes slightly for the manager, peer, recruiter, leader, or partner asking.</p>
+      </article>
+      <article>
+        <h2>Lower the risk fast</h2>
+        <p>Most panel questions are really asking whether the candidate will deliver, collaborate, communicate, learn, and make good judgment calls.</p>
+      </article>
+      <article>
+        <h2>Kajabi opt-in path</h2>
+        <p>This proof seed is meant to become a Panel Interview Prep Kit funnel: public role map first, then Kajabi registration for deeper playbooks, answer prompts, role maps, and coaching next steps.</p>
+      </article>
+    </section>
+  </main>
+
+  <script>
+    const roleMapGroups = {
+      panelRole: [
+        { id: "manager", label: "Hiring manager", short: "Hiring manager", score: "Manager", fit: "Outcome-ready", perspective: "the person accountable for results, priorities, and team performance", care: "outcomes, ownership, judgment, and whether I make the role easier to execute" },
+        { id: "peer", label: "Future peer", short: "Future peer", score: "Peer", fit: "Team-ready", perspective: "the teammate who wants to know how I communicate, help, and handle shared work", care: "team rhythm, trust, handoffs, feedback, and day-to-day reliability" },
+        { id: "recruiter", label: "HR or recruiter", short: "HR partner", score: "HR", fit: "Process-ready", perspective: "the person protecting fit, consistency, expectations, and process", care: "role alignment, professionalism, communication, and whether the next step is clean" },
+        { id: "leader", label: "Senior leader", short: "Senior leader", score: "Leader", fit: "Business-ready", perspective: "the leader looking for judgment, maturity, and business impact", care: "priorities, change, cross-team influence, and how my work supports bigger goals" },
+        { id: "partner", label: "Cross-functional partner", short: "Partner", score: "Partner", fit: "Collaborative", perspective: "the partner who needs me to work well across teams with different pressures", care: "clarity, tradeoffs, communication, and keeping shared work moving" }
+      ],
+      concern: [
+        { id: "deliver", label: "Can you deliver results?", short: "Can deliver", risk: "Lower", signal: "Useful", avoid: "they are trying to avoid a candidate who sounds good but cannot execute", proof: "share one result, metric, timeline, or concrete before-and-after example" },
+        { id: "trust", label: "Can we trust you?", short: "Team trust", risk: "Lower", signal: "Reliable", avoid: "they are trying to avoid unclear ownership, poor follow-through, or surprise problems", proof: "name how I communicate early, clarify commitments, and close loops" },
+        { id: "adapt", label: "Can you adapt?", short: "Change readiness", risk: "Medium", signal: "Flexible", avoid: "they are trying to avoid someone who freezes when priorities or context change", proof: "show how I learn fast, ask better questions, and adjust without drama" },
+        { id: "communicate", label: "Will you communicate clearly?", short: "Clear communication", risk: "Lower", signal: "Clear", avoid: "they are trying to avoid confusion, handoff friction, and hidden blockers", proof: "show how I translate work into decisions, next steps, and simple updates" },
+        { id: "fit", label: "Will you fit the role?", short: "Role fit", risk: "Medium", signal: "Aligned", avoid: "they are trying to avoid a mismatch between the work and my motivation", proof: "connect my examples to the actual work, not just the job title" }
+      ],
+      closingMove: [
+        { id: "business", label: "Bridge to business result", short: "Bridge to result", close: "The way I would make this useful here is by tying the example back to the result your team needs most.", score: "Clear" },
+        { id: "concern", label: "Invite concerns", short: "Invite concern", close: "Is there any concern about my background or fit that would be useful for me to address directly?", score: "Direct" },
+        { id: "first30", label: "Name the first 30 days", short: "30-day plan", close: "Based on this conversation, I would focus my first 30 days on learning the team rhythm, clarifying priorities, and producing one early visible win.", score: "Practical" },
+        { id: "collab", label: "Show collaboration", short: "Collaboration bridge", close: "I would also want to understand how this role partners with the rest of the team so I can support the handoffs that matter most.", score: "Teamwise" },
+        { id: "decision", label: "Clarify decision path", short: "Decision path", close: "What would make someone clearly stand out for this role after the panel conversation?", score: "Focused" }
+      ]
+    };
+
+    const roleMapSelections = {
+      panelRole: "manager",
+      concern: "trust",
+      closingMove: "business"
+    };
+
+    const panelRoleOptions = document.querySelector("#panelRoleOptions");
+    const concernOptions = document.querySelector("#concernOptions");
+    const closingMoveOptions = document.querySelector("#closingMoveOptions");
+    const roleMapCount = document.querySelector("#roleMapCount");
+    const roleMapMove = document.querySelector("#roleMapMove");
+    const roleMapFit = document.querySelector("#roleMapFit");
+    const flowPanelRole = document.querySelector("#flowPanelRole");
+    const flowConcern = document.querySelector("#flowConcern");
+    const flowClosingMove = document.querySelector("#flowClosingMove");
+    const roleMapSummary = document.querySelector("#roleMapSummary");
+    const roleScore = document.querySelector("#roleScore");
+    const riskScore = document.querySelector("#riskScore");
+    const closeScore = document.querySelector("#closeScore");
+    const signalScore = document.querySelector("#signalScore");
+    const roleMapSteps = document.querySelector("#roleMapSteps");
+    const roleMapScript = document.querySelector("#roleMapScript");
+    const roleMapReset = document.querySelector("#roleMapReset");
+    const copyRoleMapPlan = document.querySelector("#copyRoleMapPlan");
+    const roleMapCopyStatus = document.querySelector("#roleMapCopyStatus");
+
+    function findRoleMapOption(group, id) {
+      return roleMapGroups[group].find((option) => option.id === id);
+    }
+
+    function renderRoleMapOptions(groupName, container) {
+      container.innerHTML = roleMapGroups[groupName].map((option) => {
+        const isActive = roleMapSelections[groupName] === option.id;
+        const active = isActive ? " is-active" : "";
+        return `
+          <button class="signal-option${active}" type="button" data-group="${groupName}" data-id="${option.id}" aria-pressed="${isActive}">
+            <span>${option.label}</span>
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <circle cx="12" cy="12" r="8" stroke="currentColor" stroke-width="2"/>
+              <path d="m8.5 12 2.3 2.3 4.8-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
+        `;
+      }).join("");
+    }
+
+    function buildRoleMapPlan() {
+      const panelRole = findRoleMapOption("panelRole", roleMapSelections.panelRole);
+      const concern = findRoleMapOption("concern", roleMapSelections.concern);
+      const closingMove = findRoleMapOption("closingMove", roleMapSelections.closingMove);
+      const title = `${panelRole.short} + ${concern.short}`;
+      const script = `I would answer from ${panelRole.perspective}. I know ${concern.avoid}, so I would ${concern.proof}.`;
+      const summary = `Speak to ${panelRole.short.toLowerCase()} priorities, lower the "${concern.label.toLowerCase()}" risk, then close with: "${closingMove.close}"`;
+      const steps = [
+        `Name the perspective: ${panelRole.perspective}.`,
+        `Make the answer relevant to what they care about: ${panelRole.care}.`,
+        `Lower the risk: ${concern.avoid}.`,
+        `Use proof: ${concern.proof}.`,
+        `Close cleanly: ${closingMove.close}`
+      ];
+      return { panelRole, concern, closingMove, title, script, summary, steps };
+    }
+
+    function updateRoleMapPlan() {
+      renderRoleMapOptions("panelRole", panelRoleOptions);
+      renderRoleMapOptions("concern", concernOptions);
+      renderRoleMapOptions("closingMove", closingMoveOptions);
+
+      const plan = buildRoleMapPlan();
+      roleMapCount.textContent = `${Object.values(roleMapSelections).filter(Boolean).length}/3`;
+      roleMapMove.textContent = plan.title;
+      roleMapFit.textContent = plan.panelRole.fit;
+      flowPanelRole.textContent = plan.panelRole.short;
+      flowConcern.textContent = plan.concern.short;
+      flowClosingMove.textContent = plan.closingMove.short;
+      roleMapSummary.textContent = plan.summary;
+      roleScore.textContent = plan.panelRole.score;
+      riskScore.textContent = plan.concern.risk;
+      closeScore.textContent = plan.closingMove.score;
+      signalScore.textContent = plan.concern.signal;
+      roleMapScript.textContent = plan.script;
+      roleMapSteps.innerHTML = plan.steps.map((step) => `<li>${step}</li>`).join("");
+      roleMapCopyStatus.textContent = "Capture-ready preview. Kajabi opt-in path: Panel Interview Prep Kit; no live form, tracking, or saved data is active yet.";
+    }
+
+    document.addEventListener("click", (event) => {
+      const option = event.target.closest(".signal-option");
+      if (!option) return;
+
+      roleMapSelections[option.dataset.group] = option.dataset.id;
+      updateRoleMapPlan();
+    });
+
+    roleMapReset.addEventListener("click", () => {
+      roleMapSelections.panelRole = "manager";
+      roleMapSelections.concern = "trust";
+      roleMapSelections.closingMove = "business";
+      updateRoleMapPlan();
+    });
+
+    copyRoleMapPlan.addEventListener("click", async () => {
+      const plan = buildRoleMapPlan();
+      const text = [
+        `Panel Interview Role Map: ${plan.title}`,
+        `Answer starter: ${plan.script}`,
+        `Summary: ${plan.summary}`,
+        "Route:",
+        ...plan.steps.map((step, index) => `${index + 1}. ${step}`)
+      ].join("\n");
+
+      try {
+        await navigator.clipboard.writeText(text);
+        roleMapCopyStatus.textContent = "Panel route copied locally. The intended funnel step is a Kajabi opt-in for the Panel Interview Prep Kit.";
+      } catch (error) {
+        const selection = window.getSelection();
+        const range = document.createRange();
+        range.selectNodeContents(document.querySelector(".signal-result"));
+        selection.removeAllRanges();
+        selection.addRange(range);
+        roleMapCopyStatus.textContent = "Clipboard was blocked, so the panel route is selected locally.";
+      }
+    });
+
+    updateRoleMapPlan();
+  </script>
+</body>
+</html>
