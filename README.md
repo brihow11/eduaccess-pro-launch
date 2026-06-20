@@ -23,6 +23,7 @@ DNS manager: Namecheap.
 Initial paths:
 
 - `/apps/`
+- `/apps/offer-decision-risk-map/`
 - `/apps/final-interview-decision-map/`
 - `/apps/panel-interview-role-map/`
 - `/apps/second-interview-strategy-game/`
@@ -64,6 +65,7 @@ email automation, tracking, and CRM routing are not attached yet. That is a
 temporary proof setting, not the business goal.
 
 - `/apps/final-interview-decision-map/` is a capture-ready, browser-only Final Interview Decision Map preview with a planned Kajabi opt-in path for the Final Interview Decision Kit.
+- `/apps/offer-decision-risk-map/` is a capture-ready, browser-only Offer Decision Risk Map preview with a planned Kajabi opt-in path for the Offer Decision Checklist.
 - `/apps/panel-interview-role-map/` is a capture-ready, browser-only Panel Interview Role Map preview with a planned Kajabi opt-in path for the Panel Interview Prep Kit.
 - `/apps/second-interview-strategy-game/` is a capture-ready, browser-only Second Interview Strategy Game preview with a planned Kajabi opt-in path for the Second Interview Strategy Kit.
 - `/apps/first-interview-confidence-game/` is a capture-ready, browser-only First Interview Confidence Game preview with a planned Kajabi opt-in path for the First Interview Confidence Kit.
