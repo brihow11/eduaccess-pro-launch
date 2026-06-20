@@ -1,0 +1,321 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>First Interview Confidence Game | EduAccess</title>
+  <meta name="description" content="A capture-ready EduAccess mini game for helping job seekers practice stronger first-interview answers without entering private interview details or saving data.">
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="/style.css?v=20260620-interview1">
+</head>
+<body class="tool-page signal-page">
+  <header class="tool-header signal-header">
+    <a class="back" href="/">EduAccess</a>
+    <nav aria-label="Tool sections">
+      <a href="/apps/" aria-current="page">Apps</a>
+      <a href="/quizzes/">Quizzes</a>
+      <a href="/lead-magnets/">Lead Magnets</a>
+      <a href="/sandbox/">Sandbox</a>
+    </nav>
+  </header>
+
+  <main class="signal-shell" aria-label="First Interview Confidence Game">
+    <section class="signal-title">
+      <div>
+        <h1>First Interview Confidence Game</h1>
+        <p>Choose an interview goal, answer proof, and follow-up move. This browser-only game helps a job seeker practice a stronger first-interview answer plan without entering personal stories, resume details, employer names, or private interview notes.</p>
+      </div>
+      <button class="signal-reset" id="interviewReset" type="button" aria-label="Reset First Interview Confidence Game" title="Reset First Interview Confidence Game">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M20 12a8 8 0 1 1-2.34-5.66" stroke="currentColor" stroke-width="2.1" stroke-linecap="round"/>
+          <path d="M20 4v5h-5" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <span>Reset</span>
+      </button>
+    </section>
+
+    <section class="signal-workspace">
+      <aside class="signal-panel signal-choices" aria-label="First interview answer choices">
+        <div class="signal-choice-header">
+          <h2>Choose three signals</h2>
+          <span id="interviewCount">3/3</span>
+        </div>
+
+        <div class="signal-group" aria-label="Interview goal">
+          <div class="signal-group-title">
+            <span class="signal-group-icon signal-teal" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none">
+                <circle cx="12" cy="12" r="8" stroke="currentColor" stroke-width="2"/>
+                <path d="M12 8v4l3 2" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M7 4 5 2M17 4l2-2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+              </svg>
+            </span>
+            <div>
+              <h3>Interview goal</h3>
+              <p>What should the answer accomplish?</p>
+            </div>
+          </div>
+          <div class="signal-options" id="goalOptions"></div>
+        </div>
+
+        <div class="signal-group" aria-label="Answer proof">
+          <div class="signal-group-title">
+            <span class="signal-group-icon signal-blue" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none">
+                <path d="M12 3 20 7v5c0 5-3.2 8-8 9-4.8-1-8-4-8-9V7l8-4Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+                <path d="m8.8 12 2.1 2.1 4.5-4.8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </span>
+            <div>
+              <h3>Answer proof</h3>
+              <p>What evidence should lead the answer?</p>
+            </div>
+          </div>
+          <div class="signal-options" id="proofOptions"></div>
+        </div>
+
+        <div class="signal-group" aria-label="Follow-up move">
+          <div class="signal-group-title">
+            <span class="signal-group-icon signal-amber" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none">
+                <path d="M4 12h13M12 5l7 7-7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M5 6h5M5 18h5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+              </svg>
+            </span>
+            <div>
+              <h3>Follow-up move</h3>
+              <p>How should the candidate keep momentum?</p>
+            </div>
+          </div>
+          <div class="signal-options" id="followOptions"></div>
+        </div>
+      </aside>
+
+      <section class="signal-panel signal-result" aria-label="Suggested first interview answer plan">
+        <div class="signal-result-top">
+          <div>
+            <span class="signal-mini-label">Suggested answer plan</span>
+            <h2 id="interviewMove">Show relevant value with proof</h2>
+          </div>
+          <span class="signal-fit" id="interviewFit">Confident fit</span>
+        </div>
+
+        <div class="signal-flow" aria-label="Selected first interview path">
+          <div><strong id="flowGoal">Show relevant value</strong><span>goal</span></div>
+          <svg viewBox="0 0 48 16" fill="none" aria-hidden="true"><path d="M2 8h40M35 2l7 6-7 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <div><strong id="flowProof">Relevant experience</strong><span>proof</span></div>
+          <svg viewBox="0 0 48 16" fill="none" aria-hidden="true"><path d="M2 8h40M35 2l7 6-7 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <div><strong id="flowFollow">Align next steps</strong><span>follow-up</span></div>
+        </div>
+
+        <p class="signal-summary" id="interviewSummary">A stronger first-interview answer starts with the role's need, proves one relevant example, and closes with a clear next-step signal.</p>
+
+        <div class="signal-metrics" aria-label="First interview confidence markers">
+          <div><span>Clarity</span><strong id="clarityScore">High</strong></div>
+          <div><span>Proof</span><strong id="proofScore">Relevant</strong></div>
+          <div><span>Momentum</span><strong id="momentumScore">Aligned</strong></div>
+          <div><span>Risk</span><strong id="riskScore">Lower</strong></div>
+        </div>
+
+        <div class="signal-plan-grid">
+          <div>
+            <h3>Answer structure</h3>
+            <ol id="interviewSteps"></ol>
+          </div>
+          <aside class="signal-script" aria-label="First interview answer starter">
+            <strong>Answer starter</strong>
+            <p id="interviewScript">I understand this role needs someone who can create useful follow-through quickly. A relevant example is a project where I organized next steps, kept people moving, and turned scattered information into a clear outcome.</p>
+          </aside>
+        </div>
+
+        <button class="button signal-copy" id="copyInterviewPlan" type="button">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <rect x="8" y="8" width="11" height="13" rx="1.5" stroke="currentColor" stroke-width="2"/>
+            <path d="M5 16H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h11a1 1 0 0 1 1 1v1" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+          <span>Copy answer plan</span>
+        </button>
+        <p class="signal-privacy" id="interviewCopyStatus" aria-live="polite">Capture-ready preview. Kajabi opt-in path: First Interview Confidence Kit; no live form, tracking, or saved data is active yet.</p>
+      </section>
+
+      <aside class="signal-panel signal-map" aria-label="First Interview Confidence Game map illustration">
+        <img src="../hidden-job-signal-map/hidden-job-signal-map.png" alt="Illustrated city map with route markers representing interview preparation steps">
+        <div class="signal-map-callout signal-callout-a"><strong>Open</strong><span>Name the value you bring.</span></div>
+        <div class="signal-map-callout signal-callout-b"><strong>Proof</strong><span>Share one specific example.</span></div>
+        <div class="signal-map-callout signal-callout-c"><strong>Next</strong><span>Connect your answer to the role.</span></div>
+        <div class="signal-legend">
+          <span><i class="solid"></i> Confident answer</span>
+          <span><i class="dashed"></i> Proof bridge</span>
+          <span><i class="risk"></i> Generic-answer risk</span>
+        </div>
+      </aside>
+    </section>
+
+    <section class="signal-guidance" aria-label="More ways to practice first interviews">
+      <article>
+        <h2>Answer the role, not the room</h2>
+        <p>Good interview answers start with what the employer needs, then connect your background to that need in plain language.</p>
+      </article>
+      <article>
+        <h2>Use one proof point</h2>
+        <p>Specific examples beat broad confidence. One clear project, result, decision, or pattern can make the answer easier to trust.</p>
+      </article>
+      <article>
+        <h2>Kajabi opt-in path</h2>
+        <p>This proof seed is meant to become a First Interview Confidence Kit funnel: public practice first, then Kajabi registration for answer templates, practice prompts, follow-up scripts, coaching, or the Job Seeker Pro next step.</p>
+      </article>
+    </section>
+  </main>
+
+  <script>
+    const interviewGroups = {
+      goal: [
+        { id: "value", label: "Showcase relevant value", short: "Show relevant value", clarity: "High", risk: "Lower", fit: "Confident fit", opening: "this role needs someone who can create useful follow-through quickly", angle: "make the highest-impact case for why your background solves their problem" },
+        { id: "fit", label: "Clarify role fit", short: "Clarify fit", clarity: "High", risk: "Lower", fit: "Role match", opening: "the role seems to need someone who can understand the work and match the team's rhythm", angle: "show that you understand the role before trying to sell everything about yourself" },
+        { id: "impact", label: "Explore team impact", short: "Team impact", clarity: "Medium-high", risk: "Medium", fit: "Curious operator", opening: "the team appears to need someone who can turn priorities into steady action", angle: "connect your answer to the team's real problems, not just the job title" },
+        { id: "process", label: "Move forward in process", short: "Next-step signal", clarity: "Medium-high", risk: "Medium", fit: "Process ready", opening: "this first conversation is a chance to make the next step easy", angle: "show the interviewer that you can answer clearly and keep momentum" },
+        { id: "confidence", label: "Reduce interview nerves", short: "Calm confidence", clarity: "Medium", risk: "Lower", fit: "Steady presence", opening: "the role needs someone who can stay steady and useful under pressure", angle: "turn nerves into a simple answer structure instead of overexplaining" }
+      ],
+      proof: [
+        { id: "experience", label: "Relevant experience", short: "Relevant experience", proof: "Relevant", example: "a project where I organized next steps, kept people moving, and turned scattered information into a clear outcome" },
+        { id: "achievement", label: "Specific achievement", short: "Specific result", proof: "Specific", example: "a moment where I improved a process, handled volume, solved a customer issue, or helped a team hit a deadline" },
+        { id: "skills", label: "Transferable skills", short: "Transferable skills", proof: "Useful", example: "a school, work, volunteer, or personal project where the same core skills showed up in a different setting" },
+        { id: "learning", label: "Fast learning story", short: "Learning proof", proof: "Adaptable", example: "a time I had to learn a new system, ask better questions, and become useful quickly" },
+        { id: "collaboration", label: "Team collaboration", short: "Team proof", proof: "Human", example: "a team situation where I clarified the goal, supported others, and helped the group finish stronger" }
+      ],
+      follow: [
+        { id: "next", label: "Align on next steps", short: "Align next steps", momentum: "Aligned", close: "I would be glad to learn what matters most in the next step and prepare around that." },
+        { id: "question", label: "Ask a thoughtful question", short: "Thoughtful question", momentum: "Curious", close: "One question I would ask is what separates a good first month from an average one in this role." },
+        { id: "insight", label: "Offer one extra insight", short: "Extra insight", momentum: "Helpful", close: "If helpful, I can share a short example that shows how I would approach the first priority." },
+        { id: "feedback", label: "Invite feedback", short: "Invite feedback", momentum: "Coach-ready", close: "I would appreciate any feedback on which part of my background is most relevant to the team." },
+        { id: "prepare", label: "Prepare for round two", short: "Round-two prep", momentum: "Ready", close: "For a next conversation, I would prepare a more specific example tied to the team's current priorities." }
+      ]
+    };
+
+    const interviewSelections = {
+      goal: "value",
+      proof: "experience",
+      follow: "next"
+    };
+
+    const goalOptions = document.querySelector("#goalOptions");
+    const proofOptions = document.querySelector("#proofOptions");
+    const followOptions = document.querySelector("#followOptions");
+    const interviewCount = document.querySelector("#interviewCount");
+    const interviewMove = document.querySelector("#interviewMove");
+    const interviewFit = document.querySelector("#interviewFit");
+    const flowGoal = document.querySelector("#flowGoal");
+    const flowProof = document.querySelector("#flowProof");
+    const flowFollow = document.querySelector("#flowFollow");
+    const interviewSummary = document.querySelector("#interviewSummary");
+    const clarityScore = document.querySelector("#clarityScore");
+    const proofScore = document.querySelector("#proofScore");
+    const momentumScore = document.querySelector("#momentumScore");
+    const riskScore = document.querySelector("#riskScore");
+    const interviewSteps = document.querySelector("#interviewSteps");
+    const interviewScript = document.querySelector("#interviewScript");
+    const interviewReset = document.querySelector("#interviewReset");
+    const copyInterviewPlan = document.querySelector("#copyInterviewPlan");
+    const interviewCopyStatus = document.querySelector("#interviewCopyStatus");
+
+    function findInterviewOption(group, id) {
+      return interviewGroups[group].find((option) => option.id === id);
+    }
+
+    function renderInterviewOptions(groupName, container) {
+      container.innerHTML = interviewGroups[groupName].map((option) => {
+        const isActive = interviewSelections[groupName] === option.id;
+        const active = isActive ? " is-active" : "";
+        return `
+          <button class="signal-option${active}" type="button" data-group="${groupName}" data-id="${option.id}" aria-pressed="${isActive}">
+            <span>${option.label}</span>
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <circle cx="12" cy="12" r="8" stroke="currentColor" stroke-width="2"/>
+              <path d="m8.5 12 2.3 2.3 4.8-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
+        `;
+      }).join("");
+    }
+
+    function buildInterviewPlan() {
+      const goal = findInterviewOption("goal", interviewSelections.goal);
+      const proof = findInterviewOption("proof", interviewSelections.proof);
+      const follow = findInterviewOption("follow", interviewSelections.follow);
+      const title = `${goal.short} + ${proof.short}`;
+      const script = `I understand ${goal.opening}. A relevant example is ${proof.example}.`;
+      const summary = `Use the ${goal.short.toLowerCase()} goal to stay focused. Lead with ${proof.short.toLowerCase()}, then close with ${follow.short.toLowerCase()} so the conversation keeps moving.`;
+      const steps = [
+        `Open with the employer need: ${goal.opening}.`,
+        `Give one proof point: ${proof.example}.`,
+        `Connect it back to the role: ${goal.angle}.`,
+        `Close with momentum: ${follow.close}`,
+        "Keep the answer under two minutes and avoid adding private details that are not needed."
+      ];
+      return { goal, proof, follow, title, script, summary, steps };
+    }
+
+    function updateInterviewPlan() {
+      renderInterviewOptions("goal", goalOptions);
+      renderInterviewOptions("proof", proofOptions);
+      renderInterviewOptions("follow", followOptions);
+
+      const plan = buildInterviewPlan();
+      interviewCount.textContent = `${Object.values(interviewSelections).filter(Boolean).length}/3`;
+      interviewMove.textContent = plan.title;
+      interviewFit.textContent = plan.goal.fit;
+      flowGoal.textContent = plan.goal.short;
+      flowProof.textContent = plan.proof.short;
+      flowFollow.textContent = plan.follow.short;
+      interviewSummary.textContent = plan.summary;
+      clarityScore.textContent = plan.goal.clarity;
+      proofScore.textContent = plan.proof.proof;
+      momentumScore.textContent = plan.follow.momentum;
+      riskScore.textContent = plan.goal.risk;
+      interviewScript.textContent = plan.script;
+      interviewSteps.innerHTML = plan.steps.map((step) => `<li>${step}</li>`).join("");
+      interviewCopyStatus.textContent = "Capture-ready preview. Kajabi opt-in path: First Interview Confidence Kit; no live form, tracking, or saved data is active yet.";
+    }
+
+    document.addEventListener("click", (event) => {
+      const option = event.target.closest(".signal-option");
+      if (!option) return;
+
+      interviewSelections[option.dataset.group] = option.dataset.id;
+      updateInterviewPlan();
+    });
+
+    interviewReset.addEventListener("click", () => {
+      interviewSelections.goal = "value";
+      interviewSelections.proof = "experience";
+      interviewSelections.follow = "next";
+      updateInterviewPlan();
+    });
+
+    copyInterviewPlan.addEventListener("click", async () => {
+      const plan = buildInterviewPlan();
+      const text = [
+        `First Interview Confidence Game: ${plan.title}`,
+        `Answer starter: ${plan.script}`,
+        `Summary: ${plan.summary}`,
+        "Steps:",
+        ...plan.steps.map((step, index) => `${index + 1}. ${step}`)
+      ].join("\n");
+
+      try {
+        await navigator.clipboard.writeText(text);
+        interviewCopyStatus.textContent = "Answer plan copied locally. The intended funnel step is a Kajabi opt-in for the First Interview Confidence Kit.";
+      } catch (error) {
+        const selection = window.getSelection();
+        const range = document.createRange();
+        range.selectNodeContents(document.querySelector(".signal-result"));
+        selection.removeAllRanges();
+        selection.addRange(range);
+        interviewCopyStatus.textContent = "Clipboard was blocked, so the answer plan is selected locally.";
+      }
+    });
+
+    updateInterviewPlan();
+  </script>
+</body>
+</html>
