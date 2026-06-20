@@ -1,0 +1,343 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Resignation Notice Builder | EduAccess</title>
+  <meta name="description" content="A capture-ready EduAccess mini app for drafting a professional resignation notice without entering employer names, manager names, salary numbers, start dates, workplace complaints, or private career details.">
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="/style.css?v=20260620-resignation-notice">
+</head>
+<body class="tool-page signal-page">
+  <header class="tool-header signal-header">
+    <a class="back" href="/">EduAccess</a>
+    <nav aria-label="Tool sections">
+      <a href="/apps/" aria-current="page">Apps</a>
+      <a href="/quizzes/">Quizzes</a>
+      <a href="/lead-magnets/">Lead Magnets</a>
+      <a href="/sandbox/">Sandbox</a>
+    </nav>
+  </header>
+
+  <main class="signal-shell" aria-label="Resignation Notice Builder">
+    <section class="signal-title">
+      <div>
+        <h1>Resignation Notice Builder</h1>
+        <p>Turn a career move into a clear, professional notice. Choose the resignation situation, timing, and tone guardrail before sending a message. This browser-only builder creates a safer draft without entering employer names, manager names, salary numbers, start dates, workplace complaints, contract details, or private career notes.</p>
+      </div>
+      <button class="signal-reset" id="resignationReset" type="button" aria-label="Reset Resignation Notice Builder" title="Reset Resignation Notice Builder">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M20 12a8 8 0 1 1-2.34-5.66" stroke="currentColor" stroke-width="2.1" stroke-linecap="round"/>
+          <path d="M20 4v5h-5" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <span>Reset</span>
+      </button>
+    </section>
+
+    <section class="signal-workspace">
+      <aside class="signal-panel signal-choices" aria-label="Resignation notice choices">
+        <div class="signal-choice-header">
+          <h2>Build three notice parts</h2>
+          <span id="resignationCount">3/3</span>
+        </div>
+
+        <div class="signal-group" aria-label="Resignation situation">
+          <div class="signal-group-title">
+            <span class="signal-group-icon signal-teal" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none">
+                <path d="M5 18h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                <path d="M7 15l3-4 3 2 4-7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <circle cx="7" cy="15" r="1.8" fill="currentColor"/>
+                <circle cx="10" cy="11" r="1.8" fill="currentColor"/>
+                <circle cx="13" cy="13" r="1.8" fill="currentColor"/>
+                <circle cx="17" cy="6" r="1.8" fill="currentColor"/>
+              </svg>
+            </span>
+            <div>
+              <h3>Situation</h3>
+              <p>What should the notice communicate first?</p>
+            </div>
+          </div>
+          <div class="signal-options" id="resignationSituationOptions"></div>
+        </div>
+
+        <div class="signal-group" aria-label="Notice timing">
+          <div class="signal-group-title">
+            <span class="signal-group-icon signal-amber" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none">
+                <path d="M7 4v3M17 4v3M4.5 9h15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                <rect x="4" y="6" width="16" height="14" rx="2" stroke="currentColor" stroke-width="2"/>
+                <path d="m8 14 2.2 2.2L16 11" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </span>
+            <div>
+              <h3>Notice timing</h3>
+              <p>How much transition detail should be included?</p>
+            </div>
+          </div>
+          <div class="signal-options" id="resignationTimingOptions"></div>
+        </div>
+
+        <div class="signal-group" aria-label="Tone guardrail">
+          <div class="signal-group-title">
+            <span class="signal-group-icon signal-blue" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none">
+                <path d="M5 6h9" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                <path d="M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                <path d="M5 18h10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                <path d="m18 5 2 2-4 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </span>
+            <div>
+              <h3>Tone guardrail</h3>
+              <p>How should the message protect the relationship?</p>
+            </div>
+          </div>
+          <div class="signal-options" id="resignationToneOptions"></div>
+        </div>
+      </aside>
+
+      <section class="signal-panel signal-result" aria-label="Draft resignation notice">
+        <div class="signal-result-top">
+          <div>
+            <span class="signal-mini-label">Your resignation route</span>
+            <h2 id="resignationMove">Clean notice + warm transition</h2>
+          </div>
+          <span class="signal-fit" id="resignationFit">Relationship-safe</span>
+        </div>
+
+        <div class="signal-flow" aria-label="Selected resignation notice path">
+          <div><strong id="flowResignationSituation">Accepted new role</strong><span>situation</span></div>
+          <svg viewBox="0 0 48 16" fill="none" aria-hidden="true"><path d="M2 8h40M35 2l7 6-7 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <div><strong id="flowResignationTiming">Standard notice</strong><span>timing</span></div>
+          <svg viewBox="0 0 48 16" fill="none" aria-hidden="true"><path d="M2 8h40M35 2l7 6-7 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <div><strong id="flowResignationTone">Warm and brief</strong><span>tone</span></div>
+        </div>
+
+        <p class="signal-summary" id="resignationSummary">A strong resignation notice is short, clear, appreciative, and focused on the transition instead of private reasons or complaints.</p>
+
+        <div class="signal-metrics" aria-label="Resignation notice markers">
+          <div><span>Situation</span><strong id="resignationSituationScore">Accepted</strong></div>
+          <div><span>Timing</span><strong id="resignationTimingScore">Clear</strong></div>
+          <div><span>Tone</span><strong id="resignationToneScore">Warm</strong></div>
+          <div><span>Signal</span><strong id="resignationSignalScore">Ready</strong></div>
+        </div>
+
+        <div class="signal-plan-grid">
+          <div>
+            <h3>Notice checklist</h3>
+            <ol id="resignationSteps"></ol>
+          </div>
+          <aside class="signal-script" aria-label="Resignation notice starter">
+            <strong>Draft resignation notice</strong>
+            <p id="resignationScript">Subject: Resignation notice<br><br>Dear [Manager name],<br><br>I am writing to share that I am resigning from my role. I appreciate the opportunity and want to support a smooth transition.</p>
+          </aside>
+        </div>
+
+        <button class="button signal-copy" id="copyResignationPlan" type="button">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <rect x="8" y="8" width="11" height="13" rx="1.5" stroke="currentColor" stroke-width="2"/>
+            <path d="M5 16H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h11a1 1 0 0 1 1 1v1" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+          <span>Copy resignation notice</span>
+        </button>
+        <p class="signal-privacy" id="resignationCopyStatus" aria-live="polite">Capture-ready preview. Kajabi opt-in path: Resignation Notice Scripts; no live form, tracking, or saved data is active yet.</p>
+      </section>
+
+      <aside class="signal-panel signal-map" aria-label="Resignation Notice Builder illustration">
+        <img src="../hidden-job-signal-map/hidden-job-signal-map.png" alt="Illustrated route map with markers representing resignation notice preparation">
+        <div class="signal-map-callout signal-callout-a"><strong>Notice</strong><span>Say it clearly.</span></div>
+        <div class="signal-map-callout signal-callout-b"><strong>Thanks</strong><span>Keep it warm.</span></div>
+        <div class="signal-map-callout signal-callout-c"><strong>Bridge</strong><span>Offer transition.</span></div>
+        <div class="signal-legend">
+          <span><i class="solid"></i> Strong notice path</span>
+          <span><i class="dashed"></i> Transition bridge</span>
+          <span><i class="risk"></i> Overshare risk</span>
+        </div>
+      </aside>
+    </section>
+
+    <section class="signal-guidance" aria-label="More ways to resign professionally">
+      <article>
+        <h2>Keep it short</h2>
+        <p>The safest resignation note usually states the decision, gives timing, says thank you, and offers a practical transition step.</p>
+      </article>
+      <article>
+        <h2>Leave private details out</h2>
+        <p>This public page gives a message frame only. Employer names, manager names, salary numbers, start dates, workplace complaints, and private reasons should stay out of this tool.</p>
+      </article>
+      <article>
+        <h2>Kajabi opt-in path</h2>
+        <p>This proof seed is meant to become a Resignation Notice Scripts funnel: public builder first, then Kajabi registration for deeper scripts, transition checklists, and first-week support.</p>
+      </article>
+    </section>
+  </main>
+
+  <script>
+    const resignationGroups = {
+      situation: [
+        { id: "new-role", label: "Accepted new role", short: "Accepted new role", score: "Accepted", fit: "Relationship-safe", signal: "Ready", opener: "I am writing to share that I am resigning from my role.", context: "the decision is made and the notice should be clear", checklist: "State the resignation clearly without naming the new employer or role." },
+        { id: "career-step", label: "Career next step", short: "Career step", score: "Forward", fit: "Positive", signal: "Ready", opener: "I am writing to let you know I have decided to take the next step in my career.", context: "the message can stay positive without explaining the full reason", checklist: "Frame the decision as a next step without over-explaining." },
+        { id: "personal", label: "Personal transition", short: "Personal transition", score: "Private", fit: "Discreet", signal: "Careful", opener: "I am writing to share that I have decided to resign from my role for personal reasons.", context: "the message should preserve privacy and avoid details", checklist: "Name the transition only as much as needed; keep private reasons private." },
+        { id: "short-notice", label: "Sensitive timing", short: "Sensitive timing", score: "Careful", fit: "Practical", signal: "Timing-aware", opener: "I am writing to share a difficult but final decision to resign from my role.", context: "the message should be careful, direct, and transition-focused", checklist: "Avoid blame; focus on the transition support you can offer." }
+      ],
+      timing: [
+        { id: "standard", label: "Standard notice", short: "Standard notice", score: "Clear", timingLine: "My intended final working day is [Final day].", route: "clear final-day notice", checklist: "Include a clear final working day after confirming your notice policy." },
+        { id: "flexible", label: "Flexible transition", short: "Flexible timing", score: "Flexible", timingLine: "I am open to discussing the best final day and transition plan.", route: "flexible transition timing", checklist: "Offer to coordinate timing if the final day still needs agreement." },
+        { id: "longer", label: "Longer handoff", short: "Longer handoff", score: "Helpful", timingLine: "I would like to use the notice period to document key work and support a thoughtful handoff.", route: "handoff-focused notice", checklist: "Mention documentation or handoff work without making promises you cannot keep." },
+        { id: "immediate", label: "Fast handoff", short: "Fast handoff", score: "Urgent", timingLine: "I understand the timing is tight and will help prioritize the most important handoff items.", route: "fast handoff notice", checklist: "Keep urgent timing practical and avoid emotional detail." }
+      ],
+      tone: [
+        { id: "warm", label: "Warm and brief", short: "Warm and brief", score: "Warm", close: "Thank you for the opportunity to contribute here. I appreciate what I have learned and want to support a smooth handoff.", instruction: "sound appreciative, concise, and calm" },
+        { id: "formal", label: "Formal", short: "Formal", score: "Polished", close: "Thank you for the opportunity. I will work professionally through the transition and provide any appropriate handoff information.", instruction: "use polished language and avoid casual wording" },
+        { id: "repair", label: "Protect relationship", short: "Relationship-safe", score: "Safe", close: "I value the relationships I have built and want to leave the work in as strong a position as possible.", instruction: "protect the relationship even if the job has been frustrating" },
+        { id: "concise", label: "Very concise", short: "Concise", score: "Simple", close: "Thank you for the opportunity. I will support the transition as appropriate.", instruction: "keep the note short and avoid unnecessary explanation" }
+      ]
+    };
+
+    const resignationSelections = {
+      situation: "new-role",
+      timing: "standard",
+      tone: "warm"
+    };
+
+    const resignationSituationOptions = document.querySelector("#resignationSituationOptions");
+    const resignationTimingOptions = document.querySelector("#resignationTimingOptions");
+    const resignationToneOptions = document.querySelector("#resignationToneOptions");
+    const resignationCount = document.querySelector("#resignationCount");
+    const resignationMove = document.querySelector("#resignationMove");
+    const resignationFit = document.querySelector("#resignationFit");
+    const flowResignationSituation = document.querySelector("#flowResignationSituation");
+    const flowResignationTiming = document.querySelector("#flowResignationTiming");
+    const flowResignationTone = document.querySelector("#flowResignationTone");
+    const resignationSummary = document.querySelector("#resignationSummary");
+    const resignationSituationScore = document.querySelector("#resignationSituationScore");
+    const resignationTimingScore = document.querySelector("#resignationTimingScore");
+    const resignationToneScore = document.querySelector("#resignationToneScore");
+    const resignationSignalScore = document.querySelector("#resignationSignalScore");
+    const resignationSteps = document.querySelector("#resignationSteps");
+    const resignationScript = document.querySelector("#resignationScript");
+    const resignationReset = document.querySelector("#resignationReset");
+    const copyResignationPlan = document.querySelector("#copyResignationPlan");
+    const resignationCopyStatus = document.querySelector("#resignationCopyStatus");
+
+    function findResignationOption(group, id) {
+      return resignationGroups[group].find((option) => option.id === id);
+    }
+
+    function renderResignationOptions(groupName, container) {
+      container.innerHTML = resignationGroups[groupName].map((option) => {
+        const isActive = resignationSelections[groupName] === option.id;
+        const active = isActive ? " is-active" : "";
+        return `
+          <button class="signal-option${active}" type="button" data-group="${groupName}" data-id="${option.id}" aria-pressed="${isActive}">
+            <span>${option.label}</span>
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <circle cx="12" cy="12" r="8" stroke="currentColor" stroke-width="2"/>
+              <path d="m8.5 12 2.3 2.3 4.8-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
+        `;
+      }).join("");
+    }
+
+    function buildResignationPlan() {
+      const situation = findResignationOption("situation", resignationSelections.situation);
+      const timing = findResignationOption("timing", resignationSelections.timing);
+      const tone = findResignationOption("tone", resignationSelections.tone);
+      const title = `${situation.short} + ${timing.route}`;
+      const summary = `Use ${tone.short.toLowerCase()} language, make the situation clear, and keep the transition focused on ${timing.route}. This protects the relationship without adding private details.`;
+      const notice = [
+        "Subject: Resignation notice",
+        "",
+        "Dear [Manager name],",
+        "",
+        situation.opener,
+        timing.timingLine,
+        tone.close,
+        "",
+        "Best,",
+        "[Your name]"
+      ].join("\n");
+      const steps = [
+        situation.checklist,
+        timing.checklist,
+        `Keep the tone guardrail: ${tone.instruction}.`,
+        "Do not include employer names, manager names, salary numbers, start dates, workplace complaints, contract details, or private career notes in this public tool.",
+        "When the approved Kajabi lane is connected, register for Resignation Notice Scripts for deeper versions, handoff language, and first-week transition support."
+      ];
+
+      return { situation, timing, tone, title, summary, notice, steps };
+    }
+
+    function updateResignationPlan() {
+      renderResignationOptions("situation", resignationSituationOptions);
+      renderResignationOptions("timing", resignationTimingOptions);
+      renderResignationOptions("tone", resignationToneOptions);
+
+      const plan = buildResignationPlan();
+      resignationCount.textContent = "3/3";
+      resignationMove.textContent = plan.title;
+      resignationFit.textContent = plan.situation.fit;
+      flowResignationSituation.textContent = plan.situation.short;
+      flowResignationTiming.textContent = plan.timing.short;
+      flowResignationTone.textContent = plan.tone.short;
+      resignationSummary.textContent = plan.summary;
+      resignationSituationScore.textContent = plan.situation.score;
+      resignationTimingScore.textContent = plan.timing.score;
+      resignationToneScore.textContent = plan.tone.score;
+      resignationSignalScore.textContent = plan.situation.signal;
+      resignationScript.innerHTML = plan.notice.replace(/\n/g, "<br>");
+      resignationSteps.innerHTML = plan.steps.map((step) => `<li>${step}</li>`).join("");
+      resignationCopyStatus.textContent = "Capture-ready preview. Kajabi opt-in path: Resignation Notice Scripts; no live form, tracking, or saved data is active yet.";
+    }
+
+    document.addEventListener("click", (event) => {
+      const button = event.target.closest(".signal-option");
+      if (!button) {
+        return;
+      }
+
+      const group = button.dataset.group;
+      const id = button.dataset.id;
+      if (!group || !id) {
+        return;
+      }
+
+      resignationSelections[group] = id;
+      updateResignationPlan();
+    });
+
+    resignationReset.addEventListener("click", () => {
+      resignationSelections.situation = "new-role";
+      resignationSelections.timing = "standard";
+      resignationSelections.tone = "warm";
+      updateResignationPlan();
+    });
+
+    copyResignationPlan.addEventListener("click", async () => {
+      const plan = buildResignationPlan();
+      const text = [
+        "Resignation Notice Builder",
+        `Route: ${plan.title}`,
+        `Summary: ${plan.summary}`,
+        "Checklist:",
+        ...plan.steps.map((step, index) => `${index + 1}. ${step}`),
+        "",
+        plan.notice,
+        "",
+        "Kajabi opt-in path: Resignation Notice Scripts; no live form, tracking, or saved data is active yet."
+      ].join("\n");
+
+      try {
+        await navigator.clipboard.writeText(text);
+        resignationCopyStatus.textContent = "Resignation notice copied locally. Nothing was saved or sent.";
+      } catch (error) {
+        resignationCopyStatus.textContent = "Copy was blocked by the browser. The draft is still visible above.";
+      }
+    });
+
+    updateResignationPlan();
+  </script>
+</body>
+</html>
