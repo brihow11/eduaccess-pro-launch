@@ -23,6 +23,7 @@ DNS manager: Namecheap.
 Initial paths:
 
 - `/apps/`
+- `/apps/second-interview-strategy-game/`
 - `/apps/first-interview-confidence-game/`
 - `/apps/hidden-jobs-outreach-game/`
 - `/apps/college-grad-first-90-days/`
@@ -60,6 +61,7 @@ Safe proof mode means the page is public and useful, but the live Kajabi form,
 email automation, tracking, and CRM routing are not attached yet. That is a
 temporary proof setting, not the business goal.
 
+- `/apps/second-interview-strategy-game/` is a capture-ready, browser-only Second Interview Strategy Game preview with a planned Kajabi opt-in path for the Second Interview Strategy Kit.
 - `/apps/first-interview-confidence-game/` is a capture-ready, browser-only First Interview Confidence Game preview with a planned Kajabi opt-in path for the First Interview Confidence Kit.
 - `/apps/hidden-jobs-outreach-game/` is a capture-ready, browser-only Hidden Jobs Outreach Game preview with a planned Kajabi opt-in path for Hidden Jobs Outreach Scripts.
 - `/apps/college-grad-first-90-days/` is a capture-ready, browser-only College Grad First 90 Days preview with a planned Kajabi opt-in path for the Graduate Job Search Starter Kit.

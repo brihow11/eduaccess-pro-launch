@@ -1,0 +1,324 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Second Interview Strategy Game | EduAccess</title>
+  <meta name="description" content="A capture-ready EduAccess mini game for helping job seekers prepare sharper second-interview strategy without entering private company, offer, or interview details.">
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="/style.css?v=20260620-second-interview">
+</head>
+<body class="tool-page signal-page">
+  <header class="tool-header signal-header">
+    <a class="back" href="/">EduAccess</a>
+    <nav aria-label="Tool sections">
+      <a href="/apps/" aria-current="page">Apps</a>
+      <a href="/quizzes/">Quizzes</a>
+      <a href="/lead-magnets/">Lead Magnets</a>
+      <a href="/sandbox/">Sandbox</a>
+    </nav>
+  </header>
+
+  <main class="signal-shell" aria-label="Second Interview Strategy Game">
+    <section class="signal-title">
+      <div>
+        <h1>Second Interview Strategy Game</h1>
+        <p>Choose a proof depth, team-fit signal, and closing move. This browser-only strategy game helps a job seeker prepare for a hiring manager, team, or panel round without entering company names, salary details, interview notes, or private career stories.</p>
+      </div>
+      <button class="signal-reset" id="strategyReset" type="button" aria-label="Reset Second Interview Strategy Game" title="Reset Second Interview Strategy Game">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M20 12a8 8 0 1 1-2.34-5.66" stroke="currentColor" stroke-width="2.1" stroke-linecap="round"/>
+          <path d="M20 4v5h-5" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <span>Reset</span>
+      </button>
+    </section>
+
+    <section class="signal-workspace">
+      <aside class="signal-panel signal-choices" aria-label="Second interview strategy choices">
+        <div class="signal-choice-header">
+          <h2>Choose three signals</h2>
+          <span id="strategyCount">3/3</span>
+        </div>
+
+        <div class="signal-group" aria-label="Proof depth">
+          <div class="signal-group-title">
+            <span class="signal-group-icon signal-teal" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none">
+                <path d="M4 19V5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                <path d="M4 18h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                <path d="M8 15v-4M12 15V8M16 15v-7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+              </svg>
+            </span>
+            <div>
+              <h3>Proof depth</h3>
+              <p>What should the second round believe?</p>
+            </div>
+          </div>
+          <div class="signal-options" id="proofDepthOptions"></div>
+        </div>
+
+        <div class="signal-group" aria-label="Team fit">
+          <div class="signal-group-title">
+            <span class="signal-group-icon signal-blue" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none">
+                <circle cx="8" cy="9" r="3" stroke="currentColor" stroke-width="2"/>
+                <circle cx="16" cy="9" r="3" stroke="currentColor" stroke-width="2"/>
+                <path d="M4 20c.7-3 2.2-4.5 4-4.5s3.3 1.5 4 4.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                <path d="M12 20c.7-3 2.2-4.5 4-4.5s3.3 1.5 4 4.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+              </svg>
+            </span>
+            <div>
+              <h3>Team fit</h3>
+              <p>How should the candidate show working style?</p>
+            </div>
+          </div>
+          <div class="signal-options" id="teamFitOptions"></div>
+        </div>
+
+        <div class="signal-group" aria-label="Closing move">
+          <div class="signal-group-title">
+            <span class="signal-group-icon signal-amber" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none">
+                <path d="M4 12h12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                <path d="m12 6 6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M6 6h3M6 18h3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+              </svg>
+            </span>
+            <div>
+              <h3>Closing move</h3>
+              <p>How should round two end?</p>
+            </div>
+          </div>
+          <div class="signal-options" id="closingMoveOptions"></div>
+        </div>
+      </aside>
+
+      <section class="signal-panel signal-result" aria-label="Suggested second interview strategy plan">
+        <div class="signal-result-top">
+          <div>
+            <span class="signal-mini-label">Suggested second-round plan</span>
+            <h2 id="strategyMove">Decision proof + team fit</h2>
+          </div>
+          <span class="signal-fit" id="strategyFit">Manager-ready</span>
+        </div>
+
+        <div class="signal-flow" aria-label="Selected second interview path">
+          <div><strong id="flowProofDepth">Decision proof</strong><span>proof</span></div>
+          <svg viewBox="0 0 48 16" fill="none" aria-hidden="true"><path d="M2 8h40M35 2l7 6-7 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <div><strong id="flowTeamFit">Team rhythm</strong><span>fit</span></div>
+          <svg viewBox="0 0 48 16" fill="none" aria-hidden="true"><path d="M2 8h40M35 2l7 6-7 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <div><strong id="flowClosingMove">Clarify decision</strong><span>close</span></div>
+        </div>
+
+        <p class="signal-summary" id="strategySummary">A stronger second interview proves how the candidate thinks, works with the team, and helps the hiring manager picture the first 30 days.</p>
+
+        <div class="signal-metrics" aria-label="Second interview strategy markers">
+          <div><span>Proof</span><strong id="proofDepthScore">Deep</strong></div>
+          <div><span>Team fit</span><strong id="teamFitScore">Aligned</strong></div>
+          <div><span>Close</span><strong id="closingScore">Clear</strong></div>
+          <div><span>Risk</span><strong id="riskScore">Lower</strong></div>
+        </div>
+
+        <div class="signal-plan-grid">
+          <div>
+            <h3>Strategy steps</h3>
+            <ol id="strategySteps"></ol>
+          </div>
+          <aside class="signal-script" aria-label="Second interview answer starter">
+            <strong>Round-two opener</strong>
+            <p id="strategyScript">For a second conversation, I would come prepared to show how I make decisions, work with the team, and turn the first priorities into a simple 30-day plan.</p>
+          </aside>
+        </div>
+
+        <button class="button signal-copy" id="copyStrategyPlan" type="button">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <rect x="8" y="8" width="11" height="13" rx="1.5" stroke="currentColor" stroke-width="2"/>
+            <path d="M5 16H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h11a1 1 0 0 1 1 1v1" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+          <span>Copy strategy plan</span>
+        </button>
+        <p class="signal-privacy" id="strategyCopyStatus" aria-live="polite">Capture-ready preview. Kajabi opt-in path: Second Interview Strategy Kit; no live form, tracking, or saved data is active yet.</p>
+      </section>
+
+      <aside class="signal-panel signal-map" aria-label="Second Interview Strategy Game map illustration">
+        <img src="../hidden-job-signal-map/hidden-job-signal-map.png" alt="Illustrated city map with route markers representing interview preparation steps">
+        <div class="signal-map-callout signal-callout-a"><strong>Proof</strong><span>Go deeper than round one.</span></div>
+        <div class="signal-map-callout signal-callout-b"><strong>Fit</strong><span>Show the team how you work.</span></div>
+        <div class="signal-map-callout signal-callout-c"><strong>Close</strong><span>Clarify what wins the role.</span></div>
+        <div class="signal-legend">
+          <span><i class="solid"></i> Strong round-two path</span>
+          <span><i class="dashed"></i> Decision bridge</span>
+          <span><i class="risk"></i> Generic-answer risk</span>
+        </div>
+      </aside>
+    </section>
+
+    <section class="signal-guidance" aria-label="More ways to prepare for second interviews">
+      <article>
+        <h2>Prove judgment, not just interest</h2>
+        <p>Second interviews usually test how the candidate thinks through real work, tradeoffs, collaboration, and priorities.</p>
+      </article>
+      <article>
+        <h2>Make team fit concrete</h2>
+        <p>Instead of saying "I am collaborative," show how you clarify work, handle feedback, and help a team move.</p>
+      </article>
+      <article>
+        <h2>Kajabi opt-in path</h2>
+        <p>This proof seed is meant to become a Second Interview Strategy Kit funnel: public practice first, then Kajabi registration for round-two prompts, proof templates, follow-up scripts, coaching, or the Job Seeker Pro next step.</p>
+      </article>
+    </section>
+  </main>
+
+  <script>
+    const strategyGroups = {
+      proofDepth: [
+        { id: "decision", label: "Decision proof", short: "Decision proof", proof: "Deep", risk: "Lower", fit: "Manager-ready", opening: "how I make decisions when the answer is not obvious", angle: "walk through one tradeoff, the information I used, and the result I protected" },
+        { id: "priority", label: "Priority proof", short: "Priority proof", proof: "Focused", risk: "Lower", fit: "Priority-ready", opening: "how I decide what matters first", angle: "show how I separate urgent noise from the work that actually moves the outcome" },
+        { id: "ownership", label: "Ownership proof", short: "Ownership proof", proof: "Reliable", risk: "Lower", fit: "Owner mindset", opening: "how I take ownership when work gets messy", angle: "show how I notice gaps, clarify next steps, and follow through" },
+        { id: "learning", label: "Learning proof", short: "Learning proof", proof: "Adaptive", risk: "Medium", fit: "Fast learner", opening: "how I learn a new context quickly", angle: "show the questions I ask, what I test first, and how I become useful" },
+        { id: "customer", label: "Customer proof", short: "Customer proof", proof: "Useful", risk: "Medium", fit: "Customer-aware", opening: "how I keep the end user or customer in mind", angle: "show how my work connects back to the people affected by the decision" }
+      ],
+      teamFit: [
+        { id: "rhythm", label: "Match team rhythm", short: "Team rhythm", score: "Aligned", behavior: "I would ask how the team communicates priorities, decisions, and handoffs so I can plug into the rhythm quickly" },
+        { id: "feedback", label: "Use feedback well", short: "Feedback loop", score: "Coach-ready", behavior: "I would show how I receive feedback, adjust the work, and keep the person giving feedback in the loop" },
+        { id: "clarity", label: "Create clarity", short: "Clarity habit", score: "Clear", behavior: "I would name how I clarify ownership, deadlines, and the definition of done before work drifts" },
+        { id: "calm", label: "Stay calm under pressure", short: "Steady pace", score: "Steady", behavior: "I would show how I stay useful when priorities change or pressure rises" },
+        { id: "cross", label: "Work across functions", short: "Cross-team fit", score: "Connected", behavior: "I would show how I translate between people who care about different parts of the outcome" }
+      ],
+      closingMove: [
+        { id: "criteria", label: "Ask about decision criteria", short: "Clarify decision", score: "Clear", close: "What will matter most when you decide who moves forward from this round?" },
+        { id: "first30", label: "Offer a first-30-day plan", short: "30-day plan", score: "Practical", close: "If helpful, I can outline how I would approach the first 30 days based on what I heard today." },
+        { id: "gap", label: "Invite concern or gap", short: "Surface gap", score: "Direct", close: "Is there any part of my background you would want me to clarify before the next step?" },
+        { id: "examples", label: "Prepare deeper examples", short: "Deeper examples", score: "Ready", close: "For a next conversation, I can prepare a deeper example around the highest-priority part of the role." },
+        { id: "followup", label: "Send focused follow-up", short: "Focused follow-up", score: "Follow-through", close: "I will send a short follow-up that connects my examples to the priorities we discussed." }
+      ]
+    };
+
+    const strategySelections = {
+      proofDepth: "decision",
+      teamFit: "rhythm",
+      closingMove: "criteria"
+    };
+
+    const proofDepthOptions = document.querySelector("#proofDepthOptions");
+    const teamFitOptions = document.querySelector("#teamFitOptions");
+    const closingMoveOptions = document.querySelector("#closingMoveOptions");
+    const strategyCount = document.querySelector("#strategyCount");
+    const strategyMove = document.querySelector("#strategyMove");
+    const strategyFit = document.querySelector("#strategyFit");
+    const flowProofDepth = document.querySelector("#flowProofDepth");
+    const flowTeamFit = document.querySelector("#flowTeamFit");
+    const flowClosingMove = document.querySelector("#flowClosingMove");
+    const strategySummary = document.querySelector("#strategySummary");
+    const proofDepthScore = document.querySelector("#proofDepthScore");
+    const teamFitScore = document.querySelector("#teamFitScore");
+    const closingScore = document.querySelector("#closingScore");
+    const riskScore = document.querySelector("#riskScore");
+    const strategySteps = document.querySelector("#strategySteps");
+    const strategyScript = document.querySelector("#strategyScript");
+    const strategyReset = document.querySelector("#strategyReset");
+    const copyStrategyPlan = document.querySelector("#copyStrategyPlan");
+    const strategyCopyStatus = document.querySelector("#strategyCopyStatus");
+
+    function findStrategyOption(group, id) {
+      return strategyGroups[group].find((option) => option.id === id);
+    }
+
+    function renderStrategyOptions(groupName, container) {
+      container.innerHTML = strategyGroups[groupName].map((option) => {
+        const isActive = strategySelections[groupName] === option.id;
+        const active = isActive ? " is-active" : "";
+        return `
+          <button class="signal-option${active}" type="button" data-group="${groupName}" data-id="${option.id}" aria-pressed="${isActive}">
+            <span>${option.label}</span>
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <circle cx="12" cy="12" r="8" stroke="currentColor" stroke-width="2"/>
+              <path d="m8.5 12 2.3 2.3 4.8-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
+        `;
+      }).join("");
+    }
+
+    function buildStrategyPlan() {
+      const proofDepth = findStrategyOption("proofDepth", strategySelections.proofDepth);
+      const teamFit = findStrategyOption("teamFit", strategySelections.teamFit);
+      const closingMove = findStrategyOption("closingMove", strategySelections.closingMove);
+      const title = `${proofDepth.short} + ${teamFit.short}`;
+      const script = `For a second conversation, I would come prepared to show ${proofDepth.opening}. I would also explain that ${teamFit.behavior.toLowerCase()}.`;
+      const summary = `Use ${proofDepth.short.toLowerCase()} to go deeper than round one. Pair it with ${teamFit.short.toLowerCase()}, then close by asking: "${closingMove.close}"`;
+      const steps = [
+        `Open with the round-two frame: this conversation should test ${proofDepth.opening}.`,
+        `Give one deeper example and ${proofDepth.angle}.`,
+        `Show team fit: ${teamFit.behavior}.`,
+        `Close with the selected move: ${closingMove.close}`,
+        "Keep the plan specific without naming private companies, compensation, confidential work, or personal details that are not needed."
+      ];
+      return { proofDepth, teamFit, closingMove, title, script, summary, steps };
+    }
+
+    function updateStrategyPlan() {
+      renderStrategyOptions("proofDepth", proofDepthOptions);
+      renderStrategyOptions("teamFit", teamFitOptions);
+      renderStrategyOptions("closingMove", closingMoveOptions);
+
+      const plan = buildStrategyPlan();
+      strategyCount.textContent = `${Object.values(strategySelections).filter(Boolean).length}/3`;
+      strategyMove.textContent = plan.title;
+      strategyFit.textContent = plan.proofDepth.fit;
+      flowProofDepth.textContent = plan.proofDepth.short;
+      flowTeamFit.textContent = plan.teamFit.short;
+      flowClosingMove.textContent = plan.closingMove.short;
+      strategySummary.textContent = plan.summary;
+      proofDepthScore.textContent = plan.proofDepth.proof;
+      teamFitScore.textContent = plan.teamFit.score;
+      closingScore.textContent = plan.closingMove.score;
+      riskScore.textContent = plan.proofDepth.risk;
+      strategyScript.textContent = plan.script;
+      strategySteps.innerHTML = plan.steps.map((step) => `<li>${step}</li>`).join("");
+      strategyCopyStatus.textContent = "Capture-ready preview. Kajabi opt-in path: Second Interview Strategy Kit; no live form, tracking, or saved data is active yet.";
+    }
+
+    document.addEventListener("click", (event) => {
+      const option = event.target.closest(".signal-option");
+      if (!option) return;
+
+      strategySelections[option.dataset.group] = option.dataset.id;
+      updateStrategyPlan();
+    });
+
+    strategyReset.addEventListener("click", () => {
+      strategySelections.proofDepth = "decision";
+      strategySelections.teamFit = "rhythm";
+      strategySelections.closingMove = "criteria";
+      updateStrategyPlan();
+    });
+
+    copyStrategyPlan.addEventListener("click", async () => {
+      const plan = buildStrategyPlan();
+      const text = [
+        `Second Interview Strategy Game: ${plan.title}`,
+        `Round-two opener: ${plan.script}`,
+        `Summary: ${plan.summary}`,
+        "Steps:",
+        ...plan.steps.map((step, index) => `${index + 1}. ${step}`)
+      ].join("\n");
+
+      try {
+        await navigator.clipboard.writeText(text);
+        strategyCopyStatus.textContent = "Strategy plan copied locally. The intended funnel step is a Kajabi opt-in for the Second Interview Strategy Kit.";
+      } catch (error) {
+        const selection = window.getSelection();
+        const range = document.createRange();
+        range.selectNodeContents(document.querySelector(".signal-result"));
+        selection.removeAllRanges();
+        selection.addRange(range);
+        strategyCopyStatus.textContent = "Clipboard was blocked, so the strategy plan is selected locally.";
+      }
+    });
+
+    updateStrategyPlan();
+  </script>
+</body>
+</html>
