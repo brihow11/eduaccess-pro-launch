@@ -2,6 +2,18 @@
 
 No-spend public launch home for Job Seeker Pro / EduAccess experiments.
 
+Funnel intent: Ranger should build quizzes, lead magnets, quiz funnels, games,
+and mini apps as partial-solution experiments that can capture interested job
+seekers through Kajabi opt-in forms. Public tools should give useful value first,
+then point to a fuller checklist, follow-up asset, course, coaching offer, or
+Job Seeker Pro next step once the approved Kajabi form and social promotion lane
+are connected.
+
+Promotion intent: once Brian has defined the social lane, audience, limits, and
+stop rules, Ranger should autonomously create and push simple no-spend social
+posts that promote these experiments and drive interested people back to the
+Kajabi opt-in path.
+
 Primary domain target: `eduaccess.pro`
 
 Hosting target: Railway.
@@ -11,6 +23,7 @@ DNS manager: Namecheap.
 Initial paths:
 
 - `/apps/`
+- `/apps/open-to-work-signal-builder/`
 - `/apps/recruiter-screen-prep-builder/`
 - `/apps/ghosting-recovery-planner/`
 - `/apps/reference-readiness-builder/`
@@ -38,6 +51,11 @@ Root and `www` now route through Railway over HTTPS.
 
 Current live preview:
 
+Safe proof mode means the page is public and useful, but the live Kajabi form,
+email automation, tracking, and CRM routing are not attached yet. That is a
+temporary proof setting, not the business goal.
+
+- `/apps/open-to-work-signal-builder/` is a capture-ready, browser-only Open-To-Work Signal Builder preview with a planned Kajabi opt-in path for the fuller checklist.
 - `/apps/recruiter-screen-prep-builder/` is a no-capture, browser-only Recruiter Screen Prep Builder preview.
 - `/apps/ghosting-recovery-planner/` is a no-capture, browser-only Ghosting Recovery Planner preview.
 - `/apps/reference-readiness-builder/` is a no-capture, browser-only Reference Readiness Builder preview.
@@ -58,4 +76,4 @@ Current live preview:
 - `/apps/ai-readiness-planner/` is a no-capture, browser-only AI Readiness Planner preview.
 - `/lead-magnets/hidden-job-market-map/` is a no-capture public Job Seeker Pro resource preview.
 
-Do not add paid services, tracking, lead capture, real user data storage, email automation, or public campaign routing without Brian's exact approval.
+Do not add paid services, tracking, real user data storage, email automation, or public campaign routing outside Brian's approved lane. Lead capture should be Kajabi-based and intentionally attached to an approved experiment, form, offer, social promotion path, and follow-up lane.

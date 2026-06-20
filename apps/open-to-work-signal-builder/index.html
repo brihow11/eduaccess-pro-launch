@@ -1,0 +1,323 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Open-To-Work Signal Builder | EduAccess</title>
+  <meta name="description" content="A capture-ready EduAccess mini app for turning a vague Open-To-Work signal into a clearer headline, proof phrase, outreach move, and future Kajabi opt-in path.">
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="/style.css?v=20260620-opentowork1">
+</head>
+<body class="tool-page signal-page">
+  <header class="tool-header signal-header">
+    <a class="back" href="/">EduAccess</a>
+    <nav aria-label="Tool sections">
+      <a href="/apps/" aria-current="page">Apps</a>
+      <a href="/quizzes/">Quizzes</a>
+      <a href="/lead-magnets/">Lead Magnets</a>
+      <a href="/sandbox/">Sandbox</a>
+    </nav>
+  </header>
+
+  <main class="signal-shell" aria-label="Open-To-Work Signal Builder">
+    <section class="signal-title">
+      <div>
+        <h1>Open-To-Work Signal Builder</h1>
+        <p>Turn a vague profile signal into a sharper hiring signal. Choose your target, proof, and current gap to get a stronger headline, proof phrase, and next outreach move. The public version gives quick value first; the next layer is a Kajabi opt-in for the full checklist or follow-up asset.</p>
+      </div>
+      <button class="signal-reset" id="signalReset" type="button" aria-label="Reset Open-To-Work Signal Builder" title="Reset Open-To-Work Signal Builder">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M20 12a8 8 0 1 1-2.34-5.66" stroke="currentColor" stroke-width="2.1" stroke-linecap="round"/>
+          <path d="M20 4v5h-5" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <span>Reset</span>
+      </button>
+    </section>
+
+    <section class="signal-workspace">
+      <aside class="signal-panel signal-choices" aria-label="Open-To-Work signal choices">
+        <div class="signal-choice-header">
+          <h2>Choose three signals</h2>
+          <span id="signalCount">3/3</span>
+        </div>
+
+        <div class="signal-group" aria-label="Target role lane">
+          <div class="signal-group-title">
+            <span class="signal-group-icon signal-teal" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none">
+                <path d="M12 4v16M5 9h14M7 15h10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                <path d="M6 4h12v16H6z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+              </svg>
+            </span>
+            <div>
+              <h3>Target lane</h3>
+              <p>What kind of role should your signal point toward?</p>
+            </div>
+          </div>
+          <div class="signal-options" id="targetOptions"></div>
+        </div>
+
+        <div class="signal-group" aria-label="Strongest proof">
+          <div class="signal-group-title">
+            <span class="signal-group-icon signal-amber" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none">
+                <path d="M12 3 19 7v5c0 4.2-2.5 7.3-7 9-4.5-1.7-7-4.8-7-9V7l7-4Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+                <path d="m8.6 12.2 2.1 2.1 4.8-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </span>
+            <div>
+              <h3>Best proof</h3>
+              <p>What should make the signal believable?</p>
+            </div>
+          </div>
+          <div class="signal-options" id="proofOptions"></div>
+        </div>
+
+        <div class="signal-group" aria-label="Current signal gap">
+          <div class="signal-group-title">
+            <span class="signal-group-icon signal-blue" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none">
+                <path d="M4 17c4-8 9-11 16-10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                <path d="M14 5h6v6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M5 20h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+              </svg>
+            </span>
+            <div>
+              <h3>Signal gap</h3>
+              <p>What makes the current profile feel unclear?</p>
+            </div>
+          </div>
+          <div class="signal-options" id="gapOptions"></div>
+        </div>
+      </aside>
+
+      <section class="signal-panel signal-result" aria-label="Suggested Open-To-Work signal plan">
+        <div class="signal-result-top">
+          <div>
+            <span class="signal-mini-label">Suggested signal</span>
+            <h2 id="signalMove">Clarify the target before asking for attention</h2>
+          </div>
+          <span class="signal-fit" id="signalFit">Sharper target</span>
+        </div>
+
+        <div class="signal-flow" aria-label="Selected Open-To-Work signal path">
+          <div><strong id="flowTarget">Operations</strong><span>target lane</span></div>
+          <svg viewBox="0 0 48 16" fill="none" aria-hidden="true"><path d="M2 8h40M35 2l7 6-7 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <div><strong id="flowProof">Process results</strong><span>best proof</span></div>
+          <svg viewBox="0 0 48 16" fill="none" aria-hidden="true"><path d="M2 8h40M35 2l7 6-7 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <div><strong id="flowGap">Too broad</strong><span>signal gap</span></div>
+        </div>
+
+        <p class="signal-summary" id="signalSummary">A strong Open-To-Work signal says what you want, why someone should believe you, and what conversation you are inviting.</p>
+
+        <div class="signal-metrics" aria-label="Open-To-Work signal quality markers">
+          <div><span>Clarity</span><strong id="clarityScore">High</strong></div>
+          <div><span>Proof</span><strong id="proofScore">Practical</strong></div>
+          <div><span>Reach</span><strong id="reachScore">Warm</strong></div>
+          <div><span>Risk</span><strong id="riskScore">Low</strong></div>
+        </div>
+
+        <div class="signal-plan-grid">
+          <div>
+            <h3>Short action plan</h3>
+            <ol id="signalSteps"></ol>
+          </div>
+          <aside class="signal-script" aria-label="Open-To-Work profile starter">
+            <strong>Profile signal starter</strong>
+            <p id="signalScript">Open to operations roles where I can improve process clarity, reduce friction, and help teams move faster with practical follow-through.</p>
+          </aside>
+        </div>
+
+        <button class="button signal-copy" id="copySignalPlan" type="button">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <rect x="8" y="8" width="11" height="13" rx="1.5" stroke="currentColor" stroke-width="2"/>
+            <path d="M5 16H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h11a1 1 0 0 1 1 1v1" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+          <span>Copy plan</span>
+        </button>
+        <p class="signal-privacy" id="signalCopyStatus" aria-live="polite">Capture-ready preview. Kajabi opt-in is the intended next step; no live form, tracking, or saved data is active yet.</p>
+      </section>
+
+      <aside class="signal-panel signal-map" aria-label="Open-To-Work signal map illustration">
+        <img src="../hidden-job-signal-map/hidden-job-signal-map.png" alt="Illustrated city map with signal pins and a warm route toward clearer hiring conversations">
+        <div class="signal-map-callout signal-callout-a"><strong>Target lane</strong><span>Make the role direction obvious.</span></div>
+        <div class="signal-map-callout signal-callout-b"><strong>Proof point</strong><span>Give people a reason to believe.</span></div>
+        <div class="signal-map-callout signal-callout-c"><strong>Warm ask</strong><span>Invite the right conversation.</span></div>
+        <div class="signal-legend">
+          <span><i class="solid"></i> Clear signal</span>
+          <span><i class="dashed"></i> Proof bridge</span>
+          <span><i class="risk"></i> Vague profile risk</span>
+        </div>
+      </aside>
+    </section>
+
+    <section class="signal-guidance" aria-label="More ways to improve an Open-To-Work signal">
+      <article>
+        <h2>Do not make the badge do all the work</h2>
+        <p>The badge creates visibility. The headline, proof, and outreach angle create a reason to respond.</p>
+      </article>
+      <article>
+        <h2>Point toward a buyer problem</h2>
+        <p>A clearer signal names the work you help with, not just the job title you want.</p>
+      </article>
+      <article>
+        <h2>Kajabi opt-in path</h2>
+        <p>This proof seed is meant to become an Open-To-Work Signal Checklist funnel: public quick result first, then Kajabi registration for the fuller checklist, email follow-up, coaching offer, or BRAVE/Job Seeker Pro next step.</p>
+      </article>
+    </section>
+  </main>
+
+  <script>
+    const signalGroups = {
+      target: [
+        { id: "operations", label: "Operations or project roles", short: "Operations", clarity: "High", reach: "Warm", frame: "operations roles", buyer: "improve process clarity, reduce friction, and help teams move faster" },
+        { id: "customer", label: "Customer success or support", short: "Customer success", clarity: "High", reach: "Warm", frame: "customer success roles", buyer: "turn customer patterns into better retention, onboarding, and useful follow-through" },
+        { id: "sales", label: "Sales or partnerships", short: "Sales", clarity: "Medium-high", reach: "Active", frame: "sales or partnership roles", buyer: "build pipeline, open practical conversations, and keep deals moving" },
+        { id: "admin", label: "Administrative or coordinator", short: "Coordinator", clarity: "High", reach: "Warm", frame: "coordinator roles", buyer: "organize moving pieces, protect deadlines, and make team communication easier" },
+        { id: "careerchange", label: "Career change direction", short: "Career change", clarity: "Medium", reach: "Focused", frame: "career-change roles", buyer: "connect transferable experience to the problems the team needs solved" }
+      ],
+      proof: [
+        { id: "process", label: "Process results", short: "Process results", proof: "Practical", source: "a before-and-after process improvement" },
+        { id: "people", label: "People and communication", short: "Communication", proof: "Human", source: "a moment where you aligned people, clarified next steps, or reduced confusion" },
+        { id: "numbers", label: "Numbers or volume", short: "Numbers", proof: "Measurable", source: "one metric, volume, speed, savings, or quality result" },
+        { id: "reliability", label: "Reliability under pressure", short: "Reliability", proof: "Steady", source: "a high-pressure situation where you protected quality and follow-through" },
+        { id: "learning", label: "Fast learning", short: "Fast learning", proof: "Adaptive", source: "a time you ramped quickly and became useful without a long runway" }
+      ],
+      gap: [
+        { id: "broad", label: "Headline is too broad", short: "Too broad", risk: "Medium", fix: "narrow the first line to one role lane and one buyer problem" },
+        { id: "proofless", label: "Profile has too little proof", short: "Proof gap", risk: "Medium-high", fix: "add one proof phrase before asking anyone to refer or introduce you" },
+        { id: "passive", label: "Waiting for recruiters", short: "Too passive", risk: "Medium", fix: "pair the profile update with one warm perspective ask" },
+        { id: "mixed", label: "Multiple directions at once", short: "Mixed signal", risk: "High", fix: "choose one public-facing direction for the next two weeks" },
+        { id: "quiet", label: "Network does not know", short: "Quiet network", risk: "Medium", fix: "give warm contacts a simple one-sentence way to understand your target" }
+      ]
+    };
+
+    const signalSelections = {
+      target: "operations",
+      proof: "process",
+      gap: "broad"
+    };
+
+    const targetOptions = document.querySelector("#targetOptions");
+    const proofOptions = document.querySelector("#proofOptions");
+    const gapOptions = document.querySelector("#gapOptions");
+    const signalCount = document.querySelector("#signalCount");
+    const signalMove = document.querySelector("#signalMove");
+    const signalFit = document.querySelector("#signalFit");
+    const flowTarget = document.querySelector("#flowTarget");
+    const flowProof = document.querySelector("#flowProof");
+    const flowGap = document.querySelector("#flowGap");
+    const signalSummary = document.querySelector("#signalSummary");
+    const clarityScore = document.querySelector("#clarityScore");
+    const proofScore = document.querySelector("#proofScore");
+    const reachScore = document.querySelector("#reachScore");
+    const riskScore = document.querySelector("#riskScore");
+    const signalSteps = document.querySelector("#signalSteps");
+    const signalScript = document.querySelector("#signalScript");
+    const signalReset = document.querySelector("#signalReset");
+    const copySignalPlan = document.querySelector("#copySignalPlan");
+    const signalCopyStatus = document.querySelector("#signalCopyStatus");
+
+    function findSignal(group, id) {
+      return signalGroups[group].find((option) => option.id === id);
+    }
+
+    function renderSignalOptions(groupName, container) {
+      container.innerHTML = signalGroups[groupName].map((option) => {
+        const isActive = signalSelections[groupName] === option.id;
+        const active = isActive ? " is-active" : "";
+        return `
+          <button class="signal-option${active}" type="button" data-group="${groupName}" data-id="${option.id}" aria-pressed="${isActive}">
+            <span>${option.label}</span>
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <circle cx="12" cy="12" r="8" stroke="currentColor" stroke-width="2"/>
+              <path d="m8.5 12 2.3 2.3 4.8-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
+        `;
+      }).join("");
+    }
+
+    function buildSignalPlan() {
+      const target = findSignal("target", signalSelections.target);
+      const proof = findSignal("proof", signalSelections.proof);
+      const gap = findSignal("gap", signalSelections.gap);
+      const move = `${target.short} + ${proof.short}`;
+      const summary = `Signal toward ${target.frame} where you can ${target.buyer}. Use ${proof.source} so the Open-To-Work note feels specific, then ${gap.fix}.`;
+      const headline = `Open to ${target.frame} where I can ${target.buyer}.`;
+      const proofPhrase = `Proof to show: ${proof.source}.`;
+      const outreachMove = `Send one warm note that says: I am tightening my search around ${target.frame}; if you see teams trying to ${target.buyer}, I would value a quick perspective conversation.`;
+      const steps = [
+        `Rewrite the headline around ${target.frame}, not a list of every possible job.`,
+        proofPhrase,
+        `Fix the current gap: ${gap.fix}.`,
+        "Update one public profile section so the badge has a stronger message behind it.",
+        outreachMove
+      ];
+      return { target, proof, gap, move, summary, headline, steps };
+    }
+
+    function updateSignalPlan() {
+      renderSignalOptions("target", targetOptions);
+      renderSignalOptions("proof", proofOptions);
+      renderSignalOptions("gap", gapOptions);
+
+      const plan = buildSignalPlan();
+      signalCount.textContent = `${Object.values(signalSelections).filter(Boolean).length}/3`;
+      signalMove.textContent = plan.move;
+      signalFit.textContent = "Sharper target";
+      flowTarget.textContent = plan.target.short;
+      flowProof.textContent = plan.proof.short;
+      flowGap.textContent = plan.gap.short;
+      signalSummary.textContent = plan.summary;
+      clarityScore.textContent = plan.target.clarity;
+      proofScore.textContent = plan.proof.proof;
+      reachScore.textContent = plan.target.reach;
+      riskScore.textContent = plan.gap.risk;
+      signalScript.textContent = plan.headline;
+      signalSteps.innerHTML = plan.steps.map((step) => `<li>${step}</li>`).join("");
+      signalCopyStatus.textContent = "Capture-ready preview. Kajabi opt-in is the intended next step; no live form, tracking, or saved data is active yet.";
+    }
+
+    document.addEventListener("click", (event) => {
+      const option = event.target.closest(".signal-option");
+      if (!option) return;
+
+      signalSelections[option.dataset.group] = option.dataset.id;
+      updateSignalPlan();
+    });
+
+    signalReset.addEventListener("click", () => {
+      signalSelections.target = "operations";
+      signalSelections.proof = "process";
+      signalSelections.gap = "broad";
+      updateSignalPlan();
+    });
+
+    copySignalPlan.addEventListener("click", async () => {
+      const plan = buildSignalPlan();
+      const text = [
+        `Open-To-Work Signal Builder: ${plan.move}`,
+        `Headline starter: ${plan.headline}`,
+        `Summary: ${plan.summary}`,
+        "Steps:",
+        ...plan.steps.map((step, index) => `${index + 1}. ${step}`)
+      ].join("\n");
+
+      try {
+        await navigator.clipboard.writeText(text);
+        signalCopyStatus.textContent = "Plan copied locally. The intended funnel step is a Kajabi opt-in for the fuller checklist.";
+      } catch (error) {
+        const selection = window.getSelection();
+        const range = document.createRange();
+        range.selectNodeContents(document.querySelector(".signal-result"));
+        selection.removeAllRanges();
+        selection.addRange(range);
+        signalCopyStatus.textContent = "Clipboard was blocked, so the plan is selected locally.";
+      }
+    });
+
+    updateSignalPlan();
+  </script>
+</body>
+</html>
