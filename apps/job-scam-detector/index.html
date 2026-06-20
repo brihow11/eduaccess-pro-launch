@@ -1,0 +1,320 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AI Job Scam Detector | EduAccess</title>
+  <meta name="description" content="A capture-ready EduAccess mini app for helping job seekers spot risky hiring-message patterns and choose a safer next step before sharing money, identity documents, or personal information.">
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="/style.css?v=20260620-scam1">
+</head>
+<body class="tool-page signal-page">
+  <header class="tool-header signal-header">
+    <a class="back" href="/">EduAccess</a>
+    <nav aria-label="Tool sections">
+      <a href="/apps/" aria-current="page">Apps</a>
+      <a href="/quizzes/">Quizzes</a>
+      <a href="/lead-magnets/">Lead Magnets</a>
+      <a href="/sandbox/">Sandbox</a>
+    </nav>
+  </header>
+
+  <main class="signal-shell" aria-label="AI Job Scam Detector">
+    <section class="signal-title">
+      <div>
+        <h1>AI Job Scam Detector</h1>
+        <p>Choose the warning sign, message context, and safest next step. This preview helps a job seeker slow down before sharing money, identity documents, banking details, or private information. No message text, names, links, or personal details are needed.</p>
+      </div>
+      <button class="signal-reset" id="scamReset" type="button" aria-label="Reset AI Job Scam Detector" title="Reset AI Job Scam Detector">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M20 12a8 8 0 1 1-2.34-5.66" stroke="currentColor" stroke-width="2.1" stroke-linecap="round"/>
+          <path d="M20 4v5h-5" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <span>Reset</span>
+      </button>
+    </section>
+
+    <section class="signal-workspace">
+      <aside class="signal-panel signal-choices" aria-label="Job scam detector choices">
+        <div class="signal-choice-header">
+          <h2>Choose three signals</h2>
+          <span id="scamCount">3/3</span>
+        </div>
+
+        <div class="signal-group" aria-label="Suspicious signal">
+          <div class="signal-group-title">
+            <span class="signal-group-icon signal-amber" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none">
+                <path d="M12 3 21 19H3L12 3Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+                <path d="M12 9v4M12 17h.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+              </svg>
+            </span>
+            <div>
+              <h3>Suspicious signal</h3>
+              <p>What part of the offer feels wrong?</p>
+            </div>
+          </div>
+          <div class="signal-options" id="warningOptions"></div>
+        </div>
+
+        <div class="signal-group" aria-label="Message context">
+          <div class="signal-group-title">
+            <span class="signal-group-icon signal-blue" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none">
+                <path d="M5 6h14v10H8l-3 3V6Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+                <path d="M8 10h8M8 13h5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+              </svg>
+            </span>
+            <div>
+              <h3>Message context</h3>
+              <p>Where did the pressure show up?</p>
+            </div>
+          </div>
+          <div class="signal-options" id="contextOptions"></div>
+        </div>
+
+        <div class="signal-group" aria-label="Safer proof step">
+          <div class="signal-group-title">
+            <span class="signal-group-icon signal-teal" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none">
+                <path d="M12 3 19 7v5c0 4.2-2.5 7.3-7 9-4.5-1.7-7-4.8-7-9V7l7-4Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+                <path d="m8.6 12.2 2.1 2.1 4.8-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </span>
+            <div>
+              <h3>Safer next step</h3>
+              <p>What should happen before the job seeker continues?</p>
+            </div>
+          </div>
+          <div class="signal-options" id="safeStepOptions"></div>
+        </div>
+      </aside>
+
+      <section class="signal-panel signal-result" aria-label="Suggested job scam safety plan">
+        <div class="signal-result-top">
+          <div>
+            <span class="signal-mini-label">Suggested safety move</span>
+            <h2 id="scamMove">Pause before sharing anything private</h2>
+          </div>
+          <span class="signal-fit" id="scamFit">Stop and verify</span>
+        </div>
+
+        <div class="signal-flow" aria-label="Selected job scam detector path">
+          <div><strong id="flowWarning">Too-fast offer</strong><span>warning sign</span></div>
+          <svg viewBox="0 0 48 16" fill="none" aria-hidden="true"><path d="M2 8h40M35 2l7 6-7 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <div><strong id="flowContext">Text or chat pressure</strong><span>context</span></div>
+          <svg viewBox="0 0 48 16" fill="none" aria-hidden="true"><path d="M2 8h40M35 2l7 6-7 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <div><strong id="flowSafeStep">Slow the clock</strong><span>safe step</span></div>
+        </div>
+
+        <p class="signal-summary" id="scamSummary">A real hiring process can move quickly, but it should still tolerate verification. Pause, avoid sending private information, and move the conversation back to official company channels before continuing.</p>
+
+        <div class="signal-metrics" aria-label="Job scam safety markers">
+          <div><span>Risk</span><strong id="riskScore">High</strong></div>
+          <div><span>Identity safety</span><strong id="identityScore">Protect</strong></div>
+          <div><span>Proof</span><strong id="proofScore">Official</strong></div>
+          <div><span>Next move</span><strong id="nextMoveScore">Verify</strong></div>
+        </div>
+
+        <div class="signal-plan-grid">
+          <div>
+            <h3>Short safety plan</h3>
+            <ol id="scamSteps"></ol>
+          </div>
+          <aside class="signal-script" aria-label="Job scam verification reply starter">
+            <strong>Reply starter</strong>
+            <p id="scamScript">Thanks for reaching out. Before I continue, please send the official job posting and company email contact so I can verify the opportunity through the employer's normal hiring channel.</p>
+          </aside>
+        </div>
+
+        <button class="button signal-copy" id="copyScamPlan" type="button">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <rect x="8" y="8" width="11" height="13" rx="1.5" stroke="currentColor" stroke-width="2"/>
+            <path d="M5 16H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h11a1 1 0 0 1 1 1v1" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+          <span>Copy plan</span>
+        </button>
+        <p class="signal-privacy" id="scamCopyStatus" aria-live="polite">Capture-ready preview. Kajabi opt-in is the intended next step for the full Safe Job Search Checklist; no live form, tracking, or saved data is active yet.</p>
+      </section>
+
+      <aside class="signal-panel signal-map" aria-label="AI Job Scam Detector map illustration">
+        <img src="../hidden-job-signal-map/hidden-job-signal-map.png" alt="Illustrated city map with signal pins and a safe route away from risky job-search messages">
+        <div class="signal-map-callout signal-callout-a"><strong>Pause</strong><span>Pressure is a signal to slow down.</span></div>
+        <div class="signal-map-callout signal-callout-b"><strong>Verify</strong><span>Move back to official company channels.</span></div>
+        <div class="signal-map-callout signal-callout-c"><strong>Protect</strong><span>Do not send money, ID, or banking details.</span></div>
+        <div class="signal-legend">
+          <span><i class="solid"></i> Safer path</span>
+          <span><i class="dashed"></i> Verification bridge</span>
+          <span><i class="risk"></i> Scam pressure</span>
+        </div>
+      </aside>
+    </section>
+
+    <section class="signal-guidance" aria-label="More ways to avoid job scams">
+      <article>
+        <h2>Do not pay to get hired</h2>
+        <p>Legitimate hiring should not require upfront payments, gift cards, crypto transfers, or equipment checks from the job seeker.</p>
+      </article>
+      <article>
+        <h2>Protect identity documents</h2>
+        <p>Do not send Social Security numbers, ID photos, banking details, or tax forms before verifying the employer and the hiring stage.</p>
+      </article>
+      <article>
+        <h2>Kajabi opt-in path</h2>
+        <p>This proof seed is meant to become a Safe Job Search Checklist funnel: public quick result first, then Kajabi registration for the fuller checklist, email follow-up, coaching offer, or Job Seeker Pro next step.</p>
+      </article>
+    </section>
+  </main>
+
+  <script>
+    const scamGroups = {
+      warning: [
+        { id: "payment", label: "Upfront payment or fee", short: "Payment request", risk: "Very high", identity: "Protect", proof: "Official", next: "Stop", issue: "asks for money before legitimate employment steps", why: "real employers should not require a candidate to pay for access, equipment, gift cards, crypto, or processing" },
+        { id: "fast", label: "Too-fast offer", short: "Too-fast offer", risk: "High", identity: "Protect", proof: "Official", next: "Verify", issue: "jumps to an offer before normal screening", why: "real hiring can be efficient, but it should still include clear company identity, role details, and normal verification" },
+        { id: "identity", label: "Personal ID request", short: "ID request", risk: "Very high", identity: "Do not send", proof: "Employer verified", next: "Protect", issue: "asks for identity documents too early", why: "sensitive documents should wait until the employer and hiring stage are verified" },
+        { id: "offplatform", label: "Off-platform pressure", short: "Off-platform pressure", risk: "Medium-high", identity: "Limit", proof: "Company channel", next: "Move channels", issue: "pushes the job seeker away from official systems", why: "scams often try to control the conversation before the job seeker checks the employer" },
+        { id: "check", label: "Check, transfer, or deposit", short: "Money transfer", risk: "Very high", identity: "Protect", proof: "Stop", next: "Do not deposit", issue: "asks the job seeker to handle money", why: "fake-check and money-transfer scams can create financial and legal trouble for the job seeker" }
+      ],
+      context: [
+        { id: "chat", label: "Text or chat pressure", short: "Text or chat pressure", source: "a fast chat or text thread", channel: "official company email or careers page", pressure: "slow down before responding again" },
+        { id: "remote", label: "Remote work promise", short: "Remote promise", source: "a remote-job pitch", channel: "the employer's real careers page", pressure: "verify the role before discussing equipment, payroll, or documents" },
+        { id: "skipped", label: "Interview skipped", short: "Interview skipped", source: "a process with no meaningful interview", channel: "a verified hiring contact", pressure: "ask for the normal interview path" },
+        { id: "company", label: "Unknown company trail", short: "Unknown company", source: "a message with unclear employer details", channel: "a confirmed company domain", pressure: "confirm the company before sharing anything private" },
+        { id: "photo", label: "Photo or document ask", short: "Document ask", source: "a request for photos or documents", channel: "verified onboarding only", pressure: "do not send documents until the employer is verified" }
+      ],
+      safeStep: [
+        { id: "domain", label: "Verify official domain", short: "Verify domain", action: "check the company website, careers page, and sender domain before continuing", score: "Verify" },
+        { id: "slow", label: "Pause and slow the clock", short: "Slow the clock", action: "take the pressure out of the exchange and avoid quick decisions", score: "Pause" },
+        { id: "official", label: "Use official application", short: "Official application", action: "apply or continue only through the employer's official job posting or applicant system", score: "Official" },
+        { id: "protect", label: "Protect identity docs", short: "Protect documents", action: "do not send ID, tax, banking, or payroll information until the employer and stage are verified", score: "Protect" },
+        { id: "details", label: "Ask for written details", short: "Written details", action: "ask for the official job posting, company contact, role details, and next interview step", score: "Document" }
+      ]
+    };
+
+    const scamSelections = {
+      warning: "fast",
+      context: "chat",
+      safeStep: "slow"
+    };
+
+    const warningOptions = document.querySelector("#warningOptions");
+    const contextOptions = document.querySelector("#contextOptions");
+    const safeStepOptions = document.querySelector("#safeStepOptions");
+    const scamCount = document.querySelector("#scamCount");
+    const scamMove = document.querySelector("#scamMove");
+    const scamFit = document.querySelector("#scamFit");
+    const flowWarning = document.querySelector("#flowWarning");
+    const flowContext = document.querySelector("#flowContext");
+    const flowSafeStep = document.querySelector("#flowSafeStep");
+    const scamSummary = document.querySelector("#scamSummary");
+    const riskScore = document.querySelector("#riskScore");
+    const identityScore = document.querySelector("#identityScore");
+    const proofScore = document.querySelector("#proofScore");
+    const nextMoveScore = document.querySelector("#nextMoveScore");
+    const scamSteps = document.querySelector("#scamSteps");
+    const scamScript = document.querySelector("#scamScript");
+    const scamReset = document.querySelector("#scamReset");
+    const copyScamPlan = document.querySelector("#copyScamPlan");
+    const scamCopyStatus = document.querySelector("#scamCopyStatus");
+
+    function findScamOption(group, id) {
+      return scamGroups[group].find((option) => option.id === id);
+    }
+
+    function renderScamOptions(groupName, container) {
+      container.innerHTML = scamGroups[groupName].map((option) => {
+        const isActive = scamSelections[groupName] === option.id;
+        const active = isActive ? " is-active" : "";
+        return `
+          <button class="signal-option${active}" type="button" data-group="${groupName}" data-id="${option.id}" aria-pressed="${isActive}">
+            <span>${option.label}</span>
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <circle cx="12" cy="12" r="8" stroke="currentColor" stroke-width="2"/>
+              <path d="m8.5 12 2.3 2.3 4.8-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
+        `;
+      }).join("");
+    }
+
+    function buildScamPlan() {
+      const warning = findScamOption("warning", scamSelections.warning);
+      const context = findScamOption("context", scamSelections.context);
+      const safeStep = findScamOption("safeStep", scamSelections.safeStep);
+      const move = `${warning.short}: ${safeStep.short}`;
+      const summary = `The warning is that the message ${warning.issue} inside ${context.source}. Because ${warning.why}, choose this safer move: ${safeStep.action}. Then move the conversation back to ${context.channel}.`;
+      const reply = `Thanks for reaching out. Before I continue, please send the official job posting and company email contact so I can verify this through ${context.channel}.`;
+      const steps = [
+        `Do not pay, deposit checks, send gift cards, or share banking details.`,
+        `Do not send ID photos, tax forms, Social Security numbers, or private documents yet.`,
+        `Because this showed up in ${context.source}, ${context.pressure}.`,
+        `Safer step: ${safeStep.action}.`,
+        `If the person refuses normal verification, stop the conversation and use the official company site instead.`
+      ];
+      return { warning, context, safeStep, move, summary, reply, steps };
+    }
+
+    function updateScamPlan() {
+      renderScamOptions("warning", warningOptions);
+      renderScamOptions("context", contextOptions);
+      renderScamOptions("safeStep", safeStepOptions);
+
+      const plan = buildScamPlan();
+      scamCount.textContent = `${Object.values(scamSelections).filter(Boolean).length}/3`;
+      scamMove.textContent = plan.move;
+      scamFit.textContent = "Stop and verify";
+      flowWarning.textContent = plan.warning.short;
+      flowContext.textContent = plan.context.short;
+      flowSafeStep.textContent = plan.safeStep.short;
+      scamSummary.textContent = plan.summary;
+      riskScore.textContent = plan.warning.risk;
+      identityScore.textContent = plan.warning.identity;
+      proofScore.textContent = plan.warning.proof;
+      nextMoveScore.textContent = plan.safeStep.score;
+      scamScript.textContent = plan.reply;
+      scamSteps.innerHTML = plan.steps.map((step) => `<li>${step}</li>`).join("");
+      scamCopyStatus.textContent = "Capture-ready preview. Kajabi opt-in is the intended next step for the full Safe Job Search Checklist; no live form, tracking, or saved data is active yet.";
+    }
+
+    document.addEventListener("click", (event) => {
+      const option = event.target.closest(".signal-option");
+      if (!option) return;
+
+      scamSelections[option.dataset.group] = option.dataset.id;
+      updateScamPlan();
+    });
+
+    scamReset.addEventListener("click", () => {
+      scamSelections.warning = "fast";
+      scamSelections.context = "chat";
+      scamSelections.safeStep = "slow";
+      updateScamPlan();
+    });
+
+    copyScamPlan.addEventListener("click", async () => {
+      const plan = buildScamPlan();
+      const text = [
+        `AI Job Scam Detector: ${plan.move}`,
+        `Reply starter: ${plan.reply}`,
+        `Summary: ${plan.summary}`,
+        "Steps:",
+        ...plan.steps.map((step, index) => `${index + 1}. ${step}`)
+      ].join("\n");
+
+      try {
+        await navigator.clipboard.writeText(text);
+        scamCopyStatus.textContent = "Plan copied locally. The intended funnel step is a Kajabi opt-in for the fuller Safe Job Search Checklist.";
+      } catch (error) {
+        const selection = window.getSelection();
+        const range = document.createRange();
+        range.selectNodeContents(document.querySelector(".signal-result"));
+        selection.removeAllRanges();
+        selection.addRange(range);
+        scamCopyStatus.textContent = "Clipboard was blocked, so the plan is selected locally.";
+      }
+    });
+
+    updateScamPlan();
+  </script>
+</body>
+</html>
