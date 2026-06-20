@@ -1,0 +1,320 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>College Grad First 90 Days | EduAccess</title>
+  <meta name="description" content="A capture-ready EduAccess mini app for helping new college graduates turn early job-search uncertainty into a focused first-90-days plan and future Kajabi opt-in path.">
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="/style.css?v=20260620-grad1">
+</head>
+<body class="tool-page signal-page">
+  <header class="tool-header signal-header">
+    <a class="back" href="/">EduAccess</a>
+    <nav aria-label="Tool sections">
+      <a href="/apps/" aria-current="page">Apps</a>
+      <a href="/quizzes/">Quizzes</a>
+      <a href="/lead-magnets/">Lead Magnets</a>
+      <a href="/sandbox/">Sandbox</a>
+    </nav>
+  </header>
+
+  <main class="signal-shell" aria-label="College Grad First 90 Days">
+    <section class="signal-title">
+      <div>
+        <h1>College Grad First 90 Days</h1>
+        <p>Choose a search lane, strongest proof asset, and weekly motion. This preview gives a new graduate a clear 90-day job-search plan without asking for a resume, profile URL, school, employer, salary, or private details.</p>
+      </div>
+      <button class="signal-reset" id="gradReset" type="button" aria-label="Reset College Grad First 90 Days" title="Reset College Grad First 90 Days">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M20 12a8 8 0 1 1-2.34-5.66" stroke="currentColor" stroke-width="2.1" stroke-linecap="round"/>
+          <path d="M20 4v5h-5" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <span>Reset</span>
+      </button>
+    </section>
+
+    <section class="signal-workspace">
+      <aside class="signal-panel signal-choices" aria-label="College grad first 90 days choices">
+        <div class="signal-choice-header">
+          <h2>Choose three signals</h2>
+          <span id="gradCount">3/3</span>
+        </div>
+
+        <div class="signal-group" aria-label="First role lane">
+          <div class="signal-group-title">
+            <span class="signal-group-icon signal-teal" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none">
+                <path d="M4 19h16M6 19V8l6-4 6 4v11" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M9 19v-6h6v6M9 10h.01M15 10h.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+              </svg>
+            </span>
+            <div>
+              <h3>First role lane</h3>
+              <p>Where should the graduate aim first?</p>
+            </div>
+          </div>
+          <div class="signal-options" id="laneOptions"></div>
+        </div>
+
+        <div class="signal-group" aria-label="Starter proof asset">
+          <div class="signal-group-title">
+            <span class="signal-group-icon signal-amber" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none">
+                <path d="M6 4h9l3 3v13H6V4Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+                <path d="M15 4v4h4M9 12h6M9 16h6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+              </svg>
+            </span>
+            <div>
+              <h3>Starter proof</h3>
+              <p>What should make the graduate credible?</p>
+            </div>
+          </div>
+          <div class="signal-options" id="proofOptions"></div>
+        </div>
+
+        <div class="signal-group" aria-label="Weekly search motion">
+          <div class="signal-group-title">
+            <span class="signal-group-icon signal-blue" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none">
+                <path d="M7 4v4M17 4v4M5 8h14M6 6h12a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M8 13h3M8 16h6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+              </svg>
+            </span>
+            <div>
+              <h3>Weekly motion</h3>
+              <p>What habit should anchor the first month?</p>
+            </div>
+          </div>
+          <div class="signal-options" id="motionOptions"></div>
+        </div>
+      </aside>
+
+      <section class="signal-panel signal-result" aria-label="Suggested first 90 days plan">
+        <div class="signal-result-top">
+          <div>
+            <span class="signal-mini-label">Suggested 90-day plan</span>
+            <h2 id="gradMove">Aim the search before sending more applications</h2>
+          </div>
+          <span class="signal-fit" id="gradFit">Focused start</span>
+        </div>
+
+        <div class="signal-flow" aria-label="Selected first 90 days path">
+          <div><strong id="flowLane">First office role</strong><span>role lane</span></div>
+          <svg viewBox="0 0 48 16" fill="none" aria-hidden="true"><path d="M2 8h40M35 2l7 6-7 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <div><strong id="flowProof">Class project proof</strong><span>starter proof</span></div>
+          <svg viewBox="0 0 48 16" fill="none" aria-hidden="true"><path d="M2 8h40M35 2l7 6-7 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <div><strong id="flowMotion">Warm conversations</strong><span>weekly motion</span></div>
+        </div>
+
+        <p class="signal-summary" id="gradSummary">A strong first 90 days gives the graduate a lane, a proof asset, and a repeatable weekly motion so the search is not just more applications.</p>
+
+        <div class="signal-metrics" aria-label="College grad search markers">
+          <div><span>Clarity</span><strong id="clarityScore">High</strong></div>
+          <div><span>Proof</span><strong id="proofScore">Practical</strong></div>
+          <div><span>Momentum</span><strong id="momentumScore">Weekly</strong></div>
+          <div><span>Risk</span><strong id="riskScore">Lower</strong></div>
+        </div>
+
+        <div class="signal-plan-grid">
+          <div>
+            <h3>First 90 days</h3>
+            <ol id="gradSteps"></ol>
+          </div>
+          <aside class="signal-script" aria-label="College grad profile starter">
+            <strong>Positioning starter</strong>
+            <p id="gradScript">Recent graduate targeting entry-level operations roles where I can bring organized follow-through, useful analysis, and steady team support.</p>
+          </aside>
+        </div>
+
+        <button class="button signal-copy" id="copyGradPlan" type="button">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <rect x="8" y="8" width="11" height="13" rx="1.5" stroke="currentColor" stroke-width="2"/>
+            <path d="M5 16H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h11a1 1 0 0 1 1 1v1" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+          <span>Copy plan</span>
+        </button>
+        <p class="signal-privacy" id="gradCopyStatus" aria-live="polite">Capture-ready preview. Kajabi opt-in is the intended next step for the full Graduate Job Search Starter Kit; no live form, tracking, or saved data is active yet.</p>
+      </section>
+
+      <aside class="signal-panel signal-map" aria-label="College Grad First 90 Days map illustration">
+        <img src="../hidden-job-signal-map/hidden-job-signal-map.png" alt="Illustrated city map with signal pins and a route toward early-career job-search momentum">
+        <div class="signal-map-callout signal-callout-a"><strong>Lane</strong><span>Choose a first role direction.</span></div>
+        <div class="signal-map-callout signal-callout-b"><strong>Proof</strong><span>Show one credible starter asset.</span></div>
+        <div class="signal-map-callout signal-callout-c"><strong>Motion</strong><span>Repeat a weekly search habit.</span></div>
+        <div class="signal-legend">
+          <span><i class="solid"></i> 90-day path</span>
+          <span><i class="dashed"></i> Proof bridge</span>
+          <span><i class="risk"></i> Spray-and-pray risk</span>
+        </div>
+      </aside>
+    </section>
+
+    <section class="signal-guidance" aria-label="More ways to help a new college graduate start strong">
+      <article>
+        <h2>Start with a lane</h2>
+        <p>A first search works better when the graduate can name the kind of team, problem, and entry role they are pursuing.</p>
+      </article>
+      <article>
+        <h2>Turn school work into proof</h2>
+        <p>Projects, internships, campus roles, volunteer work, and part-time jobs can become proof when they are translated into workplace value.</p>
+      </article>
+      <article>
+        <h2>Kajabi opt-in path</h2>
+        <p>This proof seed is meant to become a Graduate Job Search Starter Kit funnel: public quick result first, then Kajabi registration for the fuller kit, email follow-up, coaching offer, or BRAVE/Job Seeker Pro next step.</p>
+      </article>
+    </section>
+  </main>
+
+  <script>
+    const gradGroups = {
+      lane: [
+        { id: "office", label: "First office or coordinator role", short: "First office role", clarity: "High", risk: "Lower", fit: "Focused start", frame: "entry-level office, coordinator, or operations roles", buyer: "organized follow-through, useful analysis, and steady team support" },
+        { id: "customer", label: "Customer success or support", short: "Customer support", clarity: "High", risk: "Lower", fit: "People-facing", frame: "customer success, support, or client service roles", buyer: "clear communication, patient problem solving, and reliable follow-up" },
+        { id: "sales", label: "Sales or business development", short: "Sales start", clarity: "Medium-high", risk: "Medium", fit: "Activity-driven", frame: "sales, business development, or partnership support roles", buyer: "prospecting discipline, useful questions, and steady pipeline habits" },
+        { id: "nonprofit", label: "Nonprofit or education support", short: "Mission support", clarity: "Medium-high", risk: "Lower", fit: "Mission-aligned", frame: "nonprofit, education, or community support roles", buyer: "service mindset, event or program support, and dependable coordination" },
+        { id: "unsure", label: "Still exploring the lane", short: "Exploring lane", clarity: "Medium", risk: "Medium", fit: "Discovery sprint", frame: "two practical role lanes to compare", buyer: "transferable strengths while testing which workplace problems fit best" }
+      ],
+      proof: [
+        { id: "project", label: "Class project or capstone", short: "Class project proof", proof: "Practical", source: "one class project, capstone, case study, or research project that shows how you solved a real problem" },
+        { id: "internship", label: "Internship or campus job", short: "Work sample", proof: "Credible", source: "one internship, campus job, part-time role, or volunteer result with a clear before-and-after" },
+        { id: "numbers", label: "Numbers or volume handled", short: "Numbers proof", proof: "Measurable", source: "one metric, volume, timeline, event size, customer count, budget, or quality result" },
+        { id: "team", label: "Team leadership moment", short: "Team proof", proof: "Human", source: "one moment where you organized people, clarified next steps, or helped a team finish" },
+        { id: "portfolio", label: "Tiny starter portfolio", short: "Starter portfolio", proof: "Visible", source: "a simple one-page project summary, writing sample, presentation, or work sample" }
+      ],
+      motion: [
+        { id: "warm", label: "Three warm conversations", short: "Warm conversations", momentum: "Weekly", action: "ask three warm contacts or alumni for perspective conversations each week" },
+        { id: "targets", label: "Ten target companies", short: "Target list", momentum: "Focused", action: "build and refresh a ten-company target list before applying broadly" },
+        { id: "proof", label: "One proof upgrade", short: "Proof upgrade", momentum: "Build", action: "upgrade one resume bullet, project summary, or LinkedIn proof point each week" },
+        { id: "applications", label: "Quality application block", short: "Quality block", momentum: "Consistent", action: "send a smaller number of tailored applications with a clear follow-up plan" },
+        { id: "practice", label: "Interview practice loop", short: "Practice loop", momentum: "Ready", action: "practice one answer story and one recruiter screen response each week" }
+      ]
+    };
+
+    const gradSelections = {
+      lane: "office",
+      proof: "project",
+      motion: "warm"
+    };
+
+    const laneOptions = document.querySelector("#laneOptions");
+    const proofOptions = document.querySelector("#proofOptions");
+    const motionOptions = document.querySelector("#motionOptions");
+    const gradCount = document.querySelector("#gradCount");
+    const gradMove = document.querySelector("#gradMove");
+    const gradFit = document.querySelector("#gradFit");
+    const flowLane = document.querySelector("#flowLane");
+    const flowProof = document.querySelector("#flowProof");
+    const flowMotion = document.querySelector("#flowMotion");
+    const gradSummary = document.querySelector("#gradSummary");
+    const clarityScore = document.querySelector("#clarityScore");
+    const proofScore = document.querySelector("#proofScore");
+    const momentumScore = document.querySelector("#momentumScore");
+    const riskScore = document.querySelector("#riskScore");
+    const gradSteps = document.querySelector("#gradSteps");
+    const gradScript = document.querySelector("#gradScript");
+    const gradReset = document.querySelector("#gradReset");
+    const copyGradPlan = document.querySelector("#copyGradPlan");
+    const gradCopyStatus = document.querySelector("#gradCopyStatus");
+
+    function findGradOption(group, id) {
+      return gradGroups[group].find((option) => option.id === id);
+    }
+
+    function renderGradOptions(groupName, container) {
+      container.innerHTML = gradGroups[groupName].map((option) => {
+        const isActive = gradSelections[groupName] === option.id;
+        const active = isActive ? " is-active" : "";
+        return `
+          <button class="signal-option${active}" type="button" data-group="${groupName}" data-id="${option.id}" aria-pressed="${isActive}">
+            <span>${option.label}</span>
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <circle cx="12" cy="12" r="8" stroke="currentColor" stroke-width="2"/>
+              <path d="m8.5 12 2.3 2.3 4.8-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
+        `;
+      }).join("");
+    }
+
+    function buildGradPlan() {
+      const lane = findGradOption("lane", gradSelections.lane);
+      const proof = findGradOption("proof", gradSelections.proof);
+      const motion = findGradOption("motion", gradSelections.motion);
+      const move = `${lane.short} + ${motion.short}`;
+      const headline = `Recent graduate targeting ${lane.frame} where I can bring ${lane.buyer}.`;
+      const summary = `Focus the first 90 days on ${lane.frame}. Use ${proof.source} as the starter proof asset, then ${motion.action} so momentum comes from a repeatable habit instead of random applications.`;
+      const steps = [
+        `Days 1-30: choose ${lane.frame}, rewrite the headline, and build a starter target list.`,
+        `Days 1-30: turn ${proof.source} into one resume bullet, LinkedIn proof point, or short project summary.`,
+        `Days 31-60: ${motion.action} and track which conversations, applications, and follow-ups create useful responses.`,
+        `Days 31-60: practice a simple story that connects your proof to the employer problem you want to solve.`,
+        `Days 61-90: double down on the role lane that produces replies, referrals, or interviews, then tighten the next set of applications around that evidence.`
+      ];
+      return { lane, proof, motion, move, headline, summary, steps };
+    }
+
+    function updateGradPlan() {
+      renderGradOptions("lane", laneOptions);
+      renderGradOptions("proof", proofOptions);
+      renderGradOptions("motion", motionOptions);
+
+      const plan = buildGradPlan();
+      gradCount.textContent = `${Object.values(gradSelections).filter(Boolean).length}/3`;
+      gradMove.textContent = plan.move;
+      gradFit.textContent = plan.lane.fit;
+      flowLane.textContent = plan.lane.short;
+      flowProof.textContent = plan.proof.short;
+      flowMotion.textContent = plan.motion.short;
+      gradSummary.textContent = plan.summary;
+      clarityScore.textContent = plan.lane.clarity;
+      proofScore.textContent = plan.proof.proof;
+      momentumScore.textContent = plan.motion.momentum;
+      riskScore.textContent = plan.lane.risk;
+      gradScript.textContent = plan.headline;
+      gradSteps.innerHTML = plan.steps.map((step) => `<li>${step}</li>`).join("");
+      gradCopyStatus.textContent = "Capture-ready preview. Kajabi opt-in is the intended next step for the full Graduate Job Search Starter Kit; no live form, tracking, or saved data is active yet.";
+    }
+
+    document.addEventListener("click", (event) => {
+      const option = event.target.closest(".signal-option");
+      if (!option) return;
+
+      gradSelections[option.dataset.group] = option.dataset.id;
+      updateGradPlan();
+    });
+
+    gradReset.addEventListener("click", () => {
+      gradSelections.lane = "office";
+      gradSelections.proof = "project";
+      gradSelections.motion = "warm";
+      updateGradPlan();
+    });
+
+    copyGradPlan.addEventListener("click", async () => {
+      const plan = buildGradPlan();
+      const text = [
+        `College Grad First 90 Days: ${plan.move}`,
+        `Positioning starter: ${plan.headline}`,
+        `Summary: ${plan.summary}`,
+        "Steps:",
+        ...plan.steps.map((step, index) => `${index + 1}. ${step}`)
+      ].join("\n");
+
+      try {
+        await navigator.clipboard.writeText(text);
+        gradCopyStatus.textContent = "Plan copied locally. The intended funnel step is a Kajabi opt-in for the fuller Graduate Job Search Starter Kit.";
+      } catch (error) {
+        const selection = window.getSelection();
+        const range = document.createRange();
+        range.selectNodeContents(document.querySelector(".signal-result"));
+        selection.removeAllRanges();
+        selection.addRange(range);
+        gradCopyStatus.textContent = "Clipboard was blocked, so the plan is selected locally.";
+      }
+    });
+
+    updateGradPlan();
+  </script>
+</body>
+</html>
