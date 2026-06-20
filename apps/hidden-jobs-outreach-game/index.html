@@ -1,0 +1,320 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Hidden Jobs Outreach Game | EduAccess</title>
+  <meta name="description" content="A capture-ready EduAccess mini game for helping job seekers practice warmer hidden-jobs outreach moves without sending messages, logging in, or entering private data.">
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="/style.css?v=20260620-hiddenjobs1">
+</head>
+<body class="tool-page signal-page">
+  <header class="tool-header signal-header">
+    <a class="back" href="/">EduAccess</a>
+    <nav aria-label="Tool sections">
+      <a href="/apps/" aria-current="page">Apps</a>
+      <a href="/quizzes/">Quizzes</a>
+      <a href="/lead-magnets/">Lead Magnets</a>
+      <a href="/sandbox/">Sandbox</a>
+    </nav>
+  </header>
+
+  <main class="signal-shell" aria-label="Hidden Jobs Outreach Game">
+    <section class="signal-title">
+      <div>
+        <h1>Hidden Jobs Outreach Game</h1>
+        <p>Choose a hidden-job signal, outreach move, and follow-up style. This browser-only game helps a job seeker practice warmer outreach without entering contact names, logging into LinkedIn, sending messages, or saving private data.</p>
+      </div>
+      <button class="signal-reset" id="outreachReset" type="button" aria-label="Reset Hidden Jobs Outreach Game" title="Reset Hidden Jobs Outreach Game">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M20 12a8 8 0 1 1-2.34-5.66" stroke="currentColor" stroke-width="2.1" stroke-linecap="round"/>
+          <path d="M20 4v5h-5" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <span>Reset</span>
+      </button>
+    </section>
+
+    <section class="signal-workspace">
+      <aside class="signal-panel signal-choices" aria-label="Hidden jobs outreach choices">
+        <div class="signal-choice-header">
+          <h2>Play three rounds</h2>
+          <span id="outreachCount">3/3</span>
+        </div>
+
+        <div class="signal-group" aria-label="Hidden job signal">
+          <div class="signal-group-title">
+            <span class="signal-group-icon signal-blue" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none">
+                <path d="M5 18V7l7-4 7 4v11" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+                <path d="M8 18v-6h8v6M9 8h.01M15 8h.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+              </svg>
+            </span>
+            <div>
+              <h3>Hidden-job signal</h3>
+              <p>What clue should start the outreach?</p>
+            </div>
+          </div>
+          <div class="signal-options" id="signalOptions"></div>
+        </div>
+
+        <div class="signal-group" aria-label="Outreach move">
+          <div class="signal-group-title">
+            <span class="signal-group-icon signal-teal" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none">
+                <path d="M4 12h13M12 5l7 7-7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M4 6h4M4 18h4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+              </svg>
+            </span>
+            <div>
+              <h3>Outreach move</h3>
+              <p>How should the job seeker open the door?</p>
+            </div>
+          </div>
+          <div class="signal-options" id="moveOptions"></div>
+        </div>
+
+        <div class="signal-group" aria-label="Follow-up style">
+          <div class="signal-group-title">
+            <span class="signal-group-icon signal-amber" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none">
+                <path d="M5 6h14v10H8l-3 3V6Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+                <path d="M8 10h8M8 13h5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+              </svg>
+            </span>
+            <div>
+              <h3>Follow-up style</h3>
+              <p>What makes the message useful instead of pushy?</p>
+            </div>
+          </div>
+          <div class="signal-options" id="followOptions"></div>
+        </div>
+      </aside>
+
+      <section class="signal-panel signal-result" aria-label="Suggested hidden jobs outreach route">
+        <div class="signal-result-top">
+          <div>
+            <span class="signal-mini-label">Suggested outreach route</span>
+            <h2 id="outreachMove">Warm signal + useful question</h2>
+          </div>
+          <span class="signal-fit" id="outreachFit">Warm path</span>
+        </div>
+
+        <div class="signal-flow" aria-label="Selected outreach path">
+          <div><strong id="flowSignal">Company growth</strong><span>hidden signal</span></div>
+          <svg viewBox="0 0 48 16" fill="none" aria-hidden="true"><path d="M2 8h40M35 2l7 6-7 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <div><strong id="flowMove">Ask for context</strong><span>first move</span></div>
+          <svg viewBox="0 0 48 16" fill="none" aria-hidden="true"><path d="M2 8h40M35 2l7 6-7 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <div><strong id="flowFollow">Short value follow-up</strong><span>follow-up</span></div>
+        </div>
+
+        <p class="signal-summary" id="outreachSummary">A hidden-jobs move works best when it starts from a real business signal, asks for useful context, and follows up with proof instead of pressure.</p>
+
+        <div class="signal-metrics" aria-label="Hidden jobs outreach markers">
+          <div><span>Warmth</span><strong id="warmthScore">Warm</strong></div>
+          <div><span>Proof</span><strong id="proofScore">Useful</strong></div>
+          <div><span>Momentum</span><strong id="momentumScore">Follow up</strong></div>
+          <div><span>Risk</span><strong id="riskScore">Lower</strong></div>
+        </div>
+
+        <div class="signal-plan-grid">
+          <div>
+            <h3>Game plan</h3>
+            <ol id="outreachSteps"></ol>
+          </div>
+          <aside class="signal-script" aria-label="Hidden jobs outreach script starter">
+            <strong>Script starter</strong>
+            <p id="outreachScript">I saw your team is growing in a few customer-facing roles. I am exploring similar teams and would value one quick pointer on what makes someone useful there before I apply.</p>
+          </aside>
+        </div>
+
+        <button class="button signal-copy" id="copyOutreachPlan" type="button">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <rect x="8" y="8" width="11" height="13" rx="1.5" stroke="currentColor" stroke-width="2"/>
+            <path d="M5 16H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h11a1 1 0 0 1 1 1v1" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+          <span>Copy route</span>
+        </button>
+        <p class="signal-privacy" id="outreachCopyStatus" aria-live="polite">Capture-ready preview. Kajabi opt-in path: Hidden Jobs Outreach Scripts; no live form, tracking, message send, or saved data is active yet.</p>
+      </section>
+
+      <aside class="signal-panel signal-map" aria-label="Hidden Jobs Outreach Game map illustration">
+        <img src="../hidden-job-signal-map/hidden-job-signal-map.png" alt="Illustrated city map with signal pins and a warm route toward hidden job opportunities">
+        <div class="signal-map-callout signal-callout-a"><strong>Signal</strong><span>Start from a real business clue.</span></div>
+        <div class="signal-map-callout signal-callout-b"><strong>Warm path</strong><span>Ask for context before asking for help.</span></div>
+        <div class="signal-map-callout signal-callout-c"><strong>Follow up</strong><span>Send useful proof, not pressure.</span></div>
+        <div class="signal-legend">
+          <span><i class="solid"></i> Warm route</span>
+          <span><i class="dashed"></i> Referral bridge</span>
+          <span><i class="risk"></i> Cold-message risk</span>
+        </div>
+      </aside>
+    </section>
+
+    <section class="signal-guidance" aria-label="More ways to practice hidden jobs outreach">
+      <article>
+        <h2>Start from a signal</h2>
+        <p>Hiring clues show up in growth news, new leaders, product launches, funding, new locations, and repeated role patterns.</p>
+      </article>
+      <article>
+        <h2>Make the ask easy</h2>
+        <p>A warm message usually asks for one pointer, one context clue, or one direction before asking for a referral.</p>
+      </article>
+      <article>
+        <h2>Kajabi opt-in path</h2>
+        <p>This proof seed is meant to become a Hidden Jobs Outreach Scripts funnel: public practice first, then Kajabi registration for scripts, follow-up templates, coaching, or the Job Seeker Pro next step.</p>
+      </article>
+    </section>
+  </main>
+
+  <script>
+    const outreachGroups = {
+      signal: [
+        { id: "growth", label: "Company is growing", short: "Company growth", warmth: "Warm", risk: "Lower", fit: "Warm path", clue: "your team is growing in a few customer-facing roles", context: "what makes someone useful there before I apply" },
+        { id: "leader", label: "New leader or team change", short: "New leader", warmth: "Warm", risk: "Lower", fit: "Change signal", clue: "your team recently brought in a new leader", context: "what priorities are changing and where a new person could help" },
+        { id: "launch", label: "New product or market push", short: "Product push", warmth: "Medium-high", risk: "Medium", fit: "Problem clue", clue: "your team launched a new product or market push", context: "what problems the team needs extra hands to solve" },
+        { id: "repeat", label: "Same role keeps appearing", short: "Repeated role", warmth: "Medium-high", risk: "Medium", fit: "Pattern clue", clue: "I have seen the same role pattern appear more than once", context: "what the team is really trying to build behind that role" },
+        { id: "alumni", label: "Alumni or shared community", short: "Shared community", warmth: "Warmest", risk: "Lowest", fit: "Community bridge", clue: "we have a shared school, community, or career path", context: "one piece of advice for approaching the team well" }
+      ],
+      move: [
+        { id: "context", label: "Ask for context", short: "Ask for context", proof: "Useful", action: "ask one short question about the team, role, or business problem before asking for anything else" },
+        { id: "pointer", label: "Ask for one pointer", short: "One pointer", proof: "Low pressure", action: "ask for one pointer on how to understand the team or role better" },
+        { id: "proof", label: "Share one proof point", short: "Proof bridge", proof: "Specific", action: "share one relevant proof point and ask if it fits the problem the team is solving" },
+        { id: "intro", label: "Earn the intro", short: "Earn intro", proof: "Credible", action: "ask who would be the right person only after the first context exchange is useful" },
+        { id: "application", label: "Improve the application", short: "Better application", proof: "Practical", action: "use the context to write a sharper application instead of sending a generic one" }
+      ],
+      follow: [
+        { id: "short", label: "Short value follow-up", short: "Short value follow-up", momentum: "Follow up", line: "I appreciate the pointer. I used it to focus my application around the team problem instead of sending a generic note." },
+        { id: "thanks", label: "Thanks plus next step", short: "Thanks + next", momentum: "Polite", line: "Thanks for the direction. I will review the team page and apply through the official channel with that context in mind." },
+        { id: "resource", label: "Send one useful resource", short: "Useful resource", momentum: "Helpful", line: "This made me think of a quick project example that connects to the work. Happy to send it if useful." },
+        { id: "referral", label: "Only ask after value", short: "Referral later", momentum: "Earned", line: "If you think there is a better person to ask after I apply, I would be grateful for one direction." },
+        { id: "pause", label: "Pause if it gets cold", short: "Pause cleanly", momentum: "Respectful", line: "No worries if now is not a good time. I appreciate the context and will keep the process respectful." }
+      ]
+    };
+
+    const outreachSelections = {
+      signal: "growth",
+      move: "context",
+      follow: "short"
+    };
+
+    const signalOptions = document.querySelector("#signalOptions");
+    const moveOptions = document.querySelector("#moveOptions");
+    const followOptions = document.querySelector("#followOptions");
+    const outreachCount = document.querySelector("#outreachCount");
+    const outreachMove = document.querySelector("#outreachMove");
+    const outreachFit = document.querySelector("#outreachFit");
+    const flowSignal = document.querySelector("#flowSignal");
+    const flowMove = document.querySelector("#flowMove");
+    const flowFollow = document.querySelector("#flowFollow");
+    const outreachSummary = document.querySelector("#outreachSummary");
+    const warmthScore = document.querySelector("#warmthScore");
+    const proofScore = document.querySelector("#proofScore");
+    const momentumScore = document.querySelector("#momentumScore");
+    const riskScore = document.querySelector("#riskScore");
+    const outreachSteps = document.querySelector("#outreachSteps");
+    const outreachScript = document.querySelector("#outreachScript");
+    const outreachReset = document.querySelector("#outreachReset");
+    const copyOutreachPlan = document.querySelector("#copyOutreachPlan");
+    const outreachCopyStatus = document.querySelector("#outreachCopyStatus");
+
+    function findOutreachOption(group, id) {
+      return outreachGroups[group].find((option) => option.id === id);
+    }
+
+    function renderOutreachOptions(groupName, container) {
+      container.innerHTML = outreachGroups[groupName].map((option) => {
+        const isActive = outreachSelections[groupName] === option.id;
+        const active = isActive ? " is-active" : "";
+        return `
+          <button class="signal-option${active}" type="button" data-group="${groupName}" data-id="${option.id}" aria-pressed="${isActive}">
+            <span>${option.label}</span>
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <circle cx="12" cy="12" r="8" stroke="currentColor" stroke-width="2"/>
+              <path d="m8.5 12 2.3 2.3 4.8-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
+        `;
+      }).join("");
+    }
+
+    function buildOutreachPlan() {
+      const signal = findOutreachOption("signal", outreachSelections.signal);
+      const move = findOutreachOption("move", outreachSelections.move);
+      const follow = findOutreachOption("follow", outreachSelections.follow);
+      const title = `${signal.short} + ${move.short}`;
+      const script = `I saw ${signal.clue}. I am exploring similar teams and would value one quick pointer on ${signal.context}.`;
+      const summary = `Use the ${signal.short.toLowerCase()} as a real reason to reach out. Then ${move.action}, and follow with a note that keeps the exchange useful and respectful.`;
+      const steps = [
+        `Spot the signal: ${signal.clue}.`,
+        `Make the first move: ${move.action}.`,
+        `Keep the message short: one reason, one question, and no pressure.`,
+        `Follow up with this tone: ${follow.line}`,
+        "If the contact is not responsive, pause cleanly and use the insight to sharpen the next application."
+      ];
+      return { signal, move, follow, title, script, summary, steps };
+    }
+
+    function updateOutreachPlan() {
+      renderOutreachOptions("signal", signalOptions);
+      renderOutreachOptions("move", moveOptions);
+      renderOutreachOptions("follow", followOptions);
+
+      const plan = buildOutreachPlan();
+      outreachCount.textContent = `${Object.values(outreachSelections).filter(Boolean).length}/3`;
+      outreachMove.textContent = plan.title;
+      outreachFit.textContent = plan.signal.fit;
+      flowSignal.textContent = plan.signal.short;
+      flowMove.textContent = plan.move.short;
+      flowFollow.textContent = plan.follow.short;
+      outreachSummary.textContent = plan.summary;
+      warmthScore.textContent = plan.signal.warmth;
+      proofScore.textContent = plan.move.proof;
+      momentumScore.textContent = plan.follow.momentum;
+      riskScore.textContent = plan.signal.risk;
+      outreachScript.textContent = plan.script;
+      outreachSteps.innerHTML = plan.steps.map((step) => `<li>${step}</li>`).join("");
+      outreachCopyStatus.textContent = "Capture-ready preview. Kajabi opt-in path: Hidden Jobs Outreach Scripts; no live form, tracking, message send, or saved data is active yet.";
+    }
+
+    document.addEventListener("click", (event) => {
+      const option = event.target.closest(".signal-option");
+      if (!option) return;
+
+      outreachSelections[option.dataset.group] = option.dataset.id;
+      updateOutreachPlan();
+    });
+
+    outreachReset.addEventListener("click", () => {
+      outreachSelections.signal = "growth";
+      outreachSelections.move = "context";
+      outreachSelections.follow = "short";
+      updateOutreachPlan();
+    });
+
+    copyOutreachPlan.addEventListener("click", async () => {
+      const plan = buildOutreachPlan();
+      const text = [
+        `Hidden Jobs Outreach Game: ${plan.title}`,
+        `Script starter: ${plan.script}`,
+        `Summary: ${plan.summary}`,
+        "Steps:",
+        ...plan.steps.map((step, index) => `${index + 1}. ${step}`)
+      ].join("\n");
+
+      try {
+        await navigator.clipboard.writeText(text);
+        outreachCopyStatus.textContent = "Route copied locally. The intended funnel step is a Kajabi opt-in for Hidden Jobs Outreach Scripts.";
+      } catch (error) {
+        const selection = window.getSelection();
+        const range = document.createRange();
+        range.selectNodeContents(document.querySelector(".signal-result"));
+        selection.removeAllRanges();
+        selection.addRange(range);
+        outreachCopyStatus.textContent = "Clipboard was blocked, so the route is selected locally.";
+      }
+    });
+
+    updateOutreachPlan();
+  </script>
+</body>
+</html>
