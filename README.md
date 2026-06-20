@@ -23,6 +23,7 @@ DNS manager: Namecheap.
 Initial paths:
 
 - `/apps/`
+- `/apps/over-50-search-advantage-map/`
 - `/apps/open-to-work-signal-builder/`
 - `/apps/recruiter-screen-prep-builder/`
 - `/apps/ghosting-recovery-planner/`
@@ -55,6 +56,7 @@ Safe proof mode means the page is public and useful, but the live Kajabi form,
 email automation, tracking, and CRM routing are not attached yet. That is a
 temporary proof setting, not the business goal.
 
+- `/apps/over-50-search-advantage-map/` is a capture-ready, browser-only Over-50 Search Advantage Map preview with a planned Kajabi opt-in path for the fuller checklist.
 - `/apps/open-to-work-signal-builder/` is a capture-ready, browser-only Open-To-Work Signal Builder preview with a planned Kajabi opt-in path for the fuller checklist.
 - `/apps/recruiter-screen-prep-builder/` is a no-capture, browser-only Recruiter Screen Prep Builder preview.
 - `/apps/ghosting-recovery-planner/` is a no-capture, browser-only Ghosting Recovery Planner preview.
