@@ -23,6 +23,7 @@ DNS manager: Namecheap.
 Initial paths:
 
 - `/apps/`
+- `/apps/first-week-success-builder/`
 - `/apps/resignation-notice-builder/`
 - `/apps/offer-acceptance-email-builder/`
 - `/apps/counteroffer-message-builder/`
@@ -68,6 +69,7 @@ Safe proof mode means the page is public and useful, but the live Kajabi form,
 email automation, tracking, and CRM routing are not attached yet. That is a
 temporary proof setting, not the business goal.
 
+- `/apps/first-week-success-builder/` is a capture-ready, browser-only First Week Success Builder preview with a planned Kajabi opt-in path for the First Week Success Checklist.
 - `/apps/resignation-notice-builder/` is a capture-ready, browser-only Resignation Notice Builder preview with a planned Kajabi opt-in path for Resignation Notice Scripts.
 - `/apps/offer-acceptance-email-builder/` is a capture-ready, browser-only Offer Acceptance Email Builder preview with a planned Kajabi opt-in path for Offer Acceptance Email Templates.
 - `/apps/counteroffer-message-builder/` is a capture-ready, browser-only Counteroffer Message Builder preview with a planned Kajabi opt-in path for Counteroffer Message Scripts.
