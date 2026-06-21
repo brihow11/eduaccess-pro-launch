@@ -1249,7 +1249,13 @@ p {
   }
 
   .signal-title h1 {
-    font-size: 2.28rem;
+    font-size: clamp(1.95rem, 8.2vw, 2.12rem);
+    line-height: 1.05;
+    overflow-wrap: break-word;
+  }
+
+  .signal-title p {
+    overflow-wrap: break-word;
   }
 
   .signal-reset {
