@@ -72,6 +72,7 @@ Safe proof mode means the page is public and useful, but the live Kajabi form,
 email automation, tracking, and CRM routing are not attached yet. That is a
 temporary proof setting, not the business goal.
 
+- `/apps/workload-boundary-message-builder/` is a capture-ready, browser-only Workload Boundary Message Builder preview with a planned Kajabi opt-in path for Workload Boundary Scripts.
 - `/apps/role-clarity-message-builder/` is a capture-ready, browser-only Role Clarity Message Builder preview with a planned Kajabi opt-in path for Role Clarity Scripts.
 - `/apps/manager-update-message-builder/` is a capture-ready, browser-only Manager Update Message Builder preview with a planned Kajabi opt-in path for Manager Update Scripts.
 - `/apps/first-month-momentum-builder/` is a capture-ready, browser-only First Month Momentum Builder preview with a planned Kajabi opt-in path for the First Month Momentum Checklist.

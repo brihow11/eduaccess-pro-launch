@@ -1,0 +1,333 @@
+﻿<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Workload Boundary Message Builder | EduAccess</title>
+  <meta name="description" content="A capture-ready EduAccess mini app for writing a clearer workload-boundary message without entering employer names, manager names, salary details, workplace complaints, internal notes, performance issues, or private career stories.">
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="/style.css?v=20260621-workload-boundary">
+</head>
+<body class="tool-page signal-page">
+  <header class="tool-header signal-header">
+    <a class="back" href="/">EduAccess</a>
+    <nav aria-label="Tool sections">
+      <a href="/apps/" aria-current="page">Apps</a>
+      <a href="/quizzes/">Quizzes</a>
+      <a href="/lead-magnets/">Lead Magnets</a>
+      <a href="/sandbox/">Sandbox</a>
+    </nav>
+  </header>
+
+  <main class="signal-shell" aria-label="Workload Boundary Message Builder">
+    <section class="signal-title">
+      <div>
+        <h1>Workload Boundary Message Builder</h1>
+        <p>Turn a too-full workload into a calmer boundary message before everything becomes urgent. Choose the pressure point, the person to align with, and the message style. This browser-only builder creates a starter script without entering employer names, manager names, salary details, workplace complaints, internal notes, performance issues, project secrets, or private career stories.</p>
+      </div>
+      <button class="signal-reset" id="workloadBoundaryReset" type="button" aria-label="Reset Workload Boundary Message Builder" title="Reset Workload Boundary Message Builder">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M20 12a8 8 0 1 1-2.34-5.66" stroke="currentColor" stroke-width="2.1" stroke-linecap="round"/>
+          <path d="M20 4v5h-5" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <span>Reset</span>
+      </button>
+    </section>
+
+    <section class="signal-workspace">
+      <aside class="signal-panel signal-choices" aria-label="Workload boundary choices">
+        <div class="signal-choice-header">
+          <h2>Build three boundary choices</h2>
+          <span id="workloadBoundaryCount">3/3</span>
+        </div>
+
+        <div class="signal-group" aria-label="Workload pressure point">
+          <div class="signal-group-title">
+            <span class="signal-group-icon signal-teal" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none">
+                <path d="M5 7h14M5 12h9M5 17h5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                <path d="M17 14v5M14.5 16.5h5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+              </svg>
+            </span>
+            <div>
+              <h3>Pressure point</h3>
+              <p>What is creating overload?</p>
+            </div>
+          </div>
+          <div class="signal-options" id="roleSignalOptions"></div>
+        </div>
+
+        <div class="signal-group" aria-label="Boundary alignment person">
+          <div class="signal-group-title">
+            <span class="signal-group-icon signal-amber" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none">
+                <circle cx="8" cy="8" r="3" stroke="currentColor" stroke-width="2"/>
+                <circle cx="16" cy="16" r="3" stroke="currentColor" stroke-width="2"/>
+                <path d="M10.5 10.5 13.5 13.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+              </svg>
+            </span>
+            <div>
+              <h3>Alignment person</h3>
+              <p>Who can help reset the load?</p>
+            </div>
+          </div>
+          <div class="signal-options" id="rolePersonOptions"></div>
+        </div>
+
+        <div class="signal-group" aria-label="Message style">
+          <div class="signal-group-title">
+            <span class="signal-group-icon signal-blue" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none">
+                <path d="M5 6h14v9H9l-4 4V6Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+                <path d="M8 10h8M8 13h5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+              </svg>
+            </span>
+            <div>
+              <h3>Message style</h3>
+              <p>How should the boundary sound?</p>
+            </div>
+          </div>
+          <div class="signal-options" id="roleStyleOptions"></div>
+        </div>
+      </aside>
+
+      <section class="signal-panel signal-result" aria-label="Workload boundary result">
+        <div class="signal-result-top">
+          <div>
+            <span class="signal-mini-label">Your boundary route</span>
+            <h2 id="workloadBoundaryMove">Reset priorities + offer a tradeoff</h2>
+          </div>
+          <span class="signal-fit" id="workloadBoundaryFit">Low-drama</span>
+        </div>
+
+        <div class="signal-flow" aria-label="Selected workload boundary path">
+          <div><strong id="flowRoleSignal">Too many priorities</strong><span>pressure</span></div>
+          <svg viewBox="0 0 48 16" fill="none" aria-hidden="true"><path d="M2 8h40M35 2l7 6-7 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <div><strong id="flowRolePerson">Manager</strong><span>person</span></div>
+          <svg viewBox="0 0 48 16" fill="none" aria-hidden="true"><path d="M2 8h40M35 2l7 6-7 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <div><strong id="flowRoleStyle">Tradeoff ask</strong><span>style</span></div>
+        </div>
+
+        <p class="signal-summary" id="workloadBoundarySummary">A good workload-boundary message keeps the tone useful, names the real capacity issue, and asks for a clear tradeoff before overload becomes the default.</p>
+
+        <div class="signal-metrics" aria-label="Workload boundary markers">
+          <div><span>Pressure</span><strong id="roleSignalScore">Specific</strong></div>
+          <div><span>Person</span><strong id="rolePersonScore">Aligned</strong></div>
+          <div><span>Style</span><strong id="roleStyleScore">Clear</strong></div>
+          <div><span>Tone</span><strong id="roleToneScore">Calm</strong></div>
+        </div>
+
+        <div class="signal-plan-grid">
+          <div>
+            <h3>Message checklist</h3>
+            <ol id="workloadBoundarySteps"></ol>
+          </div>
+          <aside class="signal-script" aria-label="Workload boundary starter">
+            <strong>Workload boundary starter</strong>
+            <p id="workloadBoundaryScript">I want to make sure I am focused on the right work. With the current load, can we confirm what should move first and what can wait?</p>
+          </aside>
+        </div>
+
+        <button class="button signal-copy" id="copyWorkloadBoundary" type="button">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <rect x="8" y="8" width="11" height="13" rx="1.5" stroke="currentColor" stroke-width="2"/>
+            <path d="M5 16H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h11a1 1 0 0 1 1 1v1" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+          <span>Copy workload boundary message</span>
+        </button>
+        <p class="signal-privacy" id="workloadBoundaryCopyStatus" aria-live="polite">Capture-ready preview. Kajabi opt-in path: Workload Boundary Scripts; no live form, tracking, or saved data is active yet.</p>
+      </section>
+
+      <aside class="signal-panel signal-map" aria-label="Workload Boundary Message Builder illustration">
+        <img src="../hidden-job-signal-map/hidden-job-signal-map.png" alt="Illustrated route map with markers representing a workload boundary path">
+        <div class="signal-map-callout signal-callout-a"><strong>Name</strong><span>Spot the overload point.</span></div>
+        <div class="signal-map-callout signal-callout-b"><strong>Trade</strong><span>Offer a clean option.</span></div>
+        <div class="signal-map-callout signal-callout-c"><strong>Reset</strong><span>Confirm the next step.</span></div>
+        <div class="signal-legend">
+          <span><i class="solid"></i> Workload pressure</span>
+          <span><i class="dashed"></i> Boundary path</span>
+          <span><i class="risk"></i> Overload risk</span>
+        </div>
+      </aside>
+    </section>
+
+    <section class="signal-guidance" aria-label="More ways to set workload boundaries">
+      <article>
+        <h2>Clarify before overload hardens</h2>
+        <p>Workload pressure gets worse when everything sounds equally urgent and nobody names the tradeoff.</p>
+      </article>
+      <article>
+        <h2>Keep private details out</h2>
+        <p>This public page gives a message frame only. Employer names, manager names, salary details, workplace complaints, internal notes, performance issues, and private career stories should stay out of this tool.</p>
+      </article>
+      <article>
+        <h2>Kajabi opt-in path</h2>
+        <p>This proof seed is meant to become a Workload Boundary Scripts funnel: public message builder first, then Kajabi registration for deeper scripts, examples, and follow-up support.</p>
+      </article>
+    </section>
+  </main>
+
+  <script>
+    const workloadBoundaryGroups = {
+      signal: [
+        { id: "too-many-priorities", label: "Too many priorities", short: "Too many priorities", score: "Specific", fit: "Low-drama", tone: "Calm", route: "reset priorities", summary: "separate what matters most from what only feels urgent", step: "Name the competing priorities and ask what should move first if time is limited.", script: "I want to make sure I am focused on the right work. With the current load, can we confirm what should move first and what can wait?" },
+        { id: "deadline-pileup", label: "Deadline pileup", short: "Deadline pileup", score: "Timed", fit: "Timeline-safe", tone: "Steady", route: "surface the timeline risk", summary: "show that the timeline is the constraint, not your willingness to help", step: "Name the deadline conflict and ask which date, deliverable, or handoff should win.", script: "I can see a timing conflict between these priorities. Can we confirm which deadline should take precedence?" },
+        { id: "scope-creep", label: "Scope creep", short: "Scope creep", score: "Scoped", fit: "Boundary-safe", tone: "Direct", route: "draw the scope line", summary: "keep extra asks from quietly changing the work", step: "Name the new request, connect it to the existing load, and ask what should change if it is added.", script: "This new request is doable, but it changes the load. What should shift if we add it now?" },
+        { id: "energy-drain", label: "Energy drain", short: "Energy drain", score: "Sustainable", fit: "Sustainable", tone: "Respectful", route: "protect sustainable pace", summary: "protect quality before the pace starts creating avoidable mistakes", step: "Name the quality or sustainability risk and ask for a realistic next move.", script: "I want to keep the quality strong. At this pace, I need help choosing the most realistic next move." }
+      ],
+      person: [
+        { id: "manager", label: "Manager", short: "Manager", score: "Aligned", route: "ask the manager", step: "Send the message to the manager when the boundary affects priorities, capacity, or expectations.", script: "I would like to align with you before I keep moving." },
+        { id: "project-lead", label: "Project lead", short: "Project lead", score: "Context", route: "ask the project lead", step: "Ask the project lead when the workload issue is about scope, timeline, dependencies, or handoffs.", script: "I want to make sure this fits the project path and does not create extra rework." },
+        { id: "teammate", label: "Teammate", short: "Teammate", score: "Collaborative", route: "ask the teammate", step: "Use a peer check when the boundary is about shared ownership, handoffs, or protecting focus time.", script: "I want to make sure the handoff stays clean and the load stays realistic." },
+        { id: "stakeholder", label: "Stakeholder", short: "Stakeholder", score: "Useful", route: "ask the stakeholder", step: "Ask a stakeholder when the tradeoff needs business context or a clearer definition of usefulness.", script: "I want to make sure this is useful for the actual need, not just technically complete." }
+      ],
+      style: [
+        { id: "tradeoff-ask", label: "Tradeoff ask", short: "Tradeoff ask", score: "Clear", route: "ask for a tradeoff", step: "Keep the message short: name the load, offer your current read, and ask what should shift.", script: "My current read is that something needs to shift for this to work well. What tradeoff would you prefer?" },
+        { id: "two-options", label: "Two options", short: "Two options", score: "Decidable", route: "offer two options", step: "Offer two reasonable paths so the person can choose instead of solving from scratch.", script: "I see two possible paths. Option one protects speed; option two protects quality. Which direction is better?" },
+        { id: "pause-one", label: "Pause one thing", short: "Pause one thing", score: "Practical", route: "propose a pause", step: "Suggest one thing to pause, defer, or reduce so the remaining work can move cleanly.", script: "To keep this realistic, I recommend we pause one item or reduce scope on one item." },
+        { id: "timeline-ask", label: "Timeline ask", short: "Timeline ask", score: "Actionable", route: "ask for timing clarity", step: "Ask for the timing decision when the pressure is less about effort and more about sequence.", script: "What timing should I protect first so I do not create avoidable rework?" }
+      ]
+    };
+
+    const roleSelections = {
+      signal: "too-many-priorities",
+      person: "manager",
+      style: "tradeoff-ask"
+    };
+
+    const roleSignalOptions = document.querySelector("#roleSignalOptions");
+    const rolePersonOptions = document.querySelector("#rolePersonOptions");
+    const roleStyleOptions = document.querySelector("#roleStyleOptions");
+    const workloadBoundaryCount = document.querySelector("#workloadBoundaryCount");
+    const workloadBoundaryMove = document.querySelector("#workloadBoundaryMove");
+    const workloadBoundaryFit = document.querySelector("#workloadBoundaryFit");
+    const flowRoleSignal = document.querySelector("#flowRoleSignal");
+    const flowRolePerson = document.querySelector("#flowRolePerson");
+    const flowRoleStyle = document.querySelector("#flowRoleStyle");
+    const workloadBoundarySummary = document.querySelector("#workloadBoundarySummary");
+    const roleSignalScore = document.querySelector("#roleSignalScore");
+    const rolePersonScore = document.querySelector("#rolePersonScore");
+    const roleStyleScore = document.querySelector("#roleStyleScore");
+    const roleToneScore = document.querySelector("#roleToneScore");
+    const workloadBoundarySteps = document.querySelector("#workloadBoundarySteps");
+    const workloadBoundaryScript = document.querySelector("#workloadBoundaryScript");
+    const workloadBoundaryReset = document.querySelector("#workloadBoundaryReset");
+    const copyWorkloadBoundary = document.querySelector("#copyWorkloadBoundary");
+    const workloadBoundaryCopyStatus = document.querySelector("#workloadBoundaryCopyStatus");
+
+    function findRoleOption(group, id) {
+      return workloadBoundaryGroups[group].find((option) => option.id === id);
+    }
+
+    function renderRoleOptions(groupName, container) {
+      container.innerHTML = workloadBoundaryGroups[groupName].map((option) => {
+        const isActive = roleSelections[groupName] === option.id;
+        const active = isActive ? " is-active" : "";
+        return `
+          <button class="signal-option${active}" type="button" data-group="${groupName}" data-id="${option.id}" aria-pressed="${isActive}">
+            <span>${option.label}</span>
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <circle cx="12" cy="12" r="8" stroke="currentColor" stroke-width="2"/>
+              <path d="m8.5 12 2.3 2.3 4.8-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
+        `;
+      }).join("");
+    }
+
+    function buildWorkloadBoundaryMessage() {
+      const signal = findRoleOption("signal", roleSelections.signal);
+      const person = findRoleOption("person", roleSelections.person);
+      const style = findRoleOption("style", roleSelections.style);
+      const title = `${signal.route} + ${style.route}`;
+      const summary = `Use this message to ${signal.summary}, then ${person.route}, and ${style.route}. The point is to protect trust, reduce overload, and make the tradeoff visible without private workplace details.`;
+      const steps = [
+        signal.step,
+        person.step,
+        style.step,
+        "Keep the message specific: one pressure point, one alignment person, one tradeoff ask, and one next step.",
+        "Do not enter employer names, manager names, salary details, workplace complaints, internal notes, performance issues, project secrets, or private career stories in this public tool.",
+        "When the approved Kajabi lane is connected, register for Workload Boundary Scripts for deeper examples, templates, and follow-up support."
+      ];
+      const script = [
+        signal.script,
+        person.script,
+        style.script
+      ].join(" ");
+
+      return { signal, person, style, title, summary, steps, script };
+    }
+
+    function updateWorkloadBoundaryMessage() {
+      renderRoleOptions("signal", roleSignalOptions);
+      renderRoleOptions("person", rolePersonOptions);
+      renderRoleOptions("style", roleStyleOptions);
+
+      const plan = buildWorkloadBoundaryMessage();
+      workloadBoundaryCount.textContent = "3/3";
+      workloadBoundaryMove.textContent = plan.title;
+      workloadBoundaryFit.textContent = plan.signal.fit;
+      flowRoleSignal.textContent = plan.signal.short;
+      flowRolePerson.textContent = plan.person.short;
+      flowRoleStyle.textContent = plan.style.short;
+      workloadBoundarySummary.textContent = plan.summary;
+      roleSignalScore.textContent = plan.signal.score;
+      rolePersonScore.textContent = plan.person.score;
+      roleStyleScore.textContent = plan.style.score;
+      roleToneScore.textContent = plan.signal.tone;
+      workloadBoundaryScript.textContent = plan.script;
+      workloadBoundarySteps.innerHTML = plan.steps.map((step) => `<li>${step}</li>`).join("");
+      workloadBoundaryCopyStatus.textContent = "Capture-ready preview. Kajabi opt-in path: Workload Boundary Scripts; no live form, tracking, or saved data is active yet.";
+    }
+
+    document.addEventListener("click", (event) => {
+      const button = event.target.closest(".signal-option");
+      if (!button) {
+        return;
+      }
+
+      const group = button.dataset.group;
+      const id = button.dataset.id;
+      if (!group || !id) {
+        return;
+      }
+
+      roleSelections[group] = id;
+      updateWorkloadBoundaryMessage();
+    });
+
+    workloadBoundaryReset.addEventListener("click", () => {
+      roleSelections.signal = "too-many-priorities";
+      roleSelections.person = "manager";
+      roleSelections.style = "tradeoff-ask";
+      updateWorkloadBoundaryMessage();
+    });
+
+    copyWorkloadBoundary.addEventListener("click", async () => {
+      const plan = buildWorkloadBoundaryMessage();
+      const text = [
+        "Workload Boundary Message Builder",
+        `Route: ${plan.title}`,
+        `Summary: ${plan.summary}`,
+        "Message checklist:",
+        ...plan.steps.map((step, index) => `${index + 1}. ${step}`),
+        "",
+        "Workload boundary starter:",
+        plan.script,
+        "",
+        "Kajabi opt-in path: Workload Boundary Scripts; no live form, tracking, or saved data is active yet."
+      ].join("\n");
+
+      try {
+        await navigator.clipboard.writeText(text);
+        workloadBoundaryCopyStatus.textContent = "Workload boundary message copied locally. Nothing was saved or sent.";
+      } catch (error) {
+        workloadBoundaryCopyStatus.textContent = "Copy was blocked by the browser. The message is still visible above.";
+      }
+    });
+
+    updateWorkloadBoundaryMessage();
+  </script>
+</body>
+</html>
+
