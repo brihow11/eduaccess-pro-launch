@@ -1,0 +1,332 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Reference Request Message Builder | EduAccess</title>
+  <meta name="description" content="A capture-ready EduAccess mini app for writing a clearer reference request without entering reference names, employer names, contact details, salary numbers, private job-search notes, customer details, or private career stories.">
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="/style.css?v=20260621-reference-request">
+  <style>
+    .signal-score-grid > div {
+      align-items: flex-start;
+      display: grid;
+      gap: 0.28rem;
+    }
+
+    .signal-copy {
+      min-width: min(100%, 18rem);
+      padding-inline: 1.1rem;
+      white-space: normal;
+    }
+
+    .signal-copy span {
+      line-height: 1.25;
+    }
+  </style>
+</head>
+<body class="tool-page signal-page">
+  <header class="tool-header signal-header">
+    <a class="back" href="/">EduAccess</a>
+    <nav aria-label="Tool sections">
+      <a href="/apps/" aria-current="page">Apps</a>
+      <a href="/quizzes/">Quizzes</a>
+      <a href="/lead-magnets/">Lead Magnets</a>
+      <a href="/sandbox/">Sandbox</a>
+    </nav>
+  </header>
+
+  <main class="signal-shell" aria-label="Reference Request Message Builder">
+    <section class="signal-title">
+      <div>
+        <h1>Reference Request Message Builder</h1>
+        <p>Ask for a reference without making the request awkward, vague, or too hard to answer. Choose the reference moment, the request purpose, and the tone. This browser-only builder creates a starter script without entering reference names, employer names, contact details, salary numbers, private job-search notes, customer details, project secrets, or private career stories.</p>
+      </div>
+      <button class="signal-reset" id="referenceReset" type="button" aria-label="Reset Reference Request Message Builder" title="Reset Reference Request Message Builder">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M20 12a8 8 0 1 1-2.34-5.66" stroke="currentColor" stroke-width="2.1" stroke-linecap="round"/>
+          <path d="M20 4v5h-5" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <span>Reset</span>
+      </button>
+    </section>
+
+    <section class="signal-workspace">
+      <aside class="signal-panel signal-choices" aria-label="Reference request choices">
+        <div class="signal-choice-header">
+          <h2>Build three reference choices</h2>
+          <span id="referenceCount">3/3</span>
+        </div>
+
+        <div class="signal-group" aria-label="Reference moment">
+          <div class="signal-group-title">
+            <span class="signal-group-icon signal-teal" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none">
+                <path d="M7 20h10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                <path d="M9 4h6l1 4 4 1v5l-4 1-1 5H9l-1-5-4-1V9l4-1 1-4Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+                <path d="m8.5 12 2.3 2.3 4.7-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </span>
+            <div>
+              <h3>Reference moment</h3>
+              <p>Why are you asking now?</p>
+            </div>
+          </div>
+          <div class="signal-options" id="referenceMomentOptions"></div>
+        </div>
+
+        <div class="signal-group" aria-label="Request purpose">
+          <div class="signal-group-title">
+            <span class="signal-group-icon signal-amber" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none">
+                <path d="M4 12h10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                <path d="m11 8 4 4-4 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M17 5h3v14h-3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+              </svg>
+            </span>
+            <div>
+              <h3>Request purpose</h3>
+              <p>What should the message make easy?</p>
+            </div>
+          </div>
+          <div class="signal-options" id="referencePurposeOptions"></div>
+        </div>
+
+        <div class="signal-group" aria-label="Message tone">
+          <div class="signal-group-title">
+            <span class="signal-group-icon signal-blue" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none">
+                <path d="M5 7h14M5 12h10M5 17h7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                <path d="M17 15.5 19.5 18 23 13.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </span>
+            <div>
+              <h3>Message tone</h3>
+              <p>How should it sound?</p>
+            </div>
+          </div>
+          <div class="signal-options" id="referenceToneOptions"></div>
+        </div>
+      </aside>
+
+      <section class="signal-panel signal-result" aria-live="polite">
+        <div class="signal-result-top">
+          <span>Your reference request route</span>
+          <strong id="referenceFit">Trust-friendly</strong>
+        </div>
+        <h2 id="referenceMove">ask permission + warm and respectful</h2>
+        <div class="signal-flow" aria-label="Selected reference request route">
+          <div><strong id="flowMoment">Early reference check</strong><span>moment</span></div>
+          <svg viewBox="0 0 80 24" fill="none" aria-hidden="true">
+            <path d="M4 12h64" stroke="currentColor" stroke-width="2"/>
+            <path d="m60 5 8 7-8 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <div><strong id="flowPurpose">Ask permission</strong><span>purpose</span></div>
+          <svg viewBox="0 0 80 24" fill="none" aria-hidden="true">
+            <path d="M4 12h64" stroke="currentColor" stroke-width="2"/>
+            <path d="m60 5 8 7-8 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <div><strong id="flowTone">Warm and respectful</strong><span>tone</span></div>
+        </div>
+
+        <p class="signal-summary" id="referenceSummary">Use this message to ask permission, make the request specific, and reduce the effort required from your reference.</p>
+
+        <div class="signal-score-grid" aria-label="Reference request quality markers">
+          <div><span>Moment</span><strong id="referenceMomentScore">Early</strong></div>
+          <div><span>Purpose</span><strong id="referencePurposeScore">Clear</strong></div>
+          <div><span>Ask</span><strong id="referenceAskScore">Permission</strong></div>
+          <div><span>Tone</span><strong id="referenceToneScore">Warm</strong></div>
+        </div>
+
+        <div class="signal-plan">
+          <div>
+            <h3>Reference request checklist</h3>
+            <ol id="referenceSteps"></ol>
+          </div>
+          <div class="signal-script">
+            <span>Reference request starter</span>
+            <p id="referenceScript"></p>
+          </div>
+        </div>
+
+        <button class="signal-copy" id="copyReference" type="button">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M9 9h9v11H9z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+            <path d="M6 15H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v1" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+          <span>Copy reference request message</span>
+        </button>
+        <p class="signal-note" id="referenceCopyStatus">Capture-ready preview. Kajabi opt-in path: Reference Request Scripts; no live form, tracking, or saved data is active yet.</p>
+      </section>
+
+      <aside class="signal-panel signal-map" aria-label="Reference request signal map">
+        <img src="../hidden-job-signal-map/hidden-job-signal-map.png" alt="Illustrated path map showing job search signals and decision points">
+        <div class="signal-map-callout signal-callout-a">
+          <strong>Trust</strong>
+          <span>Ask before naming.</span>
+        </div>
+        <div class="signal-map-callout signal-callout-b">
+          <strong>Clarity</strong>
+          <span>Make the role easy.</span>
+        </div>
+        <div class="signal-map-callout signal-callout-c">
+          <strong>Support</strong>
+          <span>Reduce effort.</span>
+        </div>
+        <div class="signal-legend" aria-label="Map legend">
+          <span><b class="line-solid"></b> Reference signal</span>
+          <span><b class="line-dashed"></b> Request path</span>
+          <span><b class="dot-risk"></b> Vague ask risk</span>
+        </div>
+      </aside>
+    </section>
+
+    <section class="signal-guidance" aria-label="Reference request guidance">
+      <article>
+        <h2>Ask before you list them</h2>
+        <p>A strong reference request gets permission first, explains the situation lightly, and gives the person an easy way to say yes, no, or ask for more context.</p>
+      </article>
+      <article>
+        <h2>Keep private details out</h2>
+        <p>This public page gives a message frame only. Reference names, employer names, phone numbers, emails, salary numbers, and sensitive career stories should stay out of this tool.</p>
+      </article>
+      <article>
+        <h2>Kajabi opt-in path</h2>
+        <p>This proof seed is meant to become a Reference Request Scripts funnel: public message builder first, then Kajabi registration for deeper scripts, examples, and coaching support.</p>
+      </article>
+    </section>
+  </main>
+
+  <script>
+    const referenceData = {
+      moment: [
+        { id: "early-reference-check", label: "Early reference check", short: "Early reference check", score: "Early", fit: "Trust-friendly", lead: "before a reference is officially needed", script: "I hope you are doing well. I am preparing for a job search step where references may come up, and I wanted to ask thoughtfully before listing anyone." },
+        { id: "finalist-stage", label: "Finalist stage", short: "Finalist stage", score: "Timely", fit: "Decision-ready", lead: "when the hiring process is getting serious", script: "I am moving into a later stage of a hiring process, and references may be requested soon. I wanted to check with you first before sharing your name." },
+        { id: "former-manager", label: "Former manager", short: "Former manager", score: "Credible", fit: "Role-proof", lead: "when asking someone who managed your work", script: "I valued working with you and thought you could speak to my work style, follow-through, and how I contributed to the team." },
+        { id: "colleague-ally", label: "Colleague or ally", short: "Colleague or ally", score: "Peer", fit: "Collaboration-proof", lead: "when asking a colleague or cross-functional partner", script: "I thought of you because you have seen how I collaborate, solve problems, and communicate under real work conditions." }
+      ],
+      purpose: [
+        { id: "ask-permission", label: "Ask permission", short: "Ask permission", score: "Clear", ask: "Permission", action: "ask permission", step: "Ask whether they would feel comfortable serving as a reference before you share their name.", script: "Would you feel comfortable being listed as a reference if the employer asks?" },
+        { id: "offer-context", label: "Offer context", short: "Offer context", score: "Helpful", ask: "Prepared", action: "offer context", step: "Offer to send a short context note so the person knows the role, focus, and likely questions.", script: "I can send a short note with the role context, the strengths I hope to highlight, and any timing details that would make this easier." },
+        { id: "protect-choice", label: "Protect their choice", short: "Protect their choice", score: "Respectful", ask: "Easy no", action: "make yes or no easy", step: "Make it comfortable for them to decline or ask for more information.", script: "No pressure at all if the timing is not right or if you would rather not be listed." },
+        { id: "confirm-details", label: "Confirm details", short: "Confirm details", score: "Practical", ask: "Specific", action: "confirm the details", step: "Confirm the best contact method and whether they want context before anyone reaches out.", script: "If you are comfortable with it, please let me know the best contact details and whether you would like a quick role summary first." }
+      ],
+      tone: [
+        { id: "warm-respectful", label: "Warm and respectful", short: "Warm and respectful", tone: "Warm", close: "Thank you either way. I appreciate your time and the work we have done together." },
+        { id: "clear-professional", label: "Clear and professional", short: "Clear and professional", tone: "Professional", close: "I appreciate your consideration and will keep the request specific and respectful of your time." },
+        { id: "grateful-low-pressure", label: "Grateful and low-pressure", short: "Grateful and low-pressure", tone: "Grateful", close: "I appreciate you considering it, and there is absolutely no pressure if this is not a good fit." },
+        { id: "short-direct", label: "Short and direct", short: "Short and direct", tone: "Direct", close: "Thanks for considering it. A quick yes, no, or question is completely fine." }
+      ]
+    };
+
+    const referenceSelections = {
+      moment: "early-reference-check",
+      purpose: "ask-permission",
+      tone: "warm-respectful"
+    };
+
+    function findReference(group, id) {
+      return referenceData[group].find((item) => item.id === id) || referenceData[group][0];
+    }
+
+    function renderReferenceOptions(group, container) {
+      container.innerHTML = referenceData[group].map((item) => {
+        const active = referenceSelections[group] === item.id;
+        return `<button class="signal-option${active ? " is-active" : ""}" type="button" data-group="${group}" data-id="${item.id}" aria-pressed="${active}"><span>${item.label}</span><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2"/><path d="m8 12 2.5 2.5L16 9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>`;
+      }).join("");
+    }
+
+    function buildReferenceMessage() {
+      const moment = findReference("moment", referenceSelections.moment);
+      const purpose = findReference("purpose", referenceSelections.purpose);
+      const tone = findReference("tone", referenceSelections.tone);
+      const title = `${purpose.short.toLowerCase()} + ${tone.short.toLowerCase()}`;
+      const summary = `Use this message ${moment.lead} to ${purpose.action}, keep the tone ${tone.short.toLowerCase()}, and make the request easy to answer without private details.`;
+      const steps = [
+        "Ask for permission before sharing anyone as a reference.",
+        purpose.step,
+        "Keep the message specific: one moment, one purpose, one clear tone, and one easy reply path.",
+        "Do not enter reference names, employer names, phone numbers, emails, salary numbers, private job-search notes, customer details, project secrets, or private career stories in this public tool.",
+        "When the approved Kajabi lane is connected, register for Reference Request Scripts for deeper examples, templates, and coaching support."
+      ];
+      const script = [
+        moment.script,
+        purpose.script,
+        tone.close
+      ].join(" ");
+
+      return { moment, purpose, tone, title, summary, steps, script };
+    }
+
+    function updateReferenceMessage() {
+      renderReferenceOptions("moment", referenceMomentOptions);
+      renderReferenceOptions("purpose", referencePurposeOptions);
+      renderReferenceOptions("tone", referenceToneOptions);
+
+      const plan = buildReferenceMessage();
+      referenceCount.textContent = "3/3";
+      referenceMove.textContent = plan.title;
+      referenceFit.textContent = plan.moment.fit;
+      flowMoment.textContent = plan.moment.short;
+      flowPurpose.textContent = plan.purpose.short;
+      flowTone.textContent = plan.tone.short;
+      referenceSummary.textContent = plan.summary;
+      referenceMomentScore.textContent = plan.moment.score;
+      referencePurposeScore.textContent = plan.purpose.score;
+      referenceAskScore.textContent = plan.purpose.ask;
+      referenceToneScore.textContent = plan.tone.tone;
+      referenceScript.textContent = plan.script;
+      referenceSteps.innerHTML = plan.steps.map((step) => `<li>${step}</li>`).join("");
+      referenceCopyStatus.textContent = "Capture-ready preview. Kajabi opt-in path: Reference Request Scripts; no live form, tracking, or saved data is active yet.";
+    }
+
+    document.addEventListener("click", (event) => {
+      const button = event.target.closest(".signal-option");
+      if (!button) {
+        return;
+      }
+
+      const group = button.dataset.group;
+      const id = button.dataset.id;
+      if (!group || !id) {
+        return;
+      }
+
+      referenceSelections[group] = id;
+      updateReferenceMessage();
+    });
+
+    referenceReset.addEventListener("click", () => {
+      referenceSelections.moment = "early-reference-check";
+      referenceSelections.purpose = "ask-permission";
+      referenceSelections.tone = "warm-respectful";
+      updateReferenceMessage();
+    });
+
+    copyReference.addEventListener("click", async () => {
+      const plan = buildReferenceMessage();
+      const text = [
+        "Reference Request Message Builder",
+        `Route: ${plan.title}`,
+        `Summary: ${plan.summary}`,
+        "Reference request checklist:",
+        ...plan.steps.map((step, index) => `${index + 1}. ${step}`),
+        "",
+        "Reference request starter:",
+        plan.script,
+        "",
+        "Kajabi opt-in path: Reference Request Scripts; no live form, tracking, or saved data is active yet."
+      ].join("\n");
+
+      try {
+        await navigator.clipboard.writeText(text);
+        referenceCopyStatus.textContent = "Reference request message copied locally. Nothing was saved or sent.";
+      } catch (error) {
+        referenceCopyStatus.textContent = "Copy was blocked by the browser. The message is still visible above.";
+      }
+    });
+
+    updateReferenceMessage();
+  </script>
+</body>
+</html>
