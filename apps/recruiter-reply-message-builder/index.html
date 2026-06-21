@@ -1,0 +1,331 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Recruiter Reply Message Builder | EduAccess</title>
+  <meta name="description" content="A capture-ready EduAccess mini app for writing a clearer recruiter reply without entering recruiter names, employer names, salary numbers, offer details, private job-search notes, customer details, or private career stories.">
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="/style.css?v=20260621-recruiter-reply">
+  <style>
+    .signal-score-grid > div {
+      align-items: flex-start;
+      display: grid;
+      gap: 0.28rem;
+    }
+
+    .signal-copy {
+      min-width: min(100%, 18rem);
+      padding-inline: 1.1rem;
+      white-space: normal;
+    }
+
+    .signal-copy span {
+      line-height: 1.25;
+    }
+  </style>
+</head>
+<body class="tool-page signal-page">
+  <header class="tool-header signal-header">
+    <a class="back" href="/">EduAccess</a>
+    <nav aria-label="Tool sections">
+      <a href="/apps/" aria-current="page">Apps</a>
+      <a href="/quizzes/">Quizzes</a>
+      <a href="/lead-magnets/">Lead Magnets</a>
+      <a href="/sandbox/">Sandbox</a>
+    </nav>
+  </header>
+
+  <main class="signal-shell" aria-label="Recruiter Reply Message Builder">
+    <section class="signal-title">
+      <div>
+        <h1>Recruiter Reply Message Builder</h1>
+        <p>Turn a recruiter message into a clearer reply. Choose the recruiter moment, the reply purpose, and the tone. This browser-only builder creates a starter script without entering recruiter names, employer names, salary numbers, offer details, private job-search notes, customer details, project secrets, or private career stories.</p>
+      </div>
+      <button class="signal-reset" id="replyReset" type="button" aria-label="Reset Recruiter Reply Message Builder" title="Reset Recruiter Reply Message Builder">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M20 12a8 8 0 1 1-2.34-5.66" stroke="currentColor" stroke-width="2.1" stroke-linecap="round"/>
+          <path d="M20 4v5h-5" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <span>Reset</span>
+      </button>
+    </section>
+
+    <section class="signal-workspace">
+      <aside class="signal-panel signal-choices" aria-label="Recruiter reply choices">
+        <div class="signal-choice-header">
+          <h2>Build three reply choices</h2>
+          <span id="replyCount">3/3</span>
+        </div>
+
+        <div class="signal-group" aria-label="Recruiter moment">
+          <div class="signal-group-title">
+            <span class="signal-group-icon signal-teal" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none">
+                <path d="M4 6h16v12H4z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+                <path d="m4 7 8 6 8-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </span>
+            <div>
+              <h3>Recruiter moment</h3>
+              <p>What kind of message are you answering?</p>
+            </div>
+          </div>
+          <div class="signal-options" id="replyMomentOptions"></div>
+        </div>
+
+        <div class="signal-group" aria-label="Reply purpose">
+          <div class="signal-group-title">
+            <span class="signal-group-icon signal-amber" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none">
+                <path d="M4 12h10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                <path d="m11 8 4 4-4 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M17 5h3v14h-3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+              </svg>
+            </span>
+            <div>
+              <h3>Reply purpose</h3>
+              <p>What should the response accomplish?</p>
+            </div>
+          </div>
+          <div class="signal-options" id="replyPurposeOptions"></div>
+        </div>
+
+        <div class="signal-group" aria-label="Message tone">
+          <div class="signal-group-title">
+            <span class="signal-group-icon signal-blue" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none">
+                <path d="M5 7h14M5 12h10M5 17h7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                <path d="M17 15.5 19.5 18 23 13.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </span>
+            <div>
+              <h3>Message tone</h3>
+              <p>How should it sound?</p>
+            </div>
+          </div>
+          <div class="signal-options" id="replyToneOptions"></div>
+        </div>
+      </aside>
+
+      <section class="signal-panel signal-result" aria-live="polite">
+        <div class="signal-result-top">
+          <span>Your recruiter reply route</span>
+          <strong id="replyFit">Momentum-friendly</strong>
+        </div>
+        <h2 id="replyMove">confirm fit + warm and concise</h2>
+        <div class="signal-flow" aria-label="Selected recruiter reply route">
+          <div><strong id="flowMoment">New role outreach</strong><span>moment</span></div>
+          <svg viewBox="0 0 80 24" fill="none" aria-hidden="true">
+            <path d="M4 12h64" stroke="currentColor" stroke-width="2"/>
+            <path d="m60 5 8 7-8 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <div><strong id="flowPurpose">Confirm fit</strong><span>purpose</span></div>
+          <svg viewBox="0 0 80 24" fill="none" aria-hidden="true">
+            <path d="M4 12h64" stroke="currentColor" stroke-width="2"/>
+            <path d="m60 5 8 7-8 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <div><strong id="flowTone">Warm and concise</strong><span>tone</span></div>
+        </div>
+
+        <p class="signal-summary" id="replySummary">Use this message to acknowledge the recruiter, confirm the role fit, and keep the next step easy without private details.</p>
+
+        <div class="signal-score-grid" aria-label="Recruiter reply quality markers">
+          <div><span>Moment</span><strong id="replyMomentScore">Responsive</strong></div>
+          <div><span>Purpose</span><strong id="replyPurposeScore">Clear</strong></div>
+          <div><span>Ask</span><strong id="replyAskScore">Simple</strong></div>
+          <div><span>Tone</span><strong id="replyToneScore">Warm</strong></div>
+        </div>
+
+        <div class="signal-plan">
+          <div>
+            <h3>Reply checklist</h3>
+            <ol id="replySteps"></ol>
+          </div>
+          <div class="signal-script">
+            <span>Recruiter reply starter</span>
+            <p id="replyScript"></p>
+          </div>
+        </div>
+
+        <button class="signal-copy" id="copyReply" type="button">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M9 9h9v11H9z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+            <path d="M6 15H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v1" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+          <span>Copy recruiter reply message</span>
+        </button>
+        <p class="signal-note" id="replyCopyStatus">Capture-ready preview. Kajabi opt-in path: Recruiter Reply Scripts; no live form, tracking, or saved data is active yet.</p>
+      </section>
+
+      <aside class="signal-panel signal-map" aria-label="Recruiter reply signal map">
+        <img src="../hidden-job-signal-map/hidden-job-signal-map.png" alt="Illustrated path map showing job search signals and decision points">
+        <div class="signal-map-callout signal-callout-a">
+          <strong>Context</strong>
+          <span>Answer the moment.</span>
+        </div>
+        <div class="signal-map-callout signal-callout-b">
+          <strong>Fit</strong>
+          <span>Protect clarity.</span>
+        </div>
+        <div class="signal-map-callout signal-callout-c">
+          <strong>Next step</strong>
+          <span>Make reply easy.</span>
+        </div>
+        <div class="signal-legend" aria-label="Map legend">
+          <span><b class="line-solid"></b> Recruiter signal</span>
+          <span><b class="line-dashed"></b> Reply path</span>
+          <span><b class="dot-risk"></b> Drift risk</span>
+        </div>
+      </aside>
+    </section>
+
+    <section class="signal-guidance" aria-label="Recruiter reply guidance">
+      <article>
+        <h2>Make the next step simple</h2>
+        <p>A good recruiter reply is easy to act on: it confirms interest, asks one useful question, and avoids turning a simple message into a long career essay.</p>
+      </article>
+      <article>
+        <h2>Keep private details out</h2>
+        <p>This public page gives a message frame only. Recruiter names, employer names, salary numbers, offer details, and sensitive search notes should stay out of this tool.</p>
+      </article>
+      <article>
+        <h2>Kajabi opt-in path</h2>
+        <p>This proof seed is meant to become a Recruiter Reply Scripts funnel: public message builder first, then Kajabi registration for deeper scripts, examples, and coaching support.</p>
+      </article>
+    </section>
+  </main>
+
+  <script>
+    const replyData = {
+      moment: [
+        { id: "new-role-outreach", label: "New role outreach", short: "New role outreach", score: "Responsive", fit: "Momentum-friendly", lead: "after new role outreach", script: "Thank you for reaching out. The role sounds worth exploring, and I would be glad to learn more." },
+        { id: "screening-request", label: "Screening request", short: "Screening request", score: "Fast reply", fit: "Process-ready", lead: "after a screening request", script: "Thank you for the note. I am interested in discussing the role and learning more about the hiring process." },
+        { id: "salary-question", label: "Salary question", short: "Salary question", score: "Boundary-aware", fit: "Careful", lead: "when compensation comes up early", script: "Thanks for asking. I would like to understand the role scope and expectations so we can make sure the range is aligned." },
+        { id: "follow-up-nudge", label: "Follow-up nudge", short: "Follow-up nudge", score: "Calm check", fit: "Low-pressure", lead: "after a quiet window", script: "I wanted to follow up briefly and see whether there is an update or a helpful next step." }
+      ],
+      purpose: [
+        { id: "confirm-fit", label: "Confirm fit", short: "Confirm fit", score: "Clear", ask: "Simple", action: "confirm the fit", step: "Confirm interest and name one broad role area you want to understand.", script: "At a high level, it seems aligned with the kind of work I am targeting, especially where clear execution and practical problem solving matter." },
+        { id: "ask-clear-question", label: "Ask a clear question", short: "Ask a clear question", score: "Useful", ask: "Specific", action: "ask a clear question", step: "Ask one useful question about the role, process, or next step.", script: "Before we schedule, could you share the main priorities for the role and what the next step would look like if the conversation is a fit?" },
+        { id: "protect-boundaries", label: "Protect boundaries", short: "Protect boundaries", score: "Healthy", ask: "Bounded", action: "protect boundaries", step: "Set one practical boundary while keeping the reply collaborative.", script: "I am happy to explore it, and I want to make sure the role scope, timing, and expectations are a good match before we go deeper." },
+        { id: "move-next-step", label: "Move to next step", short: "Move to next step", score: "Action", ask: "Easy", action: "move to the next step", step: "Offer one simple scheduling or information next step.", script: "If it still looks aligned, I would be glad to schedule a short conversation or review the next-step details." }
+      ],
+      tone: [
+        { id: "warm-concise", label: "Warm and concise", short: "Warm and concise", tone: "Warm", close: "Thanks again, and I look forward to hearing what you recommend as the next step." },
+        { id: "confident-specific", label: "Confident and specific", short: "Confident and specific", tone: "Confident", close: "I am interested in roles where I can contribute quickly, communicate clearly, and help the team move work forward." },
+        { id: "helpful-calm", label: "Helpful and calm", short: "Helpful and calm", tone: "Calm", close: "I hope that helps, and I am happy to share anything else that would make the fit easier to evaluate." },
+        { id: "short-direct", label: "Short and direct", short: "Short and direct", tone: "Direct", close: "Thank you. Please send the next-step details when you can." }
+      ]
+    };
+
+    const replySelections = {
+      moment: "new-role-outreach",
+      purpose: "confirm-fit",
+      tone: "warm-concise"
+    };
+
+    function findReply(group, id) {
+      return replyData[group].find((item) => item.id === id) || replyData[group][0];
+    }
+
+    function renderReplyOptions(group, container) {
+      container.innerHTML = replyData[group].map((item) => {
+        const active = replySelections[group] === item.id;
+        return `<button class="signal-option${active ? " is-active" : ""}" type="button" data-group="${group}" data-id="${item.id}" aria-pressed="${active}"><span>${item.label}</span><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2"/><path d="m8 12 2.5 2.5L16 9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>`;
+      }).join("");
+    }
+
+    function buildReplyMessage() {
+      const moment = findReply("moment", replySelections.moment);
+      const purpose = findReply("purpose", replySelections.purpose);
+      const tone = findReply("tone", replySelections.tone);
+      const title = `${purpose.short.toLowerCase()} + ${tone.short.toLowerCase()}`;
+      const summary = `Use this message ${moment.lead} to ${purpose.action}, keep the tone ${tone.short.toLowerCase()}, and make the next step easy without private details.`;
+      const steps = [
+        "Acknowledge the recruiter without over-explaining.",
+        purpose.step,
+        "Keep the response specific: one moment, one purpose, one clear tone, and one light next step.",
+        "Do not enter recruiter names, employer names, salary numbers, offer details, private job-search notes, customer details, project secrets, or private career stories in this public tool.",
+        "When the approved Kajabi lane is connected, register for Recruiter Reply Scripts for deeper examples, templates, and coaching support."
+      ];
+      const script = [
+        moment.script,
+        purpose.script,
+        tone.close
+      ].join(" ");
+
+      return { moment, purpose, tone, title, summary, steps, script };
+    }
+
+    function updateReplyMessage() {
+      renderReplyOptions("moment", replyMomentOptions);
+      renderReplyOptions("purpose", replyPurposeOptions);
+      renderReplyOptions("tone", replyToneOptions);
+
+      const plan = buildReplyMessage();
+      replyCount.textContent = "3/3";
+      replyMove.textContent = plan.title;
+      replyFit.textContent = plan.moment.fit;
+      flowMoment.textContent = plan.moment.short;
+      flowPurpose.textContent = plan.purpose.short;
+      flowTone.textContent = plan.tone.short;
+      replySummary.textContent = plan.summary;
+      replyMomentScore.textContent = plan.moment.score;
+      replyPurposeScore.textContent = plan.purpose.score;
+      replyAskScore.textContent = plan.purpose.ask;
+      replyToneScore.textContent = plan.tone.tone;
+      replyScript.textContent = plan.script;
+      replySteps.innerHTML = plan.steps.map((step) => `<li>${step}</li>`).join("");
+      replyCopyStatus.textContent = "Capture-ready preview. Kajabi opt-in path: Recruiter Reply Scripts; no live form, tracking, or saved data is active yet.";
+    }
+
+    document.addEventListener("click", (event) => {
+      const button = event.target.closest(".signal-option");
+      if (!button) {
+        return;
+      }
+
+      const group = button.dataset.group;
+      const id = button.dataset.id;
+      if (!group || !id) {
+        return;
+      }
+
+      replySelections[group] = id;
+      updateReplyMessage();
+    });
+
+    replyReset.addEventListener("click", () => {
+      replySelections.moment = "new-role-outreach";
+      replySelections.purpose = "confirm-fit";
+      replySelections.tone = "warm-concise";
+      updateReplyMessage();
+    });
+
+    copyReply.addEventListener("click", async () => {
+      const plan = buildReplyMessage();
+      const text = [
+        "Recruiter Reply Message Builder",
+        `Route: ${plan.title}`,
+        `Summary: ${plan.summary}`,
+        "Reply checklist:",
+        ...plan.steps.map((step, index) => `${index + 1}. ${step}`),
+        "",
+        "Recruiter reply starter:",
+        plan.script,
+        "",
+        "Kajabi opt-in path: Recruiter Reply Scripts; no live form, tracking, or saved data is active yet."
+      ].join("\n");
+
+      try {
+        await navigator.clipboard.writeText(text);
+        replyCopyStatus.textContent = "Recruiter reply message copied locally. Nothing was saved or sent.";
+      } catch (error) {
+        replyCopyStatus.textContent = "Copy was blocked by the browser. The message is still visible above.";
+      }
+    });
+
+    updateReplyMessage();
+  </script>
+</body>
+</html>
