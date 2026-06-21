@@ -23,6 +23,7 @@ DNS manager: Namecheap.
 Initial paths:
 
 - `/apps/`
+- `/apps/stakeholder-alignment-message-builder/`
 - `/apps/priority-reset-message-builder/`
 - `/apps/role-clarity-message-builder/`
 - `/apps/manager-update-message-builder/`
@@ -73,6 +74,7 @@ Safe proof mode means the page is public and useful, but the live Kajabi form,
 email automation, tracking, and CRM routing are not attached yet. That is a
 temporary proof setting, not the business goal.
 
+- `/apps/stakeholder-alignment-message-builder/` is a capture-ready, browser-only Stakeholder Alignment Message Builder preview with a planned Kajabi opt-in path for Stakeholder Alignment Scripts.
 - `/apps/workload-boundary-message-builder/` is a capture-ready, browser-only Workload Boundary Message Builder preview with a planned Kajabi opt-in path for Workload Boundary Scripts.
 - `/apps/priority-reset-message-builder/` is a capture-ready, browser-only Priority Reset Message Builder preview with a planned Kajabi opt-in path for Priority Reset Scripts.
 - `/apps/role-clarity-message-builder/` is a capture-ready, browser-only Role Clarity Message Builder preview with a planned Kajabi opt-in path for Role Clarity Scripts.

@@ -1,0 +1,332 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Stakeholder Alignment Message Builder | EduAccess</title>
+  <meta name="description" content="A capture-ready EduAccess mini app for writing a clearer stakeholder-alignment message without entering employer names, manager names, salary details, workplace complaints, internal notes, performance issues, customer details, or private career stories.">
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="/style.css?v=20260621-stakeholder-alignment">
+</head>
+<body class="tool-page signal-page">
+  <header class="tool-header signal-header">
+    <a class="back" href="/">EduAccess</a>
+    <nav aria-label="Tool sections">
+      <a href="/apps/" aria-current="page">Apps</a>
+      <a href="/quizzes/">Quizzes</a>
+      <a href="/lead-magnets/">Lead Magnets</a>
+      <a href="/sandbox/">Sandbox</a>
+    </nav>
+  </header>
+
+  <main class="signal-shell" aria-label="Stakeholder Alignment Message Builder">
+    <section class="signal-title">
+      <div>
+        <h1>Stakeholder Alignment Message Builder</h1>
+        <p>Turn a fuzzy work conversation into a clearer alignment message before expectations drift. Choose the alignment situation, the decision person, and the next-step ask. This browser-only builder creates a starter script without entering employer names, manager names, salary details, workplace complaints, internal notes, performance issues, customer details, project secrets, or private career stories.</p>
+      </div>
+      <button class="signal-reset" id="stakeholderReset" type="button" aria-label="Reset Stakeholder Alignment Message Builder" title="Reset Stakeholder Alignment Message Builder">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M20 12a8 8 0 1 1-2.34-5.66" stroke="currentColor" stroke-width="2.1" stroke-linecap="round"/>
+          <path d="M20 4v5h-5" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <span>Reset</span>
+      </button>
+    </section>
+
+    <section class="signal-workspace">
+      <aside class="signal-panel signal-choices" aria-label="Stakeholder alignment choices">
+        <div class="signal-choice-header">
+          <h2>Build three alignment choices</h2>
+          <span id="stakeholderCount">3/3</span>
+        </div>
+
+        <div class="signal-group" aria-label="Alignment situation">
+          <div class="signal-group-title">
+            <span class="signal-group-icon signal-teal" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none">
+                <path d="M5 7h14M5 12h9M5 17h6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                <path d="M17 14l2 2 4-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </span>
+            <div>
+              <h3>Alignment situation</h3>
+              <p>What needs to be made clearer?</p>
+            </div>
+          </div>
+          <div class="signal-options" id="alignmentSituationOptions"></div>
+        </div>
+
+        <div class="signal-group" aria-label="Decision person">
+          <div class="signal-group-title">
+            <span class="signal-group-icon signal-amber" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none">
+                <circle cx="8" cy="8" r="3" stroke="currentColor" stroke-width="2"/>
+                <circle cx="16" cy="16" r="3" stroke="currentColor" stroke-width="2"/>
+                <path d="M10.5 10.5 13.5 13.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+              </svg>
+            </span>
+            <div>
+              <h3>Decision person</h3>
+              <p>Who should confirm the expectation?</p>
+            </div>
+          </div>
+          <div class="signal-options" id="alignmentPersonOptions"></div>
+        </div>
+
+        <div class="signal-group" aria-label="Next-step ask">
+          <div class="signal-group-title">
+            <span class="signal-group-icon signal-blue" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none">
+                <path d="M5 6h14v9H9l-4 4V6Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+                <path d="M8 10h8M8 13h5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+              </svg>
+            </span>
+            <div>
+              <h3>Next-step ask</h3>
+              <p>What should the person decide?</p>
+            </div>
+          </div>
+          <div class="signal-options" id="alignmentAskOptions"></div>
+        </div>
+      </aside>
+
+      <section class="signal-panel signal-result" aria-label="Stakeholder alignment result">
+        <div class="signal-result-top">
+          <div>
+            <span class="signal-mini-label">Your alignment route</span>
+            <h2 id="alignmentMove">Clarify expectations + confirm the next decision</h2>
+          </div>
+          <span class="signal-fit" id="alignmentFit">Expectation-safe</span>
+        </div>
+
+        <div class="signal-flow" aria-label="Selected stakeholder alignment path">
+          <div><strong id="flowAlignmentSituation">Unclear expectations</strong><span>situation</span></div>
+          <svg viewBox="0 0 48 16" fill="none" aria-hidden="true"><path d="M2 8h40M35 2l7 6-7 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <div><strong id="flowAlignmentPerson">Manager</strong><span>person</span></div>
+          <svg viewBox="0 0 48 16" fill="none" aria-hidden="true"><path d="M2 8h40M35 2l7 6-7 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <div><strong id="flowAlignmentAsk">Confirm priority</strong><span>ask</span></div>
+        </div>
+
+        <p class="signal-summary" id="alignmentSummary">A useful stakeholder-alignment message names the ambiguity, asks the right person to confirm expectations, and turns the next step into a decision instead of another vague conversation.</p>
+
+        <div class="signal-metrics" aria-label="Stakeholder alignment markers">
+          <div><span>Situation</span><strong id="alignmentSituationScore">Specific</strong></div>
+          <div><span>Person</span><strong id="alignmentPersonScore">Accountable</strong></div>
+          <div><span>Ask</span><strong id="alignmentAskScore">Clear</strong></div>
+          <div><span>Tone</span><strong id="alignmentToneScore">Useful</strong></div>
+        </div>
+
+        <div class="signal-plan-grid">
+          <div>
+            <h3>Message checklist</h3>
+            <ol id="alignmentSteps"></ol>
+          </div>
+          <aside class="signal-script" aria-label="Stakeholder alignment starter">
+            <strong>Stakeholder alignment starter</strong>
+            <p id="alignmentScript">I want to make sure I am aiming at the right expectation. Can we confirm what success should look like and what decision should guide the next step?</p>
+          </aside>
+        </div>
+
+        <button class="button signal-copy" id="copyAlignment" type="button">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <rect x="8" y="8" width="11" height="13" rx="1.5" stroke="currentColor" stroke-width="2"/>
+            <path d="M5 16H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h11a1 1 0 0 1 1 1v1" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+          <span>Copy stakeholder alignment message</span>
+        </button>
+        <p class="signal-privacy" id="alignmentCopyStatus" aria-live="polite">Capture-ready preview. Kajabi opt-in path: Stakeholder Alignment Scripts; no live form, tracking, or saved data is active yet.</p>
+      </section>
+
+      <aside class="signal-panel signal-map" aria-label="Stakeholder Alignment Message Builder illustration">
+        <img src="../hidden-job-signal-map/hidden-job-signal-map.png" alt="Illustrated route map with markers representing a stakeholder alignment path">
+        <div class="signal-map-callout signal-callout-a"><strong>Clarify</strong><span>Name the ambiguous point.</span></div>
+        <div class="signal-map-callout signal-callout-b"><strong>Confirm</strong><span>Ask the right person.</span></div>
+        <div class="signal-map-callout signal-callout-c"><strong>Decide</strong><span>Turn drift into a next step.</span></div>
+        <div class="signal-legend">
+          <span><i class="solid"></i> Expectation gap</span>
+          <span><i class="dashed"></i> Alignment path</span>
+          <span><i class="risk"></i> Rework risk</span>
+        </div>
+      </aside>
+    </section>
+
+    <section class="signal-guidance" aria-label="More ways to align stakeholders">
+      <article>
+        <h2>Clarify before rework starts</h2>
+        <p>Stakeholder drift usually begins quietly: a fuzzy outcome, an unstated priority, or a decision nobody has truly confirmed.</p>
+      </article>
+      <article>
+        <h2>Keep private details out</h2>
+        <p>This public page gives a message frame only. Employer names, manager names, salary details, workplace complaints, internal notes, performance issues, customer details, and private career stories should stay out of this tool.</p>
+      </article>
+      <article>
+        <h2>Kajabi opt-in path</h2>
+        <p>This proof seed is meant to become a Stakeholder Alignment Scripts funnel: public message builder first, then Kajabi registration for deeper scripts, examples, and follow-up support.</p>
+      </article>
+    </section>
+  </main>
+
+  <script>
+    const alignmentGroups = {
+      situation: [
+        { id: "unclear-expectations", label: "Unclear expectations", short: "Unclear expectations", score: "Specific", fit: "Expectation-safe", tone: "Useful", route: "clarify expectations", summary: "make success visible before the work keeps moving", step: "Name the expectation that feels unclear and ask what success should look like.", script: "I want to make sure I am aiming at the right expectation. Can we confirm what success should look like?" },
+        { id: "decision-drift", label: "Decision drift", short: "Decision drift", score: "Decisive", fit: "Decision-safe", tone: "Direct", route: "stop decision drift", summary: "turn a loose discussion into a decision point", step: "Name the open decision and ask who should confirm it before more work happens.", script: "I think this is becoming a decision point. Can we confirm who should make the call and what information they need?" },
+        { id: "handoff-risk", label: "Handoff risk", short: "Handoff risk", score: "Clean", fit: "Handoff-safe", tone: "Practical", route: "clean up the handoff", summary: "protect the handoff before small gaps create rework", step: "Name the handoff risk and ask what needs to be true before the next person receives the work.", script: "Before I hand this off, I want to make sure the next person has what they need. What should be confirmed first?" },
+        { id: "priority-conflict", label: "Priority conflict", short: "Priority conflict", score: "Ranked", fit: "Priority-safe", tone: "Steady", route: "rank the priority", summary: "make the priority choice visible when two useful things compete", step: "Name the competing priorities and ask which one should guide the next step.", script: "I see two useful priorities competing. Which one should guide the next step?" }
+      ],
+      person: [
+        { id: "manager", label: "Manager", short: "Manager", score: "Accountable", route: "ask the manager", step: "Use this when the alignment issue affects expectations, priority, scope, or timing.", script: "I would like to align with you before I keep moving." },
+        { id: "project-lead", label: "Project lead", short: "Project lead", score: "Context", route: "ask the project lead", step: "Use this when sequence, dependencies, scope, or delivery definition need confirmation.", script: "I want to make sure this fits the project path and does not create rework." },
+        { id: "teammate", label: "Teammate", short: "Teammate", score: "Shared", route: "ask the teammate", step: "Use this when shared work, a handoff, or a peer dependency needs a quick reset.", script: "I want to make sure our shared part is clear before either of us moves too far." },
+        { id: "stakeholder", label: "Stakeholder", short: "Stakeholder", score: "Useful", route: "ask the stakeholder", step: "Use this when the person closest to the outcome should confirm what would be useful.", script: "I want to make sure this matches the outcome you actually need." }
+      ],
+      ask: [
+        { id: "confirm-priority", label: "Confirm priority", short: "Confirm priority", score: "Clear", route: "confirm the priority", step: "Ask what should come first, what can wait, and what decision should guide the next step.", script: "Can we confirm what should come first and what can wait?" },
+        { id: "define-done", label: "Define done", short: "Define done", score: "Concrete", route: "define done", step: "Ask what finished should mean so the work does not drift into extra hidden expectations.", script: "Can we define what done should mean for this version?" },
+        { id: "choose-owner", label: "Choose owner", short: "Choose owner", score: "Owned", route: "choose the owner", step: "Ask who owns the next decision, review, or handoff so the work does not float.", script: "Who should own the next decision or review from here?" },
+        { id: "set-next-check", label: "Set next check", short: "Set next check", score: "Actionable", route: "set the next check", step: "Ask for the next checkpoint so alignment does not depend on memory or assumptions.", script: "Can we set the next check-in point so I can confirm this before it drifts?" }
+      ]
+    };
+
+    const alignmentSelections = {
+      situation: "unclear-expectations",
+      person: "manager",
+      ask: "confirm-priority"
+    };
+
+    const alignmentSituationOptions = document.querySelector("#alignmentSituationOptions");
+    const alignmentPersonOptions = document.querySelector("#alignmentPersonOptions");
+    const alignmentAskOptions = document.querySelector("#alignmentAskOptions");
+    const stakeholderCount = document.querySelector("#stakeholderCount");
+    const alignmentMove = document.querySelector("#alignmentMove");
+    const alignmentFit = document.querySelector("#alignmentFit");
+    const flowAlignmentSituation = document.querySelector("#flowAlignmentSituation");
+    const flowAlignmentPerson = document.querySelector("#flowAlignmentPerson");
+    const flowAlignmentAsk = document.querySelector("#flowAlignmentAsk");
+    const alignmentSummary = document.querySelector("#alignmentSummary");
+    const alignmentSituationScore = document.querySelector("#alignmentSituationScore");
+    const alignmentPersonScore = document.querySelector("#alignmentPersonScore");
+    const alignmentAskScore = document.querySelector("#alignmentAskScore");
+    const alignmentToneScore = document.querySelector("#alignmentToneScore");
+    const alignmentSteps = document.querySelector("#alignmentSteps");
+    const alignmentScript = document.querySelector("#alignmentScript");
+    const stakeholderReset = document.querySelector("#stakeholderReset");
+    const copyAlignment = document.querySelector("#copyAlignment");
+    const alignmentCopyStatus = document.querySelector("#alignmentCopyStatus");
+
+    function findAlignmentOption(group, id) {
+      return alignmentGroups[group].find((option) => option.id === id);
+    }
+
+    function renderAlignmentOptions(groupName, container) {
+      container.innerHTML = alignmentGroups[groupName].map((option) => {
+        const isActive = alignmentSelections[groupName] === option.id;
+        const active = isActive ? " is-active" : "";
+        return `
+          <button class="signal-option${active}" type="button" data-group="${groupName}" data-id="${option.id}" aria-pressed="${isActive}">
+            <span>${option.label}</span>
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <circle cx="12" cy="12" r="8" stroke="currentColor" stroke-width="2"/>
+              <path d="m8.5 12 2.3 2.3 4.8-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
+        `;
+      }).join("");
+    }
+
+    function buildAlignmentMessage() {
+      const situation = findAlignmentOption("situation", alignmentSelections.situation);
+      const person = findAlignmentOption("person", alignmentSelections.person);
+      const ask = findAlignmentOption("ask", alignmentSelections.ask);
+      const title = `${situation.route} + ${ask.route}`;
+      const summary = `Use this message to ${situation.summary}, then ${person.route}, and ${ask.route}. The goal is to reduce rework, clarify ownership, and make the next decision visible without private workplace details.`;
+      const steps = [
+        situation.step,
+        person.step,
+        ask.step,
+        "Keep the message specific: one unclear point, one decision person, one next-step ask, and one requested confirmation.",
+        "Do not enter employer names, manager names, salary details, workplace complaints, internal notes, performance issues, customer details, project secrets, or private career stories in this public tool.",
+        "When the approved Kajabi lane is connected, register for Stakeholder Alignment Scripts for deeper examples, templates, and follow-up support."
+      ];
+      const script = [
+        situation.script,
+        person.script,
+        ask.script
+      ].join(" ");
+
+      return { situation, person, ask, title, summary, steps, script };
+    }
+
+    function updateAlignmentMessage() {
+      renderAlignmentOptions("situation", alignmentSituationOptions);
+      renderAlignmentOptions("person", alignmentPersonOptions);
+      renderAlignmentOptions("ask", alignmentAskOptions);
+
+      const plan = buildAlignmentMessage();
+      stakeholderCount.textContent = "3/3";
+      alignmentMove.textContent = plan.title;
+      alignmentFit.textContent = plan.situation.fit;
+      flowAlignmentSituation.textContent = plan.situation.short;
+      flowAlignmentPerson.textContent = plan.person.short;
+      flowAlignmentAsk.textContent = plan.ask.short;
+      alignmentSummary.textContent = plan.summary;
+      alignmentSituationScore.textContent = plan.situation.score;
+      alignmentPersonScore.textContent = plan.person.score;
+      alignmentAskScore.textContent = plan.ask.score;
+      alignmentToneScore.textContent = plan.situation.tone;
+      alignmentScript.textContent = plan.script;
+      alignmentSteps.innerHTML = plan.steps.map((step) => `<li>${step}</li>`).join("");
+      alignmentCopyStatus.textContent = "Capture-ready preview. Kajabi opt-in path: Stakeholder Alignment Scripts; no live form, tracking, or saved data is active yet.";
+    }
+
+    document.addEventListener("click", (event) => {
+      const button = event.target.closest(".signal-option");
+      if (!button) {
+        return;
+      }
+
+      const group = button.dataset.group;
+      const id = button.dataset.id;
+      if (!group || !id) {
+        return;
+      }
+
+      alignmentSelections[group] = id;
+      updateAlignmentMessage();
+    });
+
+    stakeholderReset.addEventListener("click", () => {
+      alignmentSelections.situation = "unclear-expectations";
+      alignmentSelections.person = "manager";
+      alignmentSelections.ask = "confirm-priority";
+      updateAlignmentMessage();
+    });
+
+    copyAlignment.addEventListener("click", async () => {
+      const plan = buildAlignmentMessage();
+      const text = [
+        "Stakeholder Alignment Message Builder",
+        `Route: ${plan.title}`,
+        `Summary: ${plan.summary}`,
+        "Message checklist:",
+        ...plan.steps.map((step, index) => `${index + 1}. ${step}`),
+        "",
+        "Stakeholder alignment starter:",
+        plan.script,
+        "",
+        "Kajabi opt-in path: Stakeholder Alignment Scripts; no live form, tracking, or saved data is active yet."
+      ].join("\n");
+
+      try {
+        await navigator.clipboard.writeText(text);
+        alignmentCopyStatus.textContent = "Stakeholder alignment message copied locally. Nothing was saved or sent.";
+      } catch (error) {
+        alignmentCopyStatus.textContent = "Copy was blocked by the browser. The message is still visible above.";
+      }
+    });
+
+    updateAlignmentMessage();
+  </script>
+</body>
+</html>
