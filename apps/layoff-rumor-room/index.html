@@ -1,0 +1,941 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Layoff Rumor Room | EduAccess</title>
+  <meta name="description" content="A no-capture EduAccess browser game that helps job seekers practice calm, intelligent responses to ambiguous layoff signals. No forms, tracking, logins, or saved data.">
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="/style.css?v=20260725-layoff-rumor-room">
+  <style>
+    .rumor-page {
+      --good: #28715d;
+      --warn: #b9842f;
+      --bad: #b4232a;
+      --panel-soft: #f4f7fa;
+    }
+
+    .rumor-page .signal-shell {
+      width: min(1120px, calc(100% - 28px));
+      margin: 0 auto;
+      padding: 18px 0 48px;
+    }
+
+    .rumor-hero {
+      display: grid;
+      grid-template-columns: minmax(0, 1.3fr) minmax(220px, .9fr);
+      gap: 18px;
+      align-items: stretch;
+      margin-bottom: 16px;
+    }
+
+    .rumor-copy,
+    .rumor-art {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      box-shadow: 0 10px 28px rgba(24, 33, 47, .05);
+    }
+
+    .rumor-copy {
+      padding: 22px clamp(16px, 3vw, 28px);
+    }
+
+    .rumor-copy h1 {
+      margin: 0 0 10px;
+      font-size: clamp(1.8rem, 4vw, 2.6rem);
+      line-height: 1.05;
+    }
+
+    .rumor-copy p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.55;
+      max-width: 58ch;
+    }
+
+    .rumor-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 16px;
+    }
+
+    .rumor-chip {
+      display: inline-flex;
+      align-items: center;
+      min-height: 32px;
+      padding: 0 12px;
+      border-radius: 999px;
+      background: #eef4f9;
+      color: var(--blue);
+      font-size: .86rem;
+      font-weight: 700;
+    }
+
+    .rumor-art {
+      display: grid;
+      place-items: center;
+      padding: 18px;
+      background:
+        radial-gradient(circle at 30% 20%, rgba(31, 79, 130, .12), transparent 42%),
+        radial-gradient(circle at 70% 80%, rgba(185, 132, 47, .14), transparent 40%),
+        #fff;
+    }
+
+    .rumor-art svg {
+      width: min(100%, 280px);
+      height: auto;
+    }
+
+    .rumor-board {
+      display: grid;
+      grid-template-columns: minmax(0, 1.15fr) minmax(280px, .85fr);
+      gap: 16px;
+    }
+
+    .rumor-panel {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 18px clamp(14px, 2.5vw, 22px);
+      box-shadow: 0 10px 28px rgba(24, 33, 47, .05);
+    }
+
+    .rumor-progress {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+
+    .rumor-progress strong {
+      font-size: 1.05rem;
+    }
+
+    .rumor-steps {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .rumor-step-dot {
+      width: 28px;
+      height: 8px;
+      border-radius: 999px;
+      background: #dce5ef;
+    }
+
+    .rumor-step-dot.is-done { background: var(--good); }
+    .rumor-step-dot.is-now { background: var(--blue); }
+
+    .rumor-scene {
+      margin: 0 0 8px;
+      font-size: .82rem;
+      font-weight: 800;
+      letter-spacing: .02em;
+      text-transform: uppercase;
+      color: var(--blue);
+    }
+
+    .rumor-scenario {
+      margin: 0 0 16px;
+      font-size: clamp(1.15rem, 2.4vw, 1.45rem);
+      line-height: 1.35;
+    }
+
+    .rumor-context {
+      margin: 0 0 18px;
+      color: var(--muted);
+      line-height: 1.55;
+    }
+
+    .rumor-choices {
+      display: grid;
+      gap: 10px;
+    }
+
+    .rumor-choice {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 12px;
+      width: 100%;
+      text-align: left;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: #fff;
+      padding: 14px 14px;
+      cursor: pointer;
+      color: inherit;
+      font: inherit;
+      transition: border-color .15s ease, box-shadow .15s ease, transform .15s ease;
+    }
+
+    .rumor-choice:hover,
+    .rumor-choice:focus-visible {
+      border-color: #9db7d3;
+      box-shadow: 0 0 0 3px rgba(31, 79, 130, .12);
+      outline: none;
+      transform: translateY(-1px);
+    }
+
+    .rumor-choice:disabled {
+      cursor: default;
+      transform: none;
+    }
+
+    .rumor-choice.is-picked {
+      border-color: var(--blue);
+      box-shadow: 0 0 0 3px rgba(31, 79, 130, .14);
+    }
+
+    .rumor-choice.is-best {
+      border-color: var(--good);
+      background: #f3faf7;
+    }
+
+    .rumor-choice.is-ok {
+      border-color: var(--warn);
+      background: #fffaf0;
+    }
+
+    .rumor-choice.is-weak {
+      border-color: #e0b4b6;
+      background: #fff7f7;
+    }
+
+    .rumor-badge {
+      display: grid;
+      place-items: center;
+      width: 34px;
+      height: 34px;
+      border-radius: 999px;
+      background: #eef4f9;
+      color: var(--blue);
+      font-weight: 800;
+      flex-shrink: 0;
+    }
+
+    .rumor-choice strong {
+      display: block;
+      margin-bottom: 4px;
+      font-size: 1rem;
+    }
+
+    .rumor-choice span {
+      color: var(--muted);
+      line-height: 1.45;
+      font-size: .94rem;
+    }
+
+    .rumor-feedback {
+      margin-top: 14px;
+      padding: 14px;
+      border-radius: 14px;
+      background: var(--panel-soft);
+      border: 1px solid var(--line);
+      display: none;
+    }
+
+    .rumor-feedback.is-open { display: block; }
+
+    .rumor-feedback h3 {
+      margin: 0 0 6px;
+      font-size: 1rem;
+    }
+
+    .rumor-feedback p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    .rumor-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 16px;
+    }
+
+    .rumor-actions .button {
+      min-height: 44px;
+      border: 1px solid var(--line);
+      background: #fff;
+      color: var(--ink);
+      border-radius: 10px;
+      padding: 0 16px;
+      font-weight: 750;
+      cursor: pointer;
+    }
+
+    .rumor-actions .button.primary {
+      background: var(--blue);
+      border-color: var(--blue);
+      color: #fff;
+    }
+
+    .rumor-actions .button:disabled {
+      opacity: .45;
+      cursor: not-allowed;
+    }
+
+    .rumor-score-card h2 {
+      margin: 0 0 8px;
+      font-size: 1.25rem;
+    }
+
+    .rumor-score-big {
+      display: flex;
+      align-items: baseline;
+      gap: 8px;
+      margin: 10px 0 14px;
+    }
+
+    .rumor-score-big strong {
+      font-size: clamp(2.4rem, 6vw, 3.4rem);
+      line-height: 1;
+      color: var(--blue);
+    }
+
+    .rumor-score-big span {
+      color: var(--muted);
+      font-weight: 650;
+    }
+
+    .rumor-meter {
+      height: 12px;
+      border-radius: 999px;
+      background: #e5edf5;
+      overflow: hidden;
+      margin-bottom: 16px;
+    }
+
+    .rumor-meter > i {
+      display: block;
+      height: 100%;
+      width: 0;
+      background: linear-gradient(90deg, var(--blue), var(--good));
+      border-radius: inherit;
+      transition: width .35s ease;
+    }
+
+    .rumor-stats {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+
+    .rumor-stats div {
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 10px;
+      background: #fff;
+    }
+
+    .rumor-stats span {
+      display: block;
+      color: var(--muted);
+      font-size: .78rem;
+      margin-bottom: 4px;
+    }
+
+    .rumor-stats strong {
+      font-size: 1.05rem;
+    }
+
+    .rumor-plan h3,
+    .rumor-final h3 {
+      margin: 0 0 8px;
+      font-size: 1rem;
+    }
+
+    .rumor-plan ol,
+    .rumor-final ol {
+      margin: 0;
+      padding-left: 1.15rem;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    .rumor-plan li + li,
+    .rumor-final li + li {
+      margin-top: 6px;
+    }
+
+    .rumor-final {
+      display: none;
+      margin-top: 14px;
+      padding-top: 14px;
+      border-top: 1px solid var(--line);
+    }
+
+    .rumor-final.is-open { display: block; }
+
+    .rumor-status {
+      margin: 12px 0 0;
+      min-height: 1.4em;
+      color: var(--muted);
+      font-size: .92rem;
+    }
+
+    .rumor-privacy {
+      margin: 14px 0 0;
+      color: var(--muted);
+      font-size: .88rem;
+      line-height: 1.45;
+    }
+
+    .rumor-tips {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 16px;
+    }
+
+    .rumor-tips article {
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 16px;
+    }
+
+    .rumor-tips h2 {
+      margin: 0 0 8px;
+      font-size: 1.05rem;
+    }
+
+    .rumor-tips p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    @media (max-width: 860px) {
+      .rumor-hero,
+      .rumor-board,
+      .rumor-tips {
+        grid-template-columns: 1fr;
+      }
+
+      .rumor-stats {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 390px) {
+      .rumor-page .signal-shell {
+        width: calc(100% - 16px);
+      }
+
+      .rumor-copy,
+      .rumor-panel {
+        padding: 14px;
+      }
+
+      .rumor-choice {
+        padding: 12px;
+      }
+    }
+  </style>
+</head>
+<body class="tool-page signal-page rumor-page">
+  <header class="tool-header signal-header">
+    <a class="back" href="/">EduAccess</a>
+    <nav aria-label="Tool sections">
+      <a href="/apps/" aria-current="page">Apps</a>
+      <a href="/quizzes/">Quizzes</a>
+      <a href="/lead-magnets/">Lead Magnets</a>
+      <a href="/sandbox/">Sandbox</a>
+    </nav>
+  </header>
+
+  <main class="signal-shell" aria-label="Layoff Rumor Room">
+    <section class="rumor-hero">
+      <div class="rumor-copy">
+        <h1>Layoff Rumor Room</h1>
+        <p>Four short workplace rumor scenarios. Pick the calmest, smartest move each time. Get a Signal Discipline score, a 72-hour action plan, and a local copy — no login, no forms, no tracking, nothing saved on a server.</p>
+        <div class="rumor-meta" aria-label="Game tags">
+          <span class="rumor-chip">No capture</span>
+          <span class="rumor-chip">4 scenarios</span>
+          <span class="rumor-chip">Signal Discipline score</span>
+          <span class="rumor-chip">72-hour plan</span>
+        </div>
+      </div>
+      <div class="rumor-art" aria-hidden="true">
+        <!-- Original no-cost SVG illustration: calm signal room -->
+        <svg viewBox="0 0 320 240" role="img" aria-label="Illustrated calm signal room with soft office shapes and a steady signal bar">
+          <rect x="12" y="18" width="296" height="204" rx="28" fill="#f7fafc" stroke="#d5e0ea" stroke-width="3"/>
+          <rect x="36" y="48" width="160" height="18" rx="9" fill="#d9e8f6"/>
+          <rect x="36" y="78" width="120" height="12" rx="6" fill="#e7eef5"/>
+          <rect x="36" y="100" width="148" height="12" rx="6" fill="#e7eef5"/>
+          <circle cx="236" cy="86" r="42" fill="#e8f3ff" stroke="#1f4f82" stroke-width="4"/>
+          <path d="M216 88c8-18 32-18 40 0" fill="none" stroke="#28715d" stroke-width="5" stroke-linecap="round"/>
+          <path d="M224 96c5-10 19-10 24 0" fill="none" stroke="#28715d" stroke-width="5" stroke-linecap="round"/>
+          <circle cx="236" cy="108" r="5" fill="#28715d"/>
+          <rect x="48" y="148" width="224" height="44" rx="14" fill="#fff" stroke="#d5e0ea" stroke-width="3"/>
+          <rect x="64" y="164" width="54" height="12" rx="6" fill="#b9842f"/>
+          <rect x="128" y="164" width="78" height="12" rx="6" fill="#1f4f82"/>
+          <rect x="216" y="164" width="38" height="12" rx="6" fill="#28715d"/>
+          <text x="58" y="42" fill="#1f4f82" font-family="Inter, system-ui, sans-serif" font-size="14" font-weight="800">rumor noise → clear signal</text>
+        </svg>
+      </div>
+    </section>
+
+    <section class="rumor-board">
+      <section class="rumor-panel" aria-labelledby="scenarioTitle">
+        <div class="rumor-progress">
+          <strong id="progressLabel">Scenario 1 of 4</strong>
+          <div class="rumor-steps" id="progressDots" aria-hidden="true"></div>
+        </div>
+        <p class="rumor-scene" id="sceneLabel">Slack side-channel</p>
+        <h2 class="rumor-scenario" id="scenarioTitle">Your coworker DMs: “Heads up… I think reorg means cuts.”</h2>
+        <p class="rumor-context" id="scenarioContext">You have zero official confirmation. Your pulse is doing parkour. What do you do first?</p>
+        <div class="rumor-choices" id="choiceList" role="group" aria-label="Response choices"></div>
+        <div class="rumor-feedback" id="feedbackBox" aria-live="polite">
+          <h3 id="feedbackTitle">Feedback</h3>
+          <p id="feedbackBody"></p>
+        </div>
+        <div class="rumor-actions">
+          <button class="button primary" id="nextBtn" type="button" disabled>Next scenario</button>
+          <button class="button" id="replayBtn" type="button">Replay from start</button>
+        </div>
+      </section>
+
+      <aside class="rumor-panel rumor-score-card" aria-label="Signal Discipline score and plan">
+        <h2>Signal Discipline</h2>
+        <p style="margin:0;color:var(--muted);line-height:1.45;">Score how cleanly you separate rumor from fact, protect relationships, and keep career options warm without panic theater.</p>
+        <div class="rumor-score-big">
+          <strong id="scoreValue">0</strong>
+          <span>/ 100</span>
+        </div>
+        <div class="rumor-meter" aria-hidden="true"><i id="scoreMeter"></i></div>
+        <div class="rumor-stats">
+          <div><span>Calm clarity</span><strong id="statCalm">0</strong></div>
+          <div><span>Evidence habit</span><strong id="statEvidence">0</strong></div>
+          <div><span>Option heat</span><strong id="statOptions">0</strong></div>
+        </div>
+        <div class="rumor-plan">
+          <h3>Running note</h3>
+          <ol id="runningNotes">
+            <li>Play all four scenarios to unlock your full 72-hour action plan.</li>
+          </ol>
+        </div>
+        <div class="rumor-final" id="finalBox">
+          <h3>Your 72-hour action plan</h3>
+          <ol id="finalPlan"></ol>
+          <div class="rumor-actions">
+            <button class="button primary" id="copyBtn" type="button">Copy plan locally</button>
+          </div>
+        </div>
+        <p class="rumor-status" id="statusLine" aria-live="polite"></p>
+        <p class="rumor-privacy">No-capture proof. No forms, cookies, analytics, uploads, logins, or server-side saves. Clipboard copy stays on your device.</p>
+      </aside>
+    </section>
+
+    <section class="rumor-tips" aria-label="Teaching notes">
+      <article>
+        <h2>Rumor is not data</h2>
+        <p>Treat hallway panic as weather, not weather reports. Ask what is known, who said it, and what would falsify it.</p>
+      </article>
+      <article>
+        <h2>Stay useful at work</h2>
+        <p>Quiet excellence beats doom-scrolling Slack. Document wins, keep relationships warm, and avoid becoming the rumor amplifier.</p>
+      </article>
+      <article>
+        <h2>Warm the outside options</h2>
+        <p>Update materials, reconnect with two trusted humans, and line up conversations before you need a parachute sale.</p>
+      </article>
+    </section>
+  </main>
+
+  <script>
+    const scenarios = [
+      {
+        id: "dm",
+        scene: "Slack side-channel",
+        title: "A coworker DMs: “Heads up… I think reorg means cuts.”",
+        context: "No official note. Your brain is writing a thriller. First move?",
+        choices: [
+          {
+            key: "A",
+            label: "Forward the rumor to your group chat “so people are prepared.”",
+            detail: "Share the DM widely and invite theories.",
+            tier: "weak",
+            calm: 0,
+            evidence: 0,
+            options: 1,
+            points: 5,
+            feedbackTitle: "Amplifier mode unlocked (not ideal)",
+            feedback: "Spreading unconfirmed fear makes you the hallway news station. It also burns trust if the rumor is wrong. Better: thank them, avoid redistribution, and ask what they actually observed."
+          },
+          {
+            key: "B",
+            label: "Thank them, ask what they saw, and keep it private.",
+            detail: "Clarify source quality without feeding panic.",
+            tier: "best",
+            calm: 8,
+            evidence: 9,
+            options: 5,
+            points: 25,
+            feedbackTitle: "Clean signal intake",
+            feedback: "You lowered drama and raised evidence quality. “What did you actually see?” beats “I heard cuts.” Privacy keeps you from becoming the rumor router."
+          },
+          {
+            key: "C",
+            label: "Spiral-refresh LinkedIn Open-to-Work for 40 minutes.",
+            detail: "Public panic badge first, facts later.",
+            tier: "ok",
+            calm: 2,
+            evidence: 1,
+            options: 6,
+            points: 12,
+            feedbackTitle: "Action energy, weak sequence",
+            feedback: "Updating materials is smart later. Doing it as a panic ritual before any signal check often produces messy profiles and public stress tells. Sequence: facts → private readiness → controlled outreach."
+          }
+        ]
+      },
+      {
+        id: "allhands",
+        scene: "All-hands aftershock",
+        title: "Leadership says “efficiency focus” and takes no questions.",
+        context: "The vibe is soggy cardboard. Your manager looks tired. What is the disciplined response?",
+        choices: [
+          {
+            key: "A",
+            label: "Ask your manager privately what is known vs still unknown.",
+            detail: "Short, calm, non-demanding check-in.",
+            tier: "best",
+            calm: 9,
+            evidence: 8,
+            options: 6,
+            points: 25,
+            feedbackTitle: "Manager channel, not megaphone",
+            feedback: "Private clarity beats cafeteria speculation. You look steady, you gather constraints, and you leave room for them to say “I don’t know yet” without a scene."
+          },
+          {
+            key: "B",
+            label: "Post a long Slack essay about culture and fear.",
+            detail: "Public processing for the whole company.",
+            tier: "weak",
+            calm: 1,
+            evidence: 0,
+            options: 2,
+            points: 4,
+            feedbackTitle: "Town square therapy is risky",
+            feedback: "Venting publicly can mark you as volatile when leaders are already stressed. Process with a trusted human offline; keep work channels clean and professional."
+          },
+          {
+            key: "C",
+            label: "Quietly list your top deliverables from the last 90 days.",
+            detail: "Build a proof inventory while you wait for facts.",
+            tier: "ok",
+            calm: 7,
+            evidence: 5,
+            options: 7,
+            points: 18,
+            feedbackTitle: "Strong support move",
+            feedback: "Proof inventories are excellent. Pair them with one calm clarity ask so you are not only journaling in the dark. Evidence + information channel is the combo."
+          }
+        ]
+      },
+      {
+        id: "calendar",
+        scene: "Calendar tea leaves",
+        title: "Mystery “org design working session” appears on exec calendars.",
+        context: "People are screenshot-zooming calendars like it’s forensic TV. Your move?",
+        choices: [
+          {
+            key: "A",
+            label: "Treat calendar gossip as a weak signal and keep shipping your priorities.",
+            detail: "Stay useful; watch for official updates.",
+            tier: "best",
+            calm: 8,
+            evidence: 7,
+            options: 7,
+            points: 24,
+            feedbackTitle: "Weak signal, strong composure",
+            feedback: "Calendar crumbs are spicy, not proof. Usefulness protects reputation. Parallel-track private readiness without letting rumor theater run your day."
+          },
+          {
+            key: "B",
+            label: "Corner three people for “what have you heard?” loops.",
+            detail: "Start a hallway intelligence network.",
+            tier: "weak",
+            calm: 2,
+            evidence: 2,
+            options: 3,
+            points: 8,
+            feedbackTitle: "Rumor compound interest",
+            feedback: "You will collect contradictions and accidentally become a node in the panic graph. Prefer one trusted peer + manager clarity, not a listening tour of anxiety."
+          },
+          {
+            key: "C",
+            label: "Refresh your resume tonight and message two former coworkers for coffee.",
+            detail: "Quiet option-heating without a public blast.",
+            tier: "ok",
+            calm: 6,
+            evidence: 4,
+            options: 9,
+            points: 19,
+            feedbackTitle: "Smart option heat",
+            feedback: "Quiet network warmth is professional insurance. Keep tone light and human — you are reconnecting, not announcing catastrophe."
+          }
+        ]
+      },
+      {
+        id: "offer",
+        scene: "Recruiter ping",
+        title: "A recruiter texts about a role that fits your lane.",
+        context: "Rumor week has you jumpy. Do you ghost work life or play it clean?",
+        choices: [
+          {
+            key: "A",
+            label: "Reply professionally, explore fit, and keep current-job excellence steady.",
+            detail: "Parallel path without burning bridges.",
+            tier: "best",
+            calm: 9,
+            evidence: 6,
+            options: 10,
+            points: 26,
+            feedbackTitle: "Adult career dual-track",
+            feedback: "This is Signal Discipline: curiosity outside, reliability inside. No dramatic LinkedIn fireworks required. You widen options while staying trustworthy where you are."
+          },
+          {
+            key: "B",
+            label: "Ignore the recruiter because “loyalty means never looking.”",
+            detail: "Freeze all external options.",
+            tier: "weak",
+            calm: 4,
+            evidence: 1,
+            options: 0,
+            points: 6,
+            feedbackTitle: "Loyalty myth tax",
+            feedback: "Exploring is not betrayal. Refusing all information shrinks your leverage if the rumor becomes real. Quiet conversations keep dignity on both sides."
+          },
+          {
+            key: "C",
+            label: "Tell your whole team you are “probably out” based on rumors.",
+            detail: "Pre-announce an exit you have not decided.",
+            tier: "ok",
+            calm: 1,
+            evidence: 0,
+            options: 4,
+            points: 7,
+            feedbackTitle: "Premature narration",
+            feedback: "Announcing a maybe-exit can accelerate the wrong outcomes. Keep external talks private until you have a real decision and a clean transition plan."
+          }
+        ]
+      }
+    ];
+
+    const state = {
+      index: 0,
+      score: 0,
+      calm: 0,
+      evidence: 0,
+      options: 0,
+      notes: [],
+      answered: false,
+      picks: []
+    };
+
+    const els = {
+      progressLabel: document.getElementById("progressLabel"),
+      progressDots: document.getElementById("progressDots"),
+      sceneLabel: document.getElementById("sceneLabel"),
+      scenarioTitle: document.getElementById("scenarioTitle"),
+      scenarioContext: document.getElementById("scenarioContext"),
+      choiceList: document.getElementById("choiceList"),
+      feedbackBox: document.getElementById("feedbackBox"),
+      feedbackTitle: document.getElementById("feedbackTitle"),
+      feedbackBody: document.getElementById("feedbackBody"),
+      nextBtn: document.getElementById("nextBtn"),
+      replayBtn: document.getElementById("replayBtn"),
+      scoreValue: document.getElementById("scoreValue"),
+      scoreMeter: document.getElementById("scoreMeter"),
+      statCalm: document.getElementById("statCalm"),
+      statEvidence: document.getElementById("statEvidence"),
+      statOptions: document.getElementById("statOptions"),
+      runningNotes: document.getElementById("runningNotes"),
+      finalBox: document.getElementById("finalBox"),
+      finalPlan: document.getElementById("finalPlan"),
+      copyBtn: document.getElementById("copyBtn"),
+      statusLine: document.getElementById("statusLine")
+    };
+
+    function clampScore(n) {
+      return Math.max(0, Math.min(100, n));
+    }
+
+    function renderDots() {
+      els.progressDots.innerHTML = scenarios.map((_, i) => {
+        const cls = i < state.index ? "is-done" : i === state.index ? "is-now" : "";
+        return `<span class="rumor-step-dot ${cls}"></span>`;
+      }).join("");
+    }
+
+    function updateScoreboard() {
+      const score = clampScore(state.score);
+      els.scoreValue.textContent = String(score);
+      els.scoreMeter.style.width = `${score}%`;
+      els.statCalm.textContent = String(state.calm);
+      els.statEvidence.textContent = String(state.evidence);
+      els.statOptions.textContent = String(state.options);
+      if (state.notes.length) {
+        els.runningNotes.innerHTML = state.notes.map((n) => `<li>${n}</li>`).join("");
+      }
+    }
+
+    function buildFinalPlan() {
+      const score = clampScore(state.score);
+      const band = score >= 80 ? "high-discipline" : score >= 55 ? "steady-with-leaks" : "panic-prone";
+      const plan = [
+        "Hour 0–4: Write a one-page fact log — confirmed, unconfirmed, and what would change your mind. No group-chat amplification.",
+        "Hour 4–24: Ask your manager one calm clarity question. Document your last 90 days of proof (projects, metrics, relationships).",
+        "Hour 24–48: Quietly refresh resume/LinkedIn accuracy and message two trusted former coworkers for low-key coffee chats.",
+        "Hour 48–72: Map money runway, benefits questions, and target roles. Keep current-job delivery sharp so you do not audition for the rumor."
+      ];
+      if (band === "panic-prone") {
+        plan.unshift("Reset rule: no public posts, no mass DMs, no “I heard we’re all cooked” broadcasts for 72 hours.");
+      } else if (band === "high-discipline") {
+        plan.push("Bonus: keep a weekly proof journal so the next rumor wave hits a stronger operating system.");
+      } else {
+        plan.push("Watch-out: replace one rumor loop with one proof action each day.");
+      }
+      return { score, band, plan };
+    }
+
+    function showFinal() {
+      const final = buildFinalPlan();
+      els.finalPlan.innerHTML = final.plan.map((step) => `<li>${step}</li>`).join("");
+      els.finalBox.classList.add("is-open");
+      els.nextBtn.disabled = true;
+      els.nextBtn.textContent = "Complete";
+      els.statusLine.textContent = `Finished. Signal Discipline ${final.score}/100 (${final.band.replaceAll("-", " ")}).`;
+      state.notes.push(`Final band: ${final.band.replaceAll("-", " ")}.`);
+      updateScoreboard();
+    }
+
+    function renderScenario() {
+      const sc = scenarios[state.index];
+      state.answered = false;
+      els.progressLabel.textContent = `Scenario ${state.index + 1} of ${scenarios.length}`;
+      els.sceneLabel.textContent = sc.scene;
+      els.scenarioTitle.textContent = sc.title;
+      els.scenarioContext.textContent = sc.context;
+      els.feedbackBox.classList.remove("is-open");
+      els.nextBtn.disabled = true;
+      els.nextBtn.textContent = state.index === scenarios.length - 1 ? "See 72-hour plan" : "Next scenario";
+      els.finalBox.classList.remove("is-open");
+      renderDots();
+
+      els.choiceList.innerHTML = sc.choices.map((choice) => `
+        <button class="rumor-choice" type="button" data-key="${choice.key}" aria-pressed="false">
+          <span class="rumor-badge" aria-hidden="true">${choice.key}</span>
+          <span>
+            <strong>${choice.label}</strong>
+            <span>${choice.detail}</span>
+          </span>
+        </button>
+      `).join("");
+    }
+
+    function pickChoice(key) {
+      if (state.answered) return;
+      const sc = scenarios[state.index];
+      const choice = sc.choices.find((c) => c.key === key);
+      if (!choice) return;
+      state.answered = true;
+      state.score += choice.points;
+      state.calm += choice.calm;
+      state.evidence += choice.evidence;
+      state.options += choice.options;
+      state.picks.push({ scenario: sc.id, key: choice.key, tier: choice.tier, points: choice.points });
+      state.notes.push(`${sc.scene}: ${choice.feedbackTitle}`);
+
+      [...els.choiceList.querySelectorAll(".rumor-choice")].forEach((btn) => {
+        const btnKey = btn.getAttribute("data-key");
+        const c = sc.choices.find((x) => x.key === btnKey);
+        btn.disabled = true;
+        btn.setAttribute("aria-pressed", btnKey === key ? "true" : "false");
+        btn.classList.toggle("is-picked", btnKey === key);
+        if (c.tier === "best") btn.classList.add("is-best");
+        if (btnKey === key && c.tier === "ok") btn.classList.add("is-ok");
+        if (btnKey === key && c.tier === "weak") btn.classList.add("is-weak");
+      });
+
+      els.feedbackTitle.textContent = choice.feedbackTitle;
+      els.feedbackBody.textContent = choice.feedback;
+      els.feedbackBox.classList.add("is-open");
+      els.nextBtn.disabled = false;
+      updateScoreboard();
+      els.statusLine.textContent = `Logged +${choice.points} Signal Discipline points.`;
+    }
+
+    function next() {
+      if (!state.answered) return;
+      if (state.index >= scenarios.length - 1) {
+        showFinal();
+        return;
+      }
+      state.index += 1;
+      renderScenario();
+      els.statusLine.textContent = "";
+    }
+
+    function replay() {
+      state.index = 0;
+      state.score = 0;
+      state.calm = 0;
+      state.evidence = 0;
+      state.options = 0;
+      state.notes = [];
+      state.picks = [];
+      state.answered = false;
+      els.runningNotes.innerHTML = "<li>Play all four scenarios to unlock your full 72-hour action plan.</li>";
+      els.finalBox.classList.remove("is-open");
+      els.statusLine.textContent = "Replayed from the start. Fresh board, same no-capture rules.";
+      updateScoreboard();
+      renderScenario();
+    }
+
+    async function copyPlan() {
+      const final = buildFinalPlan();
+      const text = [
+        "Layoff Rumor Room — 72-hour action plan",
+        `Signal Discipline: ${final.score}/100 (${final.band})`,
+        "",
+        "Plan:",
+        ...final.plan.map((step, i) => `${i + 1}. ${step}`),
+        "",
+        "Notes:",
+        ...state.notes.map((n) => `- ${n}`),
+        "",
+        "Generated locally in EduAccess. No account data stored."
+      ].join("\n");
+
+      try {
+        await navigator.clipboard.writeText(text);
+        els.statusLine.textContent = "Plan copied locally to your clipboard.";
+      } catch (err) {
+        els.statusLine.textContent = "Clipboard blocked by the browser. Select the plan text manually if needed.";
+      }
+    }
+
+    els.choiceList.addEventListener("click", (event) => {
+      const btn = event.target.closest(".rumor-choice");
+      if (!btn) return;
+      pickChoice(btn.getAttribute("data-key"));
+    });
+
+    els.nextBtn.addEventListener("click", next);
+    els.replayBtn.addEventListener("click", replay);
+    els.copyBtn.addEventListener("click", copyPlan);
+
+    updateScoreboard();
+    renderScenario();
+  </script>
+</body>
+</html>
