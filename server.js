@@ -18,7 +18,17 @@ const types = {
 };
 
 function resolveFile(urlPath) {
-  const decoded = decodeURIComponent(urlPath.split("?")[0]);
+  let decoded;
+
+  try {
+    decoded = decodeURIComponent(urlPath.split("?")[0]);
+  } catch (error) {
+    if (error instanceof URIError) {
+      return null;
+    }
+    throw error;
+  }
+
   const normalized = path.normalize(decoded).replace(/^(\.\.[/\\])+/, "");
   let filePath = path.join(root, normalized);
 
@@ -37,19 +47,37 @@ function resolveFile(urlPath) {
   return filePath;
 }
 
-const server = http.createServer((req, res) => {
-  const filePath = resolveFile(req.url || "/");
-  const ext = path.extname(filePath).toLowerCase();
-  const status = path.basename(filePath) === "404.html" && !(req.url || "/").includes("404.html") ? 404 : 200;
+function createServer() {
+  return http.createServer((req, res) => {
+    const filePath = resolveFile(req.url || "/");
 
-  res.writeHead(status, {
-    "Cache-Control": "public, max-age=300",
-    "Content-Type": types[ext] || "application/octet-stream"
+    if (!filePath) {
+      res.writeHead(400, {
+        "Cache-Control": "no-store",
+        "Content-Type": "text/plain; charset=utf-8"
+      });
+      res.end("Bad Request");
+      return;
+    }
+
+    const ext = path.extname(filePath).toLowerCase();
+    const status = path.basename(filePath) === "404.html" && !(req.url || "/").includes("404.html") ? 404 : 200;
+
+    res.writeHead(status, {
+      "Cache-Control": "public, max-age=300",
+      "Content-Type": types[ext] || "application/octet-stream"
+    });
+
+    fs.createReadStream(filePath).pipe(res);
   });
+}
 
-  fs.createReadStream(filePath).pipe(res);
-});
+if (require.main === module) {
+  const server = createServer();
 
-server.listen(port, "0.0.0.0", () => {
-  console.log(`EduAccess launch home listening on ${port}`);
-});
+  server.listen(port, "0.0.0.0", () => {
+    console.log(`EduAccess launch home listening on ${port}`);
+  });
+}
+
+module.exports = { createServer, resolveFile };
