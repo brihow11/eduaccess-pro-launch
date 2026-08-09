@@ -8,6 +8,7 @@ Migration date: 2026-08-09
 - Railway builds it into `ready/` and the existing Node service serves it at `https://eduaccess.pro/ready`.
 - The page content is a source-controlled snapshot exported from the Bolt `page_content` record.
 - The overview video and poster are stored in `ready-src/public/media/` and deployed with the application.
+- The overview video starts paused so a visitor click can begin playback with sound. The custom player includes explicit play/pause, rewind, stop, mute/unmute, and progress controls instead of relying on silent autoplay.
 - CTA links continue to open the existing HubSpot scheduling page.
 - Browser events use the existing GA4 tag. No application database is required for public page rendering.
 

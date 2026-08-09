@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { Play, Pause, RotateCcw, Square, TrendingUp, BarChart3, Clock, Video, Users, CheckCircle, Download, Calendar, Sparkles, Upload, GraduationCap, Brain, Cpu, Network, Zap, Target, BookOpen, Lightbulb, Database, Code, Microscope, Atom, Binary, Server, LogOut, X, ExternalLink, Eye, Plus, Minus } from 'lucide-react';
+import { Play, Pause, RotateCcw, Square, Volume2, VolumeX, TrendingUp, BarChart3, Clock, Video, Users, CheckCircle, Download, Calendar, Sparkles, Upload, GraduationCap, Brain, Cpu, Network, Zap, Target, BookOpen, Lightbulb, Database, Code, Microscope, Atom, Binary, Server, LogOut, X, ExternalLink, Eye, Plus, Minus } from 'lucide-react';
 import EditableText from './components/EditableText';
 import ProgramDetailsTable from './components/ProgramDetailsTable';
 import ExitIntentPopup from './components/ExitIntentPopup';
@@ -13,6 +13,7 @@ const railwayStore = createRailwayStore();
 
 function App() {
   const [isPlaying, setIsPlaying] = useState(false);
+  const [isMuted, setIsMuted] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
   const [showEditModal, setShowEditModal] = useState(false);
@@ -67,7 +68,7 @@ function App() {
     ctaDiscoverySubtitle: 'No commitment • 20 min call',
     ctaWebinarTitle: 'Join Next Program Overview Webinar',
     ctaWebinarSubtitle: 'Live presentation and Q&A with program experts',
-    videoOverlayText: 'Watch Mini Overview',
+    videoOverlayText: 'Play Mini Overview with Sound',
     downloadResourcesTitle: 'Download Resources',
     meetingLinks: [
       { label: 'Schedule Discovery Call', url: 'https://calendly.com/discovery' },
@@ -390,16 +391,27 @@ function App() {
 
   const handlePlayPause = () => {
     if (videoRef.current) {
-      if (isPlaying) {
+      if (!videoRef.current.paused) {
         videoRef.current.pause();
         trackEvent('video_pause', { time: currentTime });
       } else {
-        videoRef.current.play();
+        videoRef.current.muted = isMuted;
+        void videoRef.current.play();
         trackEvent('video_play', { time: currentTime });
         analytics.trackVideoPlay('Welcome Video');
         setHasPlayedVideo(true);
       }
-      setIsPlaying(!isPlaying);
+    }
+  };
+
+  const handleToggleMute = () => {
+    if (videoRef.current) {
+      const nextMutedState = !videoRef.current.muted;
+      videoRef.current.muted = nextMutedState;
+      setIsMuted(nextMutedState);
+      trackEvent(nextMutedState ? 'video_mute' : 'video_unmute', {
+        time: videoRef.current.currentTime
+      });
     }
   };
 
@@ -829,10 +841,9 @@ function App() {
                   onClick={handlePlayPause}
                   onPlay={() => setIsPlaying(true)}
                   onPause={() => setIsPlaying(false)}
-                  autoPlay
-                  muted
+                  onEnded={() => setIsPlaying(false)}
+                  muted={isMuted}
                   playsInline
-                  loop
                 />
                 {!isPlaying && (
                   <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-30 transition-opacity group-hover:bg-opacity-40">
@@ -840,6 +851,7 @@ function App() {
                       <div className="absolute inset-0 bg-[#C00000] rounded-full animate-pulse-ring opacity-50"></div>
                       <button
                         onClick={handlePlayPause}
+                        aria-label="Play video with sound"
                         className="relative w-24 h-24 flex items-center justify-center bg-gradient-to-br from-[#C00000] to-[#8B0000] rounded-full shadow-2xl transform transition-all duration-300 hover:scale-110 hover:shadow-[0_0_40px_rgba(192,0,0,0.6)] animate-float-up"
                       >
                         <Play className="w-12 h-12 text-white ml-2" fill="white" />
@@ -850,7 +862,7 @@ function App() {
                         <p className="text-white font-bold text-lg flex items-center gap-2">
                           <Video className="w-5 h-5" />
                           <EditableText
-                            value={content.videoOverlayText || 'Watch Mini Overview'}
+                            value={content.videoOverlayText || 'Play Mini Overview with Sound'}
                             onChange={(value) => updateContentField('videoOverlayText', value)}
                             previewMode={previewMode}
                             className="text-white font-bold text-lg inline"
@@ -865,25 +877,40 @@ function App() {
                   <div className="flex items-center space-x-3">
                     <button
                       onClick={handlePlayPause}
+                      aria-label={isPlaying ? 'Pause video' : 'Play video with sound'}
+                      title={isPlaying ? 'Pause video' : 'Play video with sound'}
                       className="w-9 h-9 flex items-center justify-center bg-[#C00000] hover:bg-[#a00000] rounded-full transition-colors shadow-lg"
                     >
                       {isPlaying ? <Pause className="w-5 h-5 text-white" /> : <Play className="w-5 h-5 text-white ml-0.5" />}
                     </button>
                     <button
                       onClick={handleRewind}
+                      aria-label="Rewind video 10 seconds"
+                      title="Rewind 10 seconds"
                       className="w-8 h-8 flex items-center justify-center bg-[#094886] hover:bg-[#0a5ba3] rounded-full transition-colors"
                     >
                       <RotateCcw className="w-4 h-4 text-white" />
                     </button>
                     <button
                       onClick={handleStop}
+                      aria-label="Stop video"
+                      title="Stop video"
                       className="w-8 h-8 flex items-center justify-center bg-[#094886] hover:bg-[#0a5ba3] rounded-full transition-colors"
                     >
                       <Square className="w-4 h-4 text-white" />
                     </button>
+                    <button
+                      onClick={handleToggleMute}
+                      aria-label={isMuted ? 'Unmute video' : 'Mute video'}
+                      title={isMuted ? 'Turn sound on' : 'Mute video'}
+                      className="w-8 h-8 flex items-center justify-center bg-[#094886] hover:bg-[#0a5ba3] rounded-full transition-colors"
+                    >
+                      {isMuted ? <VolumeX className="w-4 h-4 text-white" /> : <Volume2 className="w-4 h-4 text-white" />}
+                    </button>
                     <div className="flex-1">
                       <input
                         type="range"
+                        aria-label="Video progress"
                         min="0"
                         max={duration || 0}
                         value={currentTime}
