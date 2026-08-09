@@ -6,11 +6,12 @@ const test = require("node:test");
 
 const { createServer, resolveFile } = require("../server");
 
-function request(port, reqPath) {
+function request(port, reqPath, headers = {}) {
   return new Promise((resolve, reject) => {
     const req = http.request(
       {
         host: "127.0.0.1",
+        headers,
         path: reqPath,
         port
       },
@@ -20,7 +21,8 @@ function request(port, reqPath) {
         res.on("end", () => {
           resolve({
             statusCode: res.statusCode,
-            body: Buffer.concat(chunks).toString("utf8")
+            body: Buffer.concat(chunks).toString("utf8"),
+            headers: res.headers
           });
         });
       }
@@ -40,6 +42,32 @@ test("malformed URL encoding is rejected without crashing the server", async (t)
   const { port } = server.address();
   assert.equal((await request(port, "/%ZZ")).statusCode, 400);
   assert.equal((await request(port, "/")).statusCode, 200);
+});
+
+test("ACE migration is served at /ready with local ranged media", async (t) => {
+  const server = createServer();
+  await new Promise((resolve) => server.listen(0, "127.0.0.1", resolve));
+  t.after(() => server.close());
+  const { port } = server.address();
+
+  const page = await request(port, "/ready/");
+  assert.equal(page.statusCode, 200);
+  assert.match(page.body, /Job Seeker Pro ACE For EDU/);
+  assert.doesNotMatch(page.body, /supabase/i);
+
+  const poster = await request(port, "/ready/media/ace-overview-poster.png");
+  assert.equal(poster.statusCode, 200);
+  assert.equal(poster.headers["content-type"], "image/png");
+
+  const video = await request(
+    port,
+    "/ready/media/ace-overview.mp4",
+    { Range: "bytes=0-99" }
+  );
+  assert.equal(video.statusCode, 206);
+  assert.equal(video.headers["content-type"], "video/mp4");
+  assert.equal(video.headers["content-length"], "100");
+  assert.match(video.headers["content-range"], /^bytes 0-99\//);
 });
 
 test("layoff rumor room route is live and linked from indexes", async (t) => {

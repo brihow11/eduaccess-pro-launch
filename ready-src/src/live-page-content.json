@@ -1,0 +1,214 @@
+{
+  "id": "cbbb303d-dc06-4cbf-97d0-61d647864020",
+  "page_name": "landing_page",
+  "content": {
+    "siteName": "Job Seeker Pro",
+    "heroTitle": "Job Seeker Pro",
+    "heroSubtitle": "ACE Hiring Readiness System",
+    "heroBenefit": "ACE Helps Your Students on Autopilot: AI, Coaching, and Enablement",
+    "videoUrl": "/ready/media/ace-overview.mp4",
+    "posterUrl": "/ready/media/ace-overview-poster.png",
+    "fastPlacementStat": "58%",
+    "discoveryCallUrl": "https://meetings-na2.hubspot.com/brian-howard?uuid=3d5fc893-89a0-40d3-a032-6df252dc3f75",
+    "webinarUrl": "https://www.jobseeker.pro/edu",
+    "webinarLabel": "Sign up for Next Webinar",
+    "ctaDiscoveryTitle": "Schedule Program Overview Call",
+    "ctaWebinarTitle": "Join Next Program Overview Webinar",
+    "ctaTitle": "Discover the Step-by-Step Hiring Readiness Program!",
+    "ctaSubtitle": "Do more without hiring ",
+    "ctaBanner": "LIMITED TIME: First 10 institutions receive 3-month free trial",
+    "solutionTitle": "Job Seeker Pro ACE Hiring Readiness System",
+    "solutionTagline": "Job seekers using this program get jobs 58% faster than industry average",
+    "studentPainPointsTitle": "Student Job Search Pain Points",
+    "studentPainPointsSubtitle": "Students have no job search experience and chronically under-prepare for job searches",
+    "studentPainPoints": [
+      "No job search experience or experience selling themselves",
+      "Lack of industry connections and no job referral network",
+      "No strategies to get employer attention or develop opptys",
+      "Lack of training leads to distraction and activity paralysis",
+      "No tactics to stand-out from hundreds of job competitors",
+      "Lack of using the school experience as job search prep"
+    ],
+    "programPainPointsTitle": "Career Services - Student Support Pain Points",
+    "programPainPointsSubtitle": "Career services departments struggle with resource constraints and dated resources",
+    "programPainPoints": [
+      "Limited staff time for development of job search tactics",
+      "Career Services is often seen as optional by busy students",
+      "No step-by-step job search training is available to students",
+      "Lack of student job search preparation reporting",
+      "Staff bandwidth limits personal job search coaching",
+      "Graduating student job search support increases greatly"
+    ],
+    "programElements": [
+      "Teaches a proven five-step sales-based job search system",
+      "Uses AI interview strategy to achieve perfect interview performance",
+      "Clarifies personal brand through résumé and LinkedIn optimization",
+      "Gives students mobile and desktop access for flexible learning",
+      "Provides weekly live coaching led by business professionals",
+      "Includes résumé and LinkedIn review with actionable feedback",
+      "Offers 24/7 support via Slack community and email",
+      "Supplies templates trackers and automation tools for organization",
+      "Strengthens interview performance using research and STAR storytelling",
+      "Equips students to network directly with recruiters and employers",
+      "Delivers mindset coaching that builds a resilient proactive approach",
+      "AI powered tools to help students stand-out on a job search"
+    ],
+    "programDetailsTitle": "CLICK HERE TO SEE PROGRAM DETAILS",
+    "programDetails": [
+      {
+        "feature": "Primary job",
+        "description": "What this tier is for",
+        "essentials": "Modern job-search system + progress visibility",
+        "core": "Weekly practice + expert feedback + coaching attendance visibility",
+        "max": "Max live access + faculty enablement + alumni carry-through + class shell"
+      },
+      {
+        "feature": "BRAVE 5-Step Job Search",
+        "description": "structured curriculum",
+        "essentials": "included",
+        "core": "included",
+        "max": "included"
+      },
+      {
+        "feature": "Tools & Templates",
+        "description": "résumé, cover, tracker, STAR, follow-ups",
+        "essentials": "included",
+        "core": "included",
+        "max": "included"
+      },
+      {
+        "feature": "Slack Community",
+        "description": "peer help; moderated threads",
+        "essentials": "included",
+        "core": "included",
+        "max": "included"
+      },
+      {
+        "feature": "AI Interview Practice",
+        "description": "practice + bring Qs to live sessions",
+        "essentials": "included",
+        "core": "included",
+        "max": "included"
+      },
+      {
+        "feature": "60-min Live Orientation",
+        "description": "cohort kickoff",
+        "essentials": "included",
+        "core": "included",
+        "max": "included"
+      },
+      {
+        "feature": "Monthly Student Progress Reporting",
+        "description": "one-page + CSV",
+        "essentials": "included",
+        "core": "enhanced",
+        "max": "enhanced"
+      },
+      {
+        "feature": "Quarterly Strategy Call (Career Services)",
+        "description": "",
+        "essentials": "included",
+        "core": "included",
+        "max": "included"
+      },
+      {
+        "feature": "Weekly Group Coaching",
+        "description": "live, 60-minute",
+        "essentials": "not-included",
+        "core": "included",
+        "max": "enhanced"
+      },
+      {
+        "feature": "Résumé Review + LinkedIn Review",
+        "description": "",
+        "essentials": "not-included",
+        "core": "included",
+        "max": "enhanced"
+      },
+      {
+        "feature": "Coaching Attendance Visibility",
+        "description": "appears in reporting",
+        "essentials": "not-included",
+        "core": "included",
+        "max": "included"
+      },
+      {
+        "feature": "Office Hours (AMA-style)",
+        "description": "Tue/Thu evenings + Sat morning",
+        "essentials": "not-included",
+        "core": "not-included",
+        "max": "premium"
+      },
+      {
+        "feature": "Bootcamps",
+        "description": "2 per academic year",
+        "essentials": "not-included",
+        "core": "not-included",
+        "max": "premium"
+      },
+      {
+        "feature": "Faculty Enablement Workshop",
+        "description": "embedding BRAVE",
+        "essentials": "not-included",
+        "core": "not-included",
+        "max": "premium"
+      },
+      {
+        "feature": "Alumni Support Extension",
+        "description": "12 months post-grad",
+        "essentials": "not-included",
+        "core": "not-included",
+        "max": "premium"
+      },
+      {
+        "feature": "BRAVE-as-a-Class (Online, Credit-Ready)",
+        "description": "syllabus kit, slides, rubrics",
+        "essentials": "not-included",
+        "core": "not-included",
+        "max": "premium"
+      }
+    ],
+    "testimonialsTitle": "Trusted by Education Leaders",
+    "testimonialsSubtitle": "Hear from career services professionals who transformed their programs",
+    "downloadResourcesTitle": "Download the Options Guide:",
+    "downloadGuide": {
+      "label": "Download Partnership Guide",
+      "url": "https://example.com/partnership-guide.pdf"
+    },
+    "meetingLinks": [
+      {
+        "label": "Schedule Discovery Call",
+        "url": "https://calendly.com/discovery"
+      },
+      {
+        "label": "Book Partnership Meeting",
+        "url": "https://calendly.com/partnership"
+      },
+      {
+        "label": "Program Demo",
+        "url": "https://calendly.com/demo"
+      },
+      {
+        "label": "Implementation Call",
+        "url": "https://calendly.com/implementation"
+      }
+    ],
+    "webinarLinks": [
+      {
+        "label": "Partner Success Webinar",
+        "url": "https://zoom.us/webinar1"
+      },
+      {
+        "label": "Implementation Training",
+        "url": "https://zoom.us/webinar2"
+      },
+      {
+        "label": "Best Practices Workshop",
+        "url": "https://zoom.us/webinar3"
+      }
+    ],
+    "footerTagline": "Empowering career services to deliver exceptional student job placement!"
+  },
+  "created_at": "2025-10-19T13:25:08.744699+00:00",
+  "updated_at": "2025-12-02T22:45:32.774+00:00"
+}
