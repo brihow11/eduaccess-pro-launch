@@ -11,9 +11,11 @@ const types = {
   ".ico": "image/x-icon",
   ".js": "text/javascript; charset=utf-8",
   ".json": "application/json; charset=utf-8",
+  ".mp4": "video/mp4",
   ".png": "image/png",
   ".svg": "image/svg+xml",
   ".txt": "text/plain; charset=utf-8",
+  ".webm": "video/webm",
   ".webp": "image/webp"
 };
 
@@ -63,10 +65,54 @@ function createServer() {
     const ext = path.extname(filePath).toLowerCase();
     const status = path.basename(filePath) === "404.html" && !(req.url || "/").includes("404.html") ? 404 : 200;
 
+    const stat = fs.statSync(filePath);
+    const range = req.headers.range;
+
+    if (status === 200 && range && (ext === ".mp4" || ext === ".webm")) {
+      const match = /^bytes=(\d*)-(\d*)$/.exec(range);
+      if (!match) {
+        res.writeHead(416, { "Content-Range": `bytes */${stat.size}` });
+        res.end();
+        return;
+      }
+
+      const start = match[1] ? Number(match[1]) : 0;
+      const end = match[2] ? Math.min(Number(match[2]), stat.size - 1) : stat.size - 1;
+
+      if (start > end || start >= stat.size) {
+        res.writeHead(416, { "Content-Range": `bytes */${stat.size}` });
+        res.end();
+        return;
+      }
+
+      res.writeHead(206, {
+        "Accept-Ranges": "bytes",
+        "Cache-Control": "public, max-age=86400",
+        "Content-Length": end - start + 1,
+        "Content-Range": `bytes ${start}-${end}/${stat.size}`,
+        "Content-Type": types[ext]
+      });
+
+      if (req.method === "HEAD") {
+        res.end();
+        return;
+      }
+
+      fs.createReadStream(filePath, { start, end }).pipe(res);
+      return;
+    }
+
     res.writeHead(status, {
+      ...(status === 200 && (ext === ".mp4" || ext === ".webm") ? { "Accept-Ranges": "bytes" } : {}),
       "Cache-Control": "public, max-age=300",
+      "Content-Length": stat.size,
       "Content-Type": types[ext] || "application/octet-stream"
     });
+
+    if (req.method === "HEAD") {
+      res.end();
+      return;
+    }
 
     fs.createReadStream(filePath).pipe(res);
   });
