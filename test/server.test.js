@@ -70,6 +70,21 @@ test("ACE migration is served at /ready with local ranged media", async (t) => {
   assert.match(video.headers["content-range"], /^bytes 0-99\//);
 });
 
+test("ACE overview video waits for a click and exposes sound controls", () => {
+  const source = fs.readFileSync(
+    path.join(__dirname, "..", "ready-src", "src", "App.tsx"),
+    "utf8"
+  );
+
+  assert.doesNotMatch(source, /^\s*autoPlay\s*$/m);
+  assert.doesNotMatch(source, /^\s*muted\s*$/m);
+  assert.match(source, /muted=\{isMuted\}/);
+  assert.match(source, /Play Mini Overview with Sound/);
+  assert.match(source, /aria-label=\{isMuted \? 'Unmute video' : 'Mute video'\}/);
+  assert.match(source, /Volume2/);
+  assert.match(source, /VolumeX/);
+});
+
 test("layoff rumor room route is live and linked from indexes", async (t) => {
   const server = createServer();
   await new Promise((resolve) => server.listen(0, "127.0.0.1", resolve));
