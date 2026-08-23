@@ -136,3 +136,39 @@ test("layoff rumor room stays no-capture and offline-first", () => {
   assert.match(html, /focus-visible/);
   assert.match(html, /390px/);
 });
+
+test("fictional Barnabas institute readiness route is live and clearly bounded", async (t) => {
+  const server = createServer();
+  await new Promise((resolve) => server.listen(0, "127.0.0.1", resolve));
+  t.after(() => server.close());
+  const { port } = server.address();
+
+  const page = await request(port, "/barnabas-acceptance-institute-test/");
+  assert.equal(page.statusCode, 200);
+  assert.match(page.body, /TEST \/ FICTIONAL/);
+  assert.match(page.body, /Student Hiring Readiness Check/);
+  assert.match(page.body, /five-point self-assessment/i);
+  assert.match(page.body, /Schedule a conversation/);
+  assert.match(page.body, /institution-level analytics only/i);
+});
+
+test("fictional institute assessment has no person tracking or data capture", () => {
+  const html = fs.readFileSync(
+    path.join(__dirname, "..", "barnabas-acceptance-institute-test", "index.html"),
+    "utf8"
+  );
+
+  assert.match(html, /const INSTITUTION_SLUG = "barnabas-acceptance-institute-test"/);
+  assert.match(html, /navigator\.webdriver/);
+  assert.match(html, /analytics_storage: "denied"/);
+  assert.match(html, /institution_slug: INSTITUTION_SLUG/);
+  assert.match(html, /eduaccess_assessment_complete/);
+  assert.match(html, /if \(!assessmentCompleted\)/);
+  assert.match(html, /assessmentCompleted = true/);
+  assert.match(html, /eduaccess_meeting_invitation/);
+  assert.match(html, /Disable anonymous page analytics/);
+  assert.doesNotMatch(html, /type=["'](?:email|text|tel|password)["']/i);
+  assert.doesNotMatch(html, /<form\b/i);
+  assert.doesNotMatch(html, /\b(?:user_id|contact_id|student_id|person_id)\b/i);
+  assert.doesNotMatch(html, /document\.cookie|navigator\.sendBeacon|\bfetch\s*\(/i);
+});

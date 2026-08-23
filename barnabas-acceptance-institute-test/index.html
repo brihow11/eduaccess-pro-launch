@@ -1,0 +1,318 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Student Hiring Readiness Check | EduAccess TEST</title>
+  <meta name="description" content="A clearly labelled fictional EduAccess test assessment for student hiring readiness.">
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="/style.css?v=20260823-barnabas-acceptance">
+  <style>
+    :root {
+      --ink: #11231d;
+      --green: #0f684d;
+      --green-dark: #084633;
+      --mint: #eaf7f1;
+      --cream: #fbf8ef;
+      --gold: #d9a441;
+      --line: #cbdcd4;
+      --white: #ffffff;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; color: var(--ink); background: var(--cream); font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+    a { color: inherit; }
+    .test-bar { padding: .65rem 1rem; text-align: center; color: #fff; background: #713f12; font-size: .88rem; font-weight: 800; letter-spacing: .08em; }
+    .site-header { display: flex; align-items: center; justify-content: space-between; gap: 1rem; max-width: 1120px; margin: auto; padding: 1rem 1.25rem; }
+    .brand { text-decoration: none; font-weight: 900; letter-spacing: -.02em; }
+    .brand span { color: var(--green); }
+    .header-note { color: #4f625a; font-size: .9rem; }
+    main { max-width: 1120px; margin: auto; padding: 0 1.25rem 4rem; }
+    .hero { display: grid; grid-template-columns: 1.25fr .75fr; gap: 1.5rem; align-items: stretch; padding: 2.5rem 0 1.5rem; }
+    .hero-copy, .hero-card, .assessment, .result, .privacy { border: 1px solid var(--line); border-radius: 22px; background: rgba(255,255,255,.94); box-shadow: 0 16px 38px rgba(17,35,29,.07); }
+    .hero-copy { padding: clamp(1.5rem, 4vw, 3rem); }
+    .eyebrow { display: inline-flex; padding: .38rem .7rem; border-radius: 999px; color: var(--green-dark); background: var(--mint); font-size: .78rem; font-weight: 900; letter-spacing: .08em; text-transform: uppercase; }
+    h1 { max-width: 760px; margin: 1rem 0 .9rem; font-size: clamp(2.15rem, 5vw, 4.6rem); line-height: .99; letter-spacing: -.055em; }
+    .lede { max-width: 720px; margin: 0; color: #44584f; font-size: 1.08rem; line-height: 1.7; }
+    .fiction-note { margin-top: 1.25rem; padding: .9rem 1rem; border-left: 4px solid var(--gold); background: #fff8e8; line-height: 1.55; }
+    .hero-card { display: flex; flex-direction: column; justify-content: center; padding: 1.5rem; color: #fff; background: var(--green-dark); }
+    .hero-card strong { font-size: 2.7rem; line-height: 1; }
+    .hero-card p { margin: .8rem 0 0; color: #d9eee5; line-height: 1.6; }
+    .steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: .7rem; margin-top: 1.25rem; }
+    .steps span { padding: .8rem; border-radius: 13px; background: rgba(255,255,255,.1); font-size: .86rem; font-weight: 700; }
+    .workspace { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(300px, .8fr); gap: 1.5rem; align-items: start; }
+    .assessment, .result, .privacy { padding: clamp(1.25rem, 3vw, 2rem); }
+    .section-head h2, .result h2, .privacy h2 { margin: 0; font-size: clamp(1.45rem, 3vw, 2.1rem); letter-spacing: -.03em; }
+    .section-head p, .privacy p { color: #52645d; line-height: 1.6; }
+    .question { margin: 1.25rem 0 0; padding: 1rem; border: 1px solid #dbe7e1; border-radius: 17px; background: #fbfdfc; }
+    .question legend { width: 100%; padding: 0; font-weight: 850; line-height: 1.45; }
+    .question-number { display: inline-grid; place-items: center; width: 1.65rem; height: 1.65rem; margin-right: .45rem; border-radius: 50%; color: #fff; background: var(--green); font-size: .82rem; }
+    .choices { display: grid; grid-template-columns: repeat(3, 1fr); gap: .55rem; margin-top: .8rem; }
+    .choice { min-height: 3.8rem; padding: .65rem; border: 1px solid #c9d9d1; border-radius: 12px; color: var(--ink); background: #fff; font: inherit; font-size: .86rem; font-weight: 750; cursor: pointer; }
+    .choice:hover, .choice:focus-visible { border-color: var(--green); outline: 3px solid rgba(15,104,77,.16); }
+    .choice[aria-pressed="true"] { color: #fff; border-color: var(--green); background: var(--green); }
+    .result { position: sticky; top: 1rem; overflow: hidden; }
+    .score { display: flex; align-items: baseline; gap: .35rem; margin: 1.2rem 0; }
+    .score strong { color: var(--green); font-size: 4rem; line-height: 1; }
+    .score span { color: #64766e; font-weight: 750; }
+    .meter { height: .75rem; overflow: hidden; border-radius: 999px; background: #e4ece8; }
+    .meter span { display: block; width: 0; height: 100%; border-radius: inherit; background: linear-gradient(90deg, var(--gold), var(--green)); transition: width .25s ease; }
+    .band { display: inline-block; margin-top: 1.1rem; padding: .38rem .7rem; border-radius: 999px; color: var(--green-dark); background: var(--mint); font-size: .82rem; font-weight: 900; }
+    .result-summary { min-height: 4.8rem; color: #465a51; line-height: 1.65; }
+    .next-steps { padding-left: 1.2rem; color: #344a40; line-height: 1.55; }
+    .next-steps li + li { margin-top: .45rem; }
+    .meeting { display: block; margin-top: 1.1rem; padding: .85rem 1rem; border-radius: 12px; color: #fff; background: var(--green); text-align: center; text-decoration: none; font-weight: 850; }
+    .meeting:hover, .meeting:focus-visible { background: var(--green-dark); outline: 3px solid rgba(15,104,77,.2); }
+    .result-note { margin: .8rem 0 0; color: #65766f; font-size: .8rem; line-height: 1.5; }
+    .privacy { margin-top: 1.5rem; }
+    .privacy-grid { display: grid; grid-template-columns: 1fr auto; gap: 1rem; align-items: center; }
+    .privacy button { padding: .7rem .9rem; border: 1px solid #a9beb4; border-radius: 11px; color: var(--green-dark); background: #fff; font: inherit; font-weight: 800; cursor: pointer; }
+    .privacy-status { margin: .4rem 0 0; color: #5b6c65; font-size: .88rem; }
+    @media (max-width: 820px) {
+      .hero, .workspace { grid-template-columns: 1fr; }
+      .result { position: static; }
+      .privacy-grid { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 560px) {
+      .site-header { align-items: flex-start; flex-direction: column; }
+      .choices, .steps { grid-template-columns: 1fr; }
+      main { padding-inline: .8rem; }
+    }
+  </style>
+</head>
+<body>
+  <div class="test-bar">TEST / FICTIONAL — NOT A REAL INSTITUTION OR STUDENT PROGRAM</div>
+  <header class="site-header">
+    <a class="brand" href="/">EduAccess <span>by Job Seeker Pro</span></a>
+    <span class="header-note">Institution route: barnabas-acceptance-institute-test</span>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="hero-copy">
+        <span class="eyebrow">Barnabas Acceptance Institute — fictional test</span>
+        <h1>Student Hiring Readiness Check</h1>
+        <p class="lede">A practical five-point self-assessment that helps a student see what is ready, what is still fuzzy, and the next move that can make the job search more competitive.</p>
+        <p class="fiction-note"><strong>Testing boundary:</strong> Barnabas Acceptance Institute is fictional. This page is a controlled acceptance test for the EduAccess higher-education lane. It makes no claim about a real school, student, outcome, or partnership.</p>
+      </div>
+      <aside class="hero-card" aria-label="How the readiness check works">
+        <strong>5 points</strong>
+        <p>Choose the answer that honestly matches today. The result stays in this browser tab and turns into a short, plain-English action plan.</p>
+        <div class="steps" aria-hidden="true">
+          <span>1. Answer</span><span>2. See the gap</span><span>3. Take one move</span>
+        </div>
+      </aside>
+    </section>
+
+    <section class="workspace">
+      <div class="assessment" aria-labelledby="assessment-title">
+        <div class="section-head">
+          <h2 id="assessment-title">Your five hiring-readiness signals</h2>
+          <p>No name, email, school record, resume, or private student information is requested.</p>
+        </div>
+
+        <fieldset class="question" data-question="target">
+          <legend><span class="question-number">1</span>I can name the kind of role I am targeting and why it fits.</legend>
+          <div class="choices"><button class="choice" type="button" data-value="0" aria-pressed="false">Not clear yet</button><button class="choice" type="button" data-value="1" aria-pressed="false">I have a broad direction</button><button class="choice" type="button" data-value="2" aria-pressed="false">I can explain it clearly</button></div>
+        </fieldset>
+
+        <fieldset class="question" data-question="proof">
+          <legend><span class="question-number">2</span>My resume and LinkedIn show evidence, not only responsibilities.</legend>
+          <div class="choices"><button class="choice" type="button" data-value="0" aria-pressed="false">Mostly task lists</button><button class="choice" type="button" data-value="1" aria-pressed="false">Some useful proof</button><button class="choice" type="button" data-value="2" aria-pressed="false">Clear outcomes and examples</button></div>
+        </fieldset>
+
+        <fieldset class="question" data-question="stories">
+          <legend><span class="question-number">3</span>I have short interview stories that show how I solve problems.</legend>
+          <div class="choices"><button class="choice" type="button" data-value="0" aria-pressed="false">I would improvise</button><button class="choice" type="button" data-value="1" aria-pressed="false">I have one or two</button><button class="choice" type="button" data-value="2" aria-pressed="false">I have a ready story bank</button></div>
+        </fieldset>
+
+        <fieldset class="question" data-question="outreach">
+          <legend><span class="question-number">4</span>I know how to reach people beyond clicking Apply.</legend>
+          <div class="choices"><button class="choice" type="button" data-value="0" aria-pressed="false">Applications only</button><button class="choice" type="button" data-value="1" aria-pressed="false">Occasional outreach</button><button class="choice" type="button" data-value="2" aria-pressed="false">A weekly relationship plan</button></div>
+        </fieldset>
+
+        <fieldset class="question" data-question="followup">
+          <legend><span class="question-number">5</span>I track conversations and follow up without losing the thread.</legend>
+          <div class="choices"><button class="choice" type="button" data-value="0" aria-pressed="false">I rely on memory</button><button class="choice" type="button" data-value="1" aria-pressed="false">I track some activity</button><button class="choice" type="button" data-value="2" aria-pressed="false">Every next step has an owner and date</button></div>
+        </fieldset>
+      </div>
+
+      <aside class="result" aria-live="polite" aria-labelledby="result-title">
+        <h2 id="result-title">Your readiness result</h2>
+        <div class="score"><strong id="score">0</strong><span>/ 10 points</span></div>
+        <div class="meter" aria-hidden="true"><span id="meter"></span></div>
+        <span class="band" id="band">Answer all five signals</span>
+        <p class="result-summary" id="summary">Your result will show the smallest useful next move. There is no “bad” score—only a clearer place to focus.</p>
+        <ol class="next-steps" id="nextSteps">
+          <li>Answer each readiness signal.</li>
+          <li>Read the plain-English result.</li>
+          <li>Choose one move to complete this week.</li>
+        </ol>
+        <a class="meeting" id="meetingInvitation" href="https://meetings-na2.hubspot.com/brian-howard?uuid=3d5fc893-89a0-40d3-a032-6df252dc3f75" rel="noopener noreferrer" target="_blank">Schedule a conversation</a>
+        <p class="result-note">This invitation is optional and opens Job Seeker Pro's existing scheduling page. It does not submit this assessment or identify a student.</p>
+      </aside>
+    </section>
+
+    <section class="privacy" aria-labelledby="privacy-title">
+      <div class="privacy-grid">
+        <div>
+          <h2 id="privacy-title">Privacy and analytics choice</h2>
+          <p>This assessment runs in the browser. Answers and scores are not submitted or saved. Anonymous measurement is limited to institution-level analytics only: this fictional institution slug, page events, and broad score band. No student, person, contact, email, resume, or answer-level data is sent. High-confidence bots and automated browsers are filtered out.</p>
+          <p class="privacy-status" id="privacyStatus" aria-live="polite">Anonymous institution-level page analytics are available after a real visitor interaction.</p>
+        </div>
+        <button id="analyticsChoice" type="button">Disable anonymous page analytics</button>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const INSTITUTION_SLUG = "barnabas-acceptance-institute-test";
+    const ANALYTICS_OPT_OUT = "eduaccess_analytics_opt_out";
+    const answers = new Map();
+    let humanSignal = false;
+    let analyticsLoaded = false;
+    let assessmentStarted = false;
+    let assessmentCompleted = false;
+
+    const score = document.getElementById("score");
+    const meter = document.getElementById("meter");
+    const band = document.getElementById("band");
+    const summary = document.getElementById("summary");
+    const nextSteps = document.getElementById("nextSteps");
+    const privacyStatus = document.getElementById("privacyStatus");
+    const analyticsChoice = document.getElementById("analyticsChoice");
+
+    function isHighConfidenceBot() {
+      const agent = String(navigator.userAgent || "").toLowerCase();
+      const known = /(bot|crawler|spider|headless|lighthouse|preview|selenium|puppeteer|playwright|curl|wget|python|httpx)/;
+      return navigator.webdriver === true || !navigator.languages?.length || known.test(agent);
+    }
+
+    function analyticsEnabled() {
+      return humanSignal && !isHighConfidenceBot() && localStorage.getItem(ANALYTICS_OPT_OUT) !== "1";
+    }
+
+    function loadAnalytics() {
+      if (analyticsLoaded || !analyticsEnabled()) return;
+      analyticsLoaded = true;
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { window.dataLayer.push(arguments); };
+      window.gtag("consent", "default", {
+        analytics_storage: "denied",
+        ad_storage: "denied",
+        ad_user_data: "denied",
+        ad_personalization: "denied"
+      });
+      window.gtag("js", new Date());
+      window.gtag("config", "G-9MDWCDV9C9", {
+        send_page_view: false,
+        allow_google_signals: false,
+        allow_ad_personalization_signals: false
+      });
+      const script = document.createElement("script");
+      script.async = true;
+      script.src = "https://www.googletagmanager.com/gtag/js?id=G-9MDWCDV9C9";
+      document.head.appendChild(script);
+    }
+
+    function track(eventName, safeFields = {}) {
+      loadAnalytics();
+      if (!analyticsEnabled() || typeof window.gtag !== "function") return;
+      window.gtag("event", eventName, {
+        institution_slug: INSTITUTION_SLUG,
+        experience_id: "student-hiring-readiness-test-v1",
+        test_fictional: true,
+        ...safeFields
+      });
+    }
+
+    function recordHumanSignal() {
+      humanSignal = true;
+      loadAnalytics();
+    }
+    document.addEventListener("pointerdown", recordHumanSignal, { once: true, capture: true });
+    document.addEventListener("keydown", recordHumanSignal, { once: true, capture: true });
+    document.addEventListener("touchstart", recordHumanSignal, { once: true, capture: true });
+
+    const resultBands = [
+      {
+        max: 3,
+        label: "Start with the foundations",
+        summary: "The fastest improvement is clarity: choose a realistic target, collect proof from school, work, service, or projects, and build a simple weekly plan.",
+        steps: ["Choose one role family to explore.", "Turn one responsibility into an outcome or proof point.", "Set two relationship-building actions for this week."]
+      },
+      {
+        max: 7,
+        label: "Build the proof around your direction",
+        summary: "You have useful pieces. The next advantage comes from connecting them: target role, proof-rich materials, interview stories, outreach, and follow-up should tell the same story.",
+        steps: ["Tighten the target statement to one sentence.", "Add two measurable or specific proof points.", "Prepare one interview story and one outreach message."]
+      },
+      {
+        max: 10,
+        label: "Ready for focused outreach",
+        summary: "Your foundation is strong enough to move. Keep quality high, use relationships alongside applications, and measure which conversations create interviews.",
+        steps: ["Choose five well-fit opportunities or people.", "Lead with relevant proof instead of a generic ask.", "Track the next step and follow-up date for every conversation."]
+      }
+    ];
+
+    function renderResult() {
+      const total = [...answers.values()].reduce((sum, value) => sum + value, 0);
+      score.textContent = String(total);
+      meter.style.width = `${total * 10}%`;
+      if (answers.size < 5) {
+        band.textContent = `${answers.size} of 5 signals answered`;
+        summary.textContent = "Keep going. The result becomes useful after all five signals are answered.";
+        return;
+      }
+      const result = resultBands.find((item) => total <= item.max);
+      band.textContent = result.label;
+      summary.textContent = result.summary;
+      nextSteps.replaceChildren(...result.steps.map((text) => {
+        const item = document.createElement("li");
+        item.textContent = text;
+        return item;
+      }));
+      const scoreBand = total <= 3 ? "foundation" : total <= 7 ? "building-proof" : "focused-outreach";
+      if (!assessmentCompleted) {
+        assessmentCompleted = true;
+        track("eduaccess_assessment_complete", { score_band: scoreBand, questions_complete: 5 });
+      }
+    }
+
+    document.querySelectorAll(".question").forEach((question) => {
+      const key = question.dataset.question;
+      question.querySelectorAll(".choice").forEach((button) => {
+        button.addEventListener("click", () => {
+          question.querySelectorAll(".choice").forEach((item) => item.setAttribute("aria-pressed", "false"));
+          button.setAttribute("aria-pressed", "true");
+          answers.set(key, Number(button.dataset.value));
+          if (!assessmentStarted) {
+            assessmentStarted = true;
+            track("eduaccess_assessment_start", { questions_available: 5 });
+          }
+          renderResult();
+        });
+      });
+    });
+
+    document.getElementById("meetingInvitation").addEventListener("click", () => {
+      track("eduaccess_meeting_invitation", { placement: "assessment_result" });
+    });
+
+    function renderAnalyticsChoice() {
+      const optedOut = localStorage.getItem(ANALYTICS_OPT_OUT) === "1";
+      analyticsChoice.textContent = optedOut ? "Allow anonymous page analytics" : "Disable anonymous page analytics";
+      privacyStatus.textContent = optedOut
+        ? "Anonymous page analytics are disabled on this device. The assessment still works normally."
+        : "Anonymous institution-level page analytics are available after a real visitor interaction.";
+    }
+    analyticsChoice.addEventListener("click", () => {
+      const optedOut = localStorage.getItem(ANALYTICS_OPT_OUT) === "1";
+      if (optedOut) localStorage.removeItem(ANALYTICS_OPT_OUT);
+      else localStorage.setItem(ANALYTICS_OPT_OUT, "1");
+      renderAnalyticsChoice();
+    });
+    renderAnalyticsChoice();
+  </script>
+</body>
+</html>
