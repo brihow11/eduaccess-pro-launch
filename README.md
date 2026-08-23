@@ -22,6 +22,8 @@ DNS manager: Namecheap.
 
 Initial paths:
 
+- `/barnabas-acceptance-institute-test/` — clearly labelled TEST/FICTIONAL five-point student hiring-readiness assessment for the owner-approved Barnabas-to-Ranger higher-education acceptance. It uses institution-only, bot-filtered, opt-out analytics and never collects person or student data.
+
 - `/apps/`
 - `/apps/networking-follow-up-message-builder/`
 - `/apps/recruiter-reply-message-builder/`
