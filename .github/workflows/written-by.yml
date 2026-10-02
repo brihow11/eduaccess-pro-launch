@@ -1,0 +1,43 @@
+name: Written-by attribution
+
+on:
+  pull_request:
+    types: [opened, edited, synchronize, reopened, ready_for_review]
+
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  written-by:
+    name: Written-by attribution
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Validate PR and every commit attribution
+        uses: actions/github-script@v8
+        with:
+          script: |
+            const pr = context.payload.pull_request;
+            const signature = /^Written by: (Codex|Howie|Ranger|Barnabas)\r?$/m;
+            const errors = [];
+            if (!signature.test(pr.body || '')) {
+              errors.push('PR body needs an exact Written by: agent line.');
+            }
+            if (pr.commits > 250) {
+              errors.push('Split this PR: GitHub exposes at most 250 PR commits for attribution checks.');
+            } else {
+              const commits = await github.paginate(github.rest.pulls.listCommits, {
+                ...context.repo, pull_number: pr.number, per_page: 100,
+              });
+              if (commits.length !== pr.commits) {
+                errors.push('Commit list changed during verification; rerun against the current head.');
+              }
+              for (const commit of commits) {
+                if (!signature.test(commit.commit.message)) {
+                  errors.push(`Commit ${commit.sha.slice(0, 12)} needs an exact Written by: agent line.`);
+                }
+              }
+            }
+            if (errors.length) core.setFailed(errors.join('\n'));
+            else core.info('PR and all commits have explicit agent attribution.');
