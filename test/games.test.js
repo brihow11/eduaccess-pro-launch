@@ -132,3 +132,14 @@ test("Joust has the phone hold-to-flap option, bigger phone riders and the detai
   assert.match(js, /RSCALE = \(isTouch && Math\.min\(window\.innerWidth, window\.innerHeight\) <= 600\) \? 1\.15 : 1/);
   assert.match(js, /function drawFinger\(/);
 });
+
+test("hub Joust card only advertises what Joust supports", () => {
+  const hub = read("games/index.html");
+  const card = hub.slice(hub.indexOf('class="card joust"'), hub.indexOf("Play Joust"));
+  const js = read("games/joust/game.js");
+  assert.match(card, /1&ndash;2 players/);
+  assert.match(js, /2 FOR TWO PLAYERS/);
+  assert.doesNotMatch(card, /Gamepad/i);
+  assert.doesNotMatch(js, /getGamepads/);
+  for (const feature of ["egg", "hand", "ptero"]) assert.match(js, new RegExp(feature));
+});
