@@ -6,12 +6,12 @@
   <title>Karate Champ (Arcade Tribute) | EduAccess Arcade</title>
   <meta name="description" content="A from-scratch tribute to the 1984 karate tournament classic: front kicks, roundhouses, sweeps and jumping kicks judged by the referee. Full and half points, 12 bouts on painted stages, bonus rounds, synthesized sound and music. Free in your browser.">
   <meta name="theme-color" content="#140809">
-  <meta name="arcade-controls" content="Arrows move, jump and crouch. Space kicks, X punches, C roundhouse, Z blocks; add a direction for jump kick, sweep, back kick and flip. Remappable keys, gamepad and touch.">
+  <meta name="arcade-controls" content="Dual sticks like the 1984 arcade: WASD left stick (move/stance), Arrow keys right stick (attacks). Away+Right = back round kick, Up+Right = jumping side kick. Remappable keys, dual gamepad sticks and dual touch pads.">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="mobile-web-app-capable" content="yes">
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 32 32%22%3E%3Crect width=%2232%22 height=%2232%22 rx=%226%22 fill=%22%23140809%22/%3E%3Ccircle cx=%2216%22 cy=%2216%22 r=%2211%22 fill=%22%23f3f0e8%22/%3E%3Cpath d=%22M16 5a11 11 0 0 1 0 22a5.5 5.5 0 0 1 0-11a5.5 5.5 0 0 0 0-11z%22 fill=%22%23c8282a%22/%3E%3C/svg%3E">
   <link rel="stylesheet" href="/games/shared/banner.css">
-  <link rel="stylesheet" href="/games/karate-champ/style.css?v=2">
+  <link rel="stylesheet" href="/games/karate-champ/style.css?v=3">
   <link rel="stylesheet" href="/games/shared/scout-splash.css?v=20261005a">
   <link rel="stylesheet" href="/games/shared/game-menu.css">
 </head>
@@ -29,21 +29,28 @@
   </header>
   <main id="stage" aria-label="Karate Champ tribute game">
     <div id="wrap">
-      <canvas id="game" tabindex="0" aria-label="Karate tournament game. Arrows move, jump and crouch. Space kicks, X punches, C throws a roundhouse, Z blocks. Hold a direction with a button for jumping kick, sweep, back kick or flip."></canvas>
+      <canvas id="game" tabindex="0" aria-label="Karate tournament. WASD is the left stick for move and stance. Arrow keys are the right stick for attacks. Combinations produce front kick, reverse punch, lunge, round kick, back round, sweeps and jumping kicks."></canvas>
     </div>
     <noscript><p class="noscript">This game needs JavaScript.</p></noscript>
   </main>
   <div id="touch" hidden>
-    <div class="dpad" role="group" aria-label="Move">
-      <button class="tbtn up" data-act="up" type="button" aria-label="Jump">&#9650;</button>
-      <button class="tbtn left" data-act="left" type="button" aria-label="Left">&#9664;</button>
-      <button class="tbtn right" data-act="right" type="button" aria-label="Right">&#9654;</button>
-      <button class="tbtn down" data-act="down" type="button" aria-label="Crouch">&#9660;</button>
+    <div class="stickblock">
+      <div class="sticklabel">MOVE</div>
+      <div class="dpad" role="group" aria-label="Left stick — move">
+        <button class="tbtn up" data-act="up" type="button" aria-label="Jump">&#9650;</button>
+        <button class="tbtn left" data-act="left" type="button" aria-label="Retreat">&#9664;</button>
+        <button class="tbtn right" data-act="right" type="button" aria-label="Approach">&#9654;</button>
+        <button class="tbtn down" data-act="down" type="button" aria-label="Crouch">&#9660;</button>
+      </div>
     </div>
-    <div class="tgroup right">
-      <button class="tbtn act punch" data-act="punch" type="button" aria-label="Punch">PUNCH</button>
-      <button class="tbtn act block" data-act="block" type="button" aria-label="Block">BLOCK</button>
-      <button class="tbtn act kick" data-act="kick" type="button" aria-label="Kick">KICK</button>
+    <div class="stickblock right">
+      <div class="sticklabel">ATTACK</div>
+      <div class="dpad attack" role="group" aria-label="Right stick — attack">
+        <button class="tbtn up" data-act="rup" type="button" aria-label="Attack up">&#9650;</button>
+        <button class="tbtn left" data-act="rleft" type="button" aria-label="Attack back">&#9664;</button>
+        <button class="tbtn right" data-act="rright" type="button" aria-label="Attack forward">&#9654;</button>
+        <button class="tbtn down" data-act="rdown" type="button" aria-label="Attack down">&#9660;</button>
+      </div>
     </div>
   </div>
   <footer class="bar">
@@ -70,7 +77,7 @@
           </select>
         </label>
       </div>
-      <p class="touchnote">Moves: a button plus the direction you hold. Kick: front kick, &#8593; jumping kick, &#8595; low sweep, away from the opponent = back kick. Punch: punch, toward = roundhouse, &#8595; low punch. Block: hold to guard high, &#8595; guards low, &#8593; flips over. A power kick landed from the tip of your reach (or any counter-strike) scores a FULL POINT; closer hits and punches score a HALF POINT. First to two full points in 30 seconds wins the bout. Gamepad: d-pad or stick moves, A kick, X punch, Y roundhouse, B block, Start pauses.</p>
+      <p class="touchnote">Dual sticks (1984 arcade style). Left stick (WASD / left touch pad): approach, retreat, jump, crouch; retreat while close = block. Right stick (Arrow keys / right touch pad): tap a direction to attack. Combinations: toward = front kick (far) or reverse punch (close); away = back kick; up = round kick; down = low kick; away+toward = back round kick; up+toward = jumping side kick; down+toward = foot sweep; approach+toward = lunge punch. Attack score 100-500 = half point, 600-1000 = full point. First to two full points in 30 seconds. Gamepad: left stick moves, right stick attacks, Start pauses.</p>
       <div class="row">
         <button class="pbtn" id="keys-reset" type="button">Reset to defaults</button>
         <button class="pbtn primary" id="settings-close" type="button">Done</button>
@@ -82,11 +89,11 @@
   <script src="/games/shared/scout-splash.js?v=20261005a"></script>
   <script src="/games/shared/game-menu.js"></script>
   <script src="/games/shared/arcade-music.js"></script>
-  <script src="/games/karate-champ/kit.js?v=2"></script>
-  <script src="/games/karate-champ/core.js?v=2"></script>
-  <script src="/games/karate-champ/levels.js?v=2"></script>
-  <script src="/games/karate-champ/render.js?v=2"></script>
-  <script src="/games/karate-champ/audio.js?v=2"></script>
-  <script src="/games/karate-champ/game.js?v=2"></script>
+  <script src="/games/karate-champ/kit.js?v=3"></script>
+  <script src="/games/karate-champ/core.js?v=3"></script>
+  <script src="/games/karate-champ/levels.js?v=3"></script>
+  <script src="/games/karate-champ/render.js?v=3"></script>
+  <script src="/games/karate-champ/audio.js?v=3"></script>
+  <script src="/games/karate-champ/game.js?v=3"></script>
 </body>
 </html>

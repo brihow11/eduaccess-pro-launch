@@ -30,6 +30,14 @@ body {
 .bar .note { overflow: hidden; text-overflow: ellipsis; }
 body.is-touch .bar { display: none; }
 
+.stickblock { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+.stickblock.right { margin-left: auto; }
+.sticklabel { font: 800 11px/1 system-ui, sans-serif; letter-spacing: 0.18em; color: #e3c27a; opacity: 0.9; }
+.dpad.attack .tbtn { border-color: rgba(232, 67, 58, 0.7); background: radial-gradient(circle at 40% 35%, rgba(180, 60, 50, 0.7), rgba(50, 16, 14, 0.9)); }
+#touch.landscape .stickblock { pointer-events: none; }
+#touch.landscape .stickblock .tbtn { pointer-events: auto; }
+
+
 /* ---------- touch controls: a strip under the playfield in portrait, overlaid corners in landscape ---------- */
 #touch { flex: none; position: relative; display: flex; justify-content: space-between; align-items: center; gap: 8px;
   padding: 8px 14px calc(10px + env(safe-area-inset-bottom)); background: linear-gradient(#15120e, #0b0906); border-top: 1px solid #3a2f1c; touch-action: none; }
