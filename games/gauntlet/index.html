@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+  <title>Gauntlet (Arcade Tribute) | EduAccess Arcade</title>
+  <meta name="description" content="A from-scratch tribute to the 1985 dungeon crawler: pick the Warrior, Valkyrie, Wizard or Elf and fight through 12 torch-lit dungeon levels of ghosts, grunts, demons, lobbers, sorcerers and Death. Free in your browser.">
+  <meta name="theme-color" content="#0a0604">
+  <meta name="arcade-controls" content="Arrows / WASD move &middot; Space fires &middot; X uses a potion &middot; remappable keys, gamepad and touch">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 32 32%22%3E%3Crect width=%2232%22 height=%2232%22 rx=%226%22 fill=%22%23140a06%22/%3E%3Cpath d=%22M9 26 23 6M11 8l12 12M8 22l4 4%22 stroke=%22%23e8b060%22 stroke-width=%222.6%22 stroke-linecap=%22round%22/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="/games/shared/banner.css">
+  <link rel="stylesheet" href="/games/gauntlet/style.css?v=1">
+  <link rel="stylesheet" href="/games/shared/scout-splash.css?v=20261005a">
+  <link rel="stylesheet" href="/games/shared/game-menu.css">
+</head>
+<!-- Written by: Howie -->
+<body>
+  <div data-jsp-banner></div>
+  <main id="stage" aria-label="Gauntlet tribute game">
+    <div id="wrap">
+      <canvas id="game" tabindex="0" aria-label="Gauntlet-style dungeon game. Arrow keys move your hero, Space fires, X uses a magic potion."></canvas>
+      <div class="toolbar" role="toolbar" aria-label="Game options">
+        <a class="tool menu" id="btn-menu" href="/games/" aria-label="Main menu" title="Main menu (all games)"><span aria-hidden="true">&#9776;</span> <span class="lbl">Main menu</span></a>
+        <button class="tool" id="btn-pause" type="button" title="Pause (P / Esc)">&#10074;&#10074; <span class="lbl">Pause</span></button>
+        <button class="tool" id="btn-mute" type="button" aria-pressed="false" title="Mute or unmute (M)">&#128266; <span class="lbl">Sound on</span></button>
+        <button class="tool" id="btn-settings" type="button" title="Controls and settings">&#9881; <span class="lbl">Controls</span></button>
+        <button class="tool" id="btn-full" type="button" title="Fullscreen">&#x26F6;</button>
+      </div>
+    </div>
+    <div id="touch" hidden>
+      <div class="stick" id="stick" role="button" aria-label="Move: drag in any direction"><div class="knob" id="knob"></div></div>
+      <div class="tgroup right">
+        <button class="tbtn magic" data-act="magic" type="button" aria-label="Use magic potion">MAGIC</button>
+        <button class="tbtn fire" data-act="fire" type="button" aria-label="Fire">FIRE</button>
+      </div>
+    </div>
+    <noscript><p class="noscript">This game needs JavaScript.</p></noscript>
+  </main>
+  <footer class="bar">
+    <span class="note">Fan-made tribute to the 1985 dungeon arcade game, built from scratch with original code, art and sound. Not affiliated with or endorsed by its makers.</span>
+  </footer>
+
+  <div id="settings" hidden role="dialog" aria-modal="true" aria-labelledby="settings-title">
+    <div class="panel">
+      <h2 id="settings-title">Controls &amp; settings</h2>
+      <p class="sub">Click a key box, then press the key you want. Esc cancels. Backspace clears. Saved on this device.</p>
+      <table class="keys">
+        <thead><tr><th>Action</th><th>Key</th><th>Alt key</th></tr></thead>
+        <tbody id="keys-body"></tbody>
+      </table>
+      <div class="msg" id="keys-msg" aria-live="polite"></div>
+      <div class="opts">
+        <label><input type="checkbox" id="opt-sound"> Sound (effects, music and voice)</label>
+        <label><input type="checkbox" id="opt-music"> Music (all arcade games)</label>
+        <label><input type="checkbox" id="opt-voice"> Narrator voice callouts</label>
+        <label>Touch controls
+          <select id="opt-touch">
+            <option value="auto">Auto</option>
+            <option value="on">Always show</option>
+            <option value="off">Hide</option>
+          </select>
+        </label>
+      </div>
+      <p class="touchnote">Hold Fire to stand your ground and aim with the arrows. Walk into a door with a key to open it. Gamepad: left stick or d-pad moves, A or RT fires, B, X or Y uses a potion, Start pauses. M mutes.</p>
+      <div class="row">
+        <button class="pbtn" id="keys-reset" type="button">Reset to defaults</button>
+        <button class="pbtn primary" id="settings-close" type="button">Done</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="/games/shared/banner.js"></script>
+  <script src="/games/shared/scout-splash.js?v=20261005a"></script>
+  <script src="/games/shared/game-menu.js"></script>
+  <script src="/games/shared/arcade-music.js"></script>
+  <script src="/games/gauntlet/kit.js?v=1"></script>
+  <script src="/games/gauntlet/levels.js?v=1"></script>
+  <script src="/games/gauntlet/art.js?v=1"></script>
+  <script src="/games/gauntlet/music.js?v=1"></script>
+  <script src="/games/gauntlet/game.js?v=1"></script>
+</body>
+</html>
