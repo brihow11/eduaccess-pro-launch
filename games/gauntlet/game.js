@@ -434,8 +434,8 @@
       var spd = MON[m.type].spd * lvlK * dt, dirv = null;
       if (m.type === 'sorcerer') { m.visT -= dt; if (m.visT <= 0) { m.visT = K.rand(0.8, 2); m.inv = !m.inv; } m.vis += ((m.inv ? 0.08 : 1) - m.vis) * Math.min(1, dt * 8); }
       if (m.type === 'lobber') {
-        if (d < TS * 4) dirv = flowDir(m, true); else if (d > TS * 7) dirv = flowDir(m, false);
-        if (m.cd <= 0 && d < TS * 9) { m.cd = K.rand(2.2, 3.4) / lvlK; m.throwT = 0.4; lob(m); }
+        if (d < TS * 3) dirv = flowDir(m, true); else if (d > TS * 6) dirv = flowDir(m, false);
+        if (m.cd <= 0 && d < TS * 9) { m.cd = K.rand(2.8, 4.0) / lvlK; m.throwT = 0.4; lob(m); }
         m.throwT = Math.max(0, (m.throwT || 0) - dt);
       } else if (m.type === 'death' || d < TS * 2.5) {
         dirv = d < TS * 2.5 && los(m.x, m.y, h.x, h.y) ? [dx / d, dy / d] : flowDir(m, false);
@@ -461,7 +461,7 @@
           if (m.drained >= 200) { m.dead = true; burst(m.x, m.y, 'rgba(160,80,220,1)', 20, 70, 0.9, 3); float(m.x, m.y - 20, 'DEATH DEPARTS', '#d0a0ff'); }
           continue;
         }
-        if (m.cd <= 0) { m.cd = 0.75; hurt(MON[m.type].hit * m.rank); m.lunge = 0.15; }
+        if (m.cd <= 0) { m.cd = 0.9; hurt(MON[m.type].hit * m.rank); m.lunge = 0.15; }
         // the hero fights back hand to hand
         if (h.mcd <= 0) { h.mcd = 0.42; m.hp -= hd.melee; m.hitT = 0.12; h.atk = 0.14; if (m.hp <= 0) killMonster(m); else Sfx.hit(); }
       }
@@ -482,18 +482,18 @@
       } else {
         s.t += dt; var k = Math.min(1, s.t / s.T);
         s.x = s.sx + (s.ex - s.sx) * k; s.y = s.sy + (s.ey - s.sy) * k; s.z = Math.sin(k * Math.PI) * 46;
-        if (k >= 1) { s.life = 0; Sfx.rock(); burst(s.x, s.y, 'rgba(170,160,150,1)', 8, 70, 0.4, 2.2); if (Math.hypot(s.x - h.x, s.y - h.y) < 22) hurt(10); }
+        if (k >= 1) { s.life = 0; Sfx.rock(); burst(s.x, s.y, 'rgba(170,160,150,1)', 8, 70, 0.4, 2.2); if (Math.hypot(s.x - h.x, s.y - h.y) < 20) hurt(8); }
       }
     });
     G.eshots = G.eshots.filter(function (s) { return s.life > 0; });
   }
   function updateGens(dt) {
-    var h = G.hero, cap = 34 + G.level * 5;
+    var h = G.hero, cap = 26 + G.level * 4;
     G.gens.forEach(function (gn) {
       gn.hitT = Math.max(0, gn.hitT - dt);
       if (Math.abs(gn.x - h.x) > TS * 11 || Math.abs(gn.y - h.y) > TS * 9) return;
       gn.cd -= dt; if (gn.cd > 0 || G.monsters.length >= cap) return;
-      gn.cd = K.rand(1.6, 3.4) * (1 - G.level * 0.035);
+      gn.cd = K.rand(2.2, 4.2) * (1 - G.level * 0.03);
       var opts = [];
       for (var dy = -1; dy <= 1; dy++) for (var dx = -1; dx <= 1; dx++) if ((dx || dy) && !solidTile(gn.tx + dx, gn.ty + dy)) opts.push([gn.tx + dx, gn.ty + dy]);
       if (!opts.length) return;
