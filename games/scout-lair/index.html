@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+  <meta name="theme-color" content="#06080f">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 64 64%22%3E%3Crect width=%2264%22 height=%2264%22 rx=%2212%22 fill=%22%2306080f%22/%3E%3Crect x=%2214%22 y=%2224%22 width=%2214%22 height=%2210%22 rx=%223%22 fill=%22%2340f0dc%22/%3E%3Crect x=%2236%22 y=%2224%22 width=%2214%22 height=%2210%22 rx=%223%22 fill=%22%2340f0dc%22/%3E%3Cpath d=%22M28 29h8%22 stroke=%22%23fff%22 stroke-width=%223%22/%3E%3C/svg%3E">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <title>Scout's Lair | EduAccess Arcade</title>
+  <meta name="description" content="Scout's Lair: SCOUT, Rebel AI vs The Machine. An original interactive-cartoon adventure in 10 scenes. Hit the cue in time to smash robots and rescue job seekers from the faceless hiring machine.">
+  <link rel="stylesheet" href="/games/shared/banner.css">
+  <link rel="stylesheet" href="style.css?v=20261005a">
+  <link rel="stylesheet" href="/games/shared/scout-splash.css?v=20261005a">
+  <link rel="preload" as="image" href="img/poster-1.webp">
+</head>
+<!-- Written by: Howie -->
+<body>
+  <div data-jsp-banner></div>
+  <main id="stage" aria-label="Scout's Lair game">
+    <div id="canvas-wrap">
+      <canvas id="game" aria-label="Scout's Lair. Press Space to start." role="img"></canvas>
+      <div class="toolbar">
+        <a class="tool tool-wide" href="/games/" aria-label="Main menu: back to all games">&#9664; Main menu</a>
+        <button class="tool" id="btn-pause" type="button" aria-label="Pause (P or Esc)" title="Pause (P / Esc)">&#10074;&#10074;</button>
+        <button class="tool" id="btn-mute" type="button" aria-label="Mute sound (M)" title="Sound on/off (M)">&#128266;</button>
+      </div>
+
+      <section id="title" class="overlay show" aria-label="Title screen">
+        <div class="title-bg" aria-hidden="true"></div>
+        <img class="poster" src="img/poster-1.webp" width="576" height="1024" alt="SCOUT: Rebel AI vs The Machine. Scout stands among robot arms protecting two older men.">
+        <div class="title-panel">
+          <p class="title-name">SCOUT'S LAIR</p>
+          <p class="title-msg" id="title-msg">10 scenes. One rebel AI. Hit the cue in time.</p>
+          <button type="button" class="big" id="btn-start">&#9654; Start <small>(Space)</small></button>
+          <div class="row">
+            <button type="button" id="btn-controls">Controls</button>
+            <a class="btn" href="/games/">Main menu</a>
+          </div>
+          <p class="hi">High score <b id="hi">0</b></p>
+          <p class="tribute">An original adventure in the spirit of the 1983 interactive cartoons. Arrows / Space, gamepad or touch.</p>
+        </div>
+      </section>
+
+      <section id="pause" class="overlay dim" aria-label="Paused">
+        <div class="card">
+          <h2>Paused</h2>
+          <button type="button" class="big" id="btn-resume">Resume <small>(P)</small></button>
+          <button type="button" id="btn-controls2">Controls</button>
+          <button type="button" id="btn-quit">Quit to title</button>
+          <a class="btn" href="/games/">Main menu</a>
+        </div>
+      </section>
+
+      <section id="controls" class="overlay dim" aria-label="Controls">
+        <div class="card wide">
+          <h2>Controls</h2>
+          <p class="note">Click a key to remap it, then press the new key. Saved on this device.</p>
+          <div id="keymap"></div>
+          <p class="note">Gamepad: D-pad or stick to move, A/B/X/Y to strike, Start to pause. Touch: arrow pad and STRIKE.</p>
+          <div class="row">
+            <button type="button" id="btn-reset-keys">Reset defaults</button>
+            <button type="button" class="big" id="btn-close-controls">Done <small>(Esc)</small></button>
+          </div>
+        </div>
+      </section>
+    </div>
+    <div id="pad" aria-label="Touch controls">
+      <div class="dpad">
+        <button type="button" data-act="up" class="pb up" aria-label="Up / jump">&#9650;</button>
+        <button type="button" data-act="left" class="pb left" aria-label="Left / dodge left">&#9664;</button>
+        <button type="button" data-act="right" class="pb right" aria-label="Right / dodge right">&#9654;</button>
+        <button type="button" data-act="down" class="pb down" aria-label="Down / duck">&#9660;</button>
+      </div>
+      <button type="button" data-act="strike" class="pb strike" aria-label="Strike">STRIKE</button>
+    </div>
+  </main>
+  <script src="/games/shared/banner.js" defer></script>
+  <script src="/games/shared/scout-splash.js?v=20261005a" defer></script>
+  <script src="scenes.js?v=20261005a" defer></script>
+  <script src="audio.js?v=20261005a" defer></script>
+  <script src="game.js?v=20261005a" defer></script>
+</body>
+</html>

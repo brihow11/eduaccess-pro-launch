@@ -1,0 +1,50 @@
+/* Scout's Lair layout. Written by: Howie */
+html, body { margin: 0; height: 100%; background: #06080f; color: #e8f4f6; font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; overflow: hidden; overscroll-behavior: none; }
+* { box-sizing: border-box; }
+#stage { position: relative; display: flex; flex-direction: column; height: calc(100dvh - var(--jsp-banner-real-h, var(--jsp-banner-h, 44px))); width: 100%; }
+#canvas-wrap { position: relative; flex: 1 1 auto; min-height: 0; overflow: hidden; }
+#game { position: absolute; inset: 0; width: 100%; height: 100%; display: block; touch-action: none; }
+.toolbar { position: absolute; top: 8px; right: 8px; display: flex; gap: 6px; z-index: 6; }
+.tool { min-width: 40px; height: 36px; padding: 0 10px; border-radius: 8px; border: 1px solid rgba(64,240,220,.45); background: rgba(6,10,20,.72); color: #dffbf7; font: 600 14px/34px system-ui, sans-serif; text-decoration: none; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; }
+.tool:hover, .tool:focus-visible { background: rgba(20,60,64,.9); outline: none; border-color: #40f0dc; }
+.overlay { position: absolute; inset: 0; display: none; z-index: 5; align-items: center; justify-content: center; }
+.overlay.show { display: flex; }
+.overlay.dim { background: rgba(3,5,10,.78); backdrop-filter: blur(3px); z-index: 7; }
+#title { flex-direction: column; justify-content: flex-end; background: #06080f; }
+.title-bg { position: absolute; inset: -20px; background: url(img/poster-1.webp) center/cover; filter: blur(18px) brightness(.45); }
+.poster { position: absolute; left: 50%; top: 0; height: 100%; width: auto; max-width: 100%; object-fit: contain; transform: translateX(-50%); animation: kb 18s ease-in-out infinite alternate; }
+@keyframes kb { from { transform: translateX(-50%) scale(1); } to { transform: translateX(-50%) scale(1.05); } }
+.title-panel { position: relative; width: min(520px, 100%); padding: 18px 18px 16px; text-align: center; background: linear-gradient(to bottom, rgba(6,8,15,0), rgba(6,8,15,.86) 28%, rgba(6,8,15,.95)); }
+.title-name { margin: 0; font: 900 clamp(26px, 6vw, 40px)/1 system-ui, sans-serif; letter-spacing: .06em; color: #ffd27a; text-shadow: 0 2px 0 #8a3b00, 0 0 18px rgba(255,170,60,.5); }
+.title-msg { margin: 6px 0 12px; color: #bfe9ee; font-size: 15px; min-height: 1.2em; }
+.hi { margin: 10px 0 2px; font-size: 14px; color: #9fc6cc; }
+.hi b { color: #40f0dc; }
+.tribute { margin: 4px 0 0; font-size: 11px; color: #7f9aa0; }
+button, .btn { font: 600 15px system-ui, sans-serif; color: #e8fbf8; background: rgba(16,30,40,.9); border: 1px solid rgba(64,240,220,.5); border-radius: 10px; padding: 9px 16px; cursor: pointer; text-decoration: none; display: inline-block; }
+button:hover, .btn:hover, button:focus-visible, .btn:focus-visible { border-color: #40f0dc; background: rgba(24,64,70,.95); outline: none; }
+button.big { font-size: 19px; padding: 12px 30px; background: linear-gradient(#18a89a, #0d6c64); border-color: #6ffbea; box-shadow: 0 0 18px rgba(64,240,220,.35); }
+button small { font-weight: 400; opacity: .75; font-size: 12px; }
+.row { display: flex; gap: 10px; justify-content: center; margin-top: 10px; flex-wrap: wrap; }
+.card { background: #0b1220; border: 1px solid rgba(64,240,220,.4); border-radius: 14px; padding: 20px 22px; display: flex; flex-direction: column; gap: 10px; min-width: 240px; max-width: 92vw; max-height: 92%; overflow: auto; text-align: center; box-shadow: 0 10px 40px rgba(0,0,0,.6); }
+.card.wide { width: 420px; }
+.card h2 { margin: 0 0 4px; color: #ffd27a; letter-spacing: .08em; text-transform: uppercase; }
+.note { margin: 0; font-size: 13px; color: #9fc6cc; }
+#keymap { display: grid; grid-template-columns: 1fr auto auto; gap: 6px 8px; align-items: center; text-align: left; }
+#keymap button { padding: 6px 10px; font-size: 13px; min-width: 92px; }
+#keymap button.wait { background: #6b4a00; border-color: #ffd27a; }
+#pad { display: none; flex: 0 0 auto; height: 168px; padding: 10px 16px calc(10px + env(safe-area-inset-bottom)); background: linear-gradient(#0a0f1c, #05070d); border-top: 1px solid rgba(64,240,220,.25); align-items: center; justify-content: space-between; user-select: none; -webkit-user-select: none; touch-action: none; }
+body.touch #pad { display: flex; }
+.dpad { position: relative; width: 150px; height: 148px; flex: 0 0 auto; }
+.pb { position: absolute; width: 54px; height: 54px; padding: 0; border-radius: 12px; font-size: 22px; background: rgba(20,40,52,.95); border: 2px solid rgba(64,240,220,.55); color: #dffbf7; touch-action: none; }
+.pb.up { left: 48px; top: 0; } .pb.down { left: 48px; bottom: 0; } .pb.left { left: 0; top: 47px; } .pb.right { right: 0; top: 47px; }
+.pb.strike { position: static; width: 132px; height: 132px; border-radius: 50%; font: 900 22px system-ui, sans-serif; letter-spacing: .05em; background: radial-gradient(circle at 40% 35%, #ff6a3d, #a3200d); border-color: #ffb08a; box-shadow: 0 0 20px rgba(255,90,40,.4); }
+.pb.on, .pb:active { filter: brightness(1.5); transform: scale(.95); }
+.pb.hint { animation: hint .3s ease-in-out infinite alternate; }
+@keyframes hint { to { box-shadow: 0 0 22px #ffd27a; border-color: #ffd27a; } }
+@media (max-height: 560px) and (orientation: landscape) {
+  #stage { flex-direction: row; }
+  #pad { height: auto; width: 0; padding: 0; border: 0; overflow: visible; position: absolute; inset: auto 0 0 0; height: 0; z-index: 4; background: none; }
+  body.touch #pad .dpad { position: absolute; left: 12px; bottom: 12px; transform: scale(.85); transform-origin: left bottom; opacity: .85; }
+  body.touch #pad .strike { position: absolute; right: 16px; bottom: 16px; width: 104px; height: 104px; opacity: .85; }
+}
+@media (max-width: 420px) { .tool { height: 32px; min-width: 34px; padding: 0 8px; font-size: 13px; } .title-panel { padding: 12px 12px 10px; } button.big { font-size: 17px; padding: 10px 24px; } }
