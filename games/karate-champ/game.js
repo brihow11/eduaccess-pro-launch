@@ -1,8 +1,8 @@
 /*
  * Karate Champ tribute for the EduAccess arcade. Original code, art and sound.
- * One-on-one karate bouts judged by a referee: full point or half point per clean strike, first to two full
- * points inside 30 seconds takes the bout. Twelve bouts across twelve stages, bonus rounds between bouts
- * (breaking boards, dodging thrown objects, stopping a charging bull), then the Grand Champion screen.
+ * Dual-stick arcade tribute: left stick moves/guards, right stick attacks (24 chart techniques).
+ * Referee awards attack scores 100-1000; <=500 half point, >=600 full point. First to two full points
+ * in 30 seconds wins. Twelve bouts, bonus rounds, Grand Champion screen.
  * Written by: Howie
  */
 (function () {
@@ -18,15 +18,17 @@
   function showTouch() { return touchPref === "on" || (touchPref === "auto" && isTouch); }
 
   // ---------------------------------------------------------------- input: arrows + Space by default, every key remappable
+  // Dual sticks like the 1984 cabinet: left = move/stance (WASD), right = attack (arrows).
   var ACTIONS = [
-    { id: "left", label: "Move left", keys: ["ArrowLeft", "KeyA"] },
-    { id: "right", label: "Move right", keys: ["ArrowRight", "KeyD"] },
-    { id: "up", label: "Jump (with a button: jumping kick / flip)", keys: ["ArrowUp", "KeyW"] },
-    { id: "down", label: "Crouch (with a button: sweep / low punch / low block)", keys: ["ArrowDown", "KeyS"] },
-    { id: "kick", label: "Kick (front; \u2191 jump kick, \u2193 sweep, away = back kick)", keys: ["Space", "KeyJ"] },
-    { id: "punch", label: "Punch (toward = roundhouse, \u2193 low punch)", keys: ["KeyX", "KeyK"] },
-    { id: "round", label: "Roundhouse kick", keys: ["KeyC", "KeyL"] },
-    { id: "block", label: "Block (\u2193 low block, \u2191 flip)", keys: ["KeyZ", "ShiftLeft"] },
+    { id: "left", label: "Left stick \u2190 (retreat / block)", keys: ["KeyA", "KeyH"] },
+    { id: "right", label: "Left stick \u2192 (approach)", keys: ["KeyD", "KeyL"] },
+    { id: "up", label: "Left stick \u2191 (jump)", keys: ["KeyW", "KeyK"] },
+    { id: "down", label: "Left stick \u2193 (crouch)", keys: ["KeyS", "KeyJ"] },
+    { id: "rleft", label: "Right stick \u2190 (back kicks)", keys: ["ArrowLeft", null] },
+    { id: "rright", label: "Right stick \u2192 (front / lunge / reverse)", keys: ["ArrowRight", null] },
+    { id: "rup", label: "Right stick \u2191 (round / jump kicks)", keys: ["ArrowUp", null] },
+    { id: "rdown", label: "Right stick \u2193 (low kicks / sweeps)", keys: ["ArrowDown", null] },
+    { id: "kick", label: "Touch: tap attack (uses held left stick)", keys: ["Space", null] },
     { id: "pause", label: "Pause", keys: ["KeyP", "Escape"] },
     { id: "mute", label: "Mute", keys: ["KeyM", null] }
   ];
@@ -39,9 +41,14 @@
       if (e.code === "Enter" && !e.repeat) input.press("start");
     },
     pad: function (gp) {
-      var b = function (i) { return !!(gp.buttons[i] && gp.buttons[i].pressed); }, ax = gp.axes[0] || 0, ay = gp.axes[1] || 0;
-      return { up: b(12) || ay < -0.55, down: b(13) || ay > 0.55, left: b(14) || ax < -0.5, right: b(15) || ax > 0.5,
-        kick: b(0), punch: b(2), block: b(1) || b(4) || b(6), round: b(3) || b(5) || b(7), pause: b(9) };
+      var b = function (i) { return !!(gp.buttons[i] && gp.buttons[i].pressed); };
+      var ax = gp.axes[0] || 0, ay = gp.axes[1] || 0, ax2 = gp.axes[2] != null ? gp.axes[2] : (gp.axes[3] || 0), ay2 = gp.axes[3] != null && gp.axes.length > 3 ? gp.axes[3] : (gp.axes[1] || 0);
+      // Dual-stick pads: left stick move, right stick attack. Fallback: d-pad = left, face buttons nudge right stick.
+      return {
+        up: b(12) || ay < -0.55, down: b(13) || ay > 0.55, left: b(14) || ax < -0.5, right: b(15) || ax > 0.5,
+        rup: b(3) || ay2 < -0.55, rdown: b(0) || ay2 > 0.55, rleft: b(2) || ax2 < -0.5, rright: b(1) || ax2 > 0.5,
+        pause: b(9)
+      };
     }
   });
 
@@ -53,7 +60,7 @@
   // ---------------------------------------------------------------- state
   var G = {
     mode: "title", paused: false, splash: false, level: 1, startLevel: 1, lives: 3, score: 0, newHigh: false,
-    halves: { p: 0, c: 0 }, timer: C.BOUT_TIME, modeT: 0, freeze: 0, shake: 0, t: 0, inputLock: 0,
+    halves: { p: 0, c: 0 }, attackScore: { p: 0, c: 0 }, lastHit: null, timer: C.BOUT_TIME, modeT: 0, freeze: 0, shake: 0, t: 0, inputLock: 0,
     ref: { pose: "idle", msg: "", msgT: 0, flagSide: 0 }, sparks: [], debris: [], floats: [], bonus: null, result: null, lastTick: 0, introShort: false
   };
   var LW = 1280, LH = 720, SCENE_Y = 0, portrait = false;
@@ -97,10 +104,11 @@
   function startMove(f, id, fromAir) {
     var m = C.MOVES[id]; if (!m) return;
     f.state = "move"; f.move = id; f.mdur = m.t / f.speed; f.mt = fromAir ? f.mdur * 0.16 : 0; f.hitDone = false; f.trail = []; f.moveId++;
-    f.kiai = Math.random() < (m.power > 1 ? 0.55 : 0.2);
+    f.kiai = Math.random() < (m.fullPts >= 600 ? 0.55 : 0.2);
     if (m.air && !fromAir) { f.airPending = true; } else f.airPending = false;
     if (m.air) f.vx = f.facing * 190 * f.speed;
-    AU.play(m.power > 1 ? "whooshBig" : "whoosh", panOf(f));
+    if (m.step && !fromAir && f.y >= 0) { var step = m.step * f.facing; if (walkOK(f, step)) f.x += step; }
+    AU.play(m.fullPts >= 600 ? "whooshBig" : "whoosh", panOf(f));
   }
   function startJump(f, dirX) { f.state = "air"; f.vy = -900; f.y = -1; f.vx = dirX * 170; f.airT = 0; AU.play("whoosh", panOf(f)); }
   function startFlip(f, back) { f.state = "flip"; f.vy = -980; f.y = -1; f.flipDir = back ? -1 : 1; f.vx = f.facing * (back ? -300 : 370); f.airT = 0; AU.play("whooshBig", panOf(f)); }
@@ -175,25 +183,57 @@
   }
   function walkOK(f, dx) { var o = other(f), nd = Math.abs(o.x - (f.x + dx)); return nd <= MAX_GAP || nd < Math.abs(o.x - f.x); }
 
-  // ---------------------------------------------------------------- player control
+  // ---------------------------------------------------------------- player control (dual sticks)
+  function stickDir(prefix) {
+    // Returns absolute screen dir 'n'|'l'|'r'|'u'|'d' for left ("" ) or right ("r") stick.
+    var L = prefix === "r";
+    var u = input.isDown(L ? "rup" : "up"), d = input.isDown(L ? "rdown" : "down");
+    var l = input.isDown(L ? "rleft" : "left"), r = input.isDown(L ? "rright" : "right");
+    if (u && !d) return "u";
+    if (d && !u) return "d";
+    if (l && !r) return "l";
+    if (r && !l) return "r";
+    return "n";
+  }
+  function relStick(abs, facing) {
+    // Convert absolute left/right to toward/away relative to facing (+1 faces right).
+    if (abs === "l" || abs === "r") {
+      if (facing > 0) return abs; // facing right: left=away(l), right=toward(r)
+      return abs === "l" ? "r" : "l"; // facing left: mirrored
+    }
+    return abs;
+  }
   function playerControl(dt) {
-    var f = P, d = dirs(f);
+    var f = P, dist = Math.abs(E.x - f.x), close = dist < C.CLOSE;
+    var leftAbs = stickDir(""), rightAbs = stickDir("r");
+    var left = relStick(leftAbs, f.facing), right = relStick(rightAbs, f.facing);
+    // Air: right-stick forward = jumping side kick; back = jumping back kick; up/down = flip
     if (f.state === "air") {
-      if (input.hit("kick") || input.hit("punch") || input.hit("round")) startMove(f, "jump", true);
-      else if (input.hit("block") && f.airT < 0.16) { f.vx = 0; startFlip(f, d.away); f.vy = -980 + Math.min(0, -f.airT * 0); }
+      if (right !== "n" && (input.hit("rright") || input.hit("rleft") || input.hit("rup") || input.hit("rdown") || input.hit("kick"))) {
+        var airCmd = C.dualCommand("u", right, close);
+        if (airCmd.type === "move") startMove(f, airCmd.id, true);
+        else if (airCmd.type === "flip") startFlip(f, !!airCmd.back);
+      } else if (input.hit("kick")) startMove(f, "jumpside", true);
       return;
     }
     if (!canAct(f)) return;
-    var btn = input.hit("kick") ? "kick" : input.hit("punch") ? "punch" : input.hit("round") ? "round" : input.hit("block") ? "block" : null;
-    if (btn) {
-      var cmd = C.command(btn, d);
-      if (cmd === "flip" || cmd === "backflip") { startFlip(f, cmd === "backflip"); return; }
-      if (cmd && C.MOVES[cmd]) { startMove(f, cmd); return; }
+    // Right-stick edge (or Space) fires an attack from the dual-stick chart
+    var fired = input.hit("rright") || input.hit("rleft") || input.hit("rup") || input.hit("rdown") || input.hit("kick");
+    if (fired && right === "n" && input.hit("kick")) right = "r"; // Space alone = toward attack (front/reverse by range)
+    if (fired) {
+      var cmd = C.dualCommand(left, right === "n" ? "r" : right, close);
+      if (cmd.type === "move" && C.MOVES[cmd.id]) { startMove(f, cmd.id); return; }
+      if (cmd.type === "flip") { startFlip(f, !!cmd.back); return; }
     }
-    if (input.hit("up")) { startJump(f, d.toward ? f.facing : d.away ? -f.facing : 0); return; }
-    var blockHeld = input.isDown("block");
-    if (blockHeld) { setState(f, d.down ? "lowblock" : "block"); return; }
-    if (d.down) { setState(f, "crouch"); return; }
+    // Left stick only: jump / crouch / walk / block
+    var idle = C.dualCommand(left, "n", close);
+    if (idle.type === "jump" && input.hit("up")) { startJump(f, leftAbs === "r" ? f.facing : leftAbs === "l" ? -f.facing : 0); return; }
+    if (idle.type === "jump" && input.isDown("up") && !input.isDown("down")) {
+      // holding up without a fresh jump edge: already handled by hit; fall through to stand if airborne pending
+    }
+    if (input.hit("up")) { startJump(f, 0); return; }
+    if (idle.type === "block" || (left === "l" && close && input.isDown("left"))) { setState(f, "block"); return; }
+    if (idle.type === "crouch" || input.isDown("down")) { setState(f, "crouch"); return; }
     var mv = (input.isDown("right") ? 1 : 0) - (input.isDown("left") ? 1 : 0);
     if (mv) {
       var sp = (mv === f.facing ? 215 : 195) * dt;
@@ -208,7 +248,12 @@
   }
 
   // ---------------------------------------------------------------- CPU opponent
-  var RANGE = { punch: [85, 168], lowpunch: [95, 178], front: [110, 192], round: [78, 152], back: [106, 186], sweep: [92, 205], jump: [135, 235] };
+  var RANGE = {
+    reverse: [80, 160], revcrouch: [90, 170], upper: [85, 155], lunge: [140, 230], upperlunge: [145, 235],
+    front: [110, 192], lowkick: [95, 175], round: [78, 155], back: [106, 186], turnback: [110, 195],
+    backround: [120, 230], sweep: [92, 205], revsweep: [92, 200], jumpside: [135, 235], jumpback: [135, 235],
+    punch: [80, 160], lowpunch: [90, 170], jump: [135, 235]
+  };
   var AI = { next: 0, walk: 0, walkT: 0, guard: null, guardT: 0, pending: null, seen: -1, now: 0 };
   function resetAI() { AI.next = 0.4; AI.walk = 0; AI.walkT = 0; AI.guard = null; AI.guardT = 0; AI.pending = null; AI.seen = P.moveId; }
   function pickWeighted(list) { var tot = 0; list.forEach(function (m) { tot += m[1]; }); var r = Math.random() * tot; for (var i = 0; i < list.length; i++) { r -= list[i][1]; if (r <= 0) return list[i][0]; } return list[0] && list[0][0]; }
@@ -225,8 +270,8 @@
       if (o.state === "move" && o.moveId === pd.mid && o.mt < o.mdur * C.MOVES[pd.id].active[1] && dist < 270) {
         var h = C.MOVES[pd.id].h, r = Math.random();
         if (r < c.smart) {
-          if (h === "high") { if (Math.random() < c.aggr * 0.8 && dist < 205) { startMove(f, Math.random() < 0.5 ? "sweep" : "lowpunch"); return; } AI.guard = "crouch"; AI.guardT = 0.5; }
-          else if (h === "low") { if (Math.random() < c.aggr * 0.7) { startMove(f, "jump"); return; } startJump(f, 0); return; }
+          if (h === "high") { if (Math.random() < c.aggr * 0.8 && dist < 205) { startMove(f, Math.random() < 0.5 ? "sweep" : "revcrouch"); return; } AI.guard = "crouch"; AI.guardT = 0.5; }
+          else if (h === "low") { if (Math.random() < c.aggr * 0.7) { startMove(f, "jumpside"); return; } startJump(f, 0); return; }
           else { AI.guard = "block"; AI.guardT = 0.42; }
         } else if (r < c.smart + c.block * (1 - c.smart)) { AI.guard = h === "low" ? "lowblock" : "block"; AI.guardT = 0.4; }
       }
@@ -270,7 +315,7 @@
       return;
     }
     // outside the player's reach: careful fighters hover at the edge and dash in; green ones just walk in
-    if (dist < 245 && lvl.moves.jump && Math.random() < c.aggr * 0.35) { startMove(f, "jump"); return; }
+    if (dist < 245 && (lvl.moves.jumpside || lvl.moves.jump) && Math.random() < c.aggr * 0.35) { startMove(f, "jumpside"); return; }
     if (dist < 260 && Math.random() < c.smart * 0.55) { if (Math.random() < 0.3) { AI.walk = -f.facing; AI.walkT = 0.1; } return; }
     if (r2 < 0.5 + c.aggr * 0.45) { AI.walk = f.facing; AI.walkT = 0.12 + Math.random() * 0.25; }
   }
@@ -278,8 +323,8 @@
     var c = lvl.cpu, opts = [];
     for (var id in lvl.moves) { var rg = RANGE[id]; if (rg && dist >= rg[0] && dist <= rg[1]) opts.push([id, lvl.moves[id]]); }
     var oppDown = o.state === "crouch" || o.state === "lowblock", oppAir = o.y < -40;
-    if (oppDown) opts = opts.filter(function (m) { return m[0] !== "round" && m[0] !== "punch"; });
-    if (oppAir) opts = opts.filter(function (m) { return m[0] === "punch" || m[0] === "round" || m[0] === "jump"; });
+    if (oppDown) opts = opts.filter(function (m) { return m[0] !== "round" && m[0] !== "upper" && m[0] !== "upperlunge"; });
+    if (oppAir) opts = opts.filter(function (m) { return m[0] === "reverse" || m[0] === "round" || m[0] === "jumpside" || m[0] === "upper"; });
     opts.forEach(function (m) {
       var mv = C.MOVES[m[0]];
       if (o.state === "block" && mv.h === "low") m[1] *= 1 + 4 * c.smart;
@@ -318,20 +363,25 @@
     }
     var counter = o.state === "move" && o.mt < o.mdur * C.MOVES[o.move].active[1];
     var dist = Math.abs(f.x - o.x), v = C.judge(f.move, dist, counter);
-    if (DEBUG) (G.events = G.events || []).push(f.side + ":" + f.move + ":" + v + " vs " + o.state + (o.move ? "/" + o.move : "") + " d" + (dist | 0) + " t" + G.timer.toFixed(1));
+    if (DEBUG) (G.events = G.events || []).push(f.side + ":" + f.move + ":" + v.halves + "/" + v.score + " vs " + o.state + (o.move ? "/" + o.move : "") + " d" + (dist | 0) + " t" + G.timer.toFixed(1));
     awardPoint(f, o, v, s.pt, counter);
   }
-  function awardPoint(f, o, v, pt, counter) {
-    G.halves[f.side] += v;
-    if (f === P) { var pts = C.pointsFor(v, G.level); G.score += pts; G.floats.push({ x: pt.x, y: pt.y - 30, s: "+" + pts, t: 0 }); updateHigh(); }
-    setState(o, "hit"); o.vx = f.facing * (v === 2 ? 420 : 300); o.move = null;
-    G.freeze = v === 2 ? 0.16 : 0.1; G.shake = v === 2 ? 10 : 5; G.flash = v === 2 ? 0.18 : 0.08;
-    G.sparks.push({ x: pt.x, y: pt.y, t: 0, big: v === 2 });
-    AU.play(v === 2 ? "hitBig" : "hit", panOf(o)); if (f.kiai || v === 2) AU.play("kiai", panOf(f), f === E);
+  function awardPoint(f, o, verdict, pt, counter) {
+    // verdict: { halves, score } from C.judge, or a legacy number 1|2
+    var v = typeof verdict === "number" ? { halves: verdict, score: verdict === 2 ? 1000 : 400 } : verdict;
+    G.halves[f.side] += v.halves;
+    G.attackScore[f.side] += v.score;
+    G.lastHit = f.side;
+    if (f === P) { var pts = C.pointsFor(v.halves, G.level, v.score); G.score += pts; G.floats.push({ x: pt.x, y: pt.y - 30, s: "+" + pts, t: 0 }); updateHigh(); }
+    setState(o, "hit"); o.vx = f.facing * (v.halves === 2 ? 420 : 300); o.move = null;
+    G.freeze = v.halves === 2 ? 0.16 : 0.1; G.shake = v.halves === 2 ? 10 : 5; G.flash = v.halves === 2 ? 0.18 : 0.08;
+    G.sparks.push({ x: pt.x, y: pt.y, t: 0, big: v.halves === 2 });
+    AU.play(v.halves === 2 ? "hitBig" : "hit", panOf(o)); if (f.kiai || v.halves === 2) AU.play("kiai", panOf(f), f === E);
     setTimeout(function () { AU.play("fall", panOf(o)); }, 380);
-    setTimeout(function () { AU.play("point", v === 2); }, 520);
+    setTimeout(function () { AU.play("point", v.halves === 2); }, 520);
     G.ref.flagSide = f.x > 640 ? 1 : -1;
-    say(v === 2 ? (counter ? "COUNTER! FULL POINT" : "FULL POINT!") : "HALF POINT!", G.ref.flagSide > 0 ? "pointR" : "pointL", 2.2);
+    var call = v.halves === 2 ? (counter ? "COUNTER! FULL POINT" : "FULL POINT!") : "HALF POINT!";
+    say(call + "  +" + v.score, G.ref.flagSide > 0 ? "pointR" : "pointL", 2.2);
     G.mode = "point"; G.modeT = 0; G.pointBy = f.side;
   }
   function say(msg, pose, t) { G.ref.msg = msg; G.ref.pose = pose || "idle"; G.ref.msgT = t || 1.6; }
@@ -343,7 +393,7 @@
   }
   function startBout(n, short) {
     G.level = n; lvl = LV.LEVELS[n - 1]; E.speed = lvl.cpu.speed;
-    if (!short) { G.halves = { p: 0, c: 0 }; G.timer = C.BOUT_TIME; }
+    if (!short) { G.halves = { p: 0, c: 0 }; G.attackScore = { p: 0, c: 0 }; G.lastHit = null; G.timer = C.BOUT_TIME; }
     placeFighters();
     if (!short) { P.state = E.state = "bow"; }
     G.mode = "intro"; G.modeT = short ? 0.9 : 0; G.introShort = !!short;
@@ -434,7 +484,7 @@
       if (P.state !== "chop") {
         B.meter += B.mdir * dt * sp.meterSpeed; if (B.meter > 1) { B.meter = 1; B.mdir = -1; } if (B.meter < 0) { B.meter = 0; B.mdir = 1; }
         if (Math.random() < dt * 12) AU.play("meter", B.meter);
-        if (B.t > 0.6 && (input.hit("kick") || input.hit("punch") || input.hit("round") || input.hit("start") || B.t > 9)) { P.state = "chop"; P.mt = 0; P.mdur = C.MOVES.chop.t; B.power = B.meter; AU.play("whooshBig", 0); AU.play("kiai", 0, false); }
+        if (B.t > 0.6 && (input.hit("kick") || input.hit("rright") || input.hit("rup") || input.hit("rdown") || input.hit("rleft") || input.hit("start") || B.t > 9)) { P.state = "chop"; P.mt = 0; P.mdur = C.MOVES.chop.t; B.power = B.meter; AU.play("whooshBig", 0); AU.play("kiai", 0, false); }
       } else {
         P.mt += dt;
         if (P.mt >= P.mdur * 0.44 && !B.struck) {
@@ -494,13 +544,24 @@
   }
   function bonusControl(dt) {
     var f = P;
-    if (f.state === "air") { if (input.hit("kick") || input.hit("punch") || input.hit("round")) startMove(f, "jump", true); f.vx = 0; return; }
+    if (f.state === "air") {
+      if (input.hit("kick") || input.hit("rright") || input.hit("rup") || input.hit("rleft") || input.hit("rdown")) startMove(f, "jumpside", true);
+      f.vx = 0; return;
+    }
     if (!canAct(f)) return;
     if (G.bonus.spec.kind === "objects") { if (input.isDown("left")) f.facing = -1; if (input.isDown("right")) f.facing = 1; }
-    var d = dirs(f), btn = input.hit("kick") ? "kick" : input.hit("punch") ? "punch" : input.hit("round") ? "round" : null;
-    if (btn) { var cmd = C.command(btn, { up: d.up, down: d.down, toward: false, away: false }); if (cmd === "jump" || C.MOVES[cmd]) { startMove(f, cmd); if (cmd === "jump") f.vx = 0; return; } }
+    var right = "n";
+    if (input.hit("rright") || input.hit("kick")) right = "r";
+    else if (input.hit("rleft")) right = "l";
+    else if (input.hit("rup")) right = "u";
+    else if (input.hit("rdown")) right = "d";
+    if (right !== "n") {
+      var left = input.isDown("up") ? "u" : input.isDown("down") ? "d" : "n";
+      var cmd = C.dualCommand(left, right, false);
+      if (cmd.type === "move" && C.MOVES[cmd.id]) { startMove(f, cmd.id); if (C.MOVES[cmd.id].air) f.vx = 0; return; }
+    }
     if (input.hit("up")) { startJump(f, 0); return; }
-    if (d.down) setState(f, input.isDown("block") ? "lowblock" : "crouch"); else if (input.isDown("block")) setState(f, "block"); else setState(f, "stand");
+    if (input.isDown("down")) setState(f, "crouch"); else setState(f, "stand");
   }
   function segDist(px, py, a, b) { var dx = b.x - a.x, dy = b.y - a.y, l2 = dx * dx + dy * dy, t = l2 ? ((px - a.x) * dx + (py - a.y) * dy) / l2 : 0; t = K.clamp(t, 0, 1); return Math.hypot(a.x + dx * t - px, a.y + dy * t - py); }
   function smash(o) { var cols = ["#a8582a", "#e8eef4", "#b08850"]; for (var i = 0; i < 9; i++) G.debris.push({ x: o.x, y: o.y, vx: (Math.random() - 0.5) * 500, vy: -150 - Math.random() * 350, r: Math.random() * 6, vr: (Math.random() - 0.5) * 12, c: cols[o.type], life: 1.2 }); }
@@ -524,7 +585,7 @@
     if (m === "title") { titleUpdate(dt); return; }
     if (m === "gameover" || m === "victory") {
       if (m === "victory") { physics(P, dt); updatePose(P, dt); if (Math.random() < dt * 3) G.sparks.push({ x: 200 + Math.random() * 880, y: 80 + Math.random() * 260, t: 0, big: true, fire: true }); }
-      if (G.modeT > 1.2 && (input.hit("start") || input.hit("kick"))) startGame(1);
+      if (G.modeT > 1.2 && (input.hit("start") || input.hit("kick") || input.hit("rright"))) startGame(1);
       input.clear(); return;
     }
     if (m === "bonus") { bonusUpdate(dt); input.clear(); return; }
@@ -562,8 +623,8 @@
   }
   function timeUp() {
     AU.play("whistle");
-    var d = C.timeDecision(G.halves.p, G.halves.c);
-    if (d === "draw") { say("TIME! DRAW \u2014 REMATCH", "stop", 2); G.mode = "point"; G.modeT = 0.2; G.halves = { p: 0, c: 0 }; G.timer = C.BOUT_TIME; return; }
+    var d = C.timeDecision(G.halves.p, G.halves.c, G.attackScore.p, G.attackScore.c, G.lastHit);
+    if (d === "draw") { say("TIME! DRAW \u2014 REMATCH", "stop", 2); G.mode = "point"; G.modeT = 0.2; G.halves = { p: 0, c: 0 }; G.attackScore = { p: 0, c: 0 }; G.lastHit = null; G.timer = C.BOUT_TIME; return; }
     endBout(d, "DECISION");
   }
   function updateFx(dt) {
@@ -577,12 +638,12 @@
   var demoT = 0;
   function titleUpdate(dt) {
     demoT -= dt;
-    if (demoT <= 0) { demoT = 1.1 + Math.random() * 0.9; var f = Math.random() < 0.5 ? P : E; if (canAct(f)) { var ids = ["front", "round", "back", "sweep", "punch", "jump"]; startMove(f, ids[(Math.random() * ids.length) | 0]); f.hitDone = true; } }
+    if (demoT <= 0) { demoT = 1.1 + Math.random() * 0.9; var f = Math.random() < 0.5 ? P : E; if (canAct(f)) { var ids = ["front", "round", "back", "sweep", "reverse", "jumpside", "lunge", "backround"]; startMove(f, ids[(Math.random() * ids.length) | 0]); f.hitDone = true; } }
     [P, E].forEach(function (f) { f.hitDone = true; physics(f, dt); updatePose(f, dt); });
     faceEachOther();
     if (input.hit("left")) { G.startLevel = Math.max(1, G.startLevel - 1); AU.play("select"); }
     if (input.hit("right")) { G.startLevel = Math.min(maxLevel, G.startLevel + 1); AU.play("select"); }
-    if (G.modeT > 0.4 && (input.hit("kick") || input.hit("start") || input.hit("punch"))) { AU.play("gong"); startGame(G.startLevel); }
+    if (G.modeT > 0.4 && (input.hit("kick") || input.hit("start") || input.hit("rright") || input.hit("rup"))) { AU.play("gong"); startGame(G.startLevel); }
     input.clear();
   }
 
@@ -715,7 +776,7 @@
     txt(x, bl, cx, portrait ? top + 132 : top + 92, fit(x, bl, 18 * sz, portrait ? LW * 0.46 : LW * 0.6, 800), "#e8d8a8", "center", 800);
     if (portrait) txt(x, lvl.beltName, cx, top + 160, fit(x, lvl.beltName, 18, LW * 0.4, 700), "#c9b88e", "center", 700);
     if (G.showTip > 0 && G.mode !== "title") {
-      var tip = isTouch ? "KICK + \u2191 jump kick, + \u2193 sweep, + away back kick. PUNCH + toward = roundhouse." : "Space kick (\u2191 jump kick, \u2193 sweep, away back kick)  X punch  C roundhouse  Z block (\u2191 flip)";
+      var tip = isTouch ? "Left pad moves. Right pad attacks (hold left + tap right). Away+right = back round. Up+right = jump kick." : "WASD = left stick (move). Arrows = right stick (attack). Away+\u2192 = back round. \u2191+\u2192 = jump side kick.";
       txt(x, tip, cx, portrait ? LH - 40 : LH - 24, fit(x, tip, 20, LW - 30, 700), "#ffe9a8", "center", 700);
     }
   }
@@ -731,12 +792,12 @@
       x.restore();
       txt(x, "THE TOURNAMENT OF TWELVE", cx, ty + s1 * 1.15, portrait ? 26 : 24, "#f6e2a8", "center", 800);
       var by = portrait ? 872 : 640;
-      var go = isTouch ? "TAP KICK TO BEGIN" : "PRESS SPACE TO BEGIN";
+      var go = isTouch ? "TAP ATTACK PAD TO BEGIN" : "PRESS SPACE OR \u2192 TO BEGIN";
       if (Math.sin(G.t * 5) > -0.3) txt(x, go, cx, by, portrait ? 40 : 36, "#ffffff");
       if (maxLevel > 1) txt(x, "\u2190  START AT BOUT " + G.startLevel + " OF " + maxLevel + " UNLOCKED  \u2192", cx, by + (portrait ? 42 : 40), portrait ? 22 : 20, "#ffd24a", "center", 800);
       txt(x, "HI SCORE " + highScore, cx, portrait ? ty + s1 * 1.15 + 40 : ty + s1 * 1.15 + 34, 20, "#e8d8a8", "center", 700);
-      var help = isTouch ? ["D-pad moves. Up jumps, down crouches.", "KICK: front kick  \u00b7  +\u2191 jumping kick  \u00b7  +\u2193 sweep  \u00b7  +away back kick", "PUNCH: punch  \u00b7  +toward roundhouse  \u00b7  +\u2193 low punch", "BLOCK: hold to guard  \u00b7  +\u2193 low block  \u00b7  +\u2191 flip"]
-        : ["\u2190 \u2192 walk   \u2191 jump   \u2193 crouch", "Space kick  \u00b7  \u2191+Space jumping kick  \u00b7  \u2193+Space sweep  \u00b7  away+Space back kick", "X punch  \u00b7  \u2193+X low punch  \u00b7  C (or toward+X) roundhouse", "Z block  \u00b7  \u2193+Z low block  \u00b7  \u2191+Z flip over   \u00b7   First to 2 full points in 30 s"];
+      var help = isTouch ? ["LEFT pad: move, jump, crouch, retreat-block", "RIGHT pad: attacks. Hold left + tap right for combos", "Away+toward = back round kick  \u00b7  Up+toward = jump side kick", "Down+toward = foot sweep  \u00b7  First to 2 full points in 30 s"]
+        : ["WASD left stick: \u2190 retreat/block  \u2192 approach  \u2191 jump  \u2193 crouch", "Arrow keys right stick: tap a direction to attack", "Away+\u2192 back round  \u00b7  \u2191+\u2192 jump side  \u00b7  \u2193+\u2192 sweep  \u00b7  toward alone = front/reverse", "Attack score \u2264500 = half point, \u2265600 = full  \u00b7  First to 2 full points in 30 s"];
       var hy = portrait ? 972 : 430, bw2 = portrait ? LW * 0.96 : 780;
       x.fillStyle = "rgba(0,0,0,0.6)"; x.fillRect(cx - bw2 / 2, hy - 28, bw2, help.length * 29 + 18);
       help.forEach(function (h, i) { txt(x, h, cx, hy + i * 29, fit(x, h, portrait ? 20 : 19, bw2 - 24, 700), "#f1e6c8", "center", 700); });
