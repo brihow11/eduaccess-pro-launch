@@ -131,6 +131,8 @@ test("Joust has the phone hold-to-flap option, bigger phone riders and the detai
   assert.match(js, /joust\.holdFlap/);
   assert.match(js, /RSCALE = \(isTouch && Math\.min\(window\.innerWidth, window\.innerHeight\) <= 600\) \? 1\.15 : 1/);
   assert.match(js, /function drawFinger\(/);
+});
+
 test("hub Joust card only advertises what Joust supports", () => {
   const hub = read("games/index.html");
   const card = hub.slice(hub.indexOf('class="card joust"'), hub.indexOf("Play Joust"));
