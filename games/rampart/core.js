@@ -119,9 +119,82 @@
     return Math.max(n, 0);
   }
 
+  // ---- enemy fleet helpers (pure, unit-tested) ----
+  // Chebyshev distance from every tile to your nearest wall, cannon or home castle tile.
+  function structDist(g, home) {
+    var n = g.cols * g.rows, d = new Int16Array(n).fill(999), q = [], i;
+    for (i = 0; i < n; i++) if (g.wall[i] || g.cannon[i] >= 0 || (g.castle[i] >= 0 && g.castle[i] === home)) { d[i] = 0; q.push(i); }
+    for (var h = 0; h < q.length; h++) {
+      var c = q[h], x = c % g.cols, y = (c / g.cols) | 0;
+      for (var dy = -1; dy <= 1; dy++) for (var dx = -1; dx <= 1; dx++) {
+        var ax = x + dx, ay = y + dy; if (ax < 0 || ay < 0 || ax >= g.cols || ay >= g.rows) continue;
+        var j = ay * g.cols + ax; if (d[j] > d[c] + 1) { d[j] = d[c] + 1; q.push(j); }
+      }
+    }
+    return d;
+  }
+  // Sea-only BFS from a start tile (8-way, no corner cutting). dist -1 = unreachable.
+  function seaBfs(g, st) {
+    var n = g.cols * g.rows, dist = new Int16Array(n).fill(-1), par = new Int32Array(n).fill(-1), q = [st];
+    dist[st] = 0;
+    for (var h = 0; h < q.length; h++) {
+      var c = q[h], x = c % g.cols, y = (c / g.cols) | 0;
+      for (var dy = -1; dy <= 1; dy++) for (var dx = -1; dx <= 1; dx++) {
+        if (!dx && !dy) continue;
+        var ax = x + dx, ay = y + dy; if (ax < 0 || ay < 0 || ax >= g.cols || ay >= g.rows) continue;
+        var j = ay * g.cols + ax; if (!g.sea[j] || dist[j] >= 0) continue;
+        if (dx && dy && (!g.sea[y * g.cols + ax] || !g.sea[ay * g.cols + x])) continue;
+        dist[j] = dist[c] + 1; par[j] = c; q.push(j);
+      }
+    }
+    return { dist: dist, par: par, start: st };
+  }
+  // True if a ship sitting at tile i could actually hit a wall or cannon (true Euclidean range, as ships fire).
+  function hasTargetInRange(g, i, range) {
+    var sx = i % g.cols + 0.5, sy = ((i / g.cols) | 0) + 0.5, r = Math.ceil(range);
+    for (var y = Math.max(0, (sy - r) | 0); y <= Math.min(g.rows - 1, (sy + r) | 0); y++)
+      for (var x = Math.max(0, (sx - r) | 0); x <= Math.min(g.cols - 1, (sx + r) | 0); x++) {
+        var j = y * g.cols + x;
+        if ((g.wall[j] || g.cannon[j] >= 0) && Math.hypot(x + 0.5 - sx, y + 0.5 - sy) <= range) return true;
+      }
+    return false;
+  }
+  // Best reachable sea tile from which a ship can really fire. Strict pass keeps a little stand-off,
+  // relaxed pass accepts any reachable tile with a target in range. Returns -1 if there is none.
+  function firingSpot(g, seaList, sd, dist, range, penalty) {
+    var best = -1, bs = 1e9, pass, k, i, score;
+    for (pass = 0; pass < 2 && best < 0; pass++) {
+      for (k = 0; k < seaList.length; k++) {
+        i = seaList[k]; if (dist[i] < 0) continue;
+        if (pass === 0 ? (sd[i] < 2 || sd[i] > range - 1) : (sd[i] < 1 || sd[i] > range)) continue;
+        score = dist[i] * 0.6 + (penalty ? penalty(i) : 0);
+        if (score >= bs || !hasTargetInRange(g, i, range)) continue;
+        bs = score; best = i;
+      }
+    }
+    return best;
+  }
+  // Stuck-ship policy: a sailing gunship that has not landed a volley for a while re-plans,
+  // and after LEAVE_T quiet seconds of battle it gives up and sails off the map.
+  var STUCK = { REPLAN_T: 5, LEAVE_T: 14, MAX_REPLANS: 2 };
+  function stuckAction(quietT, replans) {
+    if (quietT >= STUCK.LEAVE_T) return "leave";
+    if (replans < STUCK.MAX_REPLANS && quietT >= STUCK.REPLAN_T * (replans + 1)) return "replan";
+    return null;
+  }
+  // A level clears once every scripted round is done and the fleet is gone, or after OVERTIME
+  // extra rounds, when whatever is left of the fleet withdraws (so a level can never stall).
+  var OVERTIME = 2;
+  function levelCleared(round, nRounds, live, queued) {
+    if (round < nRounds) return false;
+    return (!live && !queued) || round >= nRounds + OVERTIME;
+  }
+
   var API = { LAND: LAND, WATER: WATER, ROCK: ROCK, makeGrid: makeGrid, computeTerritory: computeTerritory, castleEnclosed: castleEnclosed,
     homeRing: homeRing, rotate: rotate, normalize: normalize, size: size, tileFree: tileFree, canPlacePiece: canPlacePiece,
-    placePiece: placePiece, canPlaceCannon: canPlaceCannon, cannonAllowance: cannonAllowance };
+    placePiece: placePiece, canPlaceCannon: canPlaceCannon, cannonAllowance: cannonAllowance,
+    structDist: structDist, seaBfs: seaBfs, hasTargetInRange: hasTargetInRange, firingSpot: firingSpot,
+    STUCK: STUCK, stuckAction: stuckAction, OVERTIME: OVERTIME, levelCleared: levelCleared };
   if (typeof module !== "undefined" && module.exports) module.exports = API;
   else root.RampartCore = API;
 })(typeof window !== "undefined" ? window : this);

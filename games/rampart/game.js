@@ -172,7 +172,7 @@
     G.cannons.forEach(function (cn, k) { for (var dy = 0; dy < 2; dy++) for (var dx = 0; dx < 2; dx++) g.cannon[(cn.y + dy) * g.cols + cn.x + dx] = k; });
   }
   function startBattle() {
-    G.mode = "battle"; G.timer = G.levelDef.battleT; G.battleT = 0;
+    G.mode = "battle"; G.timer = G.levelDef.battleT; G.battleT = 0; G.fled = false;
     var rounds = G.levelDef.rounds;
     if (G.spawned < G.round && G.round < rounds.length) {
       G.spawned = G.round;
@@ -221,7 +221,11 @@
     addScore(bonus, hc.x + 1, hc.y - 0.5, "+" + bonus + " territory");
     G.claimFlash = 1; AU.play("claim");
     G.round++;
-    var cleared = G.round >= G.levelDef.rounds.length && !liveShips() && !G.spawnQ.length;
+    var cleared = C.levelCleared(G.round, G.levelDef.rounds.length, liveShips(), G.spawnQ.length);
+    if (cleared && liveShips()) { // overtime cap reached: the rest of the fleet withdraws
+      G.ships.forEach(function (s) { if (!s.sink) { s.state = "leave"; planShip(s); } }); G.spawnQ.length = 0;
+      banner("THE FLEET WITHDRAWS", "", 1.4);
+    }
     G.mode = "resolve"; G.timer = 1.6; G.after = cleared ? "clear" : "cannons";
     if (!tipSeen && G.round >= 2) { tipSeen = true; K.store.set("rampart.tipSeen", true); }
   }
@@ -353,40 +357,17 @@
     if (!cand.length) return;
     var j = cand[(Math.random() * cand.length) | 0], sx = j % g.cols + 0.5, sy = ((j / g.cols) | 0) + 0.5;
     var s2 = { type: type, def: def, x: sx, y: sy, ang: Math.atan2(g.rows / 2 - sy, g.cols / 2 - sx), hp: def.hp, reload: def.reload * (0.3 + Math.random() * 0.4) + 0.8,
-      path: [], seed: Math.random() * 100, troops: def.troops || 0, state: def.troops ? "land" : "sail", vis: G.levelDef.weather === "fog" ? 0 : 1, volleys: 0, wakeT: 0, burst: 0, burstT: 0 };
+      path: [], seed: Math.random() * 100, troops: def.troops || 0, state: def.troops ? "land" : "sail", vis: G.levelDef.weather === "fog" ? 0 : 1, volleys: 0, quietT: 0, replans: 0, reach: true, wakeT: 0, burst: 0, burstT: 0 };
     G.ships.push(s2); planShip(s2);
     if (def.boss) { banner("THE FLAGSHIP!", "Pound it with every cannon", 2.2); AU.play("horn"); }
   }
-  function structDist() {
-    var g = G.grid, n = g.cols * g.rows, d = new Int16Array(n).fill(999), q = [], i;
-    for (i = 0; i < n; i++) if (g.wall[i] || g.cannon[i] >= 0 || (g.castle[i] >= 0 && g.castle[i] === G.home)) { d[i] = 0; q.push(i); }
-    for (var h = 0; h < q.length; h++) {
-      var c = q[h], x = c % g.cols, y = (c / g.cols) | 0;
-      for (var dy = -1; dy <= 1; dy++) for (var dx = -1; dx <= 1; dx++) {
-        var ax = x + dx, ay = y + dy; if (ax < 0 || ay < 0 || ax >= g.cols || ay >= g.rows) continue;
-        var j = ay * g.cols + ax; if (d[j] > d[c] + 1) { d[j] = d[c] + 1; q.push(j); }
-      }
-    }
-    return d;
-  }
+  function structDist() { return C.structDist(G.grid, G.home); }
   function seaBfs(s) {
-    var g = G.grid, n = g.cols * g.rows, dist = new Int16Array(n).fill(-1), par = new Int32Array(n).fill(-1), q = [];
-    var st = (s.y | 0) * g.cols + (s.x | 0);
+    var g = G.grid, st = (s.y | 0) * g.cols + (s.x | 0);
     if (!g.sea[st]) { // drifted onto a shore pixel: start from the nearest sea tile
       var bd = 1e9; G.seaList.forEach(function (i) { var d = Math.abs(i % g.cols + 0.5 - s.x) + Math.abs(((i / g.cols) | 0) + 0.5 - s.y); if (d < bd) { bd = d; st = i; } });
     }
-    dist[st] = 0; q.push(st);
-    for (var h = 0; h < q.length; h++) {
-      var c = q[h], x = c % g.cols, y = (c / g.cols) | 0;
-      for (var dy = -1; dy <= 1; dy++) for (var dx = -1; dx <= 1; dx++) {
-        if (!dx && !dy) continue;
-        var ax = x + dx, ay = y + dy; if (ax < 0 || ay < 0 || ax >= g.cols || ay >= g.rows) continue;
-        var j = ay * g.cols + ax; if (!g.sea[j] || dist[j] >= 0) continue;
-        if (dx && dy && (!g.sea[y * g.cols + ax] || !g.sea[ay * g.cols + x])) continue; // no corner cutting
-        dist[j] = dist[c] + 1; par[j] = c; q.push(j);
-      }
-    }
-    return { dist: dist, par: par, start: st };
+    return C.seaBfs(g, st);
   }
   function planShip(s) {
     var g = G.grid, sd = structDist(), b = seaBfs(s), best = -1, bs = 1e9, range = s.def.range;
@@ -399,12 +380,13 @@
       else if (s.state === "land") {
         if (sd[i] > 7 || !landingSpots(x, y).length) return;
         score = b.dist[i] + sd[i] * 2 + Math.random() * 6 + (free(i) ? 0 : 20);
-      } else {
-        if (sd[i] < 2 || sd[i] > range - 1) return;
-        score = b.dist[i] * 0.6 + Math.random() * 8 + (free(i) ? 0 : 40);
-      }
+      } else return; // gunships: handled by C.firingSpot below
       if (score < bs) { bs = score; best = i; }
     });
+    if (s.state === "sail") { // a reachable tile with a wall or cannon truly within range (Euclidean, like shipShoot)
+      var jit = {}; best = C.firingSpot(g, G.seaList, sd, b.dist, range, function (i) { return (jit[i] = jit[i] || Math.random() * 8) + (free(i) ? 0 : 40); });
+      s.reach = best >= 0;
+    }
     if (best < 0) { // nothing in range: head for the sea tile closest to your walls
       if (s.state === "land") s.state = "leave";
       G.seaList.forEach(function (i) { if (b.dist[i] < 0) return; var sc = sd[i] * 3 + b.dist[i] * 0.3; if (sc < bs) { bs = sc; best = i; } });
@@ -450,18 +432,23 @@
           AU.play("horn"); s.state = "leave"; planShip(s);
         }
       } else if (s.state === "leave") {
-        var bx = s.x | 0, by = s.y | 0; if (bx <= 0 || by <= 0 || bx >= g.cols - 1 || by >= g.rows - 1) { G.ships.splice(k, 1); continue; }
-        planShip(s); if (!s.path.length) { G.ships.splice(k, 1); continue; }
+        var bx = s.x | 0, by = s.y | 0; if (bx <= 0 || by <= 0 || bx >= g.cols - 1 || by >= g.rows - 1) { G.ships.splice(k, 1); G.fled = true; continue; }
+        planShip(s); if (!s.path.length) { G.ships.splice(k, 1); G.fled = true; continue; }
       } else {
         s.ang += Math.sin(G.t * 0.7 + s.seed) * 0.05 * dt;
       }
       s.wakeT -= dt;
       if (moving && s.wakeT <= 0) { s.wakeT = 0.12; G.parts.push({ k: "wake", layer: 0, x: s.x - Math.cos(s.ang) * s.def.len * 0.45, y: s.y - Math.sin(s.ang) * s.def.len * 0.45, r0: 2, r1: 9, age: 0, life: 1.4 }); }
       if (!firing || !s.def.shots || s.state !== "sail") continue;
+      // stuck-ship safety: no volley landed for a while -> re-plan toward a reachable firing spot, then withdraw
+      s.quietT = (s.quietT || 0) + (moving ? dt * 0.25 : dt); // en route counts slowly, idling counts fully
+      var act = C.stuckAction(s.quietT, s.replans || 0);
+      if (act === "replan") { s.replans = (s.replans || 0) + 1; planShip(s); }
+      else if (act === "leave") { s.state = "leave"; planShip(s); hint("An enemy ship gives up and sails off."); continue; }
       if (s.burst > 0) { s.burstT -= dt; if (s.burstT <= 0) { s.burst--; s.burstT = 0.2; shipShoot(s, D); } continue; }
       s.reload -= dt;
       if (s.reload <= 0) {
-        if (shipShoot(s, D)) { s.burst = s.def.shots - 1; s.burstT = 0.2; s.volleys++; }
+        if (shipShoot(s, D)) { s.burst = s.def.shots - 1; s.burstT = 0.2; s.volleys++; s.quietT = 0; s.replans = 0; }
         s.reload = s.def.reload * D.reload * (0.8 + Math.random() * 0.4);
         if (!s.path.length && s.volleys >= 3 && Math.random() < 0.35) { s.volleys = 0; planShip(s); }
       }
@@ -765,7 +752,7 @@
         G.cannons.forEach(function (cn) { if (cn.active && !cn.ball) { var wa = Math.atan2(G.aim.y - cn.y - 1, G.aim.x - cn.x - 1), da = Math.atan2(Math.sin(wa - cn.ang), Math.cos(wa - cn.ang)); cn.ang += K.clamp(da, -6 * dt, 6 * dt); } });
         updateGrunts(dt);
         if (G.timer <= 0) ceaseFire();
-        else if (!liveShips() && !G.spawnQ.length && G.battleT > 2 && !G.balls.some(function (b) { return b.enemy; })) { banner("ALL SHIPS SUNK", "", 1.2); G.mode = "cease"; G.timer = 1.6; }
+        else if (!liveShips() && !G.spawnQ.length && G.battleT > 2 && !G.balls.some(function (b) { return b.enemy; })) { banner(G.fled ? "COAST CLEAR" : "ALL SHIPS SUNK", "", 1.2); G.mode = "cease"; G.timer = 1.6; }
       } else if (G.timer <= 0) startRepair();
       updateShips(dt, m === "battle");
       updateBalls(dt);
