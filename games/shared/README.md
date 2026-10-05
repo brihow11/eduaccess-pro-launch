@@ -51,3 +51,17 @@ ScoutSplash.show({ kind: 'defender' | 'joust', campaign: 'joust', tag: 'wave3',
   onContinue: function () { /* resume the game */ } });
 ScoutSplash.isOpen(); // true while showing
 ```
+
+## Arcade music (`arcade-music.js`)
+
+`window.ArcadeMusic` is a tiny synthesized Web Audio sequencer (no audio files):
+`play(song)`, `sting(song, then)`, `stop()`, `setMuted(bool)`, `setEnabled(bool)`, `duck(bool)`.
+It starts silently pending and begins after the first tap or key press. See the header
+comment for the song format.
+
+## Games menu (`/games/`)
+
+`games/index.html` + `games/menu-assets/` show one poster card per game. A card turns
+on automatically when `/games/<slug>/index.html` returns 200, otherwise it reads
+"Coming soon". A game page may add `<meta name="arcade-controls" content="...">` and the
+menu card will show that controls line. Poster art is painted by `menu-assets/posters.js`.

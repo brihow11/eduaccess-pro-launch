@@ -135,7 +135,8 @@ test("Joust has the phone hold-to-flap option, bigger phone riders and the detai
 
 test("hub Joust card only advertises what Joust supports", () => {
   const hub = read("games/index.html");
-  const card = hub.slice(hub.indexOf('class="card joust"'), hub.indexOf("Play Joust"));
+  const start = hub.indexOf('data-slug="joust"');
+  const card = hub.slice(start, hub.indexOf("</a>", start));
   const js = read("games/joust/game.js");
   assert.match(card, /1&ndash;2 players/);
   assert.match(js, /2 FOR TWO PLAYERS/);
@@ -161,4 +162,40 @@ test("polish: first-play tips and level-matched audio", () => {
   assert.match(a, /var MASTER = 0\.7;/);
   assert.match(d, /sfx: Sfx/);
   assert.match(d, /if \(DEBUG\) \{[\s\S]*sfx: Sfx/, "Sfx only exposed in debug mode");
+});
+
+test("/games menu shows nine poster cards with runtime live detection, Scout ad and music mute", async (t) => {
+  const port = await withServer(t);
+  const hub = await get(port, "/games/");
+  assert.equal(hub.statusCode, 200);
+  const slugs = ["defender", "joust", "asteroids-deluxe", "battlezone", "rampart", "gauntlet", "galaga", "karate-champ", "scout-lair"];
+  for (const s of slugs) assert.match(hub.body, new RegExp(`data-slug="${s}"`), s);
+  assert.equal((hub.body.match(/class="card /g) || []).length, 9);
+  assert.match(hub.body, /utm_source=eduaccess&amp;utm_medium=game&amp;utm_campaign=games-menu/);
+  assert.match(hub.body, /target="_blank" rel="noopener"/);
+  assert.match(hub.body, /id="menu-mute"/);
+  for (const src of ["/games/shared/scout-splash.js", "/games/shared/arcade-music.js", "/games/menu-assets/posters.js", "/games/menu-assets/menu.js", "/games/menu-assets/menu.css"]) {
+    assert.ok(hub.body.includes(src), src);
+    const r = await get(port, src);
+    assert.equal(r.statusCode, 200, src);
+  }
+  const menu = read("games/menu-assets/menu.js");
+  assert.match(menu, /\/games\/" \+ slug \+ "\/index\.html/);
+  assert.match(menu, /r\.status !== 200/);
+  assert.match(menu, /SCOUT_FEATURES/);
+  assert.match(menu, /localStorage/);
+  const posters = read("games/menu-assets/posters.js");
+  for (const s of slugs.filter((s) => s !== "scout-lair")) assert.ok(posters.includes(`P.${s} =`) || posters.includes(`P["${s}"] =`), s);
+  const webp = await get(port, "/games/menu-assets/scout-lair.webp");
+  assert.equal(webp.statusCode, 200);
+  assert.match(webp.headers["content-type"], /image\/webp/);
+  assert.ok(fs.statSync(path.join(root, "games/menu-assets/scout-lair.webp")).size < 120000);
+  const missing = await get(port, "/games/not-a-real-game/index.html");
+  assert.equal(missing.statusCode, 404);
+});
+
+test("shared arcade music exposes the sequencer API", () => {
+  const src = read("games/shared/arcade-music.js");
+  for (const fn of ["play:", "sting:", "stop:", "setMuted:", "setEnabled:", "duck:"]) assert.ok(src.includes(fn), fn);
+  assert.match(src, /Written by: Howie/);
 });
