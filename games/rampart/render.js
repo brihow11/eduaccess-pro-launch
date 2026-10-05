@@ -416,7 +416,7 @@
     var D = s.def, L = D.len * TILE, B = D.beam * TILE * 1.05, sink = s.sink || 0;
     x.save(); x.translate(s.x * TILE, s.y * TILE); x.rotate(s.ang);
     x.globalAlpha = alpha * (1 - sink * 0.85);
-    var sc = 1 - sink * 0.25; x.scale(sc, sc);
+    var sc = (1 - sink * 0.25) * 1.15; x.scale(sc, sc);
     var roll = Math.sin(t * 1.7 + s.seed) * 0.04;
     // shadow on water
     x.fillStyle = "rgba(0,10,20,0.35)"; x.save(); x.translate(4, 5); hullPath(x, L, B, 1); x.fill(); x.restore();
