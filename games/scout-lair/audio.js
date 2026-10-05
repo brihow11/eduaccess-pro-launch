@@ -15,7 +15,7 @@
     master = ctx.createGain(); master.gain.value = muted ? 0 : 0.8;
     var comp = ctx.createDynamicsCompressor(); comp.threshold.value = -14; comp.ratio.value = 4;
     master.connect(comp); comp.connect(ctx.destination);
-    musicBus = ctx.createGain(); musicBus.gain.value = 0.32; musicBus.connect(master);
+    musicBus = ctx.createGain(); musicBus.gain.value = 0.45; musicBus.connect(master);
     sfxBus = ctx.createGain(); sfxBus.gain.value = 0.75; sfxBus.connect(master);
     noiseBuf = ctx.createBuffer(1, ctx.sampleRate, ctx.sampleRate);
     var d = noiseBuf.getChannelData(0);
@@ -91,7 +91,7 @@
   function victoryStep(t, s) {
     var i = s % 32;
     var m = VIC[i];
-    if (m) { tone('square', N(m), 0, t, 0.22, 0.07, musicBus, 3200); tone('triangle', N(m - 12), 0, t, 0.3, 0.08, musicBus); }
+    if (m) { tone('square', N(m), 0, t, 0.22, 0.12, musicBus, 3200); tone('triangle', N(m - 12), 0, t, 0.3, 0.14, musicBus); }
     if (i % 8 === 0) { tone('sine', 120, 40, t, 0.25, 0.5, musicBus); [50, 54, 57].forEach(function (n) { tone('triangle', N(n + (i >= 16 ? 5 : 0)), 0, t, 0.9, 0.05, musicBus); }); }
     if (i % 8 === 4) noise(t, 0.14, 0.25, 'highpass', 1800, 0, musicBus);
   }
