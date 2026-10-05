@@ -104,7 +104,11 @@
   // ---------------------------------------------------------------- input
   var keys = {};
   var pressed = {};        // action -> queued press count
-  var touch = { left: false, right: false, flapQ: 0, active: false };
+  var touch = { left: false, right: false, flapQ: 0, active: false, flapHeld: false, holdT: 0 };
+  var HOLD_FLAP_INT = 0.2;          // seconds between automatic flaps while FLAP is held (touch)
+  var holdFlap = true;
+  try { var hf = localStorage.getItem("joust.holdFlap"); if (hf !== null) holdFlap = hf === "1"; } catch (e) {}
+  var RSCALE = 1;                   // riders are drawn ~15% bigger on phones
   var rebinding = null;
 
   function actionDown(id) { var c = bindings[id]; return !!(c && keys[c]); }
@@ -307,7 +311,7 @@
   var Splash = window.ScoutSplash || null;
   function waveSplash() {
     if (!Splash || G.demo) { startWave(G.wave + 1); return; }
-    G.mode = "splash"; updateButtons();
+    G.mode = "splash"; touch.flapHeld = false; updateButtons();
     var p = G.players[0];
     Splash.show({
       kind: "joust", campaign: "joust", tag: "wave" + G.wave, accent: "#ffcc33", glow: "rgba(255,110,20,.32)",
@@ -376,6 +380,10 @@
       flap: consume(pre + "Flap")
     };
     if (p.idx === 0 && touch.flapQ > 0) { touch.flapQ = 0; c.flap = true; }
+    if (p.idx === 0 && holdFlap && touch.flapHeld) {
+      touch.holdT += DT;
+      if (touch.holdT >= HOLD_FLAP_INT) { touch.holdT = 0; c.flap = true; }
+    }
     return c;
   }
 
@@ -1187,6 +1195,7 @@
       }
       if (r.kind === "player" && r.inv > 0 && r.state === "fly") ctx.globalAlpha = 0.55 + Math.sin(G.time * 30) * 0.35;
       if (r.kind === "enemy" && r.type === "shadow") { ctx.globalCompositeOperation = "lighter"; glow(0, -36, 34, "rgba(60,120,255,0.55)"); ctx.globalCompositeOperation = "source-over"; }
+      if (RSCALE !== 1) ctx.scale(RSCALE, RSCALE);
       ctx.scale(r.face, 1);
       drawMount(ctx, mk, { flying: flying, wing: wing, leg: r.legPhase, moving: Math.abs(r.vx) > 8, skid: r.skid, rider: st });
       ctx.restore();
@@ -1216,7 +1225,7 @@
     drawWrapped(h.x, function (x) {
       ctx.save();
       ctx.translate(x, h.y);
-      ctx.scale(h.face * 0.85, 0.85);
+      ctx.scale(h.face * 0.85 * RSCALE, 0.85 * RSCALE);
       var step = Math.sin(G.time * 12) * 3;
       ctx.strokeStyle = st.armor; ctx.lineWidth = 3; ctx.lineCap = "round";
       ctx.beginPath(); ctx.moveTo(-1, -12); ctx.lineTo(-3 + step, 0); ctx.moveTo(1, -12); ctx.lineTo(3 - step, 0); ctx.stroke();
@@ -1234,7 +1243,7 @@
   function drawFreeBuzzard(b) {
     ctx.save();
     ctx.translate(b.x, b.y);
-    ctx.scale(b.face, 1);
+    ctx.scale(b.face * RSCALE, RSCALE);
     drawMount(ctx, b.mount || "buzzard", { flying: true, wing: (Math.sin(b.wing) + 1) / 2, leg: 0, moving: false });
     ctx.restore();
   }
@@ -1279,27 +1288,94 @@
     });
   }
 
+  // Lava troll hand: big, muscular, segmented fingers with claws, magma veins and drips.
+  function drawFinger(g, len, w, ang, curl, t) {
+    g.save(); g.rotate(ang);
+    var segs = [len * 0.42, len * 0.33, len * 0.25];
+    for (var s = 0; s < 3; s++) {
+      var L = segs[s], ww = w * (1 - s * 0.16);
+      var fg = g.createLinearGradient(-ww / 2, 0, ww / 2, 0);
+      fg.addColorStop(0, "#3a0a02"); fg.addColorStop(0.45, s === 2 ? "#e2581c" : "#c2410c"); fg.addColorStop(1, "#3a0a02");
+      g.fillStyle = fg;
+      roundRect(g, -ww / 2, -L - 1, ww, L + 2, ww * 0.45); g.fill();
+      g.fillStyle = "rgba(255,196,110,0.5)";
+      g.beginPath(); g.ellipse(0, -1, ww * 0.3, ww * 0.18, 0, 0, TAU); g.fill();
+      g.strokeStyle = "rgba(40,6,0,0.55)"; g.lineWidth = 0.9;
+      g.beginPath(); g.moveTo(-ww * 0.35, -L * 0.5); g.lineTo(ww * 0.35, -L * 0.5); g.stroke();
+      g.translate(0, -L); g.rotate(curl + Math.sin(t * 7 + s + ang * 5) * 0.04);
+    }
+    g.fillStyle = "#170703";
+    g.beginPath(); g.moveTo(-w * 0.32, 1); g.quadraticCurveTo(-w * 0.1, -7, w * 0.15, -9); g.quadraticCurveTo(w * 0.1, -3, w * 0.32, 1); g.closePath(); g.fill();
+    g.fillStyle = "rgba(255,230,180,0.6)"; g.fillRect(-0.6, -6, 1.2, 3);
+    g.restore();
+  }
   function drawHand(h) {
-    var x = h.x, top = h.y;
-    var closed = h.state === "hold";
+    var t = G.time, closed = h.state === "hold", rising = h.state === "rise";
+    var sway = Math.sin(t * 4.2) * 3 * (closed ? 0.4 : 1);
+    var x = h.x, top = h.y, px = x + sway * 0.5, py = top + 14;
+    var wristY = top + 34, baseY = LAVA_Y + 46, midY = (wristY + baseY) / 2;
     ctx.save();
-    var ag = ctx.createLinearGradient(x - 10, 0, x + 10, 0);
-    ag.addColorStop(0, "#5a0d02"); ag.addColorStop(0.5, "#c2410c"); ag.addColorStop(1, "#5a0d02");
+    ctx.globalCompositeOperation = "lighter";
+    glow(px, py + 10, 90, "rgba(255,90,10,0.5)");
+    ctx.globalCompositeOperation = "source-over";
+    // forearm: tapered and muscular, swaying up out of the lava
+    var ag = ctx.createLinearGradient(x - 28, 0, x + 28, 0);
+    ag.addColorStop(0, "#1f0400"); ag.addColorStop(0.28, "#6b1603"); ag.addColorStop(0.55, "#b0360a"); ag.addColorStop(0.8, "#5a1203"); ag.addColorStop(1, "#1f0400");
     ctx.fillStyle = ag;
     ctx.beginPath();
-    ctx.moveTo(x - 9, LAVA_Y + 30); ctx.quadraticCurveTo(x - 12 + Math.sin(G.time * 5) * 2, (top + LAVA_Y) / 2, x - 8, top + 10);
-    ctx.lineTo(x + 8, top + 10); ctx.quadraticCurveTo(x + 12, (top + LAVA_Y) / 2, x + 9, LAVA_Y + 30); ctx.closePath(); ctx.fill();
-    ctx.fillStyle = "#d9480f";
-    ctx.beginPath(); ctx.ellipse(x, top + 6, 11, 8, 0, 0, TAU); ctx.fill();
-    ctx.strokeStyle = "#ff7a2e"; ctx.lineWidth = 4; ctx.lineCap = "round";
-    for (var f = -1.5; f <= 1.5; f += 1) {
-      ctx.beginPath(); ctx.moveTo(x + f * 6, top + 2);
-      if (closed) ctx.quadraticCurveTo(x + f * 7, top - 12, x + f * 2, top - 6);
-      else ctx.lineTo(x + f * 9, top - 14);
+    ctx.moveTo(x - 26, baseY);
+    ctx.bezierCurveTo(x - 34 + sway, midY + 26, x - 28 + sway, midY - 14, x - 17 + sway * 0.5, wristY);
+    ctx.lineTo(x + 17 + sway * 0.5, wristY);
+    ctx.bezierCurveTo(x + 30 + sway, midY - 14, x + 35 + sway, midY + 26, x + 26, baseY);
+    ctx.closePath(); ctx.fill();
+    // glowing magma veins
+    ctx.globalCompositeOperation = "lighter";
+    ctx.lineCap = "round";
+    for (var v = 0; v < 4; v++) {
+      var vx0 = x - 13 + v * 8.5;
+      ctx.strokeStyle = "rgba(255," + (150 + v * 20) + ",40," + (0.55 + 0.3 * Math.sin(t * 3 + v)).toFixed(2) + ")";
+      ctx.lineWidth = 1.4 + (v % 2) * 0.8;
+      ctx.beginPath(); ctx.moveTo(vx0, baseY - 8);
+      for (var sgm = 1; sgm <= 6; sgm++) {
+        var yy = baseY - 8 - (baseY - wristY - 6) * sgm / 6;
+        ctx.lineTo(vx0 * (1 - sgm / 14) + px * (sgm / 14) + Math.sin(sgm * 2.3 + v * 1.9 + t * 1.6) * 4 + sway * sgm / 6 * 0.6, yy);
+      }
       ctx.stroke();
     }
+    ctx.globalCompositeOperation = "source-over";
+    // cooled-crust wrist band with hot cracks
+    ctx.fillStyle = "#2c0d05"; roundRect(ctx, px - 20, wristY - 4, 40, 10, 4); ctx.fill();
+    ctx.strokeStyle = "rgba(255,140,40,0.85)"; ctx.lineWidth = 1;
+    ctx.beginPath(); for (var c = 0; c < 5; c++) { var cx = px - 16 + c * 8; ctx.moveTo(cx, wristY - 3); ctx.lineTo(cx + 2, wristY + 1); ctx.lineTo(cx - 1, wristY + 5); } ctx.stroke();
+    // palm
+    var pg = ctx.createRadialGradient(px - 6, py - 7, 2, px, py, 26);
+    pg.addColorStop(0, "#ff9a4a"); pg.addColorStop(0.45, "#cf4a0e"); pg.addColorStop(1, "#430b01");
+    ctx.fillStyle = pg;
+    ctx.beginPath(); ctx.ellipse(px, py, 21, 16, 0, 0, TAU); ctx.fill();
+    ctx.fillStyle = "rgba(60,10,0,0.45)";
+    ctx.beginPath(); ctx.ellipse(px + 2, py + 4, 9, 4, -0.3, 0, TAU); ctx.fill();
+    // fingers: open and grasping on the way up, curled tight around a catch
+    var spread = [-1.5, -0.5, 0.5, 1.5], lens = [20, 25, 24, 19];
+    var flex = rising ? -0.25 - 0.22 * (0.5 + 0.5 * Math.sin(t * 9)) : -0.12;
+    for (var i = 0; i < 4; i++) {
+      ctx.save(); ctx.translate(px + spread[i] * 9, py - 11);
+      drawFinger(ctx, lens[i], 8.5, closed ? spread[i] * 0.12 - 0.15 : spread[i] * 0.26, closed ? -0.95 : flex, t);
+      ctx.restore();
+    }
+    ctx.save(); ctx.translate(px + 19, py - 2);
+    drawFinger(ctx, 17, 9, closed ? -0.2 : 0.75, closed ? -1.1 : -0.35, t);
+    ctx.restore();
+    // molten drips falling back into the lava
     ctx.globalCompositeOperation = "lighter";
-    glow(x, top, 36, "rgba(255,110,20,0.6)");
+    for (var d = 0; d < 4; d++) {
+      var ph = ((t * 0.9 + d * 0.27) % 1);
+      var dx = px - 14 + d * 9 + Math.sin(d * 3) * 3, dy = py + 14 + ph * (LAVA_Y - py - 6);
+      ctx.globalAlpha = 1 - ph;
+      ctx.fillStyle = "#ffb347";
+      ctx.beginPath(); ctx.ellipse(dx, dy, 2.2, 3.6, 0, 0, TAU); ctx.fill();
+    }
+    ctx.globalAlpha = 1;
+    glow(px, py - 4, closed ? 46 : 38, "rgba(255,120,30,0.45)");
     ctx.restore();
   }
 
@@ -1508,6 +1584,7 @@
     canvas.width = Math.max(1, Math.round(cw * dpr)); canvas.height = Math.max(1, Math.round(ch * dpr));
     K = canvas.width / W;
     rebuildBg(); rebuildLedgeLayer();
+    RSCALE = (isTouch && Math.min(window.innerWidth, window.innerHeight) <= 600) ? 1.15 : 1;
     var hint = document.getElementById("rotate-hint");
     if (hint) hint.hidden = !(isTouch && portrait && !hint.dataset.dismissed);
   }
@@ -1534,8 +1611,9 @@
     if (G.mode === "attract") { startGame(1); return; }
     if (G.mode === "gameover") { if (G.overT <= 0) overContinue(); return; }
     if (G.mode === "paused") { togglePause(); return; }
-    touch.flapQ++;
-  }, function () {});
+    if (G.mode !== "playing") return;
+    touch.flapQ++; touch.flapHeld = true; touch.holdT = 0;
+  }, function () { touch.flapHeld = false; touch.holdT = 0; });
 
   canvas.addEventListener("pointerdown", function (e) {
     Audio.unlock();
@@ -1583,6 +1661,11 @@
   document.getElementById("settings-close").addEventListener("click", closeSettings);
   document.getElementById("settings-reset").addEventListener("click", function () { resetBindings(); renderBindings(); });
   muteCheck.addEventListener("change", function (e) { Audio.unlock(); Audio.setMuted(e.target.checked); updateButtons(); });
+  var holdCheck = document.getElementById("holdflap-check");
+  if (holdCheck) {
+    holdCheck.checked = holdFlap;
+    holdCheck.addEventListener("change", function (e) { holdFlap = !!e.target.checked; try { localStorage.setItem("joust.holdFlap", holdFlap ? "1" : "0"); } catch (x) {} });
+  }
   panel.addEventListener("click", function (e) { if (e.target === panel) closeSettings(); });
 
   var pausedBySettings = false;
@@ -1647,7 +1730,7 @@
       return {
         mode: G.mode, wave: G.wave, waveKind: G.waveKind, phase: G.phase, bridges: G.bridges, fps: Math.round(fps),
         enemies: G.enemies.length, spawning: G.spawnQ.length, eggs: G.eggs.length, hatchlings: G.hatchlings.length, pteros: G.pteros.length,
-        hand: !!G.hand, splash: !!(Splash && Splash.isOpen()), highScore: highScore, audio: Audio.state(), muted: Audio.isMuted(), touch: isTouch,
+        hand: !!G.hand, handState: G.hand ? G.hand.state : null, holdFlap: holdFlap, riderScale: RSCALE, splash: !!(Splash && Splash.isOpen()), highScore: highScore, audio: Audio.state(), muted: Audio.isMuted(), touch: isTouch,
         players: G.players.map(function (p) { return { x: p.x, y: p.y, vx: p.vx, vy: p.vy, onGround: p.onGround, state: p.state, score: p.score, lives: p.lives, inv: p.inv, face: p.face }; }),
         bindings: Object.assign({}, bindings), canvas: { w: canvas.width, h: canvas.height, cssW: canvas.clientWidth, cssH: canvas.clientHeight }
       };

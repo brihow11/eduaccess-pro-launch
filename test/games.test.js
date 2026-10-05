@@ -123,3 +123,12 @@ test("Defender cheats only exist behind ?debug=1, and wave 1 is the gentle on-ra
   assert.match(js, /HUMANOID HIT/, "laser can hit humanoids");
   assert.match(js, /VIEW_W_PORTRAIT = 520/, "narrower logical view in phone portrait");
 });
+
+test("Joust has the phone hold-to-flap option, bigger phone riders and the detailed troll hand", () => {
+  const html = read("games/joust/index.html");
+  const js = read("games/joust/game.js");
+  assert.match(html, /id="holdflap-check"/);
+  assert.match(js, /joust\.holdFlap/);
+  assert.match(js, /RSCALE = \(isTouch && Math\.min\(window\.innerWidth, window\.innerHeight\) <= 600\) \? 1\.15 : 1/);
+  assert.match(js, /function drawFinger\(/);
+});
