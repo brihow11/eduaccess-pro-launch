@@ -515,6 +515,7 @@
     enemies = []; humans = []; bullets = []; mines = []; beams = []; popups = [];
     ship.alive = false;
     Sfx.thrust(0);
+    music("title");
   }
   function farX(min) {
     return wrapX(ship.x + sgn() * rand(min || W * 0.8, WORLD_W / 2));
@@ -557,6 +558,7 @@
     if (firstTip && !sub) sub = "SHOOT THE LANDERS \u2022 CATCH FALLING HUMANOIDS";
     showBanner("ATTACK WAVE " + n, sub, firstTip ? 3.6 : 2.4);
     Sfx.wave();
+    music("play");
   }
   function spawnBatch() {
     const n = Math.min(5, G.toSpawn);
@@ -654,6 +656,15 @@
   }
   // Job Seeker Pro Scout AI splash after every completed wave and on game over.
   const Splash = window.ScoutSplash || null;
+  // Soundtrack (games/shared/arcade-music.js + defender/music.js). Follows the Sound button.
+  const Mus = window.ArcadeMusic || null, Songs = window.DefenderSongs || null;
+  function music(kind) {
+    if (!Mus || !Songs) return;
+    if (kind === "title") Mus.play(Songs.title);
+    else if (kind === "play") Mus.play(Songs.play[Math.min(Songs.play.length - 1, Math.floor((G.wave - 1) / 4))]);
+    else if (kind === "victory") Mus.sting(Songs.victory, Songs.title);
+    else if (kind === "over") Mus.sting(Songs.over, Songs.title);
+  }
   function waveSplash() {
     if (!Splash) { startWave(G.wave + 1); return; }
     G.state = "splash"; Sfx.thrust(0); clearHeld();
@@ -680,6 +691,7 @@
     G.state = "gameover"; G.msgT = 0;
     saveHi();
     Sfx.thrust(0);
+    music("over");
   }
   function fire() {
     if (beams.length >= 6) return;
@@ -1020,7 +1032,7 @@
       case "gameover":
         stepWorld(dt);
         G.camX = wrapX(G.camX + 30 * dt);
-        if ((G.msgT > 1.2 && pressed.has("fire")) || G.msgT > 3.5) overSplash();
+        if ((G.msgT > 1.2 && pressed.has("fire")) || G.msgT > 9) overSplash();
         break;
       case "splash":
         break;
@@ -1385,7 +1397,8 @@
   }
   function setMuted(m) {
     Sfx.setMuted(m);
-    $("btn-sound").textContent = m ? "Sound off" : "Sound on";
+    if (Mus) Mus.setMuted(m);
+    $("btn-sound").textContent = m ? "\u{1F507} Sound off" : "\u{1F50A} Sound on";
     $("btn-sound").setAttribute("aria-pressed", m ? "false" : "true");
     $("opt-sound").checked = !m;
   }
@@ -1702,12 +1715,26 @@
       acc = 0;
     }
     render();
+    syncOverlay();
+  }
+  // Pause / game over / victory buttons: Resume or Play again, plus Main menu (games/shared/game-menu.js)
+  const ov = window.ArcadeOverlay ? window.ArcadeOverlay.mount($("stage")) : null;
+  function syncOverlay() {
+    const splashUp = !!(Splash && Splash.isOpen());
+    if (Mus) Mus.duck(G.paused || splashUp || settingsOpen);
+    if (!ov) return;
+    if (settingsOpen || splashUp) ov.hide();
+    else if (G.paused) ov.show({ primary: { label: "\u25B6 Resume", onClick: () => setPaused(false) } });
+    else if (G.state === "gameover" && G.msgT > 0.8) ov.show({ primary: { label: "\u21BB Play again", onClick: () => overSplash() } });
+    else if (G.state === "victory" && G.msgT > 1.5) ov.show({ primary: { label: "\u21BB Play again", onClick: () => overSplash() } });
+    else ov.hide();
   }
 
   // ------------------------------------------------------------ boot
   genTerrain();
   G.camX = rand(0, WORLD_W);
   setMuted(Sfx.muted);
+  music("title");
   layout();
   requestAnimationFrame((t) => { last = t; frame(t); });
 
@@ -1726,7 +1753,9 @@
     get bindings() { return JSON.parse(JSON.stringify(bindings)); },
     get scale() { return scale; },
     get view() { return { w: W, h: H }; },
-    get splash() { return !!(Splash && Splash.isOpen()); }
+    get splash() { return !!(Splash && Splash.isOpen()); },
+    get music() { return Mus ? { current: Mus.current, muted: Mus.muted } : null; },
+    get overlay() { return !!(ov && ov.visible); }
   };
   if (DEBUG) {
     window.DefenderGame.debug = {

@@ -199,3 +199,32 @@ test("shared arcade music exposes the sequencer API", () => {
   for (const fn of ["play:", "sting:", "stop:", "setMuted:", "setEnabled:", "duck:"]) assert.ok(src.includes(fn), fn);
   assert.match(src, /Written by: Howie/);
 });
+
+test("Defender and Joust: Main menu buttons, remembered mute for music + SFX, synthesized soundtrack", async (t) => {
+  const port = await withServer(t);
+  for (const [route, songs] of [["/games/defender/", "/games/defender/music.js"], ["/games/joust/", "music.js"]]) {
+    const page = await get(port, route);
+    assert.equal(page.statusCode, 200);
+    assert.match(page.body, /href="\/games\/"[^>]*>(?:<span aria-hidden="true">)?&#9776;/, route + " top-bar main menu");
+    assert.ok(page.body.includes("/games/shared/arcade-music.js"), route);
+    assert.ok(page.body.includes("/games/shared/game-menu.js"), route);
+    assert.ok(page.body.includes("/games/shared/game-menu.css"), route);
+    assert.ok(page.body.includes(`src="${songs}"`), route);
+  }
+  const ov = read("games/shared/game-menu.js");
+  assert.match(ov, /a\.href = "\/games\/"/);
+  assert.match(ov, /Main menu/);
+  for (const [file, songsVar] of [["games/defender/defender.js", "DefenderSongs"], ["games/joust/game.js", "JoustSongs"]]) {
+    const js = read(file);
+    assert.ok(js.includes(songsVar), file);
+    assert.match(js, /Mus\.setMuted\(m\)/, file + " mute covers music");
+    assert.match(js, /music\("title"\)/); assert.match(js, /music\("play"\)/); assert.match(js, /music\("over"\)/);
+    assert.match(js, /Resume/); assert.match(js, /Play again/);
+  }
+  for (const f of ["games/defender/music.js", "games/joust/music.js"]) {
+    const src = read(f);
+    for (const k of ["title:", "play:", "victory:", "over:"]) assert.ok(src.includes(k), f + " " + k);
+  }
+  assert.match(read("games/defender/defender.js"), /lsSet\(LS\.mute/);
+  assert.match(read("games/joust/audio.js"), /localStorage\.setItem\("joust\.muted"/);
+});

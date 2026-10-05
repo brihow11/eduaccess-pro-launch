@@ -34,6 +34,8 @@ body {
   background: rgba(10, 6, 18, 0.65); color: #ffe9b0; font-size: 16px; line-height: 1;
   cursor: pointer; text-decoration: none; backdrop-filter: blur(3px);
 }
+.tool.menu { display: inline-flex; align-items: center; width: auto; padding: 0 10px; gap: 5px; font: 700 13px system-ui, sans-serif; text-decoration: none; background: rgba(90, 20, 10, 0.85); }
+body.is-touch .tool.menu { display: inline-flex; align-items: center; width: auto; padding: 0 8px; font-size: 12px; }
 .tool:hover, .tool:focus-visible { background: rgba(60, 30, 10, 0.85); outline: none; border-color: #ffcc66; }
 .tool:disabled { opacity: 0.4; cursor: default; }
 
@@ -126,3 +128,4 @@ body.is-touch:not(.is-portrait) { --foot-h: 18px; }
 .ghost { background: transparent; color: #ffe9b0; border: 1px solid rgba(255, 220, 160, 0.45); }
 .primary { background: #ffcc33; color: #2a1200; border: 1px solid #ffcc33; }
 .noscript { position: fixed; inset: 40% 0 auto; text-align: center; }
+#canvas-wrap .arcade-ov { bottom: 24%; }
