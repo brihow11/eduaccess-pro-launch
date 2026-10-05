@@ -113,3 +113,13 @@ test("Scout AI splash is shared, uses published feature names and tags every CTA
   assert.match(read("games/defender/defender.js"), /campaign: "defender"/);
   assert.match(read("games/joust/game.js"), /campaign: "joust"/);
 });
+
+test("Defender cheats only exist behind ?debug=1, and wave 1 is the gentle on-ramp", () => {
+  const js = read("games/defender/defender.js");
+  assert.match(js, /const DEBUG = \/\(\?:\^\|\[\?&\]\)debug=1/);
+  assert.match(js, /if \(DEBUG\) \{\s*window\.DefenderGame\.debug = \{/);
+  assert.doesNotMatch(js, /window\.DefenderGame = \{[^}]*debug:/s);
+  assert.match(js, /G\.toSpawn = n === 1 \? 10 :/);
+  assert.match(js, /HUMANOID HIT/, "laser can hit humanoids");
+  assert.match(js, /VIEW_W_PORTRAIT = 520/, "narrower logical view in phone portrait");
+});
