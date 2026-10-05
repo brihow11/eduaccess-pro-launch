@@ -6,7 +6,7 @@
  * A game turns on automatically once /games/<slug>/index.html returns 200.
  * Optional: a game page can carry <meta name="arcade-controls" content="...">
  * and the menu card will show that controls line instead of the default.
- * Poster art is static WebP under /games/menu-assets/covers/.
+ * Poster art: desktop 3:4 under covers/, phone 16:9 under covers/mobile/ via <picture>.
  */
 (function () {
   "use strict";
