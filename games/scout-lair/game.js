@@ -494,8 +494,11 @@
     // torso
     poly([-21, 2, 21, 2, 25, -86, -25, -86], L.tee, '#050505', 2);
     ctx.fillStyle = L.pants; ctx.fillRect(-21, -6, 42, 10);
+    if (L.head === 'scout') glow(0, -110, 90, '64,240,220', 0.12);
     [-1, 1].forEach(function (s) {
-      poly([s * 27, 6, s * 8, 6, s * 7, -50, s * 15, -78, s * 11, -90, s * 29, -88], L.jacket, L.jacketD, 2.5);
+      var jg = ctx.createLinearGradient(s * 29, 0, s * 7, 0); jg.addColorStop(0, L.jacketD); jg.addColorStop(0.35, L.jacket); jg.addColorStop(1, L.jacketL);
+      poly([s * 27, 6, s * 8, 6, s * 7, -50, s * 15, -78, s * 11, -90, s * 29, -88], jg, L.jacketD, 2.5);
+      if (L.head === 'scout') { line(s * 20, -40, s * 13, -30, '#c9c9c9', 1.5); line(s * 24, -70, s * 18, -62, L.jacketD, 1.5); }
       poly([s * 7, -50, s * 15, -78, s * 11, -90, s * 5, -84], L.jacketL, L.jacketD, 1.5);
       line(s * 9, 4, s * 8, -48, L.head === 'scout' ? '#c9c9c9' : L.jacketD, 1.5);
     });
@@ -518,6 +521,9 @@
     ctx.fillStyle = hair; ctx.beginPath(); ctx.moveTo(-25, -122); ctx.quadraticCurveTo(-23, -153, 0, -151); ctx.quadraticCurveTo(25, -151, 26, -120);
     ctx.lineTo(19, -131); ctx.lineTo(9, -127); ctx.lineTo(0, -134); ctx.lineTo(-9, -128); ctx.lineTo(-18, -133); ctx.closePath(); ctx.fill();
     ctx.strokeStyle = '#2d3f6e'; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(-14, -146); ctx.quadraticCurveTo(2, -151, 16, -143); ctx.stroke();
+    ctx.fillStyle = hair; ctx.beginPath(); ctx.moveTo(-27, -118); ctx.quadraticCurveTo(-30, -100, -22, -94); ctx.lineTo(-17, -104); ctx.closePath(); ctx.fill();
+    ctx.beginPath(); ctx.moveTo(27, -118); ctx.quadraticCurveTo(30, -100, 22, -94); ctx.lineTo(17, -104); ctx.closePath(); ctx.fill();
+    line(-22, -130, -24, -108, '#2d3f6e', 1.5); line(22, -130, 24, -108, '#2d3f6e', 1.5);
     // glasses + glowing eyes
     ctx.fillStyle = 'rgba(70,240,220,.3)'; ctx.fillRect(-17, -127, 14, 10); ctx.fillRect(3, -127, 14, 10);
     ctx.shadowColor = '#40f0dc'; ctx.shadowBlur = 12;
