@@ -38,12 +38,13 @@ test("/games hub lists Defender and Joust and carries the Job Seeker Pro banner"
   assert.match(hub.body, /data-jsp-banner/);
 });
 
-test("shared banner links to jspro.ai and is served with the right types", async (t) => {
+test("shared banner links to www.jspro.ai with UTM tags and is served with the right types", async (t) => {
   const port = await withServer(t);
   const js = await get(port, "/games/shared/banner.js");
   assert.equal(js.statusCode, 200);
   assert.match(js.headers["content-type"], /text\/javascript/);
-  assert.match(js.body, /https:\/\/jspro\.ai/);
+  assert.match(js.body, /https:\/\/www\.jspro\.ai\/\?utm_source=eduaccess&utm_medium=game&utm_campaign=games-banner&utm_content=/);
+  assert.doesNotMatch(js.body, /"https:\/\/jspro\.ai/);
   assert.match(js.body, /Job Seeker Pro/);
   const css = await get(port, "/games/shared/banner.css");
   assert.equal(css.statusCode, 200);
@@ -70,7 +71,8 @@ test("Defender page loads its game, banner, tribute note and controls", async (t
 });
 
 test("games are self-contained: no CDN scripts, styles, fonts or audio files", () => {
-  const files = ["games/index.html", "games/defender/index.html", "games/defender/defender.js", "games/defender/defender.css", "games/shared/banner.js", "games/shared/banner.css"];
+  const files = ["games/index.html", "games/defender/index.html", "games/defender/defender.js", "games/defender/defender.css", "games/shared/banner.js", "games/shared/banner.css",
+    "games/shared/scout-splash.js", "games/shared/scout-splash.css", "games/joust/index.html", "games/joust/game.js", "games/joust/audio.js", "games/joust/style.css"];
   for (const f of files) {
     const src = read(f);
     assert.doesNotMatch(src, /<script[^>]+src=["']https?:/i, f);
@@ -87,4 +89,27 @@ test("Defender keeps the agreed default controls and synthesizes its sound", () 
   assert.match(js, /requestAnimationFrame/);
   assert.match(js, /devicePixelRatio/);
   assert.match(js, /localStorage/);
+});
+
+test("Scout AI splash is shared, uses published feature names and tags every CTA", async (t) => {
+  const port = await withServer(t);
+  const js = await get(port, "/games/shared/scout-splash.js");
+  assert.equal(js.statusCode, 200);
+  assert.match(js.headers["content-type"], /text\/javascript/);
+  const css = await get(port, "/games/shared/scout-splash.css");
+  assert.equal(css.statusCode, 200);
+  assert.match(css.headers["content-type"], /text\/css/);
+  assert.match(js.body, /https:\/\/www\.jspro\.ai\/\?utm_source=eduaccess&utm_medium=game&utm_campaign=/);
+  assert.match(js.body, /target="_blank"/);
+  assert.match(js.body, /Try Scout free/);
+  const names = [...js.body.matchAll(/name: '([^']+)'/g)].map((m) => m[1]);
+  assert.ok(names.length >= 6, "at least two full rotations of three features");
+  for (const n of ["Pick Jobs", "Job Follow-Ups", "Live AI Practice Interview", "Interview Prep Packet"]) assert.ok(names.includes(n), n);
+  for (const [route, campaign] of [["/games/defender/", "defender"], ["/games/joust/", "joust"]]) {
+    const page = await get(port, route);
+    assert.match(page.body, /\/games\/shared\/scout-splash\.js/, route);
+    assert.match(page.body, /\/games\/shared\/scout-splash\.css/, route);
+  }
+  assert.match(read("games/defender/defender.js"), /campaign: "defender"/);
+  assert.match(read("games/joust/game.js"), /campaign: "joust"/);
 });
