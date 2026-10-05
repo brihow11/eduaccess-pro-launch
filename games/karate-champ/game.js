@@ -103,7 +103,7 @@
     AU.play(m.power > 1 ? "whooshBig" : "whoosh", panOf(f));
   }
   function startJump(f, dirX) { f.state = "air"; f.vy = -900; f.y = -1; f.vx = dirX * 170; f.airT = 0; AU.play("whoosh", panOf(f)); }
-  function startFlip(f, back) { f.state = "flip"; f.vy = -980; f.y = -1; f.flipDir = back ? -1 : 1; f.vx = f.facing * (back ? -330 : 470); f.airT = 0; AU.play("whooshBig", panOf(f)); }
+  function startFlip(f, back) { f.state = "flip"; f.vy = -980; f.y = -1; f.flipDir = back ? -1 : 1; f.vx = f.facing * (back ? -300 : 370); f.airT = 0; AU.play("whooshBig", panOf(f)); }
   function setState(f, s) { if (f.state !== s) { f.state = s; f.stateT = 0; } }
 
   // the pose the fighter should show this frame
@@ -325,7 +325,7 @@
     G.halves[f.side] += v;
     if (f === P) { var pts = C.pointsFor(v, G.level); G.score += pts; G.floats.push({ x: pt.x, y: pt.y - 30, s: "+" + pts, t: 0 }); updateHigh(); }
     setState(o, "hit"); o.vx = f.facing * (v === 2 ? 420 : 300); o.move = null;
-    G.freeze = v === 2 ? 0.16 : 0.1; G.shake = v === 2 ? 10 : 5;
+    G.freeze = v === 2 ? 0.16 : 0.1; G.shake = v === 2 ? 10 : 5; G.flash = v === 2 ? 0.18 : 0.08;
     G.sparks.push({ x: pt.x, y: pt.y, t: 0, big: v === 2 });
     AU.play(v === 2 ? "hitBig" : "hit", panOf(o)); if (f.kiai || v === 2) AU.play("kiai", panOf(f), f === E);
     setTimeout(function () { AU.play("fall", panOf(o)); }, 380);
@@ -364,7 +364,7 @@
     if (winner === "player") {
       var bonus = Math.ceil(G.timer) * 100; G.score += bonus; G.timeBonus = bonus; updateHigh();
       if (G.level + 1 > maxLevel && G.level < MAX_LEVEL) { maxLevel = G.level + 1; K.store.set("karate-champ.maxLevel", maxLevel); }
-      AU.music("win");
+      AU.music("win"); setTimeout(function () { AU.play("cheer"); }, 300);
     } else { AU.music("over"); }
     AU.play("gong");
   }
@@ -393,7 +393,7 @@
     G.mode = "victory"; G.modeT = 0; updateHigh();
     placeFighters(); P.x = 520; P.facing = 1; setState(P, "win"); E.x = 2000;
     say("", "pointL", 99); G.ref.flagSide = -1;
-    AU.music("victory"); AU.play("gong"); showEndOverlay();
+    AU.music("victory"); AU.play("gong"); AU.play("cheer"); showEndOverlay();
   }
   function showEndOverlay() {
     ov.show({ primary: { label: "Play again", onClick: function () { ov.hide(); startGame(1); } }, secondary: { label: "Title screen", onClick: toTitle } });
@@ -540,7 +540,7 @@
       var before = Math.ceil(G.timer);
       G.timer = Math.max(0, G.timer - dt);
       if (Math.ceil(G.timer) !== before && G.timer <= 5 && G.timer > 0) AU.play("tick");
-      playerControl(dt); cpuControl(dt);
+      playerControl(dt); if (!G.cpuOff) cpuControl(dt);
       [P, E].forEach(function (f) { physics(f, dt); });
       faceEachOther();
       [P, E].forEach(function (f) { updatePose(f, dt); });
@@ -571,6 +571,7 @@
     G.debris = G.debris.filter(function (d) { d.life -= dt; d.vy += 1400 * dt; d.x += d.vx * dt; d.y += d.vy * dt; d.r += d.vr * dt; if (d.y > FLOOR + 6) { d.y = FLOOR + 6; d.vy *= -0.3; d.vx *= 0.6; } return d.life > 0; });
     G.floats = G.floats.filter(function (f) { f.t += dt; f.y -= dt * 50; return f.t < 1.3; });
     if (G.shake > 0) G.shake = Math.max(0, G.shake - dt * 30);
+    if (G.flash > 0) G.flash = Math.max(0, G.flash - dt);
   }
   // title: the two fighters spar for show while you choose a starting bout
   var demoT = 0;
@@ -613,6 +614,7 @@
     x.globalAlpha = 1;
     drawBubble(x);
     x.restore();
+    if (G.flash > 0) { x.fillStyle = "rgba(255,250,235," + (G.flash * 2.2).toFixed(3) + ")"; x.fillRect(0, SCENE_Y, LW, LH - SCENE_Y); }
     drawHUD(x);
     drawScreens(x);
   }

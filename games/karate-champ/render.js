@@ -280,36 +280,49 @@
     x.strokeStyle = pal.skinS; x.lineWidth = 1.6; x.beginPath(); x.arc(hd.x, hd.y, 6, -0.6, 0.9); x.stroke();
   }
   function torso(x, w, pal, ref, belt, t) {
-    var H0 = w.H, S0 = w.S, dx = S0.x - H0.x, dy = S0.y - H0.y, l = Math.sqrt(dx * dx + dy * dy) || 1, nx = -dy / l, ny = dx / l;
-    var hipW = 25, shW = 31;
-    x.beginPath();
-    x.moveTo(H0.x + nx * hipW, H0.y + ny * hipW + 6); x.lineTo(S0.x + nx * shW, S0.y + ny * shW);
-    x.quadraticCurveTo(S0.x - dx / l * 10, S0.y - dy / l * 10, S0.x - nx * shW, S0.y - ny * shW);
-    x.lineTo(H0.x - nx * hipW, H0.y - ny * hipW + 6); x.closePath();
-    x.fillStyle = pal.gi; x.fill(); x.strokeStyle = pal.line; x.lineWidth = 2.6; x.stroke();
-    // fold shading on the back half
-    x.save(); x.clip(); x.fillStyle = pal.giS; x.globalAlpha = 0.85;
-    x.beginPath(); x.moveTo(H0.x - nx * hipW * w.dir, H0.y - ny * hipW * w.dir + 6); x.lineTo(S0.x - nx * shW * w.dir, S0.y - ny * shW * w.dir); x.lineTo(S0.x - nx * 8 * w.dir, S0.y - ny * 8 * w.dir); x.lineTo(H0.x - nx * 6 * w.dir, H0.y - ny * 6 * w.dir); x.fill();
+    var H0 = w.H, S0 = w.S, dx = S0.x - H0.x, dy = S0.y - H0.y, l = Math.sqrt(dx * dx + dy * dy) || 1;
+    var ux = dx / l, uy = dy / l, fx = -uy * w.dir, fy = ux * w.dir;
+    function P(u, v) { return { x: H0.x + ux * u + fx * v, y: H0.y + uy * u + fy * v }; } // u up the spine, v toward the front
+    function outline() {
+      var p0 = P(-4, -22), p1 = P(l * 0.55, -27), p2 = P(l - 6, -24), p3 = P(l + 8, -6), p4 = P(l + 4, 14), p5 = P(l - 18, 26), p6 = P(l * 0.45, 22), p7 = P(-4, 21);
+      x.beginPath(); x.moveTo(p0.x, p0.y);
+      x.quadraticCurveTo(p1.x, p1.y, p2.x, p2.y);
+      x.quadraticCurveTo(p3.x, p3.y, p4.x, p4.y);
+      x.quadraticCurveTo(p5.x, p5.y, p6.x, p6.y);
+      x.lineTo(p7.x, p7.y); x.closePath();
+    }
+    outline(); x.fillStyle = ref ? pal.gi : pal.gi; x.fill();
+    // cloth shading: the back half in shadow, a soft highlight down the chest
+    x.save(); outline(); x.clip();
+    var bk = P(l * 0.5, -40), mid = P(l * 0.5, -2);
+    var g = x.createLinearGradient(bk.x, bk.y, mid.x, mid.y); g.addColorStop(0, pal.giS); g.addColorStop(1, "rgba(0,0,0,0)");
+    x.fillStyle = g; x.fillRect(Math.min(H0.x, S0.x) - 60, Math.min(H0.y, S0.y) - 60, 120 + Math.abs(dx), 120 + Math.abs(dy));
+    x.strokeStyle = ref ? pal.giS : pal.giS; x.lineWidth = 2; x.globalAlpha = 0.8;
+    var c1 = P(l * 0.3, 4), c2 = P(l * 0.55, 12), c3 = P(l * 0.2, -12), c4 = P(l * 0.45, -6);
+    x.beginPath(); x.moveTo(c1.x, c1.y); x.quadraticCurveTo(P(l * 0.42, 14).x, P(l * 0.42, 14).y, c2.x, c2.y); x.moveTo(c3.x, c3.y); x.quadraticCurveTo(P(l * 0.32, -2).x, P(l * 0.32, -2).y, c4.x, c4.y); x.stroke();
     x.globalAlpha = 1; x.restore();
-    if (ref) { // shirt, black bow tie and trousers line
-      x.fillStyle = "#101014"; x.beginPath(); var bt = along(S0, H0, 0.1); x.moveTo(bt.x - 9, bt.y - 5); x.lineTo(bt.x + 9, bt.y + 5); x.lineTo(bt.x + 9, bt.y - 5); x.lineTo(bt.x - 9, bt.y + 5); x.fill();
-      x.strokeStyle = pal.giS; x.lineWidth = 1.5; for (var b = 0.3; b < 0.95; b += 0.2) { var p = along(S0, H0, b); x.beginPath(); x.arc(p.x, p.y, 2, 0, 7); x.stroke(); }
-      capsule(x, along(H0, S0, -0.02), along(H0, S0, 0.1), 25, 25, pal.pants, pal.line);
+    outline(); x.strokeStyle = pal.line; x.lineWidth = 2.6; x.stroke();
+    if (ref) { // shirt buttons, black bow tie and the top of the trousers
+      var bt = P(l - 6, 10); x.fillStyle = "#101014"; x.beginPath(); x.moveTo(bt.x - 9, bt.y - 5); x.lineTo(bt.x + 9, bt.y + 5); x.lineTo(bt.x + 9, bt.y - 5); x.lineTo(bt.x - 9, bt.y + 5); x.fill();
+      x.fillStyle = pal.giS; for (var b2 = 0.3; b2 < 0.9; b2 += 0.2) { var q = P(l * b2, 14); x.beginPath(); x.arc(q.x, q.y, 2, 0, 7); x.fill(); }
+      var t0 = P(-6, -22), t1 = P(16, -24), t2 = P(16, 21), t3 = P(-6, 20);
+      x.fillStyle = pal.pants; x.beginPath(); x.moveTo(t0.x, t0.y); x.lineTo(t1.x, t1.y); x.lineTo(t2.x, t2.y); x.lineTo(t3.x, t3.y); x.closePath(); x.fill(); x.strokeStyle = pal.line; x.lineWidth = 2; x.stroke();
       return;
     }
-    // lapels: the crossed V of the jacket
-    var neck = along(S0, H0, 0.04), cross = along(S0, H0, 0.62);
+    // lapels: the crossed V of the jacket, open at the neck
+    var nk = P(l - 2, 2), lf = P(l * 0.42, 20), lb = P(l * 0.5, -4), nb = P(l + 2, -12), nf = P(l - 4, 16);
+    x.fillStyle = pal.skinS; x.beginPath(); x.moveTo(nb.x, nb.y); x.lineTo(nf.x, nf.y); x.lineTo(P(l * 0.7, 10).x, P(l * 0.7, 10).y); x.closePath(); x.fill();
     x.strokeStyle = pal.giD || pal.line; x.lineWidth = 3;
-    x.beginPath(); x.moveTo(neck.x + nx * 12, neck.y + ny * 12); x.lineTo(cross.x - nx * 6 * w.dir, cross.y - ny * 6 * w.dir); x.moveTo(neck.x - nx * 12, neck.y - ny * 12); x.lineTo(cross.x + nx * 2 * w.dir, cross.y + ny * 2 * w.dir); x.stroke();
-    x.fillStyle = pal.skinS; x.beginPath(); x.moveTo(neck.x + nx * 10, neck.y + ny * 10); x.lineTo(neck.x - nx * 10, neck.y - ny * 10); x.lineTo(along(S0, H0, 0.3).x, along(S0, H0, 0.3).y); x.fill();
+    x.beginPath(); x.moveTo(nb.x, nb.y); x.lineTo(lf.x, lf.y); x.moveTo(nf.x, nf.y); x.lineTo(P(l * 0.66, 8).x, P(l * 0.66, 8).y); x.stroke();
+    x.lineWidth = 1.5; x.beginPath(); x.moveTo(nk.x, nk.y); x.lineTo(lb.x, lb.y); x.stroke();
     // belt with knot and swinging tails
-    var bc = along(H0, S0, 0.1);
+    var bc = P(l * 0.1, 0);
     x.save(); x.translate(bc.x, bc.y); x.rotate(Math.atan2(dy, dx) + Math.PI / 2);
-    x.fillStyle = belt; x.fillRect(-27, -6, 54, 12); x.strokeStyle = pal.line; x.lineWidth = 2; x.strokeRect(-27, -6, 54, 12);
+    x.fillStyle = belt; x.fillRect(-26, -6, 52, 12); x.strokeStyle = pal.line; x.lineWidth = 2; x.strokeRect(-26, -6, 52, 12);
     var sw = Math.sin(t * 6) * 0.15;
-    x.fillStyle = belt; x.save(); x.translate(8 * w.dir, 2); x.rotate(0.25 * w.dir + sw); x.fillRect(-4, 0, 8, 30); x.strokeRect(-4, 0, 8, 30); x.restore();
-    x.save(); x.translate(4 * w.dir, 2); x.rotate(-0.15 * w.dir + sw * 0.7); x.fillRect(-4, 0, 8, 26); x.strokeRect(-4, 0, 8, 26); x.restore();
-    x.beginPath(); x.arc(6 * w.dir, 0, 6, 0, 7); x.fill(); x.stroke();
+    x.save(); x.translate(10 * w.dir, 2); x.rotate(0.25 * w.dir + sw); x.fillRect(-4, 0, 8, 30); x.strokeRect(-4, 0, 8, 30); x.restore();
+    x.save(); x.translate(6 * w.dir, 2); x.rotate(-0.15 * w.dir + sw * 0.7); x.fillRect(-4, 0, 8, 26); x.strokeRect(-4, 0, 8, 26); x.restore();
+    x.beginPath(); x.arc(8 * w.dir, 0, 6, 0, 7); x.fill(); x.stroke();
     x.restore();
   }
   function head(x, w, pal, ref, t, look) {
