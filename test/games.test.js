@@ -143,3 +143,13 @@ test("hub Joust card only advertises what Joust supports", () => {
   assert.doesNotMatch(js, /getGamepads/);
   for (const feature of ["egg", "hand", "ptero"]) assert.match(js, new RegExp(feature));
 });
+
+test("Joust phone portrait uses a following camera instead of an empty band", () => {
+  const js = read("games/joust/game.js");
+  const css = read("games/joust/style.css");
+  assert.match(js, /VW_MIN = 520/);
+  assert.match(js, /function worldPass\(ox, sx, sy\)/);
+  assert.match(js, /function drawEdgeMarkers\(/);
+  assert.match(js, /K = canvas\.width \/ VW/);
+  assert.match(css, /body\.is-touch\.is-portrait #touch \{[^}]*align-items: flex-end/);
+});

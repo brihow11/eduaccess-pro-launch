@@ -53,9 +53,15 @@ body.is-touch #touch {
   pointer-events: none; touch-action: none;
 }
 body.is-touch.is-portrait #stage { justify-content: flex-start; padding-top: 6px; }
-body.is-touch.is-portrait #touch { position: relative; width: 100%; max-width: 640px; flex: none; padding: 10px 18px calc(10px + env(safe-area-inset-bottom)); }
-body.is-touch.is-portrait .tbtn { width: 84px; height: 84px; }
-body.is-touch.is-portrait .tbtn.flap { width: 120px; height: 120px; font-size: 22px; }
+body.is-touch.is-portrait #touch { position: relative; width: 100%; max-width: 640px; flex: none; align-items: flex-end; padding: 10px 18px calc(14px + env(safe-area-inset-bottom)); }
+body.is-touch.is-portrait #stage { padding-top: 0; }
+body.is-touch.is-portrait #canvas-wrap { border-radius: 0 0 8px 8px; }
+body.is-touch.is-portrait .tbtn { width: 88px; height: 88px; }
+body.is-touch.is-portrait .tbtn.flap { width: 124px; height: 124px; font-size: 22px; }
+@media (max-height: 700px) {
+  body.is-touch.is-portrait .tbtn { width: 76px; height: 76px; }
+  body.is-touch.is-portrait .tbtn.flap { width: 108px; height: 108px; }
+}
 body.is-touch .tool { width: 28px; height: 28px; font-size: 13px; border-radius: 7px; }
 body.is-touch .toolbar { top: 5px; right: 5px; gap: 4px; }
 body.is-touch:not(.is-portrait) #touch {
