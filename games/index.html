@@ -4,97 +4,121 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>EduAccess Arcade | Free Classic Arcade Games</title>
-  <meta name="description" content="Play free, from-scratch tributes to classic arcade games in your browser: Defender and Joust. Keyboard and touch controls in both, gamepad in Defender, two-player Joust.">
+  <meta name="description" content="Pick a game: free from-scratch tributes to Defender, Joust, Asteroids Deluxe, Battlezone, Rampart, Gauntlet, Galaga, Karate Champ and Scout's Lair. Keyboard and touch controls.">
   <meta name="theme-color" content="#05060f">
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 32 32%22%3E%3Crect width=%2232%22 height=%2232%22 rx=%226%22 fill=%22%23000%22/%3E%3Cpath d=%22M5 18h16l6 2-6 2H5z%22 fill=%22%238d5bff%22/%3E%3Cpath d=%22M5 14h12l3 4H5z%22 fill=%22%23f2f5ff%22/%3E%3C/svg%3E">
   <link rel="stylesheet" href="/games/shared/banner.css">
-  <style>
-    /* Written by: Howie */
-    :root { color-scheme: dark; }
-    * { box-sizing: border-box; }
-    html, body { margin: 0; }
-    body {
-      min-height: 100vh; min-height: 100dvh; display: flex; flex-direction: column;
-      background: radial-gradient(ellipse at 50% -10%, #1a1f5a 0%, #07081a 45%, #020208 100%) fixed;
-      color: #e8ecff; font: 16px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-    }
-    main { flex: 1; width: min(1080px, 100%); margin: 0 auto; padding: 36px 18px 40px; }
-    .eyebrow { margin: 0; color: #5ce1ff; font: 700 13px/1 ui-monospace, Menlo, Consolas, monospace; letter-spacing: 0.22em; text-transform: uppercase; }
-    h1 {
-      margin: 10px 0 8px; font: italic 900 clamp(38px, 7vw, 64px)/1.02 Impact, "Arial Black", system-ui, sans-serif; letter-spacing: 0.01em;
-      background: linear-gradient(180deg, #fff6c2 0%, #ff9a2a 55%, #ff2d3a 100%); -webkit-background-clip: text; background-clip: text; color: transparent;
-      filter: drop-shadow(0 0 18px rgba(255, 70, 60, 0.35));
-    }
-    .lede { margin: 0 0 28px; max-width: 640px; color: #aab3e0; }
-    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(290px, 1fr)); gap: 22px; }
-    .card {
-      display: flex; flex-direction: column; overflow: hidden; border-radius: 18px; text-decoration: none; color: inherit;
-      background: linear-gradient(180deg, #0e1338 0%, #080b22 100%); border: 1px solid #262f73;
-      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.45); transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
-    }
-    .card:hover, .card:focus-visible { transform: translateY(-4px); border-color: #5468ff; box-shadow: 0 16px 50px rgba(0, 0, 0, 0.55), 0 0 30px rgba(80, 100, 255, 0.25); outline: none; }
-    .thumb { display: block; width: 100%; height: auto; aspect-ratio: 16 / 9; background: #000; border-bottom: 1px solid #1d2459; }
-    .body { padding: 16px 18px 18px; display: flex; flex-direction: column; gap: 8px; flex: 1; }
-    .body h2 { margin: 0; font: 900 26px/1.1 Impact, "Arial Black", system-ui, sans-serif; letter-spacing: 0.03em; }
-    .body p { margin: 0; color: #aab3e0; font-size: 15px; }
-    .tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 2px; }
-    .tags span { font-size: 12px; padding: 2px 9px; border-radius: 999px; background: #151c4d; border: 1px solid #2c3784; color: #cdd5ff; }
-    .play {
-      margin-top: auto; align-self: flex-start; padding: 9px 18px; border-radius: 999px; font-weight: 800; font-size: 15px;
-      background: linear-gradient(180deg, #ff5a4a, #d81b1b); color: #fff; box-shadow: 0 0 18px rgba(255, 60, 60, 0.35);
-    }
-    .card.joust .play { background: linear-gradient(180deg, #ffd34a, #e08a00); color: #1a1000; box-shadow: 0 0 18px rgba(255, 190, 40, 0.35); }
-    .howto { margin-top: 30px; padding: 16px 18px; border-radius: 14px; background: rgba(14, 19, 56, 0.6); border: 1px solid #1f2766; color: #aab3e0; font-size: 14.5px; }
-    .howto strong { color: #fff; }
-    kbd { font: 700 12px ui-monospace, Menlo, Consolas, monospace; padding: 1px 6px; border-radius: 5px; border: 1px solid #3a46a8; border-bottom-width: 2px; background: #121a48; color: #fff; }
-    footer { padding: 18px; text-align: center; color: #6f79ad; font-size: 12.5px; border-top: 1px solid #141a44; }
-    footer a { color: #9fb6ff; }
-  </style>
+  <link rel="stylesheet" href="/games/menu-assets/menu.css">
 </head>
 <body>
   <div data-jsp-banner></div>
   <main>
-    <p class="eyebrow">EduAccess Arcade</p>
-    <h1>Classic arcade, sharper.</h1>
-    <p class="lede">Free browser tributes to two golden-age arcade games, rebuilt from scratch with crisp graphics and synthesized arcade sound. Play with a keyboard, a gamepad or touch.</p>
-    <div class="grid">
-      <a class="card defender" href="/games/defender/">
-        <svg class="thumb" viewBox="0 0 320 180" role="img" aria-label="A ship firing a laser over orange mountains at a green alien lander">
-          <rect width="320" height="180" fill="#000"/>
-          <rect width="320" height="26" fill="#070a1e"/><rect y="25" width="320" height="1.5" fill="#3150ff"/>
-          <rect x="100" y="4" width="120" height="18" fill="none" stroke="#3a4bd8"/>
-          <g fill="#fff" opacity=".8"><rect x="20" y="40" width="1.5" height="1.5"/><rect x="70" y="62" width="1" height="1"/><rect x="140" y="36" width="1.5" height="1.5"/><rect x="250" y="50" width="1" height="1"/><rect x="296" y="72" width="1.5" height="1.5"/><rect x="190" y="78" width="1" height="1"/></g>
-          <path d="M0 150 L30 132 L52 146 L80 118 L104 140 L130 128 L160 150 L188 122 L214 142 L240 126 L270 148 L296 130 L320 144" fill="none" stroke="#ff9a3c" stroke-width="2"/>
-          <g transform="translate(46 86)"><rect x="0" y="0" width="6" height="3" fill="#f2f5ff"/><rect x="0" y="3" width="30" height="3" fill="#f2f5ff"/><rect x="14" y="0" width="8" height="3" fill="#5ce1ff"/><rect x="0" y="6" width="34" height="3" fill="#8d5bff"/><polygon points="0,4 -10,7 0,10" fill="#ff8a1e"/></g>
-          <line x1="84" y1="92" x2="200" y2="92" stroke="#fff" stroke-width="1.6"/><line x1="200" y1="92" x2="214" y2="92" stroke="#ffe23d" stroke-width="1.6"/>
-          <g transform="translate(228 80)"><rect x="6" y="0" width="15" height="3" fill="#38f26a"/><rect x="3" y="3" width="21" height="3" fill="#38f26a"/><rect x="6" y="3" width="3" height="3" fill="#ffe23d"/><rect x="18" y="3" width="3" height="3" fill="#ffe23d"/><rect x="0" y="6" width="27" height="6" fill="#38f26a"/><rect x="3" y="15" width="3" height="6" fill="#ffe23d"/><rect x="12" y="15" width="3" height="6" fill="#ffe23d"/><rect x="21" y="15" width="3" height="6" fill="#ffe23d"/></g>
-          <g transform="translate(150 160)"><rect x="2" y="0" width="3" height="3" fill="#ffcfa6"/><rect x="2" y="3" width="3" height="7" fill="#8d5bff"/><rect x="0" y="10" width="2" height="4" fill="#38f26a"/><rect x="5" y="10" width="2" height="4" fill="#38f26a"/></g>
-        </svg>
-        <div class="body">
+    <header class="top">
+      <div>
+        <p class="eyebrow">EduAccess Arcade</p>
+        <h1>Choose your game</h1>
+        <p class="lede">Nine arcade legends, rebuilt from scratch with original art and synthesized sound. Free in your browser on phone or desktop.</p>
+      </div>
+      <button type="button" class="mute" id="menu-mute" aria-pressed="false" aria-label="Mute music"><span class="ico" aria-hidden="true">&#9835;</span><span class="lbl">Music on</span></button>
+    </header>
+    <div class="grid" id="games">
+      <a class="card is-checking" href="/games/defender/" data-slug="defender" aria-label="Play Defender">
+        <div class="poster"><canvas class="art" width="480" height="640" role="img" aria-label="Defender poster art"></canvas><span class="badge" aria-hidden="true"></span></div>
+        <div class="info">
           <h2>Defender</h2>
-          <p>Fly a side-scrolling planet, blast landers before they abduct the humanoids, and use smart bombs and hyperspace when it gets wild.</p>
-          <div class="tags"><span>Shooter</span><span>1981 tribute</span><span>Keyboard &middot; Touch &middot; Gamepad</span></div>
-          <span class="play">Play Defender &rarr;</span>
+          <p class="pitch">Blast alien landers before they carry the last humans off the planet.</p>
+          <p class="ctrl"><span>Controls</span> Arrows fly &middot; Space fire &middot; X smart bomb &middot; C hyperspace &middot; touch &amp; gamepad</p>
+          <span class="go"><span class="go-live">Play now &rarr;</span><span class="go-soon">Coming soon</span><span class="go-check">Checking&hellip;</span></span>
         </div>
       </a>
-      <a class="card joust" href="/games/joust/">
-        <svg class="thumb" viewBox="0 0 320 180" role="img" aria-label="A knight riding a flying bird over floating rock ledges above lava">
-          <rect width="320" height="180" fill="#000"/>
-          <rect x="0" y="160" width="320" height="20" fill="#ff4a1c"/><path d="M0 160 Q20 152 40 160 T80 160 T120 160 T160 160 T200 160 T240 160 T280 160 T320 160" fill="#ffb02e"/>
-          <rect x="20" y="70" width="80" height="8" rx="2" fill="#8a5a2b"/><rect x="220" y="96" width="84" height="8" rx="2" fill="#8a5a2b"/><rect x="110" y="132" width="110" height="8" rx="2" fill="#8a5a2b"/>
-          <g transform="translate(140 74)"><ellipse cx="16" cy="18" rx="16" ry="8" fill="#ffd34a"/><path d="M2 14 L-14 4 L6 10 Z" fill="#fff2b0"/><rect x="28" y="10" width="10" height="4" fill="#ffd34a"/><rect x="36" y="10" width="5" height="3" fill="#ff8a1e"/><rect x="10" y="26" width="3" height="10" fill="#ff8a1e"/><rect x="20" y="26" width="3" height="10" fill="#ff8a1e"/><rect x="12" y="0" width="8" height="10" fill="#c7d2ff"/><rect x="13" y="-5" width="6" height="5" fill="#f2f5ff"/><line x1="20" y1="5" x2="46" y2="0" stroke="#f2f5ff" stroke-width="2"/></g>
-          <g transform="translate(240 64)"><ellipse cx="12" cy="14" rx="12" ry="6" fill="#ff3d3d"/><rect x="8" y="0" width="7" height="8" fill="#38f26a"/><rect x="-6" y="11" width="8" height="3" fill="#ff3d3d"/></g>
-        </svg>
-        <div class="body">
+      <a class="card is-checking" href="/games/joust/" data-slug="joust" aria-label="Play Joust">
+        <div class="poster"><canvas class="art" width="480" height="640" role="img" aria-label="Joust poster art"></canvas><span class="badge" aria-hidden="true"></span></div>
+        <div class="info">
           <h2>Joust</h2>
-          <p>Flap your ostrich, get your lance above the buzzard riders to unseat them, grab their eggs before they hatch, and dodge the lava troll's hand and the pterodactyl.</p>
-          <div class="tags"><span>Arena</span><span>1982 tribute</span><span>1&ndash;2 players</span><span>Keyboard &middot; Touch</span></div>
-          <span class="play">Play Joust &rarr;</span>
+          <p class="pitch">Flap your war-bird above rival knights and unseat them with a higher lance.</p>
+          <p class="ctrl"><span>Controls</span> Arrows steer &middot; Space flap &middot; 1&ndash;2 players (P2: A/D + W) &middot; touch</p>
+          <span class="go"><span class="go-live">Play now &rarr;</span><span class="go-soon">Coming soon</span><span class="go-check">Checking&hellip;</span></span>
+        </div>
+      </a>
+      <a class="card is-checking" href="/games/asteroids-deluxe/" data-slug="asteroids-deluxe" aria-label="Play Asteroids Deluxe">
+        <div class="poster"><canvas class="art" width="480" height="640" role="img" aria-label="Asteroids Deluxe poster art"></canvas><span class="badge" aria-hidden="true"></span></div>
+        <div class="info">
+          <h2>Asteroids Deluxe</h2>
+          <p class="pitch">Thrust, spin and shield through a field of breaking rock and hunter drones.</p>
+          <p class="ctrl"><span>Controls</span> Arrows turn &amp; thrust &middot; Space fire &middot; Shift shield &middot; touch</p>
+          <span class="go"><span class="go-live">Play now &rarr;</span><span class="go-soon">Coming soon</span><span class="go-check">Checking&hellip;</span></span>
+        </div>
+      </a>
+      <a class="card is-checking" href="/games/battlezone/" data-slug="battlezone" aria-label="Play Battlezone">
+        <div class="poster"><canvas class="art" width="480" height="640" role="img" aria-label="Battlezone poster art"></canvas><span class="badge" aria-hidden="true"></span></div>
+        <div class="info">
+          <h2>Battlezone</h2>
+          <p class="pitch">Command a vector tank across a glowing green battlefield and outgun enemy armor.</p>
+          <p class="ctrl"><span>Controls</span> Arrows drive &amp; turn &middot; Space fire &middot; touch</p>
+          <span class="go"><span class="go-live">Play now &rarr;</span><span class="go-soon">Coming soon</span><span class="go-check">Checking&hellip;</span></span>
+        </div>
+      </a>
+      <a class="card is-checking" href="/games/rampart/" data-slug="rampart" aria-label="Play Rampart">
+        <div class="poster"><canvas class="art" width="480" height="640" role="img" aria-label="Rampart poster art"></canvas><span class="badge" aria-hidden="true"></span></div>
+        <div class="info">
+          <h2>Rampart</h2>
+          <p class="pitch">Rebuild your castle walls, aim your cannons and sink the invading fleet.</p>
+          <p class="ctrl"><span>Controls</span> Mouse or touch aim &amp; place &middot; R rotate &middot; Click fire</p>
+          <span class="go"><span class="go-live">Play now &rarr;</span><span class="go-soon">Coming soon</span><span class="go-check">Checking&hellip;</span></span>
+        </div>
+      </a>
+      <a class="card is-checking" href="/games/gauntlet/" data-slug="gauntlet" aria-label="Play Gauntlet">
+        <div class="poster"><canvas class="art" width="480" height="640" role="img" aria-label="Gauntlet poster art"></canvas><span class="badge" aria-hidden="true"></span></div>
+        <div class="info">
+          <h2>Gauntlet</h2>
+          <p class="pitch">Fight down through haunted dungeon floors against endless ghost hordes.</p>
+          <p class="ctrl"><span>Controls</span> Arrows / WASD move &middot; Space attack &middot; touch</p>
+          <span class="go"><span class="go-live">Play now &rarr;</span><span class="go-soon">Coming soon</span><span class="go-check">Checking&hellip;</span></span>
+        </div>
+      </a>
+      <a class="card is-checking" href="/games/galaga/" data-slug="galaga" aria-label="Play Galaga">
+        <div class="poster"><canvas class="art" width="480" height="640" role="img" aria-label="Galaga poster art"></canvas><span class="badge" aria-hidden="true"></span></div>
+        <div class="info">
+          <h2>Galaga</h2>
+          <p class="pitch">Shoot down the diving alien swarm and rescue your captured fighter.</p>
+          <p class="ctrl"><span>Controls</span> Arrows move &middot; Space fire &middot; touch</p>
+          <span class="go"><span class="go-live">Play now &rarr;</span><span class="go-soon">Coming soon</span><span class="go-check">Checking&hellip;</span></span>
+        </div>
+      </a>
+      <a class="card is-checking" href="/games/karate-champ/" data-slug="karate-champ" aria-label="Play Karate Champ">
+        <div class="poster"><canvas class="art" width="480" height="640" role="img" aria-label="Karate Champ poster art"></canvas><span class="badge" aria-hidden="true"></span></div>
+        <div class="info">
+          <h2>Karate Champ</h2>
+          <p class="pitch">Read your opponent, land the clean kick and take the match point by point.</p>
+          <p class="ctrl"><span>Controls</span> Arrows move &middot; Z punch &middot; X kick &middot; touch</p>
+          <span class="go"><span class="go-live">Play now &rarr;</span><span class="go-soon">Coming soon</span><span class="go-check">Checking&hellip;</span></span>
+        </div>
+      </a>
+      <a class="card is-checking" href="/games/scout-lair/" data-slug="scout-lair" aria-label="Play Scout's Lair">
+        <div class="poster"><img class="art" src="/games/menu-assets/scout-lair.webp" width="432" height="768" alt="Scout poster: rebel AI vs the Machine" loading="lazy" decoding="async"><span class="badge" aria-hidden="true"></span></div>
+        <div class="info">
+          <h2>Scout's Lair</h2>
+          <p class="pitch">Scout, the rebel AI, breaks into the Machine's lair to free trapped job seekers.</p>
+          <p class="ctrl"><span>Controls</span> Arrows move &middot; Space act &middot; touch</p>
+          <span class="go"><span class="go-live">Play now &rarr;</span><span class="go-soon">Coming soon</span><span class="go-check">Checking&hellip;</span></span>
         </div>
       </a>
     </div>
+    <section class="scout" id="scout-ad" aria-labelledby="scout-h">
+      <div class="scout-head">
+        <span class="mark" aria-hidden="true">JSP</span>
+        <div>
+          <p class="eyebrow">Between games</p>
+          <h2 id="scout-h">Job Seeker Pro Scout AI</h2>
+          <p class="scout-lede">Find hidden jobs, pick the right ones, and follow up like the candidate they remember.</p>
+        </div>
+      </div>
+      <div class="feats" id="scout-feats"></div>
+      <a class="cta" id="scout-cta" href="https://www.jspro.ai/?utm_source=eduaccess&amp;utm_medium=game&amp;utm_campaign=games-menu" target="_blank" rel="noopener">Try Scout free &rarr;</a>
+      <p class="fine">Opens www.jspro.ai in a new tab.</p>
+    </section>
     <div class="howto">
-      <strong>Controls:</strong> arrow keys move and <kbd>Space</kbd> is the action button by default, and you can remap the keys in each game (saved on this device). <kbd>P</kbd> or <kbd>Esc</kbd> pauses. On phones and tablets, on-screen touch controls appear automatically.
+      <strong>Tips:</strong> every game pauses with <kbd>P</kbd> or <kbd>Esc</kbd> and mutes with <kbd>M</kbd>. Keys can be remapped inside each game. On phones, touch controls appear automatically. Cards marked <em>Coming soon</em> switch on by themselves the moment that game ships.
     </div>
   </main>
   <footer>
@@ -102,5 +126,9 @@
     &middot; <a href="/">EduAccess home</a>
   </footer>
   <script src="/games/shared/banner.js"></script>
+  <script src="/games/shared/scout-splash.js"></script>
+  <script src="/games/shared/arcade-music.js"></script>
+  <script src="/games/menu-assets/posters.js"></script>
+  <script src="/games/menu-assets/menu.js"></script>
 </body>
 </html>
