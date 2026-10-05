@@ -1,0 +1,69 @@
+/* Job Seeker Pro promo banner for /games pages. Self-contained, no external fonts. */
+:root { --jsp-banner-h: 44px; }
+.jsp-banner {
+  position: relative;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  height: var(--jsp-banner-h);
+  padding: 0 14px;
+  box-sizing: border-box;
+  background: linear-gradient(90deg, #0A1628 0%, #13254a 55%, #0A1628 100%);
+  border-bottom: 1px solid rgba(250, 248, 243, 0.14);
+  box-shadow: 0 2px 14px rgba(0, 0, 0, 0.45);
+  color: #FAF8F3;
+  font: 500 14px/1.2 "Plus Jakarta Sans", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  text-decoration: none;
+  overflow: hidden;
+  white-space: nowrap;
+  -webkit-tap-highlight-color: transparent;
+}
+.jsp-banner:hover .jsp-banner__cta,
+.jsp-banner:focus-visible .jsp-banner__cta { background: #FAF8F3; color: #0A1628; }
+.jsp-banner:focus-visible { outline: 2px solid #FAF8F3; outline-offset: -3px; }
+.jsp-banner__logo {
+  flex: none;
+  display: inline-grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 6px;
+  background: #FAF8F3;
+  color: #0A1628;
+  font-weight: 800;
+  font-size: 17px;
+}
+.jsp-banner__name { font-weight: 800; letter-spacing: 0.01em; }
+.jsp-banner__pill {
+  flex: none;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: #8B1A1A;
+  color: #FAF8F3;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.jsp-banner__tag { opacity: 0.82; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+.jsp-banner__cta {
+  flex: none;
+  padding: 5px 12px;
+  border: 1px solid rgba(250, 248, 243, 0.7);
+  border-radius: 999px;
+  font-weight: 700;
+  font-size: 13px;
+  transition: background 0.15s, color 0.15s;
+}
+@media (max-width: 760px) {
+  .jsp-banner__tag { display: none; }
+}
+@media (max-width: 420px), (max-height: 500px) {
+  :root { --jsp-banner-h: 34px; }
+  .jsp-banner { gap: 8px; font-size: 12.5px; }
+  .jsp-banner__logo { width: 22px; height: 22px; font-size: 14px; }
+  .jsp-banner__pill { display: none; }
+  .jsp-banner__cta { padding: 3px 10px; font-size: 12px; }
+}
