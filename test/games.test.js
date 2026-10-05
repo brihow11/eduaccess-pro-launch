@@ -153,3 +153,12 @@ test("Joust phone portrait uses a following camera instead of an empty band", ()
   assert.match(js, /K = canvas\.width \/ VW/);
   assert.match(css, /body\.is-touch\.is-portrait #touch \{[^}]*align-items: flex-end/);
 });
+
+test("polish: first-play tips and level-matched audio", () => {
+  const d = read("games/defender/defender.js"), j = read("games/joust/game.js"), a = read("games/joust/audio.js");
+  assert.match(d, /defender\.tipSeen/);
+  assert.match(j, /joust\.tipSeen/);
+  assert.match(a, /var MASTER = 0\.7;/);
+  assert.match(d, /sfx: Sfx/);
+  assert.match(d, /if \(DEBUG\) \{[\s\S]*sfx: Sfx/, "Sfx only exposed in debug mode");
+});

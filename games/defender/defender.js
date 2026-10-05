@@ -224,19 +224,19 @@
         const t = performance.now();
         if (t - lastShot < 80) return;
         lastShot = t;
-        tone({ type: "triangle", f0: 820, f1: 1500, dur: 0.07, vol: 0.06 });
+        tone({ type: "triangle", f0: 820, f1: 1500, dur: 0.07, vol: 0.09 });
       },
       explode(big) {
-        burst({ dur: big ? 0.75 : 0.42, vol: big ? 0.6 : 0.42, f0: 4200, f1: 90 });
+        burst({ dur: big ? 0.75 : 0.42, vol: big ? 0.46 : 0.32, f0: 4200, f1: 90 });
         tone({ type: "sine", f0: big ? 170 : 230, f1: 38, dur: big ? 0.6 : 0.32, vol: 0.3 });
       },
       shipDie() {
-        burst({ dur: 1.9, vol: 0.7, f0: 6500, f1: 60 });
+        burst({ dur: 1.9, vol: 0.55, f0: 6500, f1: 60 });
         tone({ type: "sawtooth", curve: wobble(950, 50, 1.6, 9, 0.18), dur: 1.6, vol: 0.17 });
         tone({ type: "sine", f0: 130, f1: 30, dur: 1.4, vol: 0.4 });
       },
       bomb() {
-        burst({ dur: 1.25, vol: 0.85, f0: 8000, f1: 50 });
+        burst({ dur: 1.25, vol: 0.66, f0: 8000, f1: 50 });
         burst({ dur: 0.5, vol: 0.45, f0: 1300, f1: 200, filter: "bandpass", q: 2, delay: 0.05 });
         tone({ type: "sawtooth", f0: 330, f1: 28, dur: 1.1, vol: 0.24 });
       },
@@ -259,9 +259,9 @@
       extraLife() { [523, 659, 784, 1047, 1319, 1568, 2093].forEach((f, i) => tone({ type: "square", f0: f, dur: 0.1, vol: 0.09, delay: i * 0.065 })); },
       wave() { [392, 523, 659, 784, 1047].forEach((f, i) => tone({ type: "triangle", f0: f, dur: 0.17, vol: 0.14, delay: i * 0.1 })); },
       bonus() { tone({ type: "square", f0: 1046, dur: 0.06, vol: 0.07 }); },
-      baiter() { [1250, 880, 1250, 880].forEach((f, i) => tone({ type: "square", f0: f, dur: 0.06, vol: 0.06, delay: i * 0.07 })); },
+      baiter() { [1250, 880, 1250, 880].forEach((f, i) => tone({ type: "square", f0: f, dur: 0.06, vol: 0.085, delay: i * 0.07 })); },
       planet() {
-        burst({ dur: 2.8, vol: 0.95, f0: 5000, f1: 40 });
+        burst({ dur: 2.8, vol: 0.75, f0: 5000, f1: 40 });
         tone({ type: "sawtooth", f0: 220, f1: 20, dur: 2.6, vol: 0.3 });
       }
     };
@@ -552,7 +552,10 @@
     for (let i = 0; i < nb; i++) addEnemy("bomber", farX(), rand(PLAY_TOP + 70, 380));
     for (let i = 0; i < np; i++) addEnemy("pod", farX(), rand(PLAY_TOP + 40, 360));
     G.state = "playing";
-    showBanner("ATTACK WAVE " + n, sub, 2.4);
+    let firstTip = false;
+    if (n === 1 && lsGet("defender.tipSeen") !== "1") { firstTip = true; lsSet("defender.tipSeen", "1"); }
+    if (firstTip && !sub) sub = "SHOOT THE LANDERS \u2022 CATCH FALLING HUMANOIDS";
+    showBanner("ATTACK WAVE " + n, sub, firstTip ? 3.6 : 2.4);
     Sfx.wave();
   }
   function spawnBatch() {
@@ -1739,6 +1742,7 @@
         return true;
       },
       fire() { fire(); },
+      sfx: Sfx,
       humans() { return humans.filter((h) => h.state !== "dead").length; },
       spawnCount() { return { toSpawn: G.toSpawn, bombers: countType("bomber"), pods: countType("pod"), baiterT: G.baiterT }; }
     };
