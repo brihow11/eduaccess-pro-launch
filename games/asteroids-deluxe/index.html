@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+  <title>Asteroids Deluxe (Arcade Tribute) | EduAccess Arcade</title>
+  <meta name="description" content="A from-scratch tribute to the 1981 vector arcade classic: glowing high-resolution vector graphics, shields, the wedge cluster, saucers, 12 sectors, synthesized sound and music. Free in your browser.">
+  <meta name="theme-color" content="#000000">
+  <meta name="arcade-controls" content="Arrows rotate and thrust, Space fires, Down raises the shield. Remappable keys, gamepad and touch.">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 32 32%22%3E%3Crect width=%2232%22 height=%2232%22 rx=%226%22 fill=%22%23000%22/%3E%3Cpath d=%22M16 5 24 26 16 21 8 26Z%22 fill=%22none%22 stroke=%22%23bfe3ff%22 stroke-width=%222%22/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="/games/shared/banner.css">
+  <link rel="stylesheet" href="/games/asteroids-deluxe/style.css?v=1">
+  <link rel="stylesheet" href="/games/shared/scout-splash.css?v=20261005a">
+  <link rel="stylesheet" href="/games/shared/game-menu.css">
+</head>
+<!-- Written by: Howie -->
+<body>
+  <div data-jsp-banner></div>
+  <main id="stage" aria-label="Asteroids Deluxe tribute game">
+    <div id="wrap">
+      <canvas id="game" tabindex="0" aria-label="Asteroids Deluxe-style vector game. Left and right arrows rotate, Up thrusts, Down raises the shield, Space fires."></canvas>
+      <div class="toolbar" role="toolbar" aria-label="Game options">
+        <a class="tool menu" id="btn-menu" href="/games/" aria-label="Main menu" title="Main menu (all games)"><span aria-hidden="true">&#9776;</span> <span class="lbl">Main menu</span></a>
+        <button class="tool" id="btn-pause" type="button" title="Pause (P / Esc)">&#10074;&#10074; <span class="lbl">Pause</span></button>
+        <button class="tool" id="btn-mute" type="button" aria-pressed="false" title="Mute or unmute (M)">&#128266; <span class="lbl">Sound on</span></button>
+        <button class="tool" id="btn-settings" type="button" title="Controls and settings">&#9881; <span class="lbl">Controls</span></button>
+        <button class="tool" id="btn-full" type="button" title="Fullscreen">&#x26F6;</button>
+      </div>
+    </div>
+    <div id="touch" hidden>
+      <div class="tgroup left">
+        <button class="tbtn" data-act="left" type="button" aria-label="Rotate left">&#9664;</button>
+        <button class="tbtn" data-act="right" type="button" aria-label="Rotate right">&#9654;</button>
+      </div>
+      <div class="tgroup right">
+        <button class="tbtn shield" data-act="shield" type="button" aria-label="Shield">SHIELD</button>
+        <button class="tbtn thrust" data-act="thrust" type="button" aria-label="Thrust">THRUST</button>
+        <button class="tbtn fire" data-act="fire" type="button" aria-label="Fire">FIRE</button>
+      </div>
+    </div>
+    <noscript><p class="noscript">This game needs JavaScript.</p></noscript>
+  </main>
+  <footer class="bar">
+    <span class="note">Fan-made tribute to the 1981 vector arcade game, built from scratch with original code, art and sound. Not affiliated with or endorsed by its makers.</span>
+  </footer>
+
+  <div id="settings" hidden role="dialog" aria-modal="true" aria-labelledby="settings-title">
+    <div class="panel">
+      <h2 id="settings-title">Controls &amp; settings</h2>
+      <p class="sub">Click a key box, then press the key you want. Esc cancels. Backspace clears. Saved on this device.</p>
+      <table class="keys">
+        <thead><tr><th>Action</th><th>Key</th><th>Alt key</th></tr></thead>
+        <tbody id="keys-body"></tbody>
+      </table>
+      <div class="msg" id="keys-msg" aria-live="polite"></div>
+      <div class="opts">
+        <label><input type="checkbox" id="opt-sound"> Sound (effects and music)</label>
+        <label><input type="checkbox" id="opt-music"> Music</label>
+        <label><input type="checkbox" id="opt-fx"> Glow effects (turn off if the game feels slow)</label>
+        <label>Touch controls
+          <select id="opt-touch">
+            <option value="auto">Auto</option>
+            <option value="on">Always show</option>
+            <option value="off">Hide</option>
+          </select>
+        </label>
+      </div>
+      <p class="touchnote">Gamepad: left stick or d-pad rotates, up or RT thrusts, A fires, B or down raises the shield, Start pauses. M mutes.</p>
+      <div class="row">
+        <button class="pbtn" id="keys-reset" type="button">Reset to defaults</button>
+        <button class="pbtn primary" id="settings-close" type="button">Done</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="/games/shared/banner.js"></script>
+  <script src="/games/shared/scout-splash.js?v=20261005a"></script>
+  <script src="/games/shared/game-menu.js"></script>
+  <script src="/games/asteroids-deluxe/kit.js?v=1"></script>
+  <script src="/games/asteroids-deluxe/game.js?v=1"></script>
+</body>
+</html>
