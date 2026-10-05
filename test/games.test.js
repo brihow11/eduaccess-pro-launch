@@ -174,22 +174,28 @@ test("/games menu shows nine poster cards with runtime live detection, Scout ad 
   assert.match(hub.body, /utm_source=eduaccess&amp;utm_medium=game&amp;utm_campaign=games-menu/);
   assert.match(hub.body, /target="_blank" rel="noopener"/);
   assert.match(hub.body, /id="menu-mute"/);
-  for (const src of ["/games/shared/scout-splash.js", "/games/shared/arcade-music.js", "/games/menu-assets/posters.js", "/games/menu-assets/menu.js", "/games/menu-assets/menu.css"]) {
+  for (const src of ["/games/shared/scout-splash.js", "/games/shared/arcade-music.js", "/games/menu-assets/menu.js", "/games/menu-assets/menu.css"]) {
     assert.ok(hub.body.includes(src), src);
     const r = await get(port, src);
     assert.equal(r.statusCode, 200, src);
   }
+  assert.ok(!hub.body.includes("/games/menu-assets/posters.js"), "posters.js no longer loaded");
   const menu = read("games/menu-assets/menu.js");
   assert.match(menu, /\/games\/" \+ slug \+ "\/index\.html/);
   assert.match(menu, /r\.status !== 200/);
   assert.match(menu, /SCOUT_FEATURES/);
   assert.match(menu, /localStorage/);
-  const posters = read("games/menu-assets/posters.js");
-  for (const s of slugs.filter((s) => s !== "scout-lair")) assert.ok(posters.includes(`P.${s} =`) || posters.includes(`P["${s}"] =`), s);
-  const webp = await get(port, "/games/menu-assets/scout-lair.webp");
-  assert.equal(webp.statusCode, 200);
-  assert.match(webp.headers["content-type"], /image\/webp/);
-  assert.ok(fs.statSync(path.join(root, "games/menu-assets/scout-lair.webp")).size < 120000);
+  assert.ok(!menu.includes("ArcadePosters"), "menu no longer paints procedural posters");
+  for (const s of slugs) {
+    const coverPath = `/games/menu-assets/covers/${s}.webp`;
+    assert.ok(hub.body.includes(coverPath), coverPath);
+    const webp = await get(port, coverPath);
+    assert.equal(webp.statusCode, 200, coverPath);
+    assert.match(webp.headers["content-type"], /image\/webp/, coverPath);
+    const bytes = fs.statSync(path.join(root, `games/menu-assets/covers/${s}.webp`)).size;
+    assert.ok(bytes > 5000 && bytes < 900000, `${s} cover size ${bytes}`);
+  }
+  assert.ok(!hub.body.includes('<canvas class="art"'), "no canvas posters");
   const missing = await get(port, "/games/not-a-real-game/index.html");
   assert.equal(missing.statusCode, 404);
 });
