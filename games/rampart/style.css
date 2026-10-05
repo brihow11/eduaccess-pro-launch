@@ -1,0 +1,75 @@
+/* Rampart tribute: layout, toolbar, touch controls, settings. Written by: Howie */
+html, body { margin: 0; padding: 0; height: 100%; background: #0b0f14; overflow: hidden; overscroll-behavior: none; }
+body {
+  position: fixed; inset: 0; display: flex; flex-direction: column; color: #efe3c4;
+  font: 14px/1.35 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; touch-action: manipulation; -webkit-text-size-adjust: 100%;
+}
+[data-jsp-banner] { flex: none; }
+.toolbar { flex: none; display: flex; align-items: center; gap: 6px; padding: 5px 8px; background: linear-gradient(#24201a, #15120e); border-bottom: 1px solid #5a4724; }
+.toolbar .ttl { font: 800 15px/1 Georgia, "Times New Roman", serif; letter-spacing: 0.22em; color: #e3c27a; margin-left: 6px; }
+.toolbar .sp { flex: 1; }
+.tool {
+  appearance: none; display: inline-flex; align-items: center; gap: 5px; height: 32px; padding: 0 11px; border-radius: 8px;
+  border: 1px solid rgba(227, 194, 122, 0.4); background: rgba(30, 24, 16, 0.85); color: #f1e3bf; text-decoration: none;
+  font: 600 13px/1 system-ui, -apple-system, "Segoe UI", sans-serif; cursor: pointer;
+}
+.tool:hover { border-color: rgba(240, 214, 150, 0.85); background: rgba(56, 44, 26, 0.95); }
+.tool:focus-visible { outline: 2px solid #ffd98a; outline-offset: 1px; }
+.tool[aria-pressed="true"] { color: #ff9c8a; border-color: rgba(255, 140, 120, 0.6); }
+.tool.menu { border-color: rgba(255, 207, 90, 0.7); color: #ffe2a0; }
+@media (max-width: 640px) { .tool .lbl { display: none; } .tool { padding: 0 10px; } .toolbar .ttl { font-size: 13px; letter-spacing: 0.14em; } }
+@media (max-width: 360px) { #btn-full { display: none; } }
+
+#stage { position: relative; flex: 1 1 auto; min-height: 0; display: flex; align-items: center; justify-content: center; overflow: hidden; touch-action: none; background: radial-gradient(ellipse at center, #1a1f26, #07090c); }
+#wrap { position: relative; flex: none; box-shadow: 0 0 0 1px #3a2f1c, 0 10px 40px rgba(0, 0, 0, 0.6); }
+#game { position: absolute; inset: 0; width: 100%; height: 100%; display: block; outline: none; touch-action: none; }
+.noscript { padding: 20px; }
+
+.bar { flex: none; display: flex; align-items: center; height: 24px; padding: 0 10px; box-sizing: border-box; background: #0c0a08; border-top: 1px solid #2a2216; font-size: 11px; color: #9a8b6c; white-space: nowrap; overflow: hidden; }
+.bar .note { overflow: hidden; text-overflow: ellipsis; }
+body.is-touch .bar { display: none; }
+
+/* ---------- touch controls: a strip under the playfield in portrait, overlaid corners in landscape ---------- */
+#touch { flex: none; position: relative; display: flex; justify-content: space-between; align-items: center; gap: 8px;
+  padding: 8px 14px calc(10px + env(safe-area-inset-bottom)); background: linear-gradient(#15120e, #0b0906); border-top: 1px solid #3a2f1c; touch-action: none; }
+#touch[hidden] { display: none; }
+.dpad { display: grid; grid-template-columns: repeat(3, min(54px, 14vw)); grid-template-rows: repeat(3, min(42px, 11vw)); gap: 3px; }
+.dpad .up { grid-column: 2; grid-row: 1; } .dpad .left { grid-column: 1; grid-row: 2; } .dpad .right { grid-column: 3; grid-row: 2; } .dpad .down { grid-column: 2; grid-row: 3; }
+.tbtn {
+  appearance: none; padding: 0; touch-action: none; -webkit-tap-highlight-color: transparent; border-radius: 10px;
+  border: 2px solid rgba(227, 194, 122, 0.55); background: radial-gradient(circle at 40% 35%, rgba(120, 100, 70, 0.6), rgba(30, 24, 16, 0.85));
+  color: #f6e8c4; font: 800 13px/1 system-ui, sans-serif; letter-spacing: 0.04em; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+}
+.dpad .tbtn { font-size: 18px; }
+.tgroup { display: flex; gap: 12px; align-items: center; }
+.tbtn.fire { width: min(88px, 22vw); height: min(88px, 22vw); border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px;
+  border-color: rgba(255, 210, 140, 0.8); background: radial-gradient(circle at 40% 35%, rgba(230, 120, 60, 0.75), rgba(90, 30, 10, 0.9)); font-size: 16px; }
+.tbtn.fire small { font-size: 10px; opacity: 0.8; }
+.tbtn.rotate { width: min(70px, 18vw); height: min(56px, 14vw); border-radius: 28px; font-size: 12px; }
+.tbtn.active { transform: scale(0.93); filter: brightness(1.4); }
+#touch.landscape { position: fixed; left: 0; right: 0; bottom: 0; background: none; border: 0; pointer-events: none; padding: 0 10px calc(8px + env(safe-area-inset-bottom)); z-index: 5; }
+#touch.landscape .tbtn { pointer-events: auto; opacity: 0.7; }
+#touch.landscape .dpad { grid-template-columns: repeat(3, 44px); grid-template-rows: repeat(3, 38px); }
+#touch.landscape .tbtn.fire { width: 70px; height: 70px; }
+#touch.landscape .tbtn.rotate { width: 60px; height: 46px; }
+
+/* ---------- settings ---------- */
+#settings { position: fixed; inset: 0; z-index: 60; display: flex; align-items: center; justify-content: center; background: rgba(0, 0, 0, 0.72); padding: 12px; }
+#settings[hidden] { display: none; }
+.panel { width: min(540px, 100%); max-height: 100%; overflow: auto; box-sizing: border-box; padding: 18px 20px; border-radius: 14px;
+  background: linear-gradient(170deg, #2a2219, #15110c); border: 1px solid #6a5328; box-shadow: 0 20px 60px rgba(0, 0, 0, 0.7); user-select: text; }
+.panel h2 { margin: 0 0 4px; font: 700 1.3rem Georgia, "Times New Roman", serif; color: #f6e2a8; }
+.panel .sub, .touchnote { margin: 0 0 10px; font-size: 12.5px; color: #c9b88e; }
+.keys { width: 100%; border-collapse: collapse; margin-bottom: 6px; }
+.keys th { text-align: left; font-size: 11.5px; font-weight: 600; color: #a8966c; padding: 2px 4px; }
+.keys td { padding: 3px 4px; font-size: 13.5px; }
+.keycap { appearance: none; min-width: 92px; padding: 6px 10px; border-radius: 6px; border: 1px solid #6a5328; background: #1e1810; color: #f6e8c4; font: 600 13px ui-monospace, Menlo, Consolas, monospace; cursor: pointer; }
+.keycap.empty { color: #7a6c50; }
+.keycap.listening { border-color: #ffcf5a; color: #ffcf5a; }
+.msg { min-height: 18px; font-size: 12px; color: #ffcf5a; }
+.opts { display: grid; gap: 7px; margin: 8px 0 10px; font-size: 13.5px; }
+.opts select { margin-left: 6px; background: #1e1810; color: #f6e8c4; border: 1px solid #6a5328; border-radius: 6px; padding: 3px 6px; }
+.row { display: flex; gap: 8px; justify-content: flex-end; }
+.pbtn { appearance: none; padding: 8px 14px; border-radius: 8px; border: 1px solid #6a5328; background: #1e1810; color: #f6e8c4; font: 600 13.5px system-ui, sans-serif; cursor: pointer; }
+.pbtn.primary { background: #9a6a1e; border-color: #d6a24a; }
