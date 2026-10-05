@@ -1,0 +1,70 @@
+/* Galaga tribute: layout, toolbar, touch controls, settings. Written by: Howie */
+html, body { margin: 0; padding: 0; height: 100%; background: #02030a; overflow: hidden; overscroll-behavior: none; }
+body {
+  position: fixed; inset: 0; display: flex; flex-direction: column; color: #e6eeff;
+  font: 14px/1.35 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; touch-action: manipulation; -webkit-text-size-adjust: 100%;
+}
+[data-jsp-banner] { flex: none; }
+.toolbar { flex: none; display: flex; align-items: center; gap: 6px; padding: 5px 8px; background: linear-gradient(#0e1530, #070a18); border-bottom: 1px solid #23366a; }
+.toolbar .ttl { font: 900 15px/1 "Arial Black", "Trebuchet MS", sans-serif; letter-spacing: 0.22em; color: #ffc83a; margin-left: 6px; }
+.toolbar .sp { flex: 1; }
+.tool {
+  appearance: none; display: inline-flex; align-items: center; gap: 5px; height: 32px; padding: 0 11px; border-radius: 8px;
+  border: 1px solid rgba(127, 180, 255, 0.4); background: rgba(10, 16, 40, 0.85); color: #dfe8ff; text-decoration: none;
+  font: 600 13px/1 system-ui, -apple-system, "Segoe UI", sans-serif; cursor: pointer;
+}
+.tool:hover { border-color: rgba(160, 200, 255, 0.85); background: rgba(24, 36, 80, 0.95); }
+.tool:focus-visible { outline: 2px solid #ffd98a; outline-offset: 1px; }
+.tool[aria-pressed="true"] { color: #ff9c8a; border-color: rgba(255, 140, 120, 0.6); }
+.tool.menu { border-color: rgba(255, 207, 90, 0.7); color: #ffe2a0; }
+@media (max-width: 640px) { .tool .lbl { display: none; } .tool { padding: 0 10px; } .toolbar .ttl { font-size: 13px; letter-spacing: 0.14em; } }
+@media (max-width: 360px) { #btn-full { display: none; } }
+
+#stage { position: relative; flex: 1 1 auto; min-height: 0; display: flex; align-items: center; justify-content: center; overflow: hidden; touch-action: none; background: radial-gradient(ellipse at 50% 30%, #0b1530, #010208 75%); }
+#wrap { position: relative; flex: none; box-shadow: 0 0 0 1px rgba(120, 170, 255, 0.25), 0 10px 50px rgba(40, 80, 200, 0.25); }
+#game { position: absolute; inset: 0; width: 100%; height: 100%; display: block; outline: none; touch-action: none; }
+.noscript { padding: 20px; }
+
+.bar { flex: none; display: flex; align-items: center; height: 24px; padding: 0 10px; box-sizing: border-box; background: #04060e; border-top: 1px solid #141c38; font-size: 11px; color: #6f80aa; white-space: nowrap; overflow: hidden; }
+.bar .note { overflow: hidden; text-overflow: ellipsis; }
+body.is-touch .bar { display: none; }
+
+/* ---------- touch controls: a strip under the playfield in portrait, overlaid corners in landscape ---------- */
+#touch { flex: none; position: relative; display: flex; justify-content: space-between; align-items: center; gap: 8px;
+  padding: 8px 14px calc(10px + env(safe-area-inset-bottom)); background: linear-gradient(#070a18, #02030a); border-top: 1px solid #1a2550; touch-action: none; }
+#touch[hidden] { display: none; }
+.tbtn {
+  appearance: none; padding: 0; touch-action: none; -webkit-tap-highlight-color: transparent; border-radius: 10px;
+  border: 2px solid rgba(127, 180, 255, 0.55); background: radial-gradient(circle at 40% 35%, rgba(70, 100, 170, 0.6), rgba(10, 16, 40, 0.88));
+  color: #e6eeff; font: 800 13px/1 system-ui, sans-serif; letter-spacing: 0.04em; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+}
+.tgroup { display: flex; gap: 12px; align-items: center; }
+.tbtn.dir { width: min(84px, 22vw); height: min(72px, 18vw); font-size: 24px; }
+.tbtn.fire { width: min(104px, 27vw); height: min(104px, 27vw); border-radius: 50%; display: flex; align-items: center; justify-content: center;
+  border-color: rgba(255, 150, 140, 0.85); background: radial-gradient(circle at 40% 35%, rgba(255, 90, 70, 0.8), rgba(110, 10, 20, 0.92)); font-size: 18px; letter-spacing: 0.08em; }
+.tbtn.active { transform: scale(0.93); filter: brightness(1.4); }
+#touch.landscape { position: fixed; left: 0; right: 0; bottom: 0; background: none; border: 0; pointer-events: none; padding: 0 14px calc(10px + env(safe-area-inset-bottom)); z-index: 5; }
+#touch.landscape .tbtn { pointer-events: auto; opacity: 0.72; }
+#touch.landscape .tbtn.dir { width: 64px; height: 56px; }
+#touch.landscape .tbtn.fire { width: 80px; height: 80px; }
+
+/* ---------- settings ---------- */
+#settings { position: fixed; inset: 0; z-index: 60; display: flex; align-items: center; justify-content: center; background: rgba(0, 0, 0, 0.72); padding: 12px; }
+#settings[hidden] { display: none; }
+.panel { width: min(540px, 100%); max-height: 100%; overflow: auto; box-sizing: border-box; padding: 18px 20px; border-radius: 14px;
+  background: linear-gradient(170deg, #121a38, #070a18); border: 1px solid #2c4282; box-shadow: 0 20px 60px rgba(0, 0, 0, 0.7); user-select: text; }
+.panel h2 { margin: 0 0 4px; font: 700 1.3rem Georgia, "Times New Roman", serif; color: #ffd25a; }
+.panel .sub, .touchnote { margin: 0 0 10px; font-size: 12.5px; color: #a9b8dc; }
+.keys { width: 100%; border-collapse: collapse; margin-bottom: 6px; }
+.keys th { text-align: left; font-size: 11.5px; font-weight: 600; color: #8a9ac4; padding: 2px 4px; }
+.keys td { padding: 3px 4px; font-size: 13.5px; }
+.keycap { appearance: none; min-width: 92px; padding: 6px 10px; border-radius: 6px; border: 1px solid #2c4282; background: #0c1430; color: #e6eeff; font: 600 13px ui-monospace, Menlo, Consolas, monospace; cursor: pointer; }
+.keycap.empty { color: #5a6890; }
+.keycap.listening { border-color: #ffcf5a; color: #ffcf5a; }
+.msg { min-height: 18px; font-size: 12px; color: #ffcf5a; }
+.opts { display: grid; gap: 7px; margin: 8px 0 10px; font-size: 13.5px; }
+.opts select { margin-left: 6px; background: #0c1430; color: #e6eeff; border: 1px solid #2c4282; border-radius: 6px; padding: 3px 6px; }
+.row { display: flex; gap: 8px; justify-content: flex-end; }
+.pbtn { appearance: none; padding: 8px 14px; border-radius: 8px; border: 1px solid #2c4282; background: #0c1430; color: #e6eeff; font: 600 13.5px system-ui, sans-serif; cursor: pointer; }
+.pbtn.primary { background: #1e48b0; border-color: #6a9aff; }
