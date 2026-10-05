@@ -136,7 +136,8 @@
       if (anyStartKey(code)) { startGame(1); }
       return;
     }
-    if (G.mode === "gameover") { if (G.overT <= 0 && (anyStartKey(code) || code === "Escape")) toAttract(); return; }
+    if (G.mode === "splash") return;
+    if (G.mode === "gameover") { if (G.overT <= 0 && (anyStartKey(code) || code === "Escape")) overContinue(); return; }
     if (code === bindings.pause || code === "Escape") { togglePause(); return; }
     if (G.mode === "paused" && anyStartKey(code)) { togglePause(); }
   }
@@ -302,8 +303,34 @@
 
   function toAttract() { startDemo(); }
 
+  // Job Seeker Pro Scout AI splash after every cleared wave and on game over
+  var Splash = window.ScoutSplash || null;
+  function waveSplash() {
+    if (!Splash || G.demo) { startWave(G.wave + 1); return; }
+    G.mode = "splash"; updateButtons();
+    var p = G.players[0];
+    Splash.show({
+      kind: "joust", campaign: "joust", tag: "wave" + G.wave, accent: "#ffcc33", glow: "rgba(255,110,20,.32)",
+      title: "WAVE " + G.wave + " CLEARED", sub: G.players.map(function (q, i) { return (G.players.length > 1 ? "P" + (i + 1) + " " : "Score ") + q.score; }).join(" \u2022 ") + " \u2022 Lives " + (p ? p.lives : 0),
+      contLabel: "Next wave",
+      onContinue: function () { G.mode = "playing"; pressed = {}; touch.flapQ = 0; startWave(G.wave + 1); updateButtons(); }
+    });
+  }
+  function overContinue() {
+    if (G.mode === "splash") return;
+    if (G.overSplash || !Splash) { toAttract(); return; }
+    G.overSplash = true; G.mode = "splash"; updateButtons();
+    var best = 0; G.players.forEach(function (q) { best = Math.max(best, q.score); });
+    Splash.show({
+      kind: "joust", campaign: "joust", tag: "gameover", accent: "#ff7a3d", glow: "rgba(255,80,20,.32)",
+      title: "GAME OVER", sub: "Score " + best + " \u2022 High " + highScore + " \u2022 Wave " + G.wave,
+      contLabel: "Play again",
+      onContinue: function () { toAttract(); pressed = {}; touch.flapQ = 0; }
+    });
+  }
+
   function gameOver() {
-    G.mode = "gameover"; G.overT = 1.2;
+    G.mode = "gameover"; G.overT = 1.2; G.overSplash = false;
     var best = 0;
     G.players.forEach(function (p) { best = Math.max(best, p.score); });
     if (best > highScore) { highScore = best; G.newHigh = true; try { localStorage.setItem("joust.highscore", String(highScore)); } catch (e) {} }
@@ -824,12 +851,12 @@
 
   // ---------------------------------------------------------------- update
   function update(dt) {
-    if (G.mode === "paused") return;
+    if (G.mode === "paused" || G.mode === "splash") return;
     G.time += dt;
     G.shake = Math.max(0, G.shake - dt);
     G.flash = Math.max(0, G.flash - dt);
     if (G.message) { G.message.t -= dt; if (G.message.t <= 0) G.message = null; }
-    if (G.mode === "gameover") G.overT -= dt;
+    if (G.mode === "gameover") { G.overT -= dt; if (G.overT <= -1.6 && !G.overSplash) overContinue(); }
 
     if (G.burnT > 0) {
       G.burnT -= dt;
@@ -909,7 +936,7 @@
       }
       G.message = { title: "WAVE " + G.wave + " CLEARED", sub: "", t: 2.0 };
     }
-    if (G.phase === "clear") { G.phaseT -= dt; if (G.phaseT <= 0) startWave(G.wave + 1); }
+    if (G.phase === "clear" && G.mode !== "gameover") { G.phaseT -= dt; if (G.phaseT <= 0) { if (G.demo) startWave(G.wave + 1); else waveSplash(); return; } }
 
     if (G.mode === "playing" && G.players.length && G.players.every(function (p) { return p.state === "out"; })) {
       if (G.overDelay === null) G.overDelay = 1.8;
@@ -1505,7 +1532,7 @@
   bindHold(document.getElementById("btn-flap"), function () {
     touch.active = true;
     if (G.mode === "attract") { startGame(1); return; }
-    if (G.mode === "gameover") { if (G.overT <= 0) toAttract(); return; }
+    if (G.mode === "gameover") { if (G.overT <= 0) overContinue(); return; }
     if (G.mode === "paused") { togglePause(); return; }
     touch.flapQ++;
   }, function () {});
@@ -1514,7 +1541,7 @@
     Audio.unlock();
     if (e.pointerType === "touch") touch.active = true;
     if (G.mode === "attract") { e.preventDefault(); startGame(1); }
-    else if (G.mode === "gameover" && G.overT <= 0) { e.preventDefault(); toAttract(); }
+    else if (G.mode === "gameover" && G.overT <= 0) { e.preventDefault(); overContinue(); }
     else if (G.mode === "paused") { e.preventDefault(); togglePause(); }
   });
   ["touchmove", "gesturestart", "gesturechange"].forEach(function (ev) {
@@ -1620,7 +1647,7 @@
       return {
         mode: G.mode, wave: G.wave, waveKind: G.waveKind, phase: G.phase, bridges: G.bridges, fps: Math.round(fps),
         enemies: G.enemies.length, spawning: G.spawnQ.length, eggs: G.eggs.length, hatchlings: G.hatchlings.length, pteros: G.pteros.length,
-        hand: !!G.hand, highScore: highScore, audio: Audio.state(), muted: Audio.isMuted(), touch: isTouch,
+        hand: !!G.hand, splash: !!(Splash && Splash.isOpen()), highScore: highScore, audio: Audio.state(), muted: Audio.isMuted(), touch: isTouch,
         players: G.players.map(function (p) { return { x: p.x, y: p.y, vx: p.vx, vy: p.vy, onGround: p.onGround, state: p.state, score: p.score, lives: p.lives, inv: p.inv, face: p.face }; }),
         bindings: Object.assign({}, bindings), canvas: { w: canvas.width, h: canvas.height, cssW: canvas.clientWidth, cssH: canvas.clientHeight }
       };

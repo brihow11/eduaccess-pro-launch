@@ -645,6 +645,30 @@
     resetShip(ship.x);
     G.state = "playing";
   }
+  // Job Seeker Pro Scout AI splash after every completed wave and on game over.
+  const Splash = window.ScoutSplash || null;
+  function waveSplash() {
+    if (!Splash) { startWave(G.wave + 1); return; }
+    G.state = "splash"; Sfx.thrust(0); clearHeld();
+    Splash.show({
+      kind: "defender", campaign: "defender", tag: "wave" + G.wave, accent: "#7fd8ff", glow: "rgba(120,80,255,.3)",
+      title: "ATTACK WAVE " + G.wave + " COMPLETED",
+      sub: "Score " + G.score + " \u2022 Humanoids saved " + G.bonusHumans + " \u2022 Ships " + G.lives,
+      contLabel: "Next wave",
+      onContinue: () => { pressed.clear(); clearHeld(); startWave(G.wave + 1); }
+    });
+  }
+  function overSplash() {
+    if (G.state !== "gameover") return;
+    if (!Splash) { newGame(); return; }
+    G.state = "splash"; Sfx.thrust(0); clearHeld();
+    Splash.show({
+      kind: "defender", campaign: "defender", tag: "gameover", accent: "#ff6b9a", glow: "rgba(255,60,120,.28)",
+      title: "GAME OVER", sub: "Score " + G.score + " \u2022 High " + G.hi + " \u2022 Wave " + G.wave,
+      contLabel: "Play again",
+      onContinue: () => { pressed.clear(); clearHeld(); newGame(); }
+    });
+  }
   function gameOver() {
     G.state = "gameover"; G.msgT = 0;
     saveHi();
@@ -959,7 +983,7 @@
       G.msgT += dt;
       const shouldShow = Math.min(G.bonusHumans, Math.max(0, Math.floor((G.msgT - 0.9) / 0.22) + 1));
       while (G.bonusShown < shouldShow) { G.bonusShown++; addScore(G.bonusMult); Sfx.bonus(); }
-      if (G.msgT > 1.2 + G.bonusHumans * 0.22 + 1.8) startWave(G.wave + 1);
+      if (G.msgT > 1.2 + G.bonusHumans * 0.22 + 1.8) waveSplash();
     } else if (G.state === "gameover") {
       G.msgT += dt;
     }
@@ -977,8 +1001,9 @@
       case "gameover":
         stepWorld(dt);
         G.camX = wrapX(G.camX + 30 * dt);
-        if (G.msgT > 1.2 && pressed.has("fire")) newGame();
-        else if (G.msgT > 14) toAttract();
+        if ((G.msgT > 1.2 && pressed.has("fire")) || G.msgT > 3.5) overSplash();
+        break;
+      case "splash":
         break;
       default:
         stepWorld(dt);

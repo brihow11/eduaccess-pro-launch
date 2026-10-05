@@ -8,7 +8,9 @@ Shared pieces for every arcade game under `/games/`. Keep them dependency-free
 ## Job Seeker Pro banner
 
 Every `/games` page shows a slim Job Seeker Pro (Scout AI) banner at the very
-top that links to https://jspro.ai in a new tab. Colors match jspro.ai: navy
+top that links to https://www.jspro.ai in a new tab, with UTM tags
+(`utm_source=eduaccess&utm_medium=game&utm_campaign=games-banner&utm_content=<hub|defender|joust>`).
+The tagline is quoted from the published www.jspro.ai home page; do not invent product claims. Colors match jspro.ai: navy
 `#0A1628`, cream `#FAF8F3`, accent red `#8B1A1A`.
 
 Include it like this (paths are absolute so they work from any game folder):
@@ -33,4 +35,19 @@ Layout help for full-screen games:
 - `banner.js` fires a `jsp-banner-ready` event on `window` after it mounts, so a game
   can re-run its resize logic.
 
-Do not change the link target or remove the banner from a game page.
+Do not change the link target (www.jspro.ai with these UTM tags) or remove the banner from a game page.
+
+## Scout AI splash (between waves and on game over)
+
+`scout-splash.css` + `scout-splash.js` show a full-screen Job Seeker Pro Scout AI
+splash after every wave and on game over. Each splash features three of six
+published Scout features (rotating, so consecutive splashes differ), a "Try Scout
+free" button to `https://www.jspro.ai/?utm_source=eduaccess&utm_medium=game&utm_campaign=<game>&utm_content=splash-<wave|gameover>`
+(new tab, so the game survives) and a Continue button (Enter, Space or C; tap on mobile).
+
+```js
+ScoutSplash.show({ kind: 'defender' | 'joust', campaign: 'joust', tag: 'wave3',
+  title: 'WAVE 3 CLEARED', sub: 'Score 12000', contLabel: 'Next wave',
+  onContinue: function () { /* resume the game */ } });
+ScoutSplash.isOpen(); // true while showing
+```
