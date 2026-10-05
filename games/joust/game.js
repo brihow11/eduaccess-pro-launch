@@ -1051,25 +1051,69 @@
     g.quadraticCurveTo(x, y + h, x, y + h - r); g.lineTo(x, y + r); g.quadraticCurveTo(x, y, x + r, y); g.closePath();
   }
 
+  // Cavern backdrop (cached): stalactite ceiling, two layers of lava-lit rock spires, ruined columns and smoke haze.
+  // Every feature is drawn at x, x - W and x + W so the layer tiles across the wrap seam.
   function rebuildBg() {
     bgLayer.width = Math.round(W * K); bgLayer.height = canvas.height;
     var g = bgLayer.getContext("2d");
     g.setTransform(K, 0, 0, K, 0, 0);
     var gr = g.createLinearGradient(0, 0, 0, H);
-    gr.addColorStop(0, "#07040f"); gr.addColorStop(0.55, "#120a1f"); gr.addColorStop(0.85, "#2a0d10"); gr.addColorStop(1, "#3d0f08");
+    gr.addColorStop(0, "#050307"); gr.addColorStop(0.45, "#0e0810"); gr.addColorStop(0.78, "#24090a"); gr.addColorStop(1, "#4a1206");
     g.fillStyle = gr; g.fillRect(0, 0, W, H);
     var rnd = mulberry(7);
-    for (var i = 0; i < 140; i++) {
-      var x = rnd() * W, y = rnd() * 520, s = rnd() * 1.3 + 0.3;
-      g.fillStyle = "rgba(255,255,255," + (0.15 + rnd() * 0.5).toFixed(2) + ")";
-      g.beginPath(); g.arc(x, y, s, 0, TAU); g.fill();
+    // a few dim stars through gaps in the cavern roof
+    for (var i = 0; i < 70; i++) {
+      var x = rnd() * W, y = 40 + rnd() * 260, sz = rnd() * 1.1 + 0.3;
+      g.fillStyle = "rgba(255,235,220," + (0.08 + rnd() * 0.3).toFixed(2) + ")";
+      g.beginPath(); g.arc(x, y, sz, 0, TAU); g.fill();
     }
-    g.fillStyle = "#170b17";
-    g.beginPath(); g.moveTo(0, H);
-    // frequencies are whole multiples of the arena width so the skyline tiles across the wrap seam
-    var j0 = rnd() * 10;
-    for (var x2 = 0; x2 <= W; x2 += 24) g.lineTo(x2, 560 + Math.sin(x2 * 2 * TAU / W) * 30 + Math.sin(x2 * 6 * TAU / W) * 14 + (x2 === 0 || x2 === W ? j0 : rnd() * 10));
-    g.lineTo(W, H); g.closePath(); g.fill();
+    function each(x, fn) { fn(x); fn(x - W); fn(x + W); }
+    // far spires
+    for (var layer = 0; layer < 2; layer++) {
+      var n = layer ? 9 : 13, base = layer ? 640 : 600;
+      for (var k = 0; k < n; k++) {
+        var sx = (k + rnd() * 0.6) * W / n, sw = (layer ? 46 : 30) + rnd() * 40, sh = (layer ? 170 : 230) + rnd() * 140;
+        var sg = g.createLinearGradient(0, base - sh, 0, base);
+        sg.addColorStop(0, layer ? "#1a0c10" : "#120a10"); sg.addColorStop(0.7, layer ? "#2a0e0c" : "#1c0c0e"); sg.addColorStop(1, layer ? "#5a1808" : "#3a1008");
+        g.fillStyle = sg;
+        each(sx, function (cx) {
+          g.beginPath(); g.moveTo(cx - sw / 2, base);
+          g.lineTo(cx - sw * 0.32, base - sh * 0.55); g.lineTo(cx - sw * 0.12, base - sh * 0.9); g.lineTo(cx + sw * 0.05, base - sh);
+          g.lineTo(cx + sw * 0.2, base - sh * 0.7); g.lineTo(cx + sw * 0.36, base - sh * 0.45); g.lineTo(cx + sw / 2, base); g.closePath(); g.fill();
+          g.strokeStyle = layer ? "rgba(255,110,40,.18)" : "rgba(255,90,40,.1)"; g.lineWidth = 1;
+          g.beginPath(); g.moveTo(cx + sw * 0.05, base - sh); g.lineTo(cx + sw * 0.2, base - sh * 0.7); g.lineTo(cx + sw * 0.36, base - sh * 0.45); g.lineTo(cx + sw / 2, base); g.stroke();
+        });
+      }
+    }
+    // ruined columns
+    for (var c2 = 0; c2 < 4; c2++) {
+      var colx = (c2 + 0.3 + rnd() * 0.4) * W / 4, colh = 60 + rnd() * 70, coly = 600;
+      each(colx, function (cx) {
+        var cg = g.createLinearGradient(cx - 9, 0, cx + 9, 0); cg.addColorStop(0, "#1a0e0e"); cg.addColorStop(0.6, "#3a1c16"); cg.addColorStop(1, "#140808");
+        g.fillStyle = cg; g.fillRect(cx - 8, coly - colh, 16, colh);
+        g.fillStyle = "#2a1410"; g.fillRect(cx - 11, coly - colh - 5, 22, 6);
+        g.strokeStyle = "rgba(0,0,0,.4)"; g.lineWidth = 1; for (var fl = -4; fl <= 4; fl += 4) { g.beginPath(); g.moveTo(cx + fl, coly - colh); g.lineTo(cx + fl, coly); g.stroke(); }
+        g.fillStyle = "#0c0606"; g.beginPath(); g.moveTo(cx - 11, coly - colh - 5); g.lineTo(cx - 2, coly - colh - 5); g.lineTo(cx - 6, coly - colh + 6); g.closePath(); g.fill();
+      });
+    }
+    // stalactite ceiling
+    g.fillStyle = "#060406";
+    g.beginPath(); g.moveTo(0, 0);
+    var j0 = 14 + rnd() * 10;
+    for (var x2 = 0; x2 <= W; x2 += 12) {
+      var d = x2 === 0 || x2 === W ? j0 : 8 + rnd() * 26 + (rnd() < 0.18 ? 30 + rnd() * 40 : 0);
+      g.lineTo(x2, d); if (x2 < W) g.lineTo(x2 + 6, d * 0.4);
+    }
+    g.lineTo(W, 0); g.closePath(); g.fill();
+    g.strokeStyle = "rgba(255,110,50,.16)"; g.lineWidth = 1; g.stroke();
+    // smoke haze bands and lava glow from below
+    for (var hz = 0; hz < 3; hz++) {
+      var hy = 380 + hz * 70, hgr = g.createLinearGradient(0, hy - 40, 0, hy + 40);
+      hgr.addColorStop(0, "rgba(60,30,30,0)"); hgr.addColorStop(0.5, "rgba(70,34,30," + (0.1 + hz * 0.05) + ")"); hgr.addColorStop(1, "rgba(60,30,30,0)");
+      g.fillStyle = hgr; g.fillRect(0, hy - 40, W, 80);
+    }
+    var lgw = g.createLinearGradient(0, 470, 0, H); lgw.addColorStop(0, "rgba(255,80,10,0)"); lgw.addColorStop(1, "rgba(255,90,20,.32)");
+    g.fillStyle = lgw; g.fillRect(0, 470, W, H - 470);
     var vg = g.createRadialGradient(W / 2, H * 0.45, 200, W / 2, H * 0.45, 720);
     vg.addColorStop(0, "rgba(0,0,0,0)"); vg.addColorStop(1, "rgba(0,0,0,0.55)");
     if (!CAM) { g.fillStyle = vg; g.fillRect(0, 0, W, H); }
@@ -1104,21 +1148,43 @@
       g.save();
       ledgePath(g, L, rnd);
       var gr = g.createLinearGradient(0, L.y, 0, L.base ? H : L.y + L.h + 16);
-      if (L.bridge) { gr.addColorStop(0, "#c98a4b"); gr.addColorStop(1, "#5a3218"); }
-      else { gr.addColorStop(0, "#b87745"); gr.addColorStop(0.25, "#8a5230"); gr.addColorStop(1, "#3a1d10"); }
+      if (L.bridge) { gr.addColorStop(0, "#9a6a3e"); gr.addColorStop(1, "#3a2010"); }
+      else { gr.addColorStop(0, "#8a5c3a"); gr.addColorStop(0.2, "#5e3a24"); gr.addColorStop(0.7, "#2e1a10"); gr.addColorStop(1, "#5a2008"); }
       g.fillStyle = gr; g.fill();
       g.clip();
-      for (var i = 0; i < L.w * (L.base ? 1.6 : 0.5); i++) {
-        var tx = L.x + rnd() * L.w, ty = L.y + 4 + rnd() * (L.base ? 110 : L.h + 14);
-        g.fillStyle = rnd() < 0.5 ? "rgba(255,210,160,0.10)" : "rgba(30,10,0,0.25)";
-        g.beginPath(); g.ellipse(tx, ty, 1 + rnd() * 4, 0.8 + rnd() * 2, rnd() * 3, 0, TAU); g.fill();
+      // rock strata, pebbles and cracks (16-bit texture), lava light on the underside
+      var deep = L.base ? 110 : L.h + 16;
+      for (var sy = L.y + 6; sy < L.y + deep; sy += 3 + rnd() * 4) {
+        g.fillStyle = rnd() < 0.5 ? "rgba(255,200,150,0.07)" : "rgba(20,8,0,0.22)";
+        g.fillRect(L.x, sy, L.w, 1 + rnd() * 2);
       }
+      for (var i = 0; i < L.w * (L.base ? 1.6 : 0.6); i++) {
+        var tx = L.x + rnd() * L.w, ty = L.y + 4 + rnd() * deep, pr = 0.8 + rnd() * 3;
+        g.fillStyle = "rgba(20,8,0,0.35)"; g.beginPath(); g.ellipse(tx + 0.6, ty + 0.6, pr, pr * 0.6, 0, 0, TAU); g.fill();
+        g.fillStyle = rnd() < 0.6 ? "rgba(255,215,170,0.16)" : "rgba(120,80,60,0.3)"; g.beginPath(); g.ellipse(tx, ty, pr, pr * 0.6, 0, 0, TAU); g.fill();
+      }
+      g.strokeStyle = "rgba(10,4,0,0.55)"; g.lineWidth = 0.9;
+      for (var cr = 0; cr < L.w / 40; cr++) {
+        var crx = L.x + rnd() * L.w, cry = L.y + 3; g.beginPath(); g.moveTo(crx, cry);
+        for (var st = 0; st < 4; st++) { crx += (rnd() - 0.5) * 8; cry += 2 + rnd() * 5; g.lineTo(crx, cry); } g.stroke();
+      }
+      var ug = g.createLinearGradient(0, L.y + (L.base ? 60 : L.h - 4), 0, L.y + deep + 4);
+      ug.addColorStop(0, "rgba(255,90,20,0)"); ug.addColorStop(1, "rgba(255,110,30," + (L.base ? 0.35 : 0.3 + (L.y / H) * 0.3).toFixed(2) + ")");
+      g.fillStyle = ug; g.fillRect(L.x, L.y, L.w, deep + 6);
       if (L.bridge) {
         g.strokeStyle = "rgba(60,30,10,0.6)"; g.lineWidth = 1.2;
         for (var bx = L.x + 12; bx < L.x + L.w; bx += 18) { g.beginPath(); g.moveTo(bx, L.y + 2); g.lineTo(bx, L.y + L.h); g.stroke(); }
       }
       g.restore();
-      g.fillStyle = L.bridge ? "#f0c08a" : "#f2b277";
+      if (!L.base && !L.bridge) { // hanging stalactite drips, lit from below
+        var dr = mulberry(77 + idx * 5);
+        for (var dd = 0; dd < L.w / 34; dd++) {
+          var dx = L.x + 10 + dr() * (L.w - 20), dlen = 6 + dr() * 12, dw = 2 + dr() * 3, dy = L.y + L.h + 4;
+          var dg = g.createLinearGradient(0, dy, 0, dy + dlen); dg.addColorStop(0, "#3a1e12"); dg.addColorStop(1, "#b84a14");
+          g.fillStyle = dg; g.beginPath(); g.moveTo(dx - dw, dy - 4); g.lineTo(dx + dw, dy - 4); g.lineTo(dx, dy + dlen); g.closePath(); g.fill();
+        }
+      }
+      g.fillStyle = L.bridge ? "#c8986a" : "#c89060";
       g.fillRect(L.x + 2, L.y, L.w - 4, 2.2);
       g.fillStyle = "rgba(255,240,210,0.55)";
       g.fillRect(L.x + 4, L.y, L.w - 8, 0.9);
@@ -1142,19 +1208,45 @@
   }
 
   // ---------------------------------------------------------------- sprites
+  // 16-bit art pass: feathered, shaded mounts and armoured knights with lava rim light.
+  // Same skeleton as before (feet at the origin, lance at y = -44) so gameplay lines up exactly.
   var MOUNTS = {
-    ostrich: { body: "#f2c230", bodyLo: "#a8740f", wing: "#d9a21c", wingLo: "#8f5f0a", leg: "#ff9a2e", neck: "#f7d35a", head: "#f7d35a", beak: "#ff8c1a", long: true },
-    stork: { body: "#eef3fb", bodyLo: "#97a6bd", wing: "#cfdcef", wingLo: "#6f819e", leg: "#ff6f5e", neck: "#f5f8fd", head: "#f5f8fd", beak: "#ff7a3d", long: true },
-    buzzard: { body: "#4b7a52", bodyLo: "#1f3a24", wing: "#355c3b", wingLo: "#13261a", leg: "#d8c25a", neck: "#c98b7a", head: "#d19a88", beak: "#f0d27a", long: false }
+    ostrich: { body: "#e0b23a", bodyLo: "#7a4e0c", wing: "#c99422", wingLo: "#6a420a", leg: "#e88a2a", legLo: "#8a4a12", neck: "#ead07a", head: "#ecd07a", beak: "#f08a1a", feather: "rgba(90,50,5,.45)", long: true },
+    stork: { body: "#e4eaf2", bodyLo: "#7e8ca4", wing: "#c4d0e2", wingLo: "#56668a", leg: "#e8604e", legLo: "#8a2a20", neck: "#eef2f8", head: "#eef2f8", beak: "#f07a3d", feather: "rgba(60,70,100,.4)", long: true },
+    buzzard: { body: "#3e5a40", bodyLo: "#141e14", wing: "#2c4030", wingLo: "#0c140e", leg: "#c8b058", legLo: "#6a5a20", neck: "#b06a5c", head: "#c47a6a", beak: "#e8c860", feather: "rgba(0,0,0,.45)", long: false }
   };
+  var RIM = "rgba(255,130,50,0.55)";   // lava light from below
+  function talons(g, fx, fy, col) {
+    g.strokeStyle = col; g.lineWidth = 1.4;
+    g.beginPath(); g.moveTo(fx - 3, fy); g.lineTo(fx + 6, fy); g.moveTo(fx, fy); g.lineTo(fx + 3.5, fy - 2.5); g.moveTo(fx, fy); g.lineTo(fx - 3.5, fy + 0.4); g.stroke();
+  }
+  function wingShape(g, M, flying, spread) {
+    // coverts
+    var wg = g.createLinearGradient(-22, 0, 6, 0);
+    wg.addColorStop(0, M.wingLo); wg.addColorStop(1, M.wing);
+    g.fillStyle = wg;
+    g.beginPath(); g.moveTo(6, -2); g.quadraticCurveTo(-4, -7, -14, -4); g.quadraticCurveTo(-6, 5, 6, 3); g.closePath(); g.fill();
+    // primaries: five feathers fanned (more spread on the downstroke)
+    var n = 5;
+    for (var i = 0; i < n; i++) {
+      var a = (i - 2) * (flying ? 0.13 + spread * 0.1 : 0.07), len = (flying ? 17 : 12) + (2 - Math.abs(i - 2)) * 2.4;
+      g.save(); g.translate(-9, 0.5 + i * 0.9); g.rotate(Math.PI + a);
+      var fg = g.createLinearGradient(0, 0, len, 0); fg.addColorStop(0, M.wing); fg.addColorStop(1, M.wingLo);
+      g.fillStyle = fg;
+      g.beginPath(); g.moveTo(0, -1.8); g.quadraticCurveTo(len * 0.6, -2.6, len, 0); g.quadraticCurveTo(len * 0.6, 1.8, 0, 1.6); g.closePath(); g.fill();
+      g.strokeStyle = "rgba(0,0,0,.35)"; g.lineWidth = 0.5; g.beginPath(); g.moveTo(1, 0); g.lineTo(len - 2, 0); g.stroke();
+      g.restore();
+    }
+    g.strokeStyle = "rgba(255,255,255,.22)"; g.lineWidth = 0.7; g.beginPath(); g.moveTo(5, -1.6); g.quadraticCurveTo(-4, -6.4, -13, -3.6); g.stroke();
+  }
 
   // Draw a mount (and optional rider) facing right with the origin at its feet.
   function drawMount(g, mk, opts) {
-    var M = MOUNTS[mk];
+    var M = MOUNTS[mk], bz = mk === "buzzard";
     var flying = opts.flying, wingUp = opts.wing || 0;
     g.lineCap = "round"; g.lineJoin = "round";
-    g.strokeStyle = M.leg; g.lineWidth = 2.6;
     var hipX = -2, hipY = -21;
+    // legs: thigh, scaled shin, three-toed talons (far leg darker)
     for (var leg = 0; leg < 2; leg++) {
       var fx, fy, kx, ky;
       if (flying) { fx = -12 - leg * 3; fy = -12 + leg * 2; kx = -4 - leg * 2; ky = -10; }
@@ -1165,49 +1257,76 @@
         var lift = Math.max(0, Math.cos(ph)) * (opts.moving ? 5 : 0);
         fx = hipX + a * (opts.moving ? 12 : 2) + (leg ? 2 : -1); fy = -lift; kx = hipX + a * 6 - 4; ky = -10 - lift * 0.4;
       }
-      g.globalAlpha = leg ? 1 : 0.75;
+      var far = leg === 0;
+      g.strokeStyle = far ? M.legLo : M.legLo; g.lineWidth = 4;
       g.beginPath(); g.moveTo(hipX, hipY); g.lineTo(kx, ky); g.lineTo(fx, fy); g.stroke();
-      g.beginPath(); g.moveTo(fx - 2, fy); g.lineTo(fx + 5, fy); g.moveTo(fx, fy); g.lineTo(fx + 3, fy - 2.5); g.stroke();
+      g.strokeStyle = far ? M.legLo : M.leg; g.lineWidth = 2.2;
+      g.beginPath(); g.moveTo(hipX, hipY); g.lineTo(kx, ky); g.lineTo(fx, fy); g.stroke();
+      if (!far) { g.strokeStyle = "rgba(255,255,255,.3)"; g.lineWidth = 0.6; g.beginPath(); g.moveTo(kx + 0.6, ky); g.lineTo(fx + 0.6, fy - 1); g.stroke(); }
+      talons(g, fx, fy, far ? M.legLo : M.leg);
+      // feathered thigh
+      g.fillStyle = far ? M.bodyLo : M.body;
+      g.beginPath(); g.ellipse((hipX + kx) / 2, (hipY + ky) / 2 - 1, 3.6, 5.4, Math.atan2(ky - hipY, kx - hipX) - Math.PI / 2, 0, TAU); g.fill();
     }
-    g.globalAlpha = 1;
+    // tail
     g.fillStyle = M.wingLo;
     g.beginPath();
-    if (mk === "buzzard") { g.moveTo(-12, -31); g.lineTo(-27, -27); g.lineTo(-25, -23); g.lineTo(-28, -20); g.lineTo(-12, -22); }
-    else { g.moveTo(-13, -32); g.quadraticCurveTo(-28, -42, -27, -30); g.quadraticCurveTo(-30, -24, -14, -23); }
+    if (bz) { g.moveTo(-12, -31); g.lineTo(-28, -29); g.lineTo(-24, -26); g.lineTo(-29, -23); g.lineTo(-23, -22); g.lineTo(-26, -19); g.lineTo(-12, -22); }
+    else { g.moveTo(-13, -32); g.quadraticCurveTo(-26, -46, -30, -36); g.quadraticCurveTo(-24, -34, -29, -28); g.quadraticCurveTo(-22, -26, -14, -23); }
     g.closePath(); g.fill();
-    var bg = g.createLinearGradient(0, -38, 0, -16);
-    bg.addColorStop(0, M.body); bg.addColorStop(1, M.bodyLo);
+    if (!bz) { g.strokeStyle = M.body; g.lineWidth = 0.8; g.beginPath(); g.moveTo(-15, -30); g.quadraticCurveTo(-24, -40, -28, -36); g.moveTo(-15, -27); g.quadraticCurveTo(-24, -31, -27, -29); g.stroke(); }
+    // body: shading ramp + feather scallops + lava rim light underneath
+    var bg = g.createLinearGradient(0, -38, 0, -17);
+    bg.addColorStop(0, M.body); bg.addColorStop(0.55, M.body); bg.addColorStop(1, M.bodyLo);
     g.fillStyle = bg;
     g.beginPath(); g.ellipse(-1, -27, 15, 9.5, -0.08, 0, TAU); g.fill();
+    g.save(); g.beginPath(); g.ellipse(-1, -27, 15, 9.5, -0.08, 0, TAU); g.clip();
+    g.strokeStyle = M.feather; g.lineWidth = 0.7;
+    for (var row = 0; row < 3; row++) for (var col = 0; col < 6; col++) {
+      var px = -13 + col * 5 + (row % 2) * 2.5, py = -32 + row * 4.6;
+      g.beginPath(); g.arc(px, py, 2.6, 0.2, Math.PI - 0.2); g.stroke();
+    }
+    g.fillStyle = "rgba(255,255,255,.16)"; g.beginPath(); g.ellipse(-3, -32, 9, 3, -0.1, 0, TAU); g.fill();
+    g.restore();
+    g.strokeStyle = RIM; g.lineWidth = 1.3; g.beginPath(); g.ellipse(-1, -27, 14.4, 9, -0.08, 0.35, Math.PI - 0.35); g.stroke();
     if (M.long) {
-      g.strokeStyle = M.neck; g.lineWidth = 4.5;
-      g.beginPath(); g.moveTo(10, -30); g.quadraticCurveTo(17, -36, 15, -47); g.stroke();
-      g.fillStyle = M.head; g.beginPath(); g.ellipse(17, -49, 5, 4, 0.2, 0, TAU); g.fill();
-      g.fillStyle = M.beak; g.beginPath(); g.moveTo(20, -51); g.lineTo(29, -48.5); g.lineTo(20.5, -46.5); g.closePath(); g.fill();
-      g.fillStyle = "#fff"; g.beginPath(); g.arc(17.6, -50, 1.6, 0, TAU); g.fill();
-      g.fillStyle = "#111"; g.beginPath(); g.arc(18, -50, 0.8, 0, TAU); g.fill();
+      // S-curved neck with outline, feather texture and an angry brow
+      g.strokeStyle = M.bodyLo; g.lineWidth = 6.4;
+      g.beginPath(); g.moveTo(9, -30); g.quadraticCurveTo(18, -36, 15, -47); g.stroke();
+      g.strokeStyle = M.neck; g.lineWidth = 4.6;
+      g.beginPath(); g.moveTo(9, -30); g.quadraticCurveTo(18, -36, 15, -47); g.stroke();
+      g.strokeStyle = M.feather; g.lineWidth = 0.6;
+      for (var k = 0; k < 4; k++) { g.beginPath(); g.moveTo(12 + k * 1.2, -33 - k * 3.2); g.lineTo(15 + k * 0.6, -34 - k * 3.2); g.stroke(); }
+      var hg = g.createRadialGradient(16, -51, 0.5, 17, -49, 6); hg.addColorStop(0, "#ffffff"); hg.addColorStop(0.35, M.head); hg.addColorStop(1, M.bodyLo);
+      g.fillStyle = hg; g.beginPath(); g.ellipse(17, -49, 5.4, 4.2, 0.2, 0, TAU); g.fill();
+      g.fillStyle = M.beak; g.beginPath(); g.moveTo(20, -51.5); g.lineTo(30, -48.5); g.lineTo(20.5, -46.5); g.closePath(); g.fill();
+      g.strokeStyle = "rgba(0,0,0,.45)"; g.lineWidth = 0.6; g.beginPath(); g.moveTo(21, -49); g.lineTo(29, -48.6); g.stroke();
+      g.fillStyle = "#1a0e04"; g.beginPath(); g.arc(18, -50, 1.3, 0, TAU); g.fill();
+      g.fillStyle = "#ffe8a0"; g.fillRect(17.7, -50.6, 0.7, 0.7);
+      g.strokeStyle = M.bodyLo; g.lineWidth = 1; g.beginPath(); g.moveTo(15.5, -52.2); g.lineTo(20, -51); g.stroke();
+      // crest
+      g.strokeStyle = M.wingLo; g.lineWidth = 1; g.beginPath(); g.moveTo(14, -52); g.lineTo(10, -56); g.moveTo(15, -53); g.lineTo(12, -58); g.stroke();
     } else {
-      g.strokeStyle = M.neck; g.lineWidth = 4;
-      g.beginPath(); g.moveTo(10, -31); g.quadraticCurveTo(17, -33, 20, -37); g.stroke();
-      g.fillStyle = M.head; g.beginPath(); g.ellipse(21, -39, 5, 4.2, 0.1, 0, TAU); g.fill();
-      g.fillStyle = M.beak; g.beginPath(); g.moveTo(24, -41.5); g.quadraticCurveTo(31, -41, 30, -36); g.lineTo(27, -38); g.lineTo(24.5, -37.5); g.closePath(); g.fill();
-      g.fillStyle = "#ff3030"; g.beginPath(); g.arc(21.8, -40, 1.4, 0, TAU); g.fill();
-      glowAt(g, 21.8, -40, 4, "rgba(255,40,40,0.8)");
+      // vulture: dark feather ruff, bald wrinkled neck, hooked beak, glowing eye
+      g.fillStyle = M.wingLo;
+      g.beginPath(); g.moveTo(5, -36); g.lineTo(9, -40); g.lineTo(11, -35.5); g.lineTo(14, -38.5); g.lineTo(14.5, -33); g.lineTo(17, -33.5); g.lineTo(13, -28); g.lineTo(6, -28); g.closePath(); g.fill();
+      g.strokeStyle = M.neck; g.lineWidth = 3.6;
+      g.beginPath(); g.moveTo(12, -33); g.quadraticCurveTo(17, -34, 20, -37); g.stroke();
+      g.strokeStyle = "rgba(60,10,10,.5)"; g.lineWidth = 0.5; g.beginPath(); g.moveTo(15, -35.6); g.lineTo(15.5, -33.2); g.moveTo(17, -36.2); g.lineTo(17.6, -34); g.stroke();
+      var vh = g.createRadialGradient(20, -40.5, 0.5, 21, -39, 5.6); vh.addColorStop(0, "#f0b0a0"); vh.addColorStop(0.5, M.head); vh.addColorStop(1, "#5a2420");
+      g.fillStyle = vh; g.beginPath(); g.ellipse(21, -39, 5, 4.2, 0.1, 0, TAU); g.fill();
+      g.fillStyle = M.beak; g.beginPath(); g.moveTo(24, -41.5); g.quadraticCurveTo(32, -41.5, 30.5, -35.5); g.lineTo(28, -37.6); g.lineTo(24.5, -37.5); g.closePath(); g.fill();
+      g.fillStyle = "rgba(0,0,0,.35)"; g.beginPath(); g.moveTo(25, -38.6); g.lineTo(30.4, -36); g.lineTo(28, -37.6); g.closePath(); g.fill();
+      g.strokeStyle = "#2a0a08"; g.lineWidth = 0.9; g.beginPath(); g.moveTo(19.6, -42.3); g.lineTo(23.6, -41); g.stroke();
+      g.fillStyle = "#ff3a20"; g.beginPath(); g.arc(21.8, -40, 1.3, 0, TAU); g.fill();
+      glowAt(g, 21.8, -40, 4.5, "rgba(255,50,20,0.85)");
     }
     if (opts.rider) drawKnight(g, opts.rider, opts);
     var ang = flying ? (-1.15 + (1 - wingUp) * 1.75) : 0.12;
     g.save();
     g.translate(1, -31);
     g.rotate(ang);
-    var wg = g.createLinearGradient(-20, 0, 6, 0);
-    wg.addColorStop(0, M.wingLo); wg.addColorStop(1, M.wing);
-    g.fillStyle = wg;
-    g.beginPath();
-    if (flying) { g.moveTo(5, -2); g.quadraticCurveTo(-6, -8, -24, -5); g.lineTo(-20, -1); g.lineTo(-26, 1); g.lineTo(-19, 3.5); g.lineTo(-23, 6); g.quadraticCurveTo(-8, 7, 5, 3); }
-    else { g.moveTo(6, -1); g.quadraticCurveTo(-4, -5, -18, 1); g.lineTo(-14, 3); g.lineTo(-19, 5); g.quadraticCurveTo(-6, 8, 6, 3); }
-    g.closePath(); g.fill();
-    g.strokeStyle = "rgba(0,0,0,0.25)"; g.lineWidth = 0.8;
-    g.beginPath(); g.moveTo(-6, 0); g.lineTo(-18, 1); g.stroke();
+    wingShape(g, M, flying, wingUp);
     g.restore();
   }
 
@@ -1215,31 +1334,76 @@
     var bob = opts.flying ? 0 : Math.sin((opts.leg || 0) * 2) * (opts.moving ? 0.8 : 0);
     g.save();
     g.translate(0, bob);
-    g.strokeStyle = st.armor; g.lineWidth = 3.4;
-    g.beginPath(); g.moveTo(-3, -36); g.lineTo(2, -30); g.lineTo(1, -25); g.stroke();
-    g.strokeStyle = "#e9e3d2"; g.lineWidth = 2.2;
-    g.beginPath(); g.moveTo(-13, -42.5); g.lineTo(31, -44); g.stroke();
-    g.fillStyle = "#ffffff";
-    g.beginPath(); g.moveTo(31, -46); g.lineTo(37, -44.2); g.lineTo(31, -42.2); g.closePath(); g.fill();
-    glowAt(g, 36, -44, 6, "rgba(255,255,230,0.75)");
-    var tg = g.createLinearGradient(-9, 0, 4, 0);
-    tg.addColorStop(0, st.armor); tg.addColorStop(0.6, st.armorHi); tg.addColorStop(1, st.armor);
-    g.fillStyle = tg;
-    roundRect(g, -8.5, -52, 10, 17, 3); g.fill();
-    g.fillStyle = "rgba(0,0,0,0.25)"; g.fillRect(-8.5, -40, 10, 2);
+    // leg in the stirrup: cuisse, greave, dark boot
+    g.strokeStyle = "#2a2430"; g.lineWidth = 4.4;
+    g.beginPath(); g.moveTo(-3, -37); g.lineTo(2.5, -30); g.lineTo(1.5, -24.5); g.stroke();
     g.strokeStyle = st.armor; g.lineWidth = 3;
-    g.beginPath(); g.moveTo(-2, -48); g.lineTo(3, -44); g.stroke();
-    var hg = g.createRadialGradient(-4, -59, 1, -3, -57, 7);
-    hg.addColorStop(0, st.armorHi); hg.addColorStop(1, st.armor);
+    g.beginPath(); g.moveTo(-3, -37); g.lineTo(2.5, -30); g.lineTo(1.6, -26); g.stroke();
+    g.fillStyle = "#1a1418"; g.beginPath(); g.ellipse(2.4, -24.6, 2.8, 1.5, 0, 0, TAU); g.fill();
+    // chainmail skirt
+    g.fillStyle = "#4a4652"; g.beginPath(); g.moveTo(-9, -38.5); g.lineTo(2, -38.5); g.lineTo(3, -34); g.lineTo(-8, -33.5); g.closePath(); g.fill();
+    g.fillStyle = "rgba(255,255,255,.18)"; for (var cx = -8; cx < 2; cx += 1.6) g.fillRect(cx, -37 + (cx & 1), 0.6, 0.6);
+    // lance: wooden shaft with grip wrap, steel tip and a vamplate guard
+    var lg = g.createLinearGradient(0, -46, 0, -41); lg.addColorStop(0, "#f4ead2"); lg.addColorStop(0.5, "#c8b48a"); lg.addColorStop(1, "#6a5434");
+    g.strokeStyle = lg; g.lineWidth = 2.4;
+    g.beginPath(); g.moveTo(-13, -42.5); g.lineTo(31, -44); g.stroke();
+    g.strokeStyle = "rgba(60,30,10,.6)"; g.lineWidth = 0.6;
+    for (var w = 8; w < 28; w += 4) { g.beginPath(); g.moveTo(w, -45.3 + w * -0.012); g.lineTo(w + 1.4, -42.4 + w * -0.012); g.stroke(); }
+    var tg2 = g.createLinearGradient(31, -46, 31, -42); tg2.addColorStop(0, "#ffffff"); tg2.addColorStop(1, "#7a8090");
+    g.fillStyle = tg2; g.beginPath(); g.moveTo(31, -46.2); g.lineTo(38, -44.2); g.lineTo(31, -42); g.closePath(); g.fill();
+    glowAt(g, 37, -44.2, 5, "rgba(255,250,220,0.6)");
+    g.fillStyle = "#8a8e9c"; g.beginPath(); g.moveTo(5, -48); g.lineTo(9, -44.6); g.lineTo(5, -40.8); g.closePath(); g.fill();
+    g.strokeStyle = "rgba(255,255,255,.5)"; g.lineWidth = 0.5; g.beginPath(); g.moveTo(5.2, -47.4); g.lineTo(8.4, -44.6); g.stroke();
+    // breastplate with centre ridge, belt and shading ramp
+    var tg = g.createLinearGradient(-9, 0, 3, 0);
+    tg.addColorStop(0, shadeC(st.armor, 0.55)); tg.addColorStop(0.55, st.armorHi); tg.addColorStop(1, shadeC(st.armor, 0.75));
+    g.fillStyle = tg;
+    g.beginPath(); g.moveTo(-8.5, -50); g.quadraticCurveTo(-3.5, -53.5, 1.5, -50); g.lineTo(2, -39.5); g.lineTo(-8.8, -39.5); g.closePath(); g.fill();
+    g.strokeStyle = "rgba(255,255,255,.45)"; g.lineWidth = 0.6; g.beginPath(); g.moveTo(-2.4, -51.5); g.lineTo(-2.2, -41); g.stroke();
+    g.fillStyle = "#3a2414"; g.fillRect(-8.8, -41.6, 10.8, 1.8); g.fillStyle = "#d8b048"; g.fillRect(-3.8, -41.6, 2, 1.8);
+    g.strokeStyle = RIM; g.lineWidth = 0.9; g.beginPath(); g.moveTo(-8.6, -40); g.lineTo(2, -40); g.stroke();
+    // lance arm: pauldron, upper arm, gauntlet
+    g.strokeStyle = shadeC(st.armor, 0.6); g.lineWidth = 3.2;
+    g.beginPath(); g.moveTo(-2, -48); g.lineTo(1.5, -44.5); g.lineTo(4.6, -44.4); g.stroke();
+    var pg = g.createRadialGradient(-3, -50, 0.5, -2, -49, 4); pg.addColorStop(0, st.armorHi); pg.addColorStop(1, shadeC(st.armor, 0.6));
+    g.fillStyle = pg; g.beginPath(); g.ellipse(-2, -49, 3.6, 2.8, 0.3, 0, TAU); g.fill();
+    g.fillStyle = "#2a2430"; g.beginPath(); g.arc(4.6, -44.4, 1.6, 0, TAU); g.fill();
+    // great helm with visor slit, breaths and flowing plume
+    var hg = g.createLinearGradient(-9, -64, 3, -52);
+    hg.addColorStop(0, st.armorHi); hg.addColorStop(0.5, st.armor); hg.addColorStop(1, shadeC(st.armor, 0.5));
     g.fillStyle = hg;
-    g.beginPath(); g.arc(-3, -57, 6, 0, TAU); g.fill();
-    g.fillStyle = "#14101a"; g.fillRect(-1, -58.5, 5.5, 2);
-    g.strokeStyle = st.plume; g.lineWidth = 2.4;
-    g.beginPath(); g.moveTo(-4, -63); g.quadraticCurveTo(-11, -68, -15, -60); g.stroke();
-    g.fillStyle = st.armor;
-    g.beginPath(); g.moveTo(-12, -49); g.lineTo(-5, -49); g.lineTo(-5, -42); g.quadraticCurveTo(-8.5, -37, -12, -42); g.closePath(); g.fill();
-    g.strokeStyle = st.armorHi; g.lineWidth = 0.9; g.stroke();
+    g.beginPath(); g.moveTo(-8.6, -52); g.lineTo(-8.6, -60); g.quadraticCurveTo(-8.2, -63.4, -3, -63.6); g.quadraticCurveTo(2.6, -63.4, 3, -60); g.lineTo(3, -52.5); g.closePath(); g.fill();
+    g.fillStyle = "#0c0a10"; g.fillRect(-2, -59.2, 5.2, 1.6);
+    g.fillStyle = "rgba(0,0,0,.6)"; g.fillRect(0.4, -56.2, 0.8, 0.8); g.fillRect(2, -56.2, 0.8, 0.8); g.fillRect(1.2, -54.6, 0.8, 0.8);
+    g.strokeStyle = "rgba(255,255,255,.5)"; g.lineWidth = 0.6; g.beginPath(); g.moveTo(-7.8, -59.6); g.quadraticCurveTo(-7, -62.6, -3, -62.8); g.stroke();
+    g.strokeStyle = st.plume; g.lineWidth = 1.6;
+    var sway = Math.sin((opts.leg || 0) * 1.3 + (opts.wing || 0) * 2) * 1.5;
+    for (var pl = 0; pl < 3; pl++) { g.beginPath(); g.moveTo(-4 + pl, -63.4); g.quadraticCurveTo(-10 - pl * 2, -69 + pl, -16 - pl * 1.5, -61 + pl * 2 + sway); g.stroke(); }
+    // heater shield with rim and chevron emblem
+    var sg = g.createLinearGradient(-13, -50, -5, -38); sg.addColorStop(0, st.armorHi); sg.addColorStop(1, shadeC(st.armor, 0.45));
+    g.fillStyle = sg;
+    g.beginPath(); g.moveTo(-13, -50); g.lineTo(-4.6, -50); g.lineTo(-4.6, -43); g.quadraticCurveTo(-8.8, -36.4, -13, -43); g.closePath(); g.fill();
+    g.strokeStyle = "#1a1418"; g.lineWidth = 0.9; g.stroke();
+    g.strokeStyle = st.plume; g.lineWidth = 1.4; g.beginPath(); g.moveTo(-12, -46); g.lineTo(-8.8, -43.2); g.lineTo(-5.6, -46); g.stroke();
     g.restore();
+  }
+  function shadeC(hex, k) { var n = parseInt(hex.slice(1), 16); return "rgb(" + ((n >> 16) * k | 0) + "," + (((n >> 8) & 255) * k | 0) + "," + ((n & 255) * k | 0) + ")"; }
+
+  // Rider sprite cache: poses are quantised (8 wing angles, 8 stride phases) and painted once per zoom level.
+  var spriteCache = {}, spriteCacheK = 0, SPR = { x0: -36, y0: -74, w: 84, h: 80 };
+  function riderSprite(mk, st, o) {
+    var kk = K * RSCALE;
+    if (kk !== spriteCacheK) { spriteCache = {}; spriteCacheK = kk; }
+    var key = mk + "|" + st.armor + "|" + (o.flying ? "f" + o.wq : o.skid ? "s" : o.moving ? "m" + o.lq : "i");
+    var c = spriteCache[key];
+    if (c) return c;
+    c = document.createElement("canvas");
+    c.width = Math.ceil(SPR.w * kk); c.height = Math.ceil(SPR.h * kk);
+    var g = c.getContext("2d");
+    g.setTransform(kk, 0, 0, kk, -SPR.x0 * kk, -SPR.y0 * kk);
+    drawMount(g, mk, { flying: o.flying, wing: o.wq / 7, leg: o.lq / 8 * TAU, moving: o.moving, skid: o.skid, rider: st });
+    spriteCache[key] = c;
+    return c;
   }
 
   function drawWrapped(x, fn) {
@@ -1270,7 +1434,9 @@
       if (r.kind === "enemy" && r.type === "shadow") { ctx.globalCompositeOperation = "lighter"; glow(0, -36, 34, "rgba(60,120,255,0.55)"); ctx.globalCompositeOperation = "source-over"; }
       if (RSCALE !== 1) ctx.scale(RSCALE, RSCALE);
       ctx.scale(r.face, 1);
-      drawMount(ctx, mk, { flying: flying, wing: wing, leg: r.legPhase, moving: Math.abs(r.vx) > 8, skid: r.skid, rider: st });
+      var lp = ((r.legPhase || 0) % TAU + TAU) % TAU;
+      var img = riderSprite(mk, st, { flying: flying, wq: Math.round(clamp(wing, 0, 1) * 7), lq: Math.round(lp / TAU * 8) % 8, moving: Math.abs(r.vx) > 8, skid: !!r.skid });
+      ctx.drawImage(img, SPR.x0, SPR.y0, SPR.w, SPR.h);
       ctx.restore();
     });
   }
@@ -1468,6 +1634,20 @@
       ctx.fillStyle = "rgba(255,230,120," + (0.12 + 0.1 * Math.sin(t * 3 + i * 1.7)).toFixed(3) + ")";
       ctx.beginPath(); ctx.ellipse(sx, sy, 26 + (i % 3) * 10, 2.2, 0, 0, TAU); ctx.fill();
     }
+    ctx.globalCompositeOperation = "source-over";
+    // drifting dark crust plates with glowing cracks, and popping bubbles
+    for (var c3 = 0; c3 < 9; c3++) {
+      var cxp = (c3 * 131 + t * (6 + (c3 % 3) * 4)) % (W + 160) - 80, cyp = LAVA_Y + 14 + (c3 % 4) * 9, cw = 26 + (c3 % 3) * 14;
+      ctx.fillStyle = "rgba(60,14,4,.55)";
+      ctx.beginPath(); ctx.moveTo(cxp - cw / 2, cyp); ctx.lineTo(cxp - cw / 4, cyp - 3); ctx.lineTo(cxp + cw / 3, cyp - 2.4); ctx.lineTo(cxp + cw / 2, cyp + 1); ctx.lineTo(cxp, cyp + 3.4); ctx.closePath(); ctx.fill();
+      ctx.strokeStyle = "rgba(255,200,90,.5)"; ctx.lineWidth = 0.7; ctx.beginPath(); ctx.moveTo(cxp - cw / 4, cyp - 1); ctx.lineTo(cxp + 2, cyp + 1); ctx.lineTo(cxp + cw / 4, cyp - 1); ctx.stroke();
+    }
+    for (var bb = 0; bb < 5; bb++) {
+      var ph2 = (t * 0.7 + bb * 0.37) % 1, bx2 = ((bb * 211 + Math.floor(t * 0.7 + bb * 0.37) * 97) % W);
+      ctx.strokeStyle = "rgba(255,220,130," + (0.6 * (1 - ph2)).toFixed(3) + ")"; ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.arc(bx2, LAVA_Y + 4, 1 + ph2 * 5, Math.PI, 0); ctx.stroke();
+    }
+    ctx.globalCompositeOperation = "lighter";
     var hg = ctx.createLinearGradient(0, LAVA_Y - 110, 0, LAVA_Y + 4);
     var pulse = 0.22 + Math.sin(t * 1.7) * 0.05;
     hg.addColorStop(0, "rgba(255,80,0,0)"); hg.addColorStop(1, "rgba(255,90,10," + pulse.toFixed(3) + ")");
