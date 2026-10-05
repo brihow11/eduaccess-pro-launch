@@ -1,0 +1,71 @@
+/* Battlezone tribute: layout, toolbar, touch controls, settings. Written by: Howie */
+html, body { margin: 0; padding: 0; height: 100%; background: #000; overflow: hidden; overscroll-behavior: none; }
+body {
+  position: fixed; inset: 0; display: flex; flex-direction: column; color: #dcffe2;
+  font: 14px/1.35 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; touch-action: manipulation; -webkit-text-size-adjust: 100%;
+}
+[data-jsp-banner] { flex: none; }
+#stage { position: relative; flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column; overflow: hidden; touch-action: none; background: #000; }
+#wrap { position: relative; flex: 1 1 auto; min-height: 0; }
+#game { position: absolute; inset: 0; width: 100%; height: 100%; display: block; background: #000; outline: none; }
+.noscript { padding: 20px; }
+
+.toolbar { position: absolute; top: 8px; right: 8px; z-index: 6; display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end; }
+.tool {
+  appearance: none; display: inline-flex; align-items: center; gap: 5px; height: 32px; padding: 0 11px; border-radius: 8px;
+  border: 1px solid rgba(120, 255, 150, 0.35); background: rgba(2, 14, 6, 0.72); color: #dcffe2; text-decoration: none;
+  font: 600 13px/1 system-ui, -apple-system, "Segoe UI", sans-serif; cursor: pointer; backdrop-filter: blur(4px);
+  box-shadow: 0 0 12px rgba(60, 255, 120, 0.12);
+}
+.tool:hover { border-color: rgba(170, 255, 190, 0.8); background: rgba(10, 40, 18, 0.85); }
+.tool:focus-visible { outline: 2px solid #9fffb5; outline-offset: 1px; }
+.tool[aria-pressed="true"] { color: #ff9c8a; border-color: rgba(255, 140, 120, 0.6); }
+.tool.menu { border-color: rgba(255, 207, 90, 0.55); color: #ffe2a0; }
+@media (max-width: 640px) { .tool .lbl { display: none; } .tool { padding: 0 9px; } }
+@media (max-width: 360px) { #btn-full { display: none; } }
+
+.bar { flex: none; display: flex; align-items: center; height: 24px; padding: 0 10px; box-sizing: border-box; background: #010603; border-top: 1px solid #0c2a14; font-size: 11px; color: #6fa57c; white-space: nowrap; overflow: hidden; }
+.bar .note { overflow: hidden; text-overflow: ellipsis; }
+body.is-touch .bar { display: none; }
+
+/* ---------- touch controls: a strip under the playfield in portrait, overlaid corners in landscape ---------- */
+#touch { flex: none; position: relative; display: flex; justify-content: space-between; align-items: flex-end; gap: 6px;
+  padding: 10px 8px calc(12px + env(safe-area-inset-bottom)); background: linear-gradient(#000, #010a04); border-top: 1px solid #0c2a14; touch-action: none; }
+#touch[hidden] { display: none; }
+.tgroup { display: flex; gap: min(10px, 2vw); align-items: flex-end; }
+.tbtn {
+  appearance: none; padding: 0; width: min(70px, 16.5vw); height: min(70px, 16.5vw); border-radius: 50%; touch-action: none; -webkit-tap-highlight-color: transparent;
+  border: 2px solid rgba(140, 255, 170, 0.55); background: radial-gradient(circle at 40% 35%, rgba(40, 160, 80, 0.45), rgba(4, 30, 12, 0.75));
+  color: #e2ffe8; font: 800 12px/1 system-ui, sans-serif; letter-spacing: 0.04em; box-shadow: 0 0 14px rgba(60, 255, 120, 0.25);
+}
+.tbtn.fire { width: min(96px, 23vw); height: min(96px, 23vw); font-size: 15px; border-color: rgba(255, 140, 120, 0.75); background: radial-gradient(circle at 40% 35%, rgba(255, 90, 70, 0.55), rgba(70, 10, 5, 0.8)); box-shadow: 0 0 18px rgba(255, 80, 60, 0.35); }
+.tgroup.pad { display: grid; grid-template-columns: repeat(3, min(62px, 15vw)); grid-template-rows: repeat(2, min(56px, 13.5vw)); gap: min(6px, 1.4vw); align-items: center; justify-items: center; }
+.tgroup.pad .tbtn { width: min(62px, 15vw); height: min(56px, 13.5vw); border-radius: 14px; font-size: 20px; }
+.tgroup.pad .up { grid-column: 2; grid-row: 1; } .tgroup.pad .left { grid-column: 1; grid-row: 2; } .tgroup.pad .down { grid-column: 2; grid-row: 2; } .tgroup.pad .right { grid-column: 3; grid-row: 2; }
+.tbtn.active { transform: scale(0.93); filter: brightness(1.45); }
+#touch.landscape { position: absolute; left: 0; right: 0; bottom: 0; background: none; border: 0; pointer-events: none; padding: 0 14px calc(10px + env(safe-area-inset-bottom)); z-index: 5; }
+#touch.landscape .tbtn { pointer-events: auto; opacity: 0.72; }
+#touch.landscape .tgroup.pad { grid-template-columns: repeat(3, 54px); grid-template-rows: repeat(2, 48px); }
+#touch.landscape .tgroup.pad .tbtn { width: 54px; height: 48px; }
+#touch.landscape .tbtn.fire { width: 74px; height: 74px; }
+
+/* ---------- settings ---------- */
+#settings { position: fixed; inset: 0; z-index: 40; display: flex; align-items: center; justify-content: center; background: rgba(0, 0, 0, 0.72); padding: 12px; }
+#settings[hidden] { display: none; }
+.panel { width: min(520px, 100%); max-height: 100%; overflow: auto; box-sizing: border-box; padding: 18px 20px; border-radius: 14px;
+  background: linear-gradient(170deg, #06200d, #020a04); border: 1px solid #1f6e35; box-shadow: 0 20px 60px rgba(0, 0, 0, 0.7), 0 0 40px rgba(60, 255, 120, 0.15); user-select: text; }
+.panel h2 { margin: 0 0 4px; font-size: 1.2rem; color: #fff; }
+.panel .sub, .touchnote { margin: 0 0 10px; font-size: 12.5px; color: #9fd6ab; }
+.keys { width: 100%; border-collapse: collapse; margin-bottom: 6px; }
+.keys th { text-align: left; font-size: 11.5px; font-weight: 600; color: #7fbd8d; padding: 2px 4px; }
+.keys td { padding: 3px 4px; font-size: 13.5px; }
+.keycap { appearance: none; min-width: 92px; padding: 6px 10px; border-radius: 6px; border: 1px solid #2d7a45; background: #0b2a14; color: #e6ffec; font: 600 13px ui-monospace, Menlo, Consolas, monospace; cursor: pointer; }
+.keycap.empty { color: #5d9068; }
+.keycap.listening { border-color: #ffcf5a; color: #ffcf5a; }
+.msg { min-height: 18px; font-size: 12px; color: #ffcf5a; }
+.opts { display: grid; gap: 7px; margin: 8px 0 10px; font-size: 13.5px; }
+.opts select { margin-left: 6px; background: #0b2a14; color: #e6ffec; border: 1px solid #2d7a45; border-radius: 6px; padding: 3px 6px; }
+.row { display: flex; gap: 8px; justify-content: flex-end; }
+.pbtn { appearance: none; padding: 8px 14px; border-radius: 8px; border: 1px solid #2d7a45; background: #0b2a14; color: #e6ffec; font: 600 13.5px system-ui, sans-serif; cursor: pointer; }
+.pbtn.primary { background: #1f9a45; border-color: #4ff07c; }
