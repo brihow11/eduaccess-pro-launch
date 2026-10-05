@@ -584,7 +584,7 @@
       if (r.lives <= 0) r.state = "out";
       if (killer && killer.kind === "player" && killer !== r) {
         addScore(killer, 2000, r.x, r.y - 40, "#9be0ff");
-        if (G.waveKind === "gladiator" && !G.gladiatorDone) { G.gladiatorDone = true; addScore(killer, 3000); popup(W / 2, 260, "GLADIATOR BONUS 3000", "#ffe066"); sfx("bonus"); }
+        if (G.waveKind === "gladiator" && !G.gladiatorDone) { G.gladiatorDone = true; addScore(killer, 3000); popup(viewCX(), 260, "GLADIATOR BONUS 3000", "#ffe066"); sfx("bonus"); }
       }
     } else {
       var idx = G.enemies.indexOf(r);
@@ -763,7 +763,7 @@
     var fromLeft = Math.random() < 0.5;
     G.pteros.push({ x: fromLeft ? -50 : W + 50, y: rand(120, 420), vx: (fromLeft ? 1 : -1) * 250 * speedMul(), vy: 0, face: fromLeft ? 1 : -1, t: 0, state: "fly", entered: false });
     sfx("screech");
-    popup(W / 2, 110, "PTERODACTYL!", "#ff8a7a");
+    popup(viewCX(), 110, "PTERODACTYL!", "#ff8a7a");
   }
 
   function stepPteros(dt) {
@@ -861,6 +861,7 @@
   function update(dt) {
     if (G.mode === "paused" || G.mode === "splash") return;
     G.time += dt;
+    updateCamera(dt);
     G.shake = Math.max(0, G.shake - dt);
     G.flash = Math.max(0, G.flash - dt);
     if (G.message) { G.message.t -= dt; if (G.message.t <= 0) G.message = null; }
@@ -940,7 +941,7 @@
     if (G.phase === "play" && G.spawnQ.length === 0 && G.enemies.length === 0 && G.eggs.length === 0 && G.hatchlings.length === 0 && G.pickups.length === 0) {
       G.phase = "clear"; G.phaseT = 2.2;
       if (G.waveKind === "survival") {
-        G.players.forEach(function (p) { if (!p.diedThisWave && p.state !== "out") { addScore(p, 3000); popup(W / 2, 300 + p.idx * 40, (G.numPlayers > 1 ? "P" + (p.idx + 1) + " " : "") + "SURVIVAL BONUS 3000", "#7dff8a"); sfx("bonus"); } });
+        G.players.forEach(function (p) { if (!p.diedThisWave && p.state !== "out") { addScore(p, 3000); popup(viewCX(), 300 + p.idx * 40, (G.numPlayers > 1 ? "P" + (p.idx + 1) + " " : "") + "SURVIVAL BONUS 3000", "#7dff8a"); sfx("bonus"); } });
       }
       G.message = { title: "WAVE " + G.wave + " CLEARED", sub: "", t: 2.0 };
     }
@@ -958,6 +959,18 @@
   var canvas = document.getElementById("game");
   var ctx = canvas.getContext("2d");
   var K = 1;                   // device pixels per logical unit
+  // Phone portrait: a following camera shows a VW-wide slice of the arena so riders are drawn bigger.
+  var VW = W, CAM = false, VW_MIN = 520;
+  function viewCX() { return CAM ? wrapX(G.camX + VW / 2) : W / 2; }
+  function updateCamera(dt) {
+    if (!CAM) { G.camX = 0; return; }
+    var p = G.players[0], tx;
+    if (p && (p.state === "fly" || p.state === "spawn")) tx = p.x + clamp(p.vx * 0.35, -90, 90) - VW / 2;
+    else tx = G.camX === undefined ? (W - VW) / 2 : G.camX;
+    if (G.camX === undefined || G.camSnap) { G.camX = wrapX(tx); G.camSnap = false; return; }
+    var d = wrapDx(wrapX(tx) - G.camX);
+    G.camX = wrapX(G.camX + d * Math.min(1, dt * 4.5));
+  }
   var bgLayer = document.createElement("canvas");
   var ledgeLayer = document.createElement("canvas");
   var glowCache = {};
@@ -981,7 +994,7 @@
   }
 
   function rebuildBg() {
-    bgLayer.width = canvas.width; bgLayer.height = canvas.height;
+    bgLayer.width = Math.round(W * K); bgLayer.height = canvas.height;
     var g = bgLayer.getContext("2d");
     g.setTransform(K, 0, 0, K, 0, 0);
     var gr = g.createLinearGradient(0, 0, 0, H);
@@ -995,11 +1008,13 @@
     }
     g.fillStyle = "#170b17";
     g.beginPath(); g.moveTo(0, H);
-    for (var x2 = 0; x2 <= W; x2 += 24) g.lineTo(x2, 560 + Math.sin(x2 * 0.013) * 30 + Math.sin(x2 * 0.041) * 14 + rnd() * 10);
+    // frequencies are whole multiples of the arena width so the skyline tiles across the wrap seam
+    var j0 = rnd() * 10;
+    for (var x2 = 0; x2 <= W; x2 += 24) g.lineTo(x2, 560 + Math.sin(x2 * 2 * TAU / W) * 30 + Math.sin(x2 * 6 * TAU / W) * 14 + (x2 === 0 || x2 === W ? j0 : rnd() * 10));
     g.lineTo(W, H); g.closePath(); g.fill();
     var vg = g.createRadialGradient(W / 2, H * 0.45, 200, W / 2, H * 0.45, 720);
     vg.addColorStop(0, "rgba(0,0,0,0)"); vg.addColorStop(1, "rgba(0,0,0,0.55)");
-    g.fillStyle = vg; g.fillRect(0, 0, W, H);
+    if (!CAM) { g.fillStyle = vg; g.fillRect(0, 0, W, H); }
   }
 
   function ledgePath(g, L, rnd) {
@@ -1023,7 +1038,7 @@
   }
 
   function rebuildLedgeLayer() {
-    ledgeLayer.width = canvas.width; ledgeLayer.height = canvas.height;
+    ledgeLayer.width = Math.round(W * K); ledgeLayer.height = canvas.height;
     var g = ledgeLayer.getContext("2d");
     g.setTransform(K, 0, 0, K, 0, 0);
     ledges().forEach(function (L, idx) {
@@ -1049,7 +1064,7 @@
       g.fillRect(L.x + 2, L.y, L.w - 4, 2.2);
       g.fillStyle = "rgba(255,240,210,0.55)";
       g.fillRect(L.x + 4, L.y, L.w - 8, 0.9);
-      if (L.base) {
+      if (L.base && !CAM) {
         var py = L.y + 22;
         g.fillStyle = "rgba(10,4,2,0.55)";
         roundRect(g, L.x + 22, py, L.w - 44, 44, 8); g.fill();
@@ -1386,7 +1401,7 @@
     gr.addColorStop(0, "#fff1a6"); gr.addColorStop(0.08, "#ffc233"); gr.addColorStop(0.35, "#ff6a00"); gr.addColorStop(1, "#6b0e00");
     ctx.fillStyle = gr;
     ctx.beginPath(); ctx.moveTo(0, H);
-    for (var x = 0; x <= W; x += 8) ctx.lineTo(x, LAVA_Y + Math.sin(x * 0.03 + t * 2) * 2.5 + Math.sin(x * 0.071 - t * 3.1) * 1.8);
+    for (var x = 0; x <= W; x += 8) ctx.lineTo(x, LAVA_Y + Math.sin(x * 5 * TAU / W + t * 2) * 2.5 + Math.sin(x * 11 * TAU / W - t * 3.1) * 1.8);
     ctx.lineTo(W, H); ctx.closePath(); ctx.fill();
     ctx.globalCompositeOperation = "lighter";
     for (var i = 0; i < 14; i++) {
@@ -1469,11 +1484,43 @@
     if (G.players.length > 1) text("WAVE " + G.wave, W / 2, 44, 14, "#ffb37a", "center", null, MONO);
   }
 
+  // Portrait-camera HUD, in view units (VW x H): score and lives top-left, high score and wave top-centre.
+  function drawHudCam() {
+    G.players.forEach(function (p, i) {
+      var col = i === 0 ? "#ffd23f" : "#6cc4ff", y0 = 24 + i * 50;
+      text(pad6(p.score), 14, y0, 22, col, "left", col, MONO);
+      var n = Math.min(Math.max(p.lives, 0), 7);
+      for (var k = 0; k < n; k++) drawLifeIcon(20 + k * 15, y0 + 30, p.style);
+    });
+    var hi = highScore;
+    if (!G.demo) G.players.forEach(function (p) { hi = Math.max(hi, p.score); });
+    var hx = Math.min(VW / 2, VW - 230);
+    text("HIGH " + pad6(hi), hx, 20, 15, "#ffe9b0", "center", "rgba(255,200,80,0.8)", MONO);
+    if (!G.demo && G.mode !== "attract") text("WAVE " + G.wave, hx, 42, 15, "#ffb37a", "center", null, MONO);
+  }
+  // Arrows on the view edges point at riders and pterodactyls that are off camera.
+  function drawEdgeMarkers() {
+    var c = G.camX + VW / 2, t = G.time;
+    function mark(x, y, col) {
+      var dx = wrapDx(x - wrapX(c));
+      if (Math.abs(dx) < VW / 2 + 8) return;
+      var right = dx > 0, ex = right ? VW - 7 : 7, ey = clamp(y - 22, 70, H - 70);
+      ctx.globalAlpha = 0.55 + 0.35 * Math.sin(t * 6 + y);
+      ctx.fillStyle = col;
+      ctx.beginPath(); ctx.moveTo(ex + (right ? 5 : -5), ey); ctx.lineTo(ex + (right ? -7 : 7), ey - 9); ctx.lineTo(ex + (right ? -7 : 7), ey + 9); ctx.closePath(); ctx.fill();
+    }
+    if (G.mode !== "attract") {
+      G.enemies.forEach(function (e) { if (e.state === "fly" || e.state === "spawn") mark(e.x, e.y, TIERS[e.type] ? TIERS[e.type].armorHi : "#fff"); });
+      G.pteros.forEach(function (q) { mark(q.x, q.y, "#ff6a5a"); });
+    }
+    ctx.globalAlpha = 1;
+  }
+
   function drawTitle() {
     var t = G.time;
     ctx.save();
     ctx.fillStyle = "rgba(4,2,10,0.55)";
-    ctx.fillRect(0, 0, W, H);
+    ctx.fillRect(-W, -H, W * 3, H * 3);
     var y = 200;
     ctx.font = "900 150px " + FONT;
     ctx.textAlign = "center"; ctx.textBaseline = "middle";
@@ -1500,12 +1547,14 @@
     ctx.restore();
   }
 
-  function render() {
-    ctx.setTransform(1, 0, 0, 1, 0, 0);
-    ctx.globalAlpha = 1; ctx.globalCompositeOperation = "source-over";
+  // One copy of the arena, shifted ox logical units (the camera draws a second copy across the wrap seam).
+  function worldPass(ox, sx, sy) {
+    ox = Math.round(ox * K) / K;          // whole device pixels, so the wrap seam never shows a hairline
+    ctx.save();
+    ctx.setTransform(1, 0, 0, 1, ox * K, 0);
+    if (CAM) { ctx.beginPath(); ctx.rect(0, 0, Math.ceil(W * K) + 1, H * K); ctx.clip(); }
     ctx.drawImage(bgLayer, 0, 0);
-    var sx = 0, sy = 0;
-    if (G.shake > 0) { sx = rand(-1, 1) * G.shake * 10; sy = rand(-1, 1) * G.shake * 10; }
+    sx += ox;
     ctx.setTransform(K, 0, 0, K, sx * K, sy * K);
     ctx.fillStyle = "rgba(255,255,255,0.8)";
     for (var s = 0; s < 12; s++) {
@@ -1538,8 +1587,26 @@
       ctx.globalAlpha = 1;
     });
     if (G.flash > 0) { ctx.fillStyle = "rgba(255,255,255," + (G.flash * 1.2).toFixed(3) + ")"; ctx.fillRect(-20, -20, W + 40, H + 40); }
+    ctx.restore();
+  }
+  function render() {
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.globalAlpha = 1; ctx.globalCompositeOperation = "source-over";
+    var sx = 0, sy = 0;
+    if (G.shake > 0) { sx = rand(-1, 1) * G.shake * 10; sy = rand(-1, 1) * G.shake * 10; }
+    if (!CAM) worldPass(0, sx, sy);
+    else {
+      ctx.fillStyle = "#07040f"; ctx.fillRect(0, 0, canvas.width, canvas.height);
+      var cx = G.camX || 0;
+      worldPass(-cx, sx, sy);
+      if (cx + VW > W) worldPass(W - cx, sx, sy);
+    }
     ctx.setTransform(K, 0, 0, K, 0, 0);
-    drawHud();
+    if (CAM) { drawHudCam(); drawEdgeMarkers(); }
+    else drawHud();
+    // Overlays (title, messages, pause, game over) are laid out for the full 960 arena; in camera
+    // mode they are scaled up a little from "fit width" since their content sits near the centre.
+    if (CAM) { var os = Math.min(1, VW / W * 1.3); ctx.setTransform(K * os, 0, 0, K * os, (VW / 2 - W / 2 * os) * K, (H - H * os) / 2 * K); }
     if (G.message && G.mode !== "attract") {
       ctx.globalAlpha = clamp(G.message.t * 2, 0, 1);
       text(G.message.title, W / 2, 270, 46, "#ffe066", "center", "rgba(255,150,30,0.9)");
@@ -1548,12 +1615,12 @@
     }
     if (G.mode === "attract") drawTitle();
     if (G.mode === "paused") {
-      ctx.fillStyle = "rgba(4,2,10,0.6)"; ctx.fillRect(0, 0, W, H);
+      ctx.fillStyle = "rgba(4,2,10,0.6)"; ctx.fillRect(-W, -H, W * 3, H * 3);
       text("PAUSED", W / 2, 300, 64, "#ffe066", "center", "rgba(255,150,30,0.9)");
       text(touch.active ? "TAP TO RESUME" : "PRESS " + keyName(bindings.pause).toUpperCase() + " OR ESC TO RESUME", W / 2, 360, 20, "#ffffff", "center");
     }
     if (G.mode === "gameover") {
-      ctx.fillStyle = "rgba(4,2,10,0.55)"; ctx.fillRect(0, 0, W, H);
+      ctx.fillStyle = "rgba(4,2,10,0.55)"; ctx.fillRect(-W, -H, W * 3, H * 3);
       text("GAME OVER", W / 2, 260, 72, "#ff6a3d", "center", "rgba(255,80,20,0.9)");
       G.players.forEach(function (p, i) {
         text((G.players.length > 1 ? "P" + (i + 1) + "  " : "SCORE  ") + pad6(p.score), W / 2, 340 + i * 36, 28, i ? "#6cc4ff" : "#ffd23f", "center", null, MONO);
@@ -1576,13 +1643,22 @@
     document.body.classList.toggle("is-portrait", portrait);
     var sw = stage.clientWidth, sh = stage.clientHeight;
     var reserve = (isTouch && portrait) ? 150 : 0;
+    // Phone portrait: narrow the view (camera follows the player) until the game fills the width
+    // and all spare height, keeping at least ~210 px for thumb controls.
+    var wasCam = CAM;
+    VW = W; CAM = false;
+    if (isTouch && portrait && params.get("cam") !== "0") {
+      var want = clamp(H * sw / Math.max(200, sh - 210), VW_MIN, W);
+      if (want < W - 40) { VW = Math.round(want); CAM = true; reserve = 210; }
+    }
+    if (CAM && !wasCam) G.camSnap = true;
     var ah = Math.max(60, sh - reserve), aw = Math.max(80, sw);
-    var cw = Math.floor(Math.min(aw, ah * W / H)), ch = Math.floor(cw * H / W);
+    var cw = Math.floor(Math.min(aw, ah * VW / H)), ch = Math.floor(cw * H / VW);
     touchEl.style.height = reserve ? Math.max(reserve, sh - ch) + "px" : "";
     wrap.style.width = cw + "px"; wrap.style.height = ch + "px";
     var dpr = Math.min(window.devicePixelRatio || 1, 3);
     canvas.width = Math.max(1, Math.round(cw * dpr)); canvas.height = Math.max(1, Math.round(ch * dpr));
-    K = canvas.width / W;
+    K = canvas.width / VW;
     rebuildBg(); rebuildLedgeLayer();
     RSCALE = (isTouch && Math.min(window.innerWidth, window.innerHeight) <= 600) ? 1.15 : 1;
     var hint = document.getElementById("rotate-hint");
@@ -1730,7 +1806,7 @@
       return {
         mode: G.mode, wave: G.wave, waveKind: G.waveKind, phase: G.phase, bridges: G.bridges, fps: Math.round(fps),
         enemies: G.enemies.length, spawning: G.spawnQ.length, eggs: G.eggs.length, hatchlings: G.hatchlings.length, pteros: G.pteros.length,
-        hand: !!G.hand, handState: G.hand ? G.hand.state : null, holdFlap: holdFlap, riderScale: RSCALE, splash: !!(Splash && Splash.isOpen()), highScore: highScore, audio: Audio.state(), muted: Audio.isMuted(), touch: isTouch,
+        view: { w: VW, cam: CAM, camX: Math.round(G.camX || 0) }, hand: !!G.hand, handState: G.hand ? G.hand.state : null, holdFlap: holdFlap, riderScale: RSCALE, splash: !!(Splash && Splash.isOpen()), highScore: highScore, audio: Audio.state(), muted: Audio.isMuted(), touch: isTouch,
         players: G.players.map(function (p) { return { x: p.x, y: p.y, vx: p.vx, vy: p.vy, onGround: p.onGround, state: p.state, score: p.score, lives: p.lives, inv: p.inv, face: p.face }; }),
         bindings: Object.assign({}, bindings), canvas: { w: canvas.width, h: canvas.height, cssW: canvas.clientWidth, cssH: canvas.clientHeight }
       };
