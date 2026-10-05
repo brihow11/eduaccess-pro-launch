@@ -215,7 +215,10 @@
     G.pteroT = G.waveKind === "ptero" ? 5 : Math.max(32, 62 - n * 2);
     var sub = WAVE_TEXT[G.waveKind];
     if (n >= 3 && G.bridges) { G.burnT = 1.6; sub = "THE BRIDGE IS BURNING!"; sfx("burn"); }
-    G.message = { title: "WAVE " + n, sub: sub, t: 2.6 };
+    var firstTip = false;
+    if (n === 1 && !G.demo) { try { firstTip = localStorage.getItem("joust.tipSeen") !== "1"; localStorage.setItem("joust.tipSeen", "1"); } catch (e) {} }
+    if (firstTip) sub = "HIGHER LANCE WINS \u2022 " + (touch.active ? "HOLD FLAP TO CLIMB" : "TAP " + keyName(bindings.p1Flap).toUpperCase() + " TO FLAP");
+    G.message = { title: "WAVE " + n, sub: sub, t: firstTip ? 3.8 : 2.6 };
     sfx("wave");
     G.spawnQ = [];
     if (G.waveKind === "egg") {

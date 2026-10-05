@@ -10,6 +10,7 @@
   var noiseBuf = null;
   var muted = false;
   var lastPlay = {};
+  var MASTER = 0.7;  // level-matched with Defender (its explosions were ~8 dB hotter than Joust's clashes)
 
   try { muted = localStorage.getItem("joust.muted") === "1"; } catch (e) {}
 
@@ -19,7 +20,7 @@
     if (!AC) return null;
     try { ctx = new AC(); } catch (e) { ctx = null; return null; }
     master = ctx.createGain();
-    master.gain.value = muted ? 0 : 0.55;
+    master.gain.value = muted ? 0 : MASTER;
     var comp = ctx.createDynamicsCompressor();
     comp.threshold.value = -14;
     comp.ratio.value = 4;
@@ -272,7 +273,7 @@
     setMuted: function (m) {
       muted = !!m;
       try { localStorage.setItem("joust.muted", muted ? "1" : "0"); } catch (e) {}
-      if (master) master.gain.setTargetAtTime(muted ? 0 : 0.55, ctx.currentTime, 0.02);
+      if (master) master.gain.setTargetAtTime(muted ? 0 : MASTER, ctx.currentTime, 0.02);
     },
     state: function () { return ctx ? ctx.state : "none"; }
   };
