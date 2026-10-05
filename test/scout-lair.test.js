@@ -32,13 +32,13 @@ test("Scout's Lair page loads its scripts, shared banner, shared splash and a Ma
   const page = await get(port, "/games/scout-lair/");
   assert.equal(page.statusCode, 200);
   const html = page.body.toString("utf8");
-  for (const needle of ["/games/shared/banner.css", "/games/shared/banner.js", "data-jsp-banner", "/games/shared/scout-splash.js", "/games/shared/scout-splash.css", "scenes.js", "audio.js", "game.js", "img/poster-1.webp", 'href="/games/"', "Main menu", "Written by: Howie"]) {
+  for (const needle of ["/games/shared/banner.css", "/games/shared/banner.js", "data-jsp-banner", "/games/shared/scout-splash.js", "/games/shared/scout-splash.css", "scenes.js", "anim.js", "audio.js", "game.js", "img/poster-1.webp", 'href="/games/"', "Main menu", "Written by: Howie"]) {
     assert.ok(html.includes(needle), needle);
   }
   assert.match(html, /id="btn-mute"/);
   assert.match(html, /data-act="strike"/);
   for (const a of ["up", "down", "left", "right"]) assert.match(html, new RegExp('data-act="' + a + '"'));
-  for (const f of ["game.js", "scenes.js", "audio.js", "style.css"]) {
+  for (const f of ["game.js", "scenes.js", "anim.js", "audio.js", "style.css"]) {
     const r = await get(port, "/games/scout-lair/" + f);
     assert.equal(r.statusCode, 200, f);
   }
@@ -101,10 +101,67 @@ test("Scout's Lair art is optimized WebP and nothing loads from a CDN or audio f
     assert.match(r.headers["content-type"], /image\/webp/);
     assert.equal(r.body.subarray(8, 12).toString("ascii"), "WEBP");
   }
-  for (const f of ["index.html", "game.js", "audio.js", "scenes.js", "style.css"]) {
+  for (const f of ["index.html", "game.js", "audio.js", "scenes.js", "anim.js", "style.css"]) {
     const src = read(f);
     const urls = src.match(/https?:\/\/[^\s"')]+/g) || [];
     assert.deepEqual(urls.filter((u) => !/^https:\/\/www\.jspro\.ai/.test(u) && !/^http:\/\/www\.w3\.org/.test(u)), [], f);
     assert.doesNotMatch(src, /@import|fonts\.googleapis|\.mp3|\.wav|\.ogg/, f);
   }
+});
+
+
+test("Scout's Lair animation helpers: walk cycle, jump squash, fist clears The Machine eye", () => {
+  const AN = require("../games/scout-lair/anim.js");
+  const game = read("game.js");
+  assert.equal(typeof AN.walkCycle, "function");
+  assert.equal(typeof AN.jumpProfile, "function");
+  assert.equal(typeof AN.swipeCurve, "function");
+  assert.equal(typeof AN.fistParkX, "function");
+
+  const w0 = AN.walkCycle(Math.PI / 2);
+  const w1 = AN.walkCycle(Math.PI * 1.5);
+  for (const k of ["lh", "lk", "rh", "rk", "ls", "le", "rs", "re", "lean", "bob", "plant"]) {
+    assert.ok(k in w0, k);
+  }
+  // Opposite legs: left hip sign flips across a half-cycle.
+  assert.ok(Math.sign(w0.lh) !== Math.sign(w1.lh), "left hip flips");
+  assert.ok(Math.abs(w0.lh - w1.lh) > 0.8);
+
+  const crouch = AN.jumpProfile(0.02, 0.22, 0.1, 0.3, 170);
+  const rise = AN.jumpProfile(0.16, 0.22, 0.1, 0.3, 170);
+  const apex = AN.jumpProfile(0.25, 0.22, 0.1, 0.3, 170);
+  const fall = AN.jumpProfile(0.45, 0.22, 0.1, 0.3, 170);
+  assert.equal(crouch.phase, "rise");
+  assert.ok(crouch.sx >= crouch.sy, "anticipation squash at takeoff");
+  assert.equal(rise.phase, "rise");
+  assert.ok(rise.sy > rise.sx, "stretch mid-rise");
+  assert.equal(apex.phase, "hang");
+  assert.ok(apex.jy >= 169);
+  assert.equal(fall.phase, "fall");
+  const land = AN.landSquash(0.05);
+  assert.ok(land.sx > 1 && land.sy < 1, "squash on land");
+
+  // Wind-up goes negative before the slam.
+  assert.ok(AN.swipeCurve(0.1) < 0);
+  assert.ok(AN.swipeCurve(1) > 0.9);
+
+  // Fist parks beside the eye, never covering it at approach peak.
+  const eye = AN.EYE;
+  for (const s of [-1, 1]) {
+    const x = AN.fistParkX(s, 270);
+    const bot = AN.fistApproachBot(1);
+    assert.equal(AN.fistCoversEye(x, bot, eye), false, "side " + s + " at rest");
+    assert.equal(AN.fistCoversEye(x, AN.fistApproachBot(0.5), eye), false, "side " + s + " mid");
+  }
+  // Old centered fist WOULD cover the eye — helper still detects that.
+  assert.equal(AN.fistCoversEye(270, 320, eye), true);
+
+  // Game wires the helpers (walk cycle, jump profile, fist park, swipe curve).
+  assert.match(game, /ScoutAnim/);
+  assert.match(game, /AN\.walkCycle/);
+  assert.match(game, /AN\.jumpProfile/);
+  assert.match(game, /AN\.fistParkX/);
+  assert.match(game, /AN\.swipeCurve/);
+  assert.match(game, /windR/);
+  assert.match(game, /landSquash/);
 });

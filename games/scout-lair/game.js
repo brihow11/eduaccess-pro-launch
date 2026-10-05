@@ -2,7 +2,7 @@
    Canvas + Web Audio, no external assets beyond Brian's art in img/. Written by: Howie */
 (function () {
   'use strict';
-  var D = window.SCOUT_LAIR, SCENES = D.SCENES, AU = window.ScoutAudio;
+  var D = window.SCOUT_LAIR, SCENES = D.SCENES, AU = window.ScoutAudio, AN = window.ScoutAnim;
   var DEBUG = /[?&]debug=1(&|$)/.test(location.search);
   var cv = document.getElementById('game'), ctx = cv.getContext('2d');
   var LW = 540, LH = 960, CX = 270, FLOOR = 805, HOR = 520;
@@ -184,7 +184,7 @@
   var fx = { shake: 0, flash: 0, flashCol: '255,255,255', kick: 0, failWord: '', failT: -9 };
   var cam = { x: 0, y: 0, z: 1 };
   var autoplay = false, OUT_IMPACT = 0.32;
-  var scout = { x: CX, tx: CX, jy: 0, jt: -1, jh: 170, hang: 0, lift: 0, fall: -1, pose: 'idle', hold: 0, cur: null, hitT: -9 };
+  var scout = { x: CX, tx: CX, jy: 0, jt: -1, jh: 170, hang: 0, lift: 0, fall: -1, pose: 'idle', hold: 0, cur: null, hitT: -9, walkPh: 0, sx: 1, sy: 1, landT: -9, hair: 0, hem: 0, leanV: 0, prevX: CX, atkT: -9 };
 
   function inPlay() { return !!PLAY_STATES[state] && !splashOpen(); }
   function setPaused(p) {
@@ -237,7 +237,7 @@
     AU.play('alarm');
   }
   function resetScout() {
-    scout.x = scout.tx = CX; scout.jy = 0; scout.jt = -1; scout.hang = 0; scout.lift = 0; scout.fall = -1; scout.pose = 'ready'; scout.hold = 0;
+    scout.x = scout.tx = CX; scout.jy = 0; scout.jt = -1; scout.hang = 0; scout.lift = 0; scout.fall = -1; scout.pose = 'ready'; scout.hold = 0; scout.walkPh = 0; scout.sx = scout.sy = 1; scout.landT = -9; scout.hair = 0; scout.hem = 0; scout.leanV = 0; scout.prevX = CX; scout.atkT = -9;
   }
   function startBeat(retry) {
     var d = scene().beats[G.beat];
@@ -268,17 +268,19 @@
   }
   function act(k) {
     var t = B.d.t, s = B.S;
-    if (k === 'left' || k === 'right') { scout.tx = CX + (k === 'left' ? -150 : 150); scout.pose = k === 'left' ? 'dodgeL' : 'dodgeR'; AU.play('whoosh'); }
+    if (k === 'left' || k === 'right') { scout.tx = CX + (k === 'left' ? -150 : 150); scout.pose = k === 'left' ? 'dodgeL' : 'dodgeR'; scout.hold = 0.45; AU.play('whoosh'); }
     else if (k === 'up') {
       scout.jt = 0; scout.jh = t === 'water' ? 250 : t === 'gap' ? 190 : 170; scout.hang = t === 'water' ? 0.75 : t === 'gap' ? 0.1 : 0.12;
       if (t === 'gap') scout.tx = CX + 150;
       scout.pose = 'jump'; AU.play('jump');
     } else if (k === 'down') { scout.pose = 'duck'; scout.hold = 0.8; AU.play('whoosh'); }
     else if (k === 'strike') {
+      scout.atkT = 0;
       if (t === 'captive') { scout.tx = CX + s * 80; scout.pose = s < 0 ? 'punchL' : 'punchR'; scout.jt = 0; scout.jh = 70; scout.hang = 0.15; }
       else if (t === 'core' || (t === 'arm' && B.d.side === 'T')) { scout.pose = 'punchU'; scout.jt = 0; scout.jh = t === 'core' ? 230 : 90; scout.hang = 0.2; }
+      else if (t === 'drone' || t === 'hound') scout.pose = 'kick';
       else if (s < 0) scout.pose = 'punchL';
-      else scout.pose = t === 'drone' || t === 'hound' ? 'kick' : 'punchR';
+      else scout.pose = 'punchR';
       if (t === 'drone' && B.d.side === 'F') { scout.jt = 0; scout.jh = 60; scout.hang = 0.1; }
       AU.play('punch');
     }
@@ -433,22 +435,26 @@
 
   // ---------- figures ----------
   var POSES = {
-    idle: { lean: 0, lh: -0.12, lk: 0.1, rh: 0.12, rk: -0.1, ls: -0.4, le: -2.5, rs: 0.4, re: 2.5 },
-    ready: { lean: 0, lh: -0.34, lk: 0.55, rh: 0.34, rk: -0.55, ls: -0.55, le: -2.3, rs: 0.55, re: 2.3 },
-    run: { lean: 0.05, lh: -0.3, lk: 0.6, rh: 0.4, rk: -0.2, ls: -0.6, le: -1.8, rs: 0.6, re: 1.8 },
-    punchR: { lean: 0.15, lh: -0.35, lk: 0.3, rh: 0.3, rk: -0.15, ls: -0.4, le: -2.5, rs: 1.57, re: 0 },
-    punchL: { lean: -0.15, lh: -0.3, lk: 0.15, rh: 0.35, rk: -0.3, ls: -1.57, le: 0, rs: 0.4, re: 2.5 },
-    punchU: { lean: 0, lh: -0.25, lk: 0.3, rh: 0.2, rk: -0.1, ls: -0.5, le: -2.3, rs: 2.75, re: 0.1 },
-    kick: { lean: -0.3, lh: -0.15, lk: 0.05, rh: 1.5, rk: 0, ls: -0.9, le: -1.6, rs: 0.2, re: 2.2 },
-    jump: { lean: 0, lh: -0.55, lk: 1.3, rh: 0.55, rk: -1.3, ls: -2.5, le: 0.3, rs: 2.5, re: -0.3 },
-    duck: { lean: 0, lh: -1.15, lk: 2.1, rh: 1.15, rk: -2.1, ls: -2.7, le: -0.9, rs: 2.7, re: 0.9 },
-    dodgeL: { lean: -0.35, lh: -0.65, lk: 0.5, rh: 0.25, rk: -0.05, ls: -1.3, le: -0.8, rs: 0.8, re: 1.6 },
-    dodgeR: { lean: 0.35, lh: -0.25, lk: 0.05, rh: 0.65, rk: -0.5, ls: -0.8, le: -1.6, rs: 1.3, re: 0.8 },
-    hit: { lean: 0.45, lh: -0.25, lk: 0.4, rh: 0.45, rk: -0.1, ls: -2.3, le: -0.5, rs: 1.9, re: 0.7 },
-    cheer: { lean: 0, lh: -0.15, lk: 0.1, rh: 0.15, rk: -0.1, ls: -0.5, le: -2.4, rs: 2.95, re: 0.05 },
+    idle: { lean: 0.02, lh: -0.14, lk: 0.18, rh: 0.16, rk: -0.12, ls: -0.45, le: -2.45, rs: 0.42, re: 2.4 },
+    ready: { lean: 0.04, lh: -0.38, lk: 0.62, rh: 0.36, rk: -0.58, ls: -0.62, le: -2.2, rs: 0.58, re: 2.15 },
+    run: { lean: 0.12, lh: -0.55, lk: 0.95, rh: 0.5, rk: -0.25, ls: -0.85, le: -1.55, rs: 0.7, re: 1.7 },
+    punchR: { lean: 0.28, lh: -0.5, lk: 0.55, rh: 0.22, rk: -0.12, ls: -0.55, le: -2.35, rs: 1.72, re: -0.15 },
+    punchL: { lean: -0.28, lh: -0.22, lk: 0.12, rh: 0.5, rk: -0.55, ls: -1.72, le: 0.15, rs: 0.55, re: 2.35 },
+    punchU: { lean: -0.05, lh: -0.4, lk: 0.55, rh: 0.28, rk: -0.2, ls: -0.7, le: -2.1, rs: 2.95, re: -0.05 },
+    kick: { lean: -0.42, lh: -0.2, lk: 0.15, rh: 1.65, rk: -0.15, ls: -1.15, le: -1.35, rs: 0.35, re: 2.05 },
+    jump: { lean: 0.05, lh: -0.7, lk: 1.45, rh: 0.65, rk: -1.4, ls: -2.65, le: 0.45, rs: 2.65, re: -0.45 },
+    duck: { lean: 0.08, lh: -1.25, lk: 2.2, rh: 1.2, rk: -2.15, ls: -2.75, le: -0.75, rs: 2.75, re: 0.75 },
+    dodgeL: { lean: -0.48, lh: -0.78, lk: 0.7, rh: 0.2, rk: 0.05, ls: -1.45, le: -0.55, rs: 0.95, re: 1.45 },
+    dodgeR: { lean: 0.48, lh: -0.2, lk: -0.05, rh: 0.78, rk: -0.7, ls: -0.95, le: -1.45, rs: 1.45, re: 0.55 },
+    hit: { lean: 0.55, lh: -0.2, lk: 0.55, rh: 0.55, rk: -0.2, ls: -2.45, le: -0.35, rs: 2.05, re: 0.55 },
+    cheer: { lean: -0.04, lh: -0.2, lk: 0.2, rh: 0.2, rk: -0.15, ls: -0.55, le: -2.35, rs: 3.05, re: -0.05 },
     held: { lean: 0, lh: -0.1, lk: 0.3, rh: 0.15, rk: -0.35, ls: -2.75, le: -0.2, rs: 2.75, re: 0.2 },
     stand: { lean: 0, lh: -0.08, lk: 0, rh: 0.08, rk: 0, ls: -0.15, le: -0.2, rs: 0.15, re: 0.2 },
-    wave: { lean: 0, lh: -0.08, lk: 0, rh: 0.08, rk: 0, ls: -0.15, le: -0.2, rs: 2.5, re: 0.5 }
+    wave: { lean: 0, lh: -0.08, lk: 0, rh: 0.08, rk: 0, ls: -0.15, le: -0.2, rs: 2.5, re: 0.5 },
+    windR: { lean: -0.22, lh: -0.45, lk: 0.7, rh: 0.4, rk: -0.35, ls: -0.35, le: -2.4, rs: -0.55, re: -2.1 },
+    windL: { lean: 0.22, lh: -0.4, lk: 0.35, rh: 0.45, rk: -0.7, ls: 0.55, le: 2.1, rs: 0.35, re: 2.4 },
+    windK: { lean: 0.2, lh: -0.55, lk: 1.1, rh: 0.35, rk: -0.25, ls: -0.7, le: -2.0, rs: 0.9, re: 1.6 },
+    land: { lean: 0.06, lh: -0.95, lk: 1.7, rh: 0.95, rk: -1.7, ls: -1.8, le: -1.4, rs: 1.8, re: 1.4 }
   };
   var JOINTS = ['lean', 'lh', 'lk', 'rh', 'rk', 'ls', 'le', 'rs', 're'];
   var SCOUT_LOOK = { pants: '#2f5288', pantsD: '#132541', shoe: '#f4f4f0', shoeA: '#2a2a2a', jacket: '#6e3f22', jacketL: '#93592f', jacketD: '#3a1f10', tee: '#121214', skin: '#ebb995', head: 'scout' };
@@ -465,20 +471,27 @@
     var x1 = x0 + Math.sin(a1) * l1, y1 = y0 + Math.cos(a1) * l1;
     var x2 = x1 + Math.sin(a1 + a2) * l2, y2 = y1 + Math.cos(a1 + a2) * l2;
     ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+    // Outer outline
     ctx.strokeStyle = dark; ctx.lineWidth = w + 5;
     ctx.beginPath(); ctx.moveTo(x0, y0); ctx.lineTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke();
+    // Thigh / upper thicker, shin / forearm tapers — reads as weight, not flat sticks.
     ctx.strokeStyle = col; ctx.lineWidth = w;
-    ctx.beginPath(); ctx.moveTo(x0, y0); ctx.lineTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(x0, y0); ctx.lineTo(x1, y1); ctx.stroke();
+    ctx.lineWidth = w * 0.72;
+    ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke();
+    circle(x1, y1, w * 0.28, dark);
     return [x2, y2, a1 + a2];
   }
   // Draws a figure with feet at (x, y). P is a pose; L the look.
   function drawFigure(x, y, sc, P, L, opt) {
     opt = opt || {};
+    var sx = opt.sx == null ? 1 : opt.sx, sy = opt.sy == null ? 1 : opt.sy;
+    var hem = opt.hem || 0, hair = opt.hair || 0;
     var lv = 72 * Math.cos(P.lh) + 70 * Math.cos(P.lh + P.lk), rv = 72 * Math.cos(P.rh) + 70 * Math.cos(P.rh + P.rk);
     var hipY = -Math.max(lv, rv, 50);
     ctx.save();
-    if (!opt.noShadow) { ctx.fillStyle = 'rgba(0,0,0,.35)'; ctx.beginPath(); ctx.ellipse(x, y + 4, 44 * sc * Math.max(0.4, 1 - (opt.jy || 0) / 400), 9 * sc, 0, 0, TAU); ctx.fill(); }
-    ctx.translate(x, y - (opt.jy || 0)); ctx.scale(sc, sc);
+    if (!opt.noShadow) { ctx.fillStyle = 'rgba(0,0,0,.35)'; ctx.beginPath(); ctx.ellipse(x, y + 4, 44 * sc * Math.max(0.4, sx) * Math.max(0.4, 1 - (opt.jy || 0) / 400), 9 * sc * sy, 0, 0, TAU); ctx.fill(); }
+    ctx.translate(x, y - (opt.jy || 0)); ctx.scale(sc * sx, sc * sy);
     if (opt.rot) ctx.rotate(opt.rot);
     ctx.translate(0, hipY);
     // legs
@@ -498,6 +511,9 @@
     [-1, 1].forEach(function (s) {
       var jg = ctx.createLinearGradient(s * 29, 0, s * 7, 0); jg.addColorStop(0, L.jacketD); jg.addColorStop(0.35, L.jacket); jg.addColorStop(1, L.jacketL);
       poly([s * 27, 6, s * 8, 6, s * 7, -50, s * 15, -78, s * 11, -90, s * 29, -88], jg, L.jacketD, 2.5);
+      // Jacket hem flap — secondary motion from lean / run.
+      var flap = 6 + hem * s * 10 + P.lean * s * 8;
+      poly([s * 27, 6, s * 8, 6, s * 10, 18 + Math.abs(hem) * 6, s * (30 + flap * 0.15), 14 + Math.abs(hem) * 4], L.jacket, L.jacketD, 1.5);
       if (L.head === 'scout') { line(s * 20, -40, s * 13, -30, '#c9c9c9', 1.5); line(s * 24, -70, s * 18, -62, L.jacketD, 1.5); }
       poly([s * 7, -50, s * 15, -78, s * 11, -90, s * 5, -84], L.jacketL, L.jacketD, 1.5);
       line(s * 9, 4, s * 8, -48, L.head === 'scout' ? '#c9c9c9' : L.jacketD, 1.5);
@@ -514,16 +530,17 @@
     ctx.restore();
   }
   function drawScoutHead(opt) {
-    var hair = '#131a2b';
-    ctx.fillStyle = hair; ctx.beginPath(); ctx.ellipse(0, -127, 27, 27, 0, 0, TAU); ctx.fill();
-    rrect(-28, -128, 56, 30, 9); ctx.fill();
+    var hair = '#131a2b', hx = (opt && opt.hair) || 0;
+    ctx.fillStyle = hair; ctx.beginPath(); ctx.ellipse(hx * 0.4, -127, 27, 27, 0, 0, TAU); ctx.fill();
+    rrect(-28 + hx * 0.3, -128, 56, 30, 9); ctx.fill();
     ctx.fillStyle = '#ebb995'; ctx.beginPath(); ctx.ellipse(0, -120, 18.5, 23, 0, 0, TAU); ctx.fill();
-    ctx.fillStyle = hair; ctx.beginPath(); ctx.moveTo(-25, -122); ctx.quadraticCurveTo(-23, -153, 0, -151); ctx.quadraticCurveTo(25, -151, 26, -120);
-    ctx.lineTo(19, -131); ctx.lineTo(9, -127); ctx.lineTo(0, -134); ctx.lineTo(-9, -128); ctx.lineTo(-18, -133); ctx.closePath(); ctx.fill();
-    ctx.strokeStyle = '#2d3f6e'; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(-14, -146); ctx.quadraticCurveTo(2, -151, 16, -143); ctx.stroke();
-    ctx.fillStyle = hair; ctx.beginPath(); ctx.moveTo(-27, -118); ctx.quadraticCurveTo(-30, -100, -22, -94); ctx.lineTo(-17, -104); ctx.closePath(); ctx.fill();
-    ctx.beginPath(); ctx.moveTo(27, -118); ctx.quadraticCurveTo(30, -100, 22, -94); ctx.lineTo(17, -104); ctx.closePath(); ctx.fill();
-    line(-22, -130, -24, -108, '#2d3f6e', 1.5); line(22, -130, 24, -108, '#2d3f6e', 1.5);
+    ctx.fillStyle = hair; ctx.beginPath(); ctx.moveTo(-25 + hx, -122); ctx.quadraticCurveTo(-23 + hx * 0.6, -153, hx * 0.3, -151); ctx.quadraticCurveTo(25 + hx * 0.6, -151, 26 + hx, -120);
+    ctx.lineTo(19 + hx * 0.5, -131); ctx.lineTo(9, -127); ctx.lineTo(hx * 0.2, -134); ctx.lineTo(-9, -128); ctx.lineTo(-18 + hx * 0.4, -133); ctx.closePath(); ctx.fill();
+    ctx.strokeStyle = '#2d3f6e'; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(-14 + hx * 0.3, -146); ctx.quadraticCurveTo(2 + hx * 0.2, -151, 16 + hx * 0.3, -143); ctx.stroke();
+    // Side locks — lag behind lean for secondary motion.
+    ctx.fillStyle = hair; ctx.beginPath(); ctx.moveTo(-27, -118); ctx.quadraticCurveTo(-30 - hx * 1.4, -100, -22 - hx * 1.8, -94); ctx.lineTo(-17 - hx, -104); ctx.closePath(); ctx.fill();
+    ctx.beginPath(); ctx.moveTo(27, -118); ctx.quadraticCurveTo(30 - hx * 1.4, -100, 22 - hx * 1.8, -94); ctx.lineTo(17 - hx, -104); ctx.closePath(); ctx.fill();
+    line(-22, -130, -24 - hx * 0.5, -108, '#2d3f6e', 1.5); line(22, -130, 24 - hx * 0.5, -108, '#2d3f6e', 1.5);
     // glasses + glowing eyes
     ctx.fillStyle = 'rgba(70,240,220,.3)'; ctx.fillRect(-17, -127, 14, 10); ctx.fillRect(3, -127, 14, 10);
     ctx.shadowColor = '#40f0dc'; ctx.shadowBlur = 12;
@@ -531,8 +548,8 @@
     ctx.shadowBlur = 0;
     ctx.strokeStyle = '#050505'; ctx.lineWidth = 3; ctx.strokeRect(-17, -127, 14, 10); ctx.strokeRect(3, -127, 14, 10);
     line(-3, -123, 3, -123, '#050505', 2);
-    if (opt.shout) { ctx.fillStyle = '#5a1a1a'; ctx.beginPath(); ctx.ellipse(0, -107, 4.5, 3.5, 0, 0, TAU); ctx.fill(); }
-    else { ctx.strokeStyle = '#8a3b3b'; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(-5, -108); ctx.quadraticCurveTo(0, opt.smile ? -105 : -107, 5, -108); ctx.stroke(); }
+    if (opt && opt.shout) { ctx.fillStyle = '#5a1a1a'; ctx.beginPath(); ctx.ellipse(0, -107, 4.5, 3.5, 0, 0, TAU); ctx.fill(); }
+    else { ctx.strokeStyle = '#8a3b3b'; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(-5, -108); ctx.quadraticCurveTo(0, (opt && opt.smile) ? -105 : -107, 5, -108); ctx.stroke(); }
   }
   function drawOldHead(L, opt) {
     ctx.fillStyle = L.skin; ctx.beginPath(); ctx.ellipse(0, -121, 19, 24, 0, 0, TAU); ctx.fill();
@@ -620,7 +637,8 @@
 
   function drawDrone(x, y, sc, o) {
     o = o || {};
-    ctx.save(); ctx.translate(x, y); ctx.rotate(o.tilt || 0); ctx.scale(sc, sc);
+    var tilt = o.tilt || 0, bank = o.bank || 0, hover = o.hover || 0;
+    ctx.save(); ctx.translate(x, y + hover); ctx.rotate(tilt + bank); ctx.scale(sc, sc);
     ctx.strokeStyle = '#22272e'; ctx.lineWidth = 8; ctx.lineCap = 'round';
     line(-18, -6, -54, -14, '#22272e', 8); line(18, -6, 54, -14, '#22272e', 8);
     [-54, 54].forEach(function (rx) {
@@ -636,19 +654,26 @@
     ctx.shadowColor = '#ff2a2a'; ctx.shadowBlur = 10 + 25 * e; circle(0, 4, 7 + 4 * e, 'rgb(255,' + Math.round(60 - 40 * e) + ',40)'); ctx.shadowBlur = 0;
     circle(-2, 2, 2.5, '#ffd0d0');
     line(-10, 20, -14, 32, '#22272e', 3); line(10, 20, 14, 32, '#22272e', 3);
+    // Exhaust wash — small downward puff so hover reads as thrust, not a sine bob alone.
+    ctx.globalAlpha = 0.35; ctx.fillStyle = '#9ad0ff'; ctx.beginPath(); ctx.ellipse(0, 28 + Math.abs(hover) * 0.2, 10, 4, 0, 0, TAU); ctx.fill(); ctx.globalAlpha = 1;
     ctx.restore();
   }
   function drawBot(x, y, sc, o) {
     o = o || {};
-    var walk = o.walk || 0, sw = o.swing || 0;
-    ctx.save(); ctx.translate(x, y); ctx.scale(sc, sc);
-    ctx.fillStyle = 'rgba(0,0,0,.35)'; ctx.beginPath(); ctx.ellipse(0, 4, 60, 10, 0, 0, TAU); ctx.fill();
-    if (o.rot) { ctx.translate(0, -150); ctx.rotate(o.rot); ctx.translate(0, 150); }
+    var walk = o.walk || 0, sw = o.swing || 0, recoil = o.recoil || 0, dead = o.dead || 0;
+    // Discrete footfalls: body drops on plant instead of a constant sine bob.
+    var step = Math.sin(walk), plant = Math.abs(step) < 0.22 ? 1 : 0;
+    var bob = Math.abs(Math.cos(walk)) * 5 + plant * 3;
+    ctx.save(); ctx.translate(x, y - bob); ctx.scale(sc, sc);
+    ctx.fillStyle = 'rgba(0,0,0,.35)'; ctx.beginPath(); ctx.ellipse(0, 4 + bob, 60, 10, 0, 0, TAU); ctx.fill();
+    if (o.rot || dead) { ctx.translate(0, -150); ctx.rotate((o.rot || 0) + dead * 1.1); ctx.translate(0, 150); }
     [-1, 1].forEach(function (s) {
-      var k = Math.sin(walk + (s > 0 ? PI : 0)) * 14;
-      ctx.fillStyle = '#2d343d'; rrect(s * 22 - 13, -150 + Math.max(0, k * 0.4), 26, 76, 6); ctx.fill();
-      ctx.fillStyle = '#4a535e'; rrect(s * 22 - 12, -78, 24, 72 - Math.max(0, k), 6); ctx.fill();
-      ctx.fillStyle = '#1a1e24'; rrect(s * 22 - 17, -10 - Math.max(0, k), 34, 12, 4); ctx.fill();
+      var ph = walk + (s > 0 ? Math.PI : 0);
+      var k = Math.sin(ph) * 18;
+      var lift = Math.max(0, Math.sin(ph)) * 10;
+      ctx.fillStyle = '#2d343d'; rrect(s * 22 - 13, -150 + Math.max(0, k * 0.35) - lift, 26, 76, 6); ctx.fill();
+      ctx.fillStyle = '#4a535e'; rrect(s * 22 - 12, -78 - lift * 0.3, 24, 72 - Math.max(0, k * 0.5), 6); ctx.fill();
+      ctx.fillStyle = '#1a1e24'; rrect(s * 22 - 17, -10 - Math.max(0, k) + (plant && Math.sin(ph) > 0 ? 2 : 0), 34, 12, 4); ctx.fill();
       joint(s * 22, -78, 9, false);
     });
     var g = ctx.createLinearGradient(-50, 0, 50, 0); g.addColorStop(0, '#2a3038'); g.addColorStop(0.5, '#68737f'); g.addColorStop(1, '#22282f');
@@ -656,13 +681,13 @@
     poly([-30, -240, 30, -240, 24, -190, -24, -190], '#3b434d', '#0e1115', 1.5);
     ctx.shadowColor = '#ff3030'; ctx.shadowBlur = 14; circle(0, -215, 8, '#ff3a3a'); ctx.shadowBlur = 0;
     ctx.fillStyle = '#ffd34d'; ctx.font = '700 11px system-ui'; ctx.textAlign = 'center'; ctx.fillText('HR-9', 0, -165);
-    // left arm
+    // left arm counter-sway
     joint(-52, -248, 13, false);
-    ctx.save(); ctx.translate(-52, -248); ctx.rotate(0.15 + Math.sin(walk) * 0.1); seg(0, 0, 0, 100, 20); claw(0, 108, PI / 2, 0.7, 0.7); ctx.restore();
-    // baton arm
-    var a = lerp(-2.7, -0.5, sw);
+    ctx.save(); ctx.translate(-52, -248); ctx.rotate(0.15 + Math.sin(walk) * 0.14 - recoil * 0.2); seg(0, 0, 0, 100, 20); claw(0, 108, Math.PI / 2, 0.7, 0.7); ctx.restore();
+    // baton arm — wind-up then slam via swipeCurve-fed swing
+    var a = lerp(-2.85, -0.35, clamp(sw, 0, 1)) - recoil * 0.5;
     joint(52, -248, 13, false);
-    ctx.save(); ctx.translate(52, -248); ctx.rotate(a + PI / 2);
+    ctx.save(); ctx.translate(52, -248); ctx.rotate(a + Math.PI / 2);
     seg(0, 0, 0, 90, 20);
     ctx.translate(0, 96);
     ctx.fillStyle = '#15191e'; ctx.fillRect(-6, -6, 12, 110);
@@ -672,21 +697,24 @@
     var hg = ctx.createLinearGradient(0, -322, 0, -262); hg.addColorStop(0, '#87929e'); hg.addColorStop(1, '#2a3038');
     ctx.fillStyle = hg; rrect(-30, -324, 60, 62, 18); ctx.fill(); ctx.strokeStyle = '#0e1115'; ctx.lineWidth = 2; ctx.stroke();
     ctx.fillStyle = '#0a0c10'; rrect(-24, -300, 48, 12, 6); ctx.fill();
-    var sx = Math.sin(gt * 4) * 16;
+    var sx = Math.sin(gt * 3.2) * 14;
     ctx.shadowColor = '#ff2020'; ctx.shadowBlur = 14; ctx.fillStyle = '#ff3b3b'; rrect(sx - 7, -298, 14, 8, 4); ctx.fill(); ctx.shadowBlur = 0;
     ctx.restore();
   }
   function drawHound(x, y, sc, o) {
     o = o || {};
     var dir = o.dir || -1, run = o.run || 0;
+    var step = Math.sin(run), plant = Math.abs(step) < 0.2 ? 1 : 0;
+    var bodyBob = Math.abs(Math.cos(run)) * 4 + plant * 5;
     ctx.save(); ctx.translate(x, y); ctx.scale(sc * -dir, sc);
     ctx.fillStyle = 'rgba(0,0,0,.35)'; ctx.beginPath(); ctx.ellipse(0, 4, 90, 10, 0, 0, TAU); ctx.fill();
-    ctx.translate(0, -(o.air || 0));
+    ctx.translate(0, -(o.air || 0) - bodyBob);
     ctx.rotate(o.pitch || 0);
-    // legs: front at +x after flip means facing right in local space
-    [[-52, 0], [-36, PI], [44, PI * 0.5], [60, PI * 1.5]].forEach(function (lg, i) {
-      var ph = run + lg[1], up = Math.sin(ph) * 0.6, kn = 0.6 + Math.cos(ph) * 0.4;
-      if (o.tuck) { up = i < 2 ? -0.9 : 0.9; kn = 1.4; }
+    // legs with heavier plant
+    [[-52, 0], [-36, Math.PI], [44, Math.PI * 0.5], [60, Math.PI * 1.5]].forEach(function (lg, i) {
+      var ph = run + lg[1], up = Math.sin(ph) * 0.75, kn = 0.7 + Math.cos(ph) * 0.5;
+      if (o.tuck) { up = i < 2 ? -1.05 : 1.05; kn = 1.55; }
+      if (o.wind) { up = i < 2 ? -0.55 : 0.85; kn = 1.25; } // crouch wind-up before leap
       ctx.save(); ctx.translate(lg[0], -96);
       var c = i % 2 ? '#3d454f' : '#56606b';
       limbBot(0, 0, up, 48, i < 2 ? -kn : kn, 50, c);
@@ -696,7 +724,8 @@
     ctx.fillStyle = g; rrect(-78, -130, 150, 46, 18); ctx.fill(); ctx.strokeStyle = '#0d1014'; ctx.lineWidth = 2.5; ctx.stroke();
     for (var i = 0; i < 5; i++) poly([-56 + i * 24, -130, -46 + i * 24, -146, -36 + i * 24, -130], '#3a424c', '#0d1014', 1.5);
     ctx.shadowColor = '#ff3030'; ctx.shadowBlur = 8; circle(-10, -108, 5, '#ff4040'); ctx.shadowBlur = 0;
-    line(-78, -118, -120, -150 + Math.sin(gt * 8) * 6, '#3a424c', 5); circle(-120, -150 + Math.sin(gt * 8) * 6, 5, '#ff4040');
+    var tail = Math.sin(gt * 5.5 + run) * 8;
+    line(-78, -118, -120, -150 + tail, '#3a424c', 5); circle(-120, -150 + tail, 5, '#ff4040');
     // head
     ctx.save(); ctx.translate(70, -122);
     var jaw = o.jaw || 0;
@@ -1101,12 +1130,25 @@
     },
     bot: {
       behind: function () { return true; },
-      pos: function (b) { var e = ease(Math.min(b.p, 1)), z = lerp(3.4, 1.12, e); return { x: lerp(CX + 30, CX + 100, e), y: pz(0, FLOOR - 8, z)[1], sc: 0.95 / z }; },
+      pos: function (b) { var e = AN.easeInOut(Math.min(b.p, 1)), z = lerp(3.4, 1.12, e); return { x: lerp(CX + 30, CX + 100, e), y: pz(0, FLOOR - 8, z)[1], sc: 0.95 / z }; },
       draw: function (b) {
         var q = qv(b), p = this.pos(b);
-        if (b.out === 'win' && b.impact) return;
-        var sw = b.out ? clamp(q / OUT_IMPACT, 0, 1) : 0, walk = b.out || b.p >= 1 ? 0 : gt * 8;
-        drawBot(p.x + (b.p > 1 ? Math.sin(gt * 40) * 2 : 0), p.y, p.sc, { walk: walk, swing: b.out === 'lose' ? sw : sw * 0.3 });
+        var walk = b.out || b.p >= 1 ? 0 : gt * 7.2;
+        var sw = 0, recoil = 0, dead = 0, rot = 0;
+        if (b.out === 'lose') sw = AN.swipeCurve(clamp(q / OUT_IMPACT, 0, 1));
+        else if (b.out === 'win') {
+          if (!b.impact) sw = AN.swipeCurve(clamp(q / OUT_IMPACT, 0, 1)) * 0.25;
+          else {
+            var k = clamp((q - OUT_IMPACT) / 0.55, 0, 1);
+            dead = AN.easeOut(k); rot = -k * 0.9; recoil = 1 - k;
+            p = { x: p.x + k * 90, y: p.y - Math.sin(k * Math.PI) * 40, sc: p.sc };
+          }
+        } else if (b.p > 0.82) {
+          // Anticipatory wind-up before the cue lands.
+          sw = -0.28 * ease((b.p - 0.82) / 0.18);
+        }
+        if (b.out === 'win' && b.impact && q > 0.95) return;
+        drawBot(p.x + (b.p > 1 && !b.out ? Math.sin(gt * 28) * 1.5 : 0), p.y, p.sc, { walk: walk, swing: sw, recoil: recoil, dead: dead, rot: rot });
       },
       impact: function (b, won) { var p = this.pos(b); if (won) { smashFx(p.x, p.y - 200, true); debris(p.x, p.y - 290, 6, '#87929e'); } else AU.play('punch'); }
     },
@@ -1213,22 +1255,27 @@
     },
     drone: {
       pos: function (b) {
-        var q = qv(b), e = ease(Math.min(b.p, 1));
+        var q = qv(b), e = AN.easeInOut(Math.min(b.p, 1));
         if (b.d.side === 'F') {
-          var p = { x: lerp(CX + 30, CX + 120, e), y: lerp(300, 560, e), sc: lerp(0.35, 1.25, e), tilt: Math.sin(gt * 3) * 0.1 };
-          if (b.out === 'win' && !b.impact) { p.x = lerp(p.x, CX + 70, q / OUT_IMPACT); }
+          var p = { x: lerp(CX + 30, CX + 120, e), y: lerp(300, 560, e), sc: lerp(0.35, 1.25, e), tilt: 0.08 };
+          if (b.out === 'win' && !b.impact) { p.x = lerp(p.x, CX + 70, AN.easeOut(q / OUT_IMPACT)); }
           return p;
         }
         var s = b.S, a = { x: lerp(CX + s * 430, CX + s * 150, e), y: lerp(240, 590, e), sc: 1.05, tilt: -s * 0.35 };
-        if (b.out) { var k = q / 0.6; a.x = lerp(CX + s * 150, CX - s * 470, k); a.y = lerp(590, 700, k); a.tilt = -s * 0.6; }
+        if (b.out) { var k = AN.easeInOut(q / 0.6); a.x = lerp(CX + s * 150, CX - s * 470, k); a.y = lerp(590, 700, k); a.tilt = -s * 0.6; }
         return a;
       },
       draw: function (b) {
         var p = this.pos(b), q = qv(b);
         if (b.impact && (b.d.side === 'F' ? b.out === 'win' : b.out === 'lose')) return;
-        drawDrone(p.x, p.y + Math.sin(gt * 5) * 6, p.sc, { tilt: p.tilt, eye: Math.min(1, b.p) });
+        // Inertia hover: soft thrust bob + bank into travel, not a lone sine wobble.
+        var hover = Math.sin(gt * 2.1 + b.seed * 9) * 3.5 + Math.sin(gt * 5.3 + b.seed) * 1.2;
+        var prev = this._px == null ? p.x : this._px;
+        var vx = p.x - prev; this._px = p.x;
+        var bank = clamp(vx * 0.012, -0.35, 0.35);
+        drawDrone(p.x, p.y, p.sc, { tilt: p.tilt, bank: bank, hover: hover, eye: Math.min(1, b.p) });
         if (b.d.side === 'F' && b.out === 'lose' && q > 0.22 && q < 0.7) {
-          ctx.shadowColor = '#ff2020'; ctx.shadowBlur = 20; line(p.x, p.y + 4, scout.x, 620, '#ff3030', 10); line(p.x, p.y + 4, scout.x, 620, '#ffe0e0', 3); ctx.shadowBlur = 0;
+          ctx.shadowColor = '#ff2020'; ctx.shadowBlur = 20; line(p.x, p.y + 4 + hover, scout.x, 620, '#ff3030', 10); line(p.x, p.y + 4 + hover, scout.x, 620, '#ffe0e0', 3); ctx.shadowBlur = 0;
         }
         this.last = p;
       },
@@ -1283,7 +1330,8 @@
         var q = qv(b), e = ease(Math.min(b.p, 1)), side = b.d.side;
         if (side === 'F') {
           var z = lerp(3.6, 1.15, e), o = { x: lerp(CX + 50, CX + 130, e), y: pz(0, FLOOR, z)[1], sc: 0.95 / z, dir: -1, run: gt * 15, air: 0, pitch: 0, jaw: 0.3 };
-          if (b.p > 0.75) { o.air = Math.min(1, (b.p - 0.75) * 4) * 120; o.pitch = 0.25; o.jaw = 1; o.tuck = true; }
+          if (b.p > 0.55 && b.p <= 0.78) { o.wind = true; o.pitch = -0.18; o.jaw = 0.5; o.run = gt * 4; }
+          if (b.p > 0.78) { o.air = Math.min(1, (b.p - 0.78) * 4.5) * 130; o.pitch = 0.28; o.jaw = 1; o.tuck = true; }
           if (b.out === 'lose') { o.x = lerp(o.x, CX + 40, ease(q / OUT_IMPACT)); o.air = lerp(120, 60, q); }
           if (b.out === 'win' && b.impact) { var k = (q - OUT_IMPACT) / 0.6; o.x += k * 380; o.air = 120 + Math.sin(k * PI) * 160; o.pitch = -k * 6; }
           return o;
@@ -1302,14 +1350,21 @@
     },
     fist: {
       draw: function (b) {
-        var q = qv(b), e = ease(Math.min(b.p, 1)), x = CX + b.S * 45;
-        var bot = lerp(-120, 320, e) + (b.p > 0.5 ? Math.sin(gt * 26) * 5 : 0);
-        if (b.out) bot = q < OUT_IMPACT ? lerp(320, FLOOR + 20, easeIn(q / OUT_IMPACT)) : q < 0.75 ? FLOOR + 20 : lerp(FLOOR + 20, -200, easeIn((q - 0.75) * 4));
+        var q = qv(b), x = AN.fistParkX(b.S, CX);
+        // Approach hangs beside The Machine's eye (not over it), with a small wind-up shiver.
+        var bot = AN.fistApproachBot(Math.min(b.p, 1));
+        if (b.p > 0.55 && !b.out) bot += Math.sin(gt * 18) * 4 * ease((b.p - 0.55) / 0.45);
+        if (b.out) {
+          var rest = AN.fistApproachBot(1);
+          if (q < OUT_IMPACT) bot = lerp(rest, FLOOR + 20, AN.easeInCubic(q / OUT_IMPACT));
+          else if (q < 0.75) bot = FLOOR + 20;
+          else bot = lerp(FLOOR + 20, -220, easeIn((q - 0.75) * 4));
+        }
         var sh = clamp((bot + 120) / (FLOOR + 140), 0, 1);
         ctx.fillStyle = 'rgba(0,0,0,' + (0.2 + 0.5 * sh) + ')'; ctx.beginPath(); ctx.ellipse(x, FLOOR + 14, 90 + 60 * sh, 14 + 6 * sh, 0, 0, TAU); ctx.fill();
         drawFist(x, bot, 1);
       },
-      impact: function (b) { AU.play('boom'); shake(28); var x = CX + b.S * 45; sparks(x, FLOOR + 10, 40); debris(x, FLOOR + 10, 26); smoke(x, FLOOR, 10); fx.flash = Math.max(fx.flash, 0.4); }
+      impact: function (b) { AU.play('boom'); shake(28); var x = AN.fistParkX(b.S, CX); sparks(x, FLOOR + 10, 40); debris(x, FLOOR + 10, 26); smoke(x, FLOOR, 10); fx.flash = Math.max(fx.flash, 0.4); }
     },
     core: {
       behind: function () { return true; },
@@ -1417,21 +1472,92 @@
   }
   function updateScout(dt) {
     if (!scout.cur) scout.cur = copyPose(POSES.idle);
-    scout.x += (scout.tx - scout.x) * Math.min(1, dt * 14);
+    var dx = scout.tx - scout.x;
+    scout.x += dx * Math.min(1, dt * 12);
+    // Anticipatory lean into travel, with damping so it settles (not a permanent tip).
+    var wantLean = clamp(dx * 0.0018, -0.35, 0.35);
+    scout.leanV += (wantLean - scout.leanV) * Math.min(1, dt * 10);
+
     if (scout.jt >= 0) {
       scout.jt += dt;
-      var up = 0.22, h = scout.hang, dn = 0.3, t = scout.jt;
-      scout.jy = t < up ? scout.jh * easeOut(t / up) : t < up + h ? scout.jh : t < up + h + dn ? scout.jh * (1 - easeIn((t - up - h) / dn)) : 0;
-      if (t >= up + h + dn) { scout.jt = -1; scout.jy = 0; }
+      var up = 0.22, h = scout.hang, dn = 0.32;
+      var jp = AN.jumpProfile(scout.jt, up, h, dn, scout.jh);
+      scout.jy = jp.jy; scout.sx = jp.sx; scout.sy = jp.sy;
+      if (jp.phase === 'landed') { scout.jt = -1; scout.jy = 0; scout.landT = 0; scout.pose = 'land'; scout.hold = 0.22; }
+    } else if (scout.landT >= 0 && scout.landT < 0.35) {
+      var ls = AN.landSquash(scout.landT);
+      scout.sx = ls.sx; scout.sy = ls.sy;
+      scout.landT += dt;
+    } else {
+      scout.sx += (1 - scout.sx) * Math.min(1, dt * 8);
+      scout.sy += (1 - scout.sy) * Math.min(1, dt * 8);
+      if (scout.landT >= 0.35) scout.landT = -9;
     }
     if (scout.fall >= 0) { scout.fall += dt; scout.jy = -scout.fall * scout.fall * 1500; }
     if (state === 'out' && B && B.out === 'lose' && B.d.t === 'arm' && B.impact) scout.lift = Math.min(60, scout.lift + dt * 220); else if (state !== 'out') scout.lift = 0;
+
+    if (scout.atkT >= 0) scout.atkT += dt;
+    if (scout.hold > 0) {
+      scout.hold = Math.max(0, scout.hold - dt);
+      if (scout.hold === 0 && /^(duck|dodgeL|dodgeR|land)$/.test(scout.pose)) {
+        var wasDodge = /dodge/.test(scout.pose);
+        scout.pose = 'ready';
+        if (wasDodge) scout.tx = CX;
+      }
+    }
+
     var target = scout.pose;
     if (state === 'intro') target = 'idle';
     else if (state === 'clear' || state === 'victory') target = 'cheer';
     else if (state === 'out' && B.won && scout.pose === 'jump' && scout.jt < 0) target = 'ready';
-    if (Math.abs(scout.tx - scout.x) > 30 && (target === 'ready' || target === 'idle')) target = 'run';
-    mixPose(scout.cur, POSES[target] || POSES.idle, Math.min(1, dt * 18));
+    // Brief wind-up pose before the strike snaps (reads as weight, not teleport).
+    if (scout.atkT >= 0 && scout.atkT < 0.07) {
+      if (scout.pose === 'punchR') target = 'windR';
+      else if (scout.pose === 'punchL') target = 'windL';
+      else if (scout.pose === 'kick') target = 'windK';
+    }
+    if (Math.abs(dx) > 28 && (target === 'ready' || target === 'idle' || target === 'run')) target = 'run';
+    if (scout.landT >= 0 && scout.landT < 0.18) target = 'land';
+
+    // Walk cycle overlays the run target instead of a frozen run silhouette.
+    var blend = Math.min(1, dt * ( /punch|kick|hit|wind/.test(target) ? 22 : target === 'jump' || target === 'land' ? 16 : 11));
+    if (target === 'run') {
+      var spd = clamp(Math.abs(dx) / 140, 0.35, 1.4);
+      scout.walkPh += dt * 9.5 * spd;
+      var wc = AN.walkCycle(scout.walkPh);
+      var base = copyPose(POSES.ready);
+      ['lh','lk','rh','rk','ls','le','rs','re','lean'].forEach(function (j) { base[j] = wc[j]; });
+      base.lean += scout.leanV;
+      mixPose(scout.cur, base, blend);
+      // Tiny vertical bob via sy while grounded.
+      if (scout.jt < 0 && scout.fall < 0) { scout.sy = 1 - wc.bob * 0.004; scout.sx = 1 + wc.bob * 0.002; }
+    } else {
+      var pose = copyPose(POSES[target] || POSES.idle);
+      pose.lean += scout.leanV * (target === 'idle' || target === 'ready' ? 1 : 0.35);
+      // Idle breath — slow ease, not a constant sine bob as the only life.
+      if (target === 'idle' || target === 'ready') {
+        var br = Math.sin(gt * 1.7) * 0.02;
+        pose.ls += br; pose.rs -= br; pose.lean += Math.sin(gt * 1.1) * 0.012;
+      }
+      mixPose(scout.cur, pose, blend);
+      if (target === 'punchR' || target === 'punchL' || target === 'kick' || target === 'punchU') {
+        // Overshoot snap on the striking limb once past wind-up.
+        if (scout.atkT > 0.07 && scout.atkT < 0.22) {
+          var snap = AN.easeOutBack(clamp((scout.atkT - 0.07) / 0.12, 0, 1));
+          if (target === 'punchR') { scout.cur.rs = lerp(POSES.windR.rs, POSES.punchR.rs, snap); scout.cur.re = lerp(POSES.windR.re, POSES.punchR.re, snap); }
+          if (target === 'punchL') { scout.cur.ls = lerp(POSES.windL.ls, POSES.punchL.ls, snap); scout.cur.le = lerp(POSES.windL.le, POSES.punchL.le, snap); }
+          if (target === 'kick') { scout.cur.rh = lerp(POSES.windK.rh, POSES.kick.rh, snap); scout.cur.rk = lerp(POSES.windK.rk, POSES.kick.rk, snap); }
+        }
+      }
+    }
+
+    // Secondary motion: hair and jacket hem lag behind lean / travel.
+    var hairTarget = scout.leanV * 10 + (scout.prevX - scout.x) * 0.08;
+    scout.hair += (hairTarget - scout.hair) * Math.min(1, dt * 7);
+    var hemTarget = scout.leanV * 1.4 + (scout.jy > 10 ? 0.35 : 0) + (target === 'run' ? Math.sin(scout.walkPh) * 0.25 : 0);
+    scout.hem += (hemTarget - scout.hem) * Math.min(1, dt * 9);
+    scout.prevX = scout.x;
+    if (scout.atkT > 0.45) scout.atkT = -9;
   }
 
   // ---------- render ----------
@@ -1473,12 +1599,14 @@
   }
   function drawScout() {
     var p = copyPose(scout.cur);
-    p.lean += Math.sin(gt * 2.4) * 0.012;
     var shout = /hit|punch|kick/.test(scout.pose) && state === 'out';
     ctx.save();
     if (scout.fall >= 0) { ctx.beginPath(); ctx.rect(BX0, BY0, BX1 - BX0, FLOOR + 14 - BY0); ctx.clip(); }
     if (state === 'out' && B && !B.won && B.impact && Math.floor(gt * 20) % 2 === 0) ctx.globalAlpha = 0.6;
-    drawFigure(scout.x, FLOOR, 1, p, SCOUT_LOOK, { jy: scout.jy + scout.lift, shout: shout, smile: state === 'clear', noShadow: scout.fall >= 0 });
+    drawFigure(scout.x, FLOOR, 1, p, SCOUT_LOOK, {
+      jy: scout.jy + scout.lift, shout: shout, smile: state === 'clear' || state === 'victory',
+      noShadow: scout.fall >= 0, sx: scout.sx, sy: scout.sy, hair: scout.hair, hem: scout.hem
+    });
     ctx.restore();
   }
   function txt(s, x, y, size, col, align, weight, stroke) {
