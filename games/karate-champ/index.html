@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+  <title>Karate Champ (Arcade Tribute) | EduAccess Arcade</title>
+  <meta name="description" content="A from-scratch tribute to the 1984 karate tournament classic: front kicks, roundhouses, sweeps and jumping kicks judged by the referee. Full and half points, 12 bouts on painted stages, bonus rounds, synthesized sound and music. Free in your browser.">
+  <meta name="theme-color" content="#140809">
+  <meta name="arcade-controls" content="Arrows move, jump and crouch. Space kicks, X punches, C roundhouse, Z blocks; add a direction for jump kick, sweep, back kick and flip. Remappable keys, gamepad and touch.">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 32 32%22%3E%3Crect width=%2232%22 height=%2232%22 rx=%226%22 fill=%22%23140809%22/%3E%3Ccircle cx=%2216%22 cy=%2216%22 r=%2211%22 fill=%22%23f3f0e8%22/%3E%3Cpath d=%22M16 5a11 11 0 0 1 0 22a5.5 5.5 0 0 1 0-11a5.5 5.5 0 0 0 0-11z%22 fill=%22%23c8282a%22/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="/games/shared/banner.css">
+  <link rel="stylesheet" href="/games/karate-champ/style.css?v=1">
+  <link rel="stylesheet" href="/games/shared/scout-splash.css?v=20261005a">
+  <link rel="stylesheet" href="/games/shared/game-menu.css">
+</head>
+<!-- Written by: Howie -->
+<body>
+  <div data-jsp-banner></div>
+  <header class="toolbar" role="toolbar" aria-label="Game options">
+    <a class="tool menu" id="btn-menu" href="/games/" aria-label="Main menu" title="Main menu (all games)"><span aria-hidden="true">&#9776;</span> <span class="lbl">Main menu</span></a>
+    <span class="ttl" aria-hidden="true">KARATE CHAMP</span>
+    <span class="sp"></span>
+    <button class="tool" id="btn-pause" type="button" title="Pause (P / Esc)">&#10074;&#10074; <span class="lbl">Pause</span></button>
+    <button class="tool" id="btn-mute" type="button" aria-pressed="false" title="Mute or unmute (M)">&#128266; <span class="lbl">Sound on</span></button>
+    <button class="tool" id="btn-settings" type="button" title="Controls and settings">&#9881; <span class="lbl">Controls</span></button>
+    <button class="tool" id="btn-full" type="button" title="Fullscreen" aria-label="Fullscreen">&#x26F6;</button>
+  </header>
+  <main id="stage" aria-label="Karate Champ tribute game">
+    <div id="wrap">
+      <canvas id="game" tabindex="0" aria-label="Karate tournament game. Arrows move, jump and crouch. Space kicks, X punches, C throws a roundhouse, Z blocks. Hold a direction with a button for jumping kick, sweep, back kick or flip."></canvas>
+    </div>
+    <noscript><p class="noscript">This game needs JavaScript.</p></noscript>
+  </main>
+  <div id="touch" hidden>
+    <div class="dpad" role="group" aria-label="Move">
+      <button class="tbtn up" data-act="up" type="button" aria-label="Jump">&#9650;</button>
+      <button class="tbtn left" data-act="left" type="button" aria-label="Left">&#9664;</button>
+      <button class="tbtn right" data-act="right" type="button" aria-label="Right">&#9654;</button>
+      <button class="tbtn down" data-act="down" type="button" aria-label="Crouch">&#9660;</button>
+    </div>
+    <div class="tgroup right">
+      <button class="tbtn act punch" data-act="punch" type="button" aria-label="Punch">PUNCH</button>
+      <button class="tbtn act block" data-act="block" type="button" aria-label="Block">BLOCK</button>
+      <button class="tbtn act kick" data-act="kick" type="button" aria-label="Kick">KICK</button>
+    </div>
+  </div>
+  <footer class="bar">
+    <span class="note">Fan-made tribute to the 1984 karate tournament arcade game, built from scratch with original code, art and sound. Not affiliated with or endorsed by its makers.</span>
+  </footer>
+
+  <div id="settings" hidden role="dialog" aria-modal="true" aria-labelledby="settings-title">
+    <div class="panel">
+      <h2 id="settings-title">Controls &amp; settings</h2>
+      <p class="sub">Click a key box, then press the key you want. Esc cancels. Backspace clears. Saved on this device.</p>
+      <table class="keys">
+        <thead><tr><th>Action</th><th>Key</th><th>Alt key</th></tr></thead>
+        <tbody id="keys-body"></tbody>
+      </table>
+      <div class="msg" id="keys-msg" aria-live="polite"></div>
+      <div class="opts">
+        <label><input type="checkbox" id="opt-sound"> Sound (effects and music)</label>
+        <label><input type="checkbox" id="opt-music"> Music</label>
+        <label>Touch controls
+          <select id="opt-touch">
+            <option value="auto">Auto</option>
+            <option value="on">Always show</option>
+            <option value="off">Hide</option>
+          </select>
+        </label>
+      </div>
+      <p class="touchnote">Moves: a button plus the direction you hold. Kick: front kick, &#8593; jumping kick, &#8595; low sweep, away from the opponent = back kick. Punch: punch, toward = roundhouse, &#8595; low punch. Block: hold to guard high, &#8595; guards low, &#8593; flips over. A power kick landed from the tip of your reach (or any counter-strike) scores a FULL POINT; closer hits and punches score a HALF POINT. First to two full points in 30 seconds wins the bout. Gamepad: d-pad or stick moves, A kick, X punch, Y roundhouse, B block, Start pauses.</p>
+      <div class="row">
+        <button class="pbtn" id="keys-reset" type="button">Reset to defaults</button>
+        <button class="pbtn primary" id="settings-close" type="button">Done</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="/games/shared/banner.js"></script>
+  <script src="/games/shared/scout-splash.js?v=20261005a"></script>
+  <script src="/games/shared/game-menu.js"></script>
+  <script src="/games/shared/arcade-music.js"></script>
+  <script src="/games/karate-champ/kit.js?v=1"></script>
+  <script src="/games/karate-champ/core.js?v=1"></script>
+  <script src="/games/karate-champ/levels.js?v=1"></script>
+  <script src="/games/karate-champ/render.js?v=1"></script>
+  <script src="/games/karate-champ/audio.js?v=1"></script>
+  <script src="/games/karate-champ/game.js?v=1"></script>
+</body>
+</html>

@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+  <title>Galaga (Arcade Tribute) | EduAccess Arcade</title>
+  <meta name="description" content="A from-scratch tribute to the 1981 space shooter: blast bees, butterflies and Boss Galaga as they loop in and dive, rescue your captured fighter for double firepower, and clear Challenging Stages. 12 stages, detailed art, synthesized sound and music. Free in your browser.">
+  <meta name="theme-color" content="#02030a">
+  <meta name="arcade-controls" content="Arrows move, Space fires. Rescue a captured fighter for a dual ship. Remappable keys, gamepad, touch and drag.">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 32 32%22%3E%3Crect width=%2232%22 height=%2232%22 rx=%226%22 fill=%22%2302030a%22/%3E%3Cpath d=%22M16 4l3 9 7 6-1 4-6-2-3 5-3-5-6 2-1-4 7-6z%22 fill=%22%23f2f4fa%22/%3E%3Cpath d=%22M9 19l-3 4M23 19l3 4%22 stroke=%22%23e0262e%22 stroke-width=%222%22/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="/games/shared/banner.css">
+  <link rel="stylesheet" href="/games/galaga/style.css?v=1">
+  <link rel="stylesheet" href="/games/shared/scout-splash.css?v=20261005a">
+  <link rel="stylesheet" href="/games/shared/game-menu.css">
+</head>
+<!-- Written by: Howie -->
+<body>
+  <div data-jsp-banner></div>
+  <header class="toolbar" role="toolbar" aria-label="Game options">
+    <a class="tool menu" id="btn-menu" href="/games/" aria-label="Main menu" title="Main menu (all games)"><span aria-hidden="true">&#9776;</span> <span class="lbl">Main menu</span></a>
+    <span class="ttl" aria-hidden="true">GALAGA</span>
+    <span class="sp"></span>
+    <button class="tool" id="btn-pause" type="button" title="Pause (P / Esc)">&#10074;&#10074; <span class="lbl">Pause</span></button>
+    <button class="tool" id="btn-mute" type="button" aria-pressed="false" title="Mute or unmute (M)">&#128266; <span class="lbl">Sound on</span></button>
+    <button class="tool" id="btn-settings" type="button" title="Controls and settings">&#9881; <span class="lbl">Controls</span></button>
+    <button class="tool" id="btn-full" type="button" title="Fullscreen" aria-label="Fullscreen">&#x26F6;</button>
+  </header>
+  <main id="stage" aria-label="Galaga tribute game">
+    <div id="wrap">
+      <canvas id="game" tabindex="0" aria-label="Galaga-style space shooter. Left and right arrows move your fighter, Space fires."></canvas>
+    </div>
+    <noscript><p class="noscript">This game needs JavaScript.</p></noscript>
+  </main>
+  <div id="touch" hidden>
+    <div class="tgroup">
+      <button class="tbtn dir" data-act="left" type="button" aria-label="Move left">&#9664;</button>
+      <button class="tbtn dir" data-act="right" type="button" aria-label="Move right">&#9654;</button>
+    </div>
+    <button class="tbtn fire" data-act="fire" type="button" aria-label="Fire">FIRE</button>
+  </div>
+  <footer class="bar">
+    <span class="note">Fan-made tribute to the 1981 space shooter, built from scratch with original code, art and sound. Not affiliated with or endorsed by its makers.</span>
+  </footer>
+
+  <div id="settings" hidden role="dialog" aria-modal="true" aria-labelledby="settings-title">
+    <div class="panel">
+      <h2 id="settings-title">Controls &amp; settings</h2>
+      <p class="sub">Click a key box, then press the key you want. Esc cancels. Backspace clears. Saved on this device.</p>
+      <table class="keys">
+        <thead><tr><th>Action</th><th>Key</th><th>Alt key</th></tr></thead>
+        <tbody id="keys-body"></tbody>
+      </table>
+      <div class="msg" id="keys-msg" aria-live="polite"></div>
+      <div class="opts">
+        <label><input type="checkbox" id="opt-sound"> Sound (effects and music)</label>
+        <label><input type="checkbox" id="opt-music"> Music (applies to every arcade game)</label>
+        <label>Touch controls
+          <select id="opt-touch">
+            <option value="auto">Auto</option>
+            <option value="on">Always show</option>
+            <option value="off">Hide</option>
+          </select>
+        </label>
+      </div>
+      <p class="touchnote">Touch: hold &#9664; &#9654; to move (or drag on the playfield), hold FIRE to keep shooting. Gamepad: d-pad or left stick moves, A or B fires, Start pauses. Title screen: &#8592; &#8594; picks a stage you have reached.</p>
+      <div class="row">
+        <button class="pbtn" id="keys-reset" type="button">Reset to defaults</button>
+        <button class="pbtn primary" id="settings-close" type="button">Done</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="/games/shared/banner.js"></script>
+  <script src="/games/shared/scout-splash.js?v=20261005a"></script>
+  <script src="/games/shared/arcade-music.js"></script>
+  <script src="/games/shared/game-menu.js"></script>
+  <script src="/games/galaga/kit.js?v=1"></script>
+  <script src="/games/galaga/levels.js?v=1"></script>
+  <script src="/games/galaga/art.js?v=1"></script>
+  <script src="/games/galaga/music.js?v=1"></script>
+  <script src="/games/galaga/audio.js?v=1"></script>
+  <script src="/games/galaga/game.js?v=1"></script>
+</body>
+</html>
