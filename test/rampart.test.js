@@ -136,3 +136,78 @@ test("Rampart debug helpers only exist behind ?debug=1", () => {
   assert.match(js, /if \(DEBUG\) \{\s*window\.RampartGame\.debug = \{/);
   assert.doesNotMatch(js, /window\.RampartGame = \{[^}]*debug:/);
 });
+
+// ---- stuck-ship fix: ships re-plan toward a reachable firing spot, give up, and levels can't stall
+function seaListOf(g) { const out = []; for (let i = 0; i < g.sea.length; i++) if (g.sea[i]) out.push(i); return out; }
+function ringed(lv, portrait, home = 0) {
+  const map = LV.buildMap(lv, portrait), g = C.makeGrid(map);
+  C.homeRing(g, map.castles[home]).forEach((i) => { g.wall[i] = 1; });
+  C.computeTerritory(g);
+  return { map, g, sea: seaListOf(g), sd: C.structDist(g, home) };
+}
+
+test("Rampart ships pick a reachable sea tile that is truly within firing range on every map", () => {
+  for (const lv of LV.LEVELS) for (const portrait of [false, true]) {
+    let coastal = 0;
+    for (let home = 0; home < lv.castles; home++) {
+      const { g, sea, sd } = ringed(lv, portrait, home);
+      const edge = sea.filter((i) => { const x = i % g.cols, y = (i / g.cols) | 0; return !x || !y || x === g.cols - 1 || y === g.rows - 1; });
+      let found = 0;
+      for (const st of edge.filter((_, k) => k % 9 === 0)) for (const t of ["sloop", "frigate", "ketch"]) {
+        const b = C.seaBfs(g, st), range = LV.SHIPS[t].range;
+        const spot = C.firingSpot(g, sea, sd, b.dist, range);
+        if (spot < 0) continue; // inland castle out of reach: covered by the stuck-ship test below
+        found++;
+        assert.ok(b.dist[spot] >= 0, lv.name + ": spot is reachable by sea");
+        assert.ok(g.sea[spot], lv.name + ": spot is open sea");
+        assert.ok(C.hasTargetInRange(g, spot, range), lv.name + ": a wall is within real (Euclidean) range of the spot");
+      }
+      if (found) coastal++;
+    }
+    assert.ok(coastal > 0, lv.name + (portrait ? " portrait" : "") + ": ships can reach a firing spot on at least one coastal castle");
+  }
+});
+
+test("Rampart ship cut off from every target gets no firing spot, re-plans, then sails off within one battle", () => {
+  const { g, sd } = ringed(LV.LEVELS[0], false);
+  // shrink the sea to a 3x3 pocket in the far corner from the castle: nothing can be hit from there
+  const cs = new Set();
+  for (let y = 0; y < 3; y++) for (let x = g.cols - 3; x < g.cols; x++) cs.add(y * g.cols + x);
+  let far = 0; for (const i of cs) far = Math.max(far, sd[i]);
+  for (let i = 0; i < g.sea.length; i++) g.sea[i] = cs.has(i) ? 1 : 0;
+  const st = [...cs][0], b = C.seaBfs(g, st);
+  assert.ok(far > 10, "pocket is far from the walls");
+  assert.equal(C.firingSpot(g, [...cs], sd, b.dist, LV.SHIPS.frigate.range), -1, "no reachable firing spot");
+
+  // simulate the per-frame stuck policy for an idle ship that never lands a volley
+  let quiet = 0, replans = 0, leftAt = null; const replanAt = [];
+  for (let t = 0; t < 60 && leftAt === null; t += 0.05) {
+    quiet += 0.05;
+    const act = C.stuckAction(quiet, replans);
+    if (act === "replan") { replans++; replanAt.push(+quiet.toFixed(2)); }
+    else if (act === "leave") leftAt = quiet;
+  }
+  assert.equal(replanAt.length, C.STUCK.MAX_REPLANS, "re-plans before giving up");
+  assert.ok(replanAt[0] >= C.STUCK.REPLAN_T - 0.1 && replanAt[0] < C.STUCK.LEAVE_T);
+  assert.ok(leftAt !== null && leftAt <= C.STUCK.LEAVE_T + 0.1, "ship withdraws");
+  assert.ok(leftAt < Math.min(...LV.LEVELS.map((l) => l.battleT)), "a stuck ship is gone before the shortest battle timer runs out");
+  assert.equal(C.stuckAction(C.STUCK.REPLAN_T + 1, 0), "replan");
+  assert.equal(C.stuckAction(1, 0), null, "a ship that just fired is left alone");
+});
+
+test("Rampart level can never stall: surviving ships withdraw after the overtime cap", () => {
+  for (const lv of LV.LEVELS) {
+    const n = lv.rounds.length;
+    assert.equal(C.levelCleared(n - 1, n, 0, 0), false, "scripted rounds first");
+    assert.equal(C.levelCleared(n, n, 0, 0), true, "fleet gone after last round");
+    assert.equal(C.levelCleared(n, n, 2, 0), false, "survivors get an overtime round");
+    let round = 0; while (!C.levelCleared(round, n, 1, 0)) { round++; assert.ok(round < 50, "stall"); }
+    assert.equal(round, n + C.OVERTIME, lv.name + " clears after at most " + C.OVERTIME + " overtime rounds");
+  }
+  const js = read("game.js");
+  assert.match(js, /C\.stuckAction\(/, "game uses the stuck-ship policy");
+  assert.match(js, /C\.levelCleared\(/, "game uses the overtime cap");
+  assert.match(js, /C\.firingSpot\(/, "ships plan with the reachable firing-spot search");
+  assert.match(js, /THE FLEET WITHDRAWS/);
+  assert.match(js, /if \(G\.timer <= 0\) ceaseFire\(\);/, "every battle phase ends on its timer");
+});
