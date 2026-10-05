@@ -352,7 +352,7 @@
     if (!cand.length) cand = G.seaList.slice();
     if (!cand.length) return;
     var j = cand[(Math.random() * cand.length) | 0], sx = j % g.cols + 0.5, sy = ((j / g.cols) | 0) + 0.5;
-    var s2 = { type: type, def: def, x: sx, y: sy, ang: Math.atan2(g.rows / 2 - sy, g.cols / 2 - sx), hp: def.hp, reload: def.reload * (0.4 + Math.random() * 0.5) + 1.2,
+    var s2 = { type: type, def: def, x: sx, y: sy, ang: Math.atan2(g.rows / 2 - sy, g.cols / 2 - sx), hp: def.hp, reload: def.reload * (0.3 + Math.random() * 0.4) + 0.8,
       path: [], seed: Math.random() * 100, troops: def.troops || 0, state: def.troops ? "land" : "sail", vis: G.levelDef.weather === "fog" ? 0 : 1, volleys: 0, wakeT: 0, burst: 0, burstT: 0 };
     G.ships.push(s2); planShip(s2);
     if (def.boss) { banner("THE FLAGSHIP!", "Pound it with every cannon", 2.2); AU.play("horn"); }
@@ -765,7 +765,7 @@
         G.cannons.forEach(function (cn) { if (cn.active && !cn.ball) { var wa = Math.atan2(G.aim.y - cn.y - 1, G.aim.x - cn.x - 1), da = Math.atan2(Math.sin(wa - cn.ang), Math.cos(wa - cn.ang)); cn.ang += K.clamp(da, -6 * dt, 6 * dt); } });
         updateGrunts(dt);
         if (G.timer <= 0) ceaseFire();
-        else if (!liveShips() && !G.spawnQ.length && G.battleT > 2 && !G.balls.length) { banner("ALL SHIPS SUNK", "", 1.2); G.mode = "cease"; G.timer = 1.6; }
+        else if (!liveShips() && !G.spawnQ.length && G.battleT > 2 && !G.balls.some(function (b) { return b.enemy; })) { banner("ALL SHIPS SUNK", "", 1.2); G.mode = "cease"; G.timer = 1.6; }
       } else if (G.timer <= 0) startRepair();
       updateShips(dt, m === "battle");
       updateBalls(dt);
