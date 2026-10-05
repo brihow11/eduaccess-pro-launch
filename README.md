@@ -70,6 +70,9 @@ Initial paths:
 - `/lead-magnets/`
 - `/lead-magnets/hidden-job-market-map/`
 - `/sandbox/`
+- `/games/` — EduAccess Arcade hub (Job Seeker Pro banner at the top of every games page; shared banner in `/games/shared/`).
+- `/games/defender/` — from-scratch Defender tribute: canvas graphics, Web Audio synthesized sound, remappable keyboard, gamepad and touch controls, high score saved on the device only.
+- `/games/joust/` — Joust tribute (built separately).
 
 Root and `www` now route through Railway over HTTPS.
 

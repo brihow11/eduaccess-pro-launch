@@ -67,3 +67,5 @@
   .jsp-banner__pill { display: none; }
   .jsp-banner__cta { padding: 3px 10px; font-size: 12px; }
 }
+/* Reserve the banner's space before banner.js mounts so layouts don't jump. */
+[data-jsp-banner] { min-height: var(--jsp-banner-h); }
