@@ -188,13 +188,25 @@ test("/games menu shows nine poster cards with runtime live detection, Scout ad 
   assert.ok(!menu.includes("ArcadePosters"), "menu no longer paints procedural posters");
   for (const s of slugs) {
     const coverPath = `/games/menu-assets/covers/${s}.webp`;
+    const mobilePath = `/games/menu-assets/covers/mobile/${s}.webp`;
     assert.ok(hub.body.includes(coverPath), coverPath);
+    assert.ok(hub.body.includes(mobilePath), mobilePath);
+    assert.match(hub.body, /<picture>/);
+    assert.match(hub.body, /media="\(max-width: 720px\)"/);
     const webp = await get(port, coverPath);
     assert.equal(webp.statusCode, 200, coverPath);
     assert.match(webp.headers["content-type"], /image\/webp/, coverPath);
+    const mobile = await get(port, mobilePath);
+    assert.equal(mobile.statusCode, 200, mobilePath);
+    assert.match(mobile.headers["content-type"], /image\/webp/, mobilePath);
     const bytes = fs.statSync(path.join(root, `games/menu-assets/covers/${s}.webp`)).size;
     assert.ok(bytes > 5000 && bytes < 900000, `${s} cover size ${bytes}`);
+    const mbytes = fs.statSync(path.join(root, `games/menu-assets/covers/mobile/${s}.webp`)).size;
+    assert.ok(mbytes > 5000 && mbytes < 900000, `${s} mobile cover size ${mbytes}`);
   }
+  const css = read("games/menu-assets/menu.css");
+  assert.ok(css.includes("max-width: 720px"), "mobile cover breakpoint");
+  assert.match(css, /aspect-ratio: 16 \/ 9/);
   assert.ok(!hub.body.includes('<canvas class="art"'), "no canvas posters");
   const missing = await get(port, "/games/not-a-real-game/index.html");
   assert.equal(missing.statusCode, 404);
