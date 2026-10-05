@@ -771,6 +771,8 @@
           drawGhost(gx, 520, 0.5, 0.55 + 0.25 * Math.sin(gt * 2 + i));
         }
       });
+      ctx.fillStyle = vgrad(HOR, BY1, ['#0b1220', '#05070b']); ctx.fillRect(BX0, HOR + 30, BX1 - BX0, BY1 - HOR);
+      floorGrid('rgba(64,240,220,.10)', HOR + 30, 0);
       layer(0.6, function () {
         [7, 5, 3.8, 2.8, 2.05, 1.5, 1.1].forEach(function (z, zi) {
           [-1, 1].forEach(function (s) {
@@ -779,8 +781,6 @@
           });
         });
       });
-      ctx.fillStyle = vgrad(HOR, BY1, ['#0b1220', '#05070b']); ctx.fillRect(BX0, HOR + 30, BX1 - BX0, BY1 - HOR);
-      floorGrid('rgba(64,240,220,.10)', HOR + 30, 0);
       var a = gt * 2.2; glow(CX + Math.cos(a) * 200, 120, 260, '255,30,30', 0.18 + 0.1 * Math.sin(gt * 9));
       glow(CX, 70, 60, '255,60,60', 0.8);
     },
@@ -942,6 +942,7 @@
           if (on) { ctx.shadowColor = '#ff2020'; ctx.shadowBlur = 10; circle(ex, ey, 3.5, '#ff3030'); circle(ex + 16, ey, 3.5, '#ff3030'); ctx.shadowBlur = 0; }
         }
       });
+      ctx.fillStyle = vgrad(640, BY1, ['#1b1a16', '#0b0a08']); ctx.fillRect(BX0, 640, BX1 - BX0, BY1 - 640);
       layer(0.7, function () {
         [-1, 1].forEach(function (s) {
           for (var i = 0; i < 3; i++) for (var j = 0; j < 3 - i; j++) {
@@ -957,7 +958,6 @@
         ctx.fillStyle = 'rgba(255,220,150,.08)'; poly([ex - 16, ey, ex + 16, ey, ex + 140 + sw * 300, FLOOR, ex - 140 + sw * 300, FLOOR], 'rgba(255,220,150,.07)');
         ctx.fillStyle = '#333'; poly([ex - 20, ey + 14, ex + 20, ey + 14, ex + 10, ey, ex - 10, ey], '#333'); glow(ex, ey + 14, 40, '255,220,150', 0.6);
       });
-      ctx.fillStyle = vgrad(640, BY1, ['#1b1a16', '#0b0a08']); ctx.fillRect(BX0, 640, BX1 - BX0, BY1 - 640);
       ctx.fillStyle = 'rgba(0,0,0,.3)'; ctx.beginPath(); ctx.ellipse(CX - 120, 860, 90, 18, 0, 0, TAU); ctx.fill();
     },
     boss: function () {
@@ -1253,7 +1253,7 @@
         else { [x0, x1].forEach(function (x) { ctx.fillStyle = '#2a1830'; ctx.fillRect(x - 16, y - 22, 32, 44); circle(x, y, 8, '#ff2050'); glow(x, y, 40, '255,30,90', 0.5 + 0.5 * Math.min(1, b.p)); }); }
         if (!b.out || q < 0.2) {
           ctx.globalAlpha = 0.25 + 0.6 * Math.min(1, b.p) * (0.6 + 0.4 * Math.sin(gt * 30));
-          ctx.setLineDash([14, 10]); line(x0, y, x1, y, '#ff3060', 2); ctx.setLineDash([]); ctx.globalAlpha = 1;
+          ctx.setLineDash([18, 10]); line(x0, y, x1, y, '#ff3060', 4); ctx.setLineDash([]); ctx.globalAlpha = 1; glow(x0 + (x1 - x0) * ((gt * 0.8) % 1), y, 30, '255,60,120', 0.8);
         } else if (q < 0.8) {
           ctx.shadowColor = '#ff2050'; ctx.shadowBlur = 26; line(BX0, y, BX1, y, '#ff2050', 12); line(BX0, y, BX1, y, '#ffe8f0', 4); ctx.shadowBlur = 0;
         }
@@ -1433,7 +1433,7 @@
     ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
     ctx.fillStyle = '#05070c'; ctx.fillRect(0, 0, W, H);
     if (state === 'title') return;
-    if (state === 'victory' || (state === 'splash' && scene().ending && G.beat >= scene().beats.length)) { drawVictory(); drawHUD(); return; }
+    if (state === 'victory' || (state === 'splash' && scene().ending && G.beat >= scene().beats.length)) { drawVictory(); return; }
     var sc = scene();
     ctx.setTransform(DPR * S, 0, 0, DPR * S, DPR * OX, DPR * OY);
     var z = cam.z + fx.kick, sx = (Math.random() - 0.5) * fx.shake * 2, sy = (Math.random() - 0.5) * fx.shake * 2;
@@ -1556,8 +1556,8 @@
   function drawIntro() {
     var sc = scene(), n = G.scene + 1, a = easeOut(T / 0.5);
     ctx.globalAlpha = clamp(T * 3, 0, 1);
-    txt('SCENE ' + n + ' / 10', CX, 110 - 30 * (1 - a), 22, '#6ffbea', 'center', 800, '#000');
-    txt(sc.name.toUpperCase(), CX, 152 - 30 * (1 - a), sc.name.length > 18 ? 32 : 38, '#ffd27a', 'center', 900, '#2a1000');
+    txt('SCENE ' + n + ' / 10', CX, 135 - 30 * (1 - a), 22, '#6ffbea', 'center', 800, '#000');
+    txt(sc.name.toUpperCase(), CX, 178 - 30 * (1 - a), sc.name.length > 18 ? 32 : 38, '#ffd27a', 'center', 900, '#2a1000');
     ctx.globalAlpha = 1;
     var py = lerp(980, 600, easeOut((T - 0.15) / 0.45));
     panelImage(IMG['scout-closeup-' + sc.face], 40, py, 460, 330, 0.12);
@@ -1566,10 +1566,10 @@
   }
   function drawClear() {
     var sc = scene(), n = G.scene + 1, a = easeOut(T / 0.35);
-    ctx.save(); ctx.translate(CX, 150); ctx.rotate(-0.08); ctx.scale(2 - a, 2 - a); ctx.globalAlpha = a;
+    ctx.save(); ctx.translate(CX, 165); ctx.rotate(-0.08); ctx.scale(2 - a, 2 - a); ctx.globalAlpha = a;
     txt('SCENE ' + n + ' CLEAR', 0, 0, 46, '#ffd27a', 'center', 900, '#2a1000');
     ctx.restore(); ctx.globalAlpha = 1;
-    txt('Score ' + G.score + '   \u2022   +' + (500 + G.lives * 50) + ' bonus', CX, 210, 20, '#e8fbf8', 'center', 700, '#000');
+    txt('Score ' + G.score + '   \u2022   +' + (500 + G.lives * 50) + ' bonus', CX, 225, 20, '#e8fbf8', 'center', 700, '#000');
     if (sc.cutin && imgOk(IMG['poster-2-armsout'])) {
       var im = IMG['poster-2-armsout'], k = easeOut((T - 0.2) / 0.5), w = 330, h = w * 16 / 9, x = CX - w / 2, y = lerp(980, 250, k);
       ctx.save(); rrect(x, y, w, h, 14); ctx.clip(); var zz = 1 + T * 0.03;
@@ -1582,6 +1582,14 @@
     }
   }
   function drawVictory() {
+    // The ending art is shown whole (logical 0..960) even on landscape screens.
+    var keep = [S, OX, OY, VX0, VX1, VY0, VY1];
+    S = Math.min(W / LW, H / LH); OX = (W - LW * S) / 2; OY = (H - LH * S) / 2;
+    VX0 = -OX / S; VX1 = LW + OX / S; VY0 = -OY / S; VY1 = LH + OY / S;
+    drawVictoryInner();
+    S = keep[0]; OX = keep[1]; OY = keep[2]; VX0 = keep[3]; VX1 = keep[4]; VY0 = keep[5]; VY1 = keep[6];
+  }
+  function drawVictoryInner() {
     ctx.setTransform(DPR * S, 0, 0, DPR * S, DPR * OX, DPR * OY);
     var g = ctx.createRadialGradient(CX, 480, 50, CX, 480, 900); g.addColorStop(0, '#5a3010'); g.addColorStop(1, '#0a0604');
     ctx.fillStyle = g; ctx.fillRect(VX0, VY0, VX1 - VX0, VY1 - VY0);
