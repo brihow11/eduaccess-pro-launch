@@ -1,0 +1,69 @@
+/* Asteroids Deluxe tribute: layout, toolbar, touch controls, settings. Written by: Howie */
+html, body { margin: 0; padding: 0; height: 100%; background: #000; overflow: hidden; overscroll-behavior: none; }
+body {
+  position: fixed; inset: 0; display: flex; flex-direction: column; color: #dfe9ff;
+  font: 14px/1.35 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; touch-action: manipulation; -webkit-text-size-adjust: 100%;
+}
+[data-jsp-banner] { flex: none; }
+#stage { position: relative; flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column; overflow: hidden; touch-action: none; background: #000; }
+#wrap { position: relative; flex: 1 1 auto; min-height: 0; }
+#game { position: absolute; inset: 0; width: 100%; height: 100%; display: block; background: #000; outline: none; }
+.noscript { padding: 20px; }
+
+.toolbar { position: absolute; top: 8px; right: 8px; z-index: 6; display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end; }
+.tool {
+  appearance: none; display: inline-flex; align-items: center; gap: 5px; height: 32px; padding: 0 11px; border-radius: 8px;
+  border: 1px solid rgba(140, 190, 255, 0.35); background: rgba(4, 10, 24, 0.72); color: #dbe9ff; text-decoration: none;
+  font: 600 13px/1 system-ui, -apple-system, "Segoe UI", sans-serif; cursor: pointer; backdrop-filter: blur(4px);
+  box-shadow: 0 0 12px rgba(90, 160, 255, 0.12);
+}
+.tool:hover { border-color: rgba(170, 215, 255, 0.8); background: rgba(14, 28, 60, 0.85); }
+.tool:focus-visible { outline: 2px solid #9fd0ff; outline-offset: 1px; }
+.tool[aria-pressed="true"] { color: #ff9c8a; border-color: rgba(255, 140, 120, 0.6); }
+.tool.menu { border-color: rgba(255, 207, 90, 0.55); color: #ffe2a0; }
+@media (max-width: 640px) { .tool .lbl { display: none; } .tool { padding: 0 9px; } }
+@media (max-width: 360px) { #btn-full { display: none; } }
+
+.bar { flex: none; display: flex; align-items: center; height: 24px; padding: 0 10px; box-sizing: border-box; background: #02040a; border-top: 1px solid #0f1830; font-size: 11px; color: #7f8db5; white-space: nowrap; overflow: hidden; }
+.bar .note { overflow: hidden; text-overflow: ellipsis; }
+body.is-touch .bar { display: none; }
+
+/* ---------- touch controls: a strip under the playfield in portrait, overlaid corners in landscape ---------- */
+#touch { flex: none; position: relative; display: flex; justify-content: space-between; align-items: flex-end; gap: 6px;
+  padding: 10px 8px calc(12px + env(safe-area-inset-bottom)); background: linear-gradient(#000, #02060f); border-top: 1px solid #0d1a33; touch-action: none; }
+#touch[hidden] { display: none; }
+.tgroup { display: flex; gap: min(10px, 2vw); align-items: flex-end; }
+.tbtn {
+  appearance: none; padding: 0; width: min(70px, 16.5vw); height: min(70px, 16.5vw); border-radius: 50%; touch-action: none; -webkit-tap-highlight-color: transparent;
+  border: 2px solid rgba(160, 205, 255, 0.55); background: radial-gradient(circle at 40% 35%, rgba(70, 120, 200, 0.45), rgba(10, 22, 50, 0.75));
+  color: #e4f0ff; font: 800 12px/1 system-ui, sans-serif; letter-spacing: 0.04em; box-shadow: 0 0 14px rgba(80, 150, 255, 0.25);
+}
+.tgroup.left .tbtn { font-size: 22px; }
+.tbtn.fire { width: min(84px, 19vw); height: min(84px, 19vw); border-color: rgba(255, 220, 160, 0.7); background: radial-gradient(circle at 40% 35%, rgba(255, 170, 90, 0.55), rgba(70, 25, 5, 0.8)); box-shadow: 0 0 18px rgba(255, 150, 60, 0.35); }
+.tbtn.shield { border-color: rgba(120, 255, 230, 0.6); background: radial-gradient(circle at 40% 35%, rgba(60, 200, 190, 0.45), rgba(4, 40, 40, 0.8)); }
+.tbtn.thrust { margin-bottom: min(30px, 6vw); }
+.tbtn.active { transform: scale(0.93); filter: brightness(1.45); }
+#touch.landscape { position: absolute; left: 0; right: 0; bottom: 0; background: none; border: 0; pointer-events: none; padding: 0 14px calc(10px + env(safe-area-inset-bottom)); z-index: 5; }
+#touch.landscape .tbtn { pointer-events: auto; opacity: 0.72; width: 62px; height: 62px; }
+#touch.landscape .tbtn.fire { width: 74px; height: 74px; }
+
+/* ---------- settings ---------- */
+#settings { position: fixed; inset: 0; z-index: 40; display: flex; align-items: center; justify-content: center; background: rgba(0, 0, 0, 0.72); padding: 12px; }
+#settings[hidden] { display: none; }
+.panel { width: min(520px, 100%); max-height: 100%; overflow: auto; box-sizing: border-box; padding: 18px 20px; border-radius: 14px;
+  background: linear-gradient(170deg, #0a1428, #050913); border: 1px solid #23406e; box-shadow: 0 20px 60px rgba(0, 0, 0, 0.7), 0 0 40px rgba(70, 140, 255, 0.15); user-select: text; }
+.panel h2 { margin: 0 0 4px; font-size: 1.2rem; color: #fff; }
+.panel .sub, .touchnote { margin: 0 0 10px; font-size: 12.5px; color: #9fb0d6; }
+.keys { width: 100%; border-collapse: collapse; margin-bottom: 6px; }
+.keys th { text-align: left; font-size: 11.5px; font-weight: 600; color: #7f92bd; padding: 2px 4px; }
+.keys td { padding: 3px 4px; font-size: 13.5px; }
+.keycap { appearance: none; min-width: 92px; padding: 6px 10px; border-radius: 6px; border: 1px solid #2d4a7a; background: #0e1b36; color: #e6efff; font: 600 13px ui-monospace, Menlo, Consolas, monospace; cursor: pointer; }
+.keycap.empty { color: #5d6c90; }
+.keycap.listening { border-color: #ffcf5a; color: #ffcf5a; }
+.msg { min-height: 18px; font-size: 12px; color: #ffcf5a; }
+.opts { display: grid; gap: 7px; margin: 8px 0 10px; font-size: 13.5px; }
+.opts select { margin-left: 6px; background: #0e1b36; color: #e6efff; border: 1px solid #2d4a7a; border-radius: 6px; padding: 3px 6px; }
+.row { display: flex; gap: 8px; justify-content: flex-end; }
+.pbtn { appearance: none; padding: 8px 14px; border-radius: 8px; border: 1px solid #2d4a7a; background: #0e1b36; color: #e6efff; font: 600 13.5px system-ui, sans-serif; cursor: pointer; }
+.pbtn.primary { background: #2a63d4; border-color: #4f86f0; }
