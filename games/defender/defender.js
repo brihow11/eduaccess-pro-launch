@@ -369,6 +369,22 @@
   let sprites = {};
   let spriteScale = 0;
   let bulletImg = null;
+  let tintedTiles = [], rockGrey = null;
+  // Rock texture tinted for a level theme, cached; used as the terrain fill pattern.
+  function terrainPattern(th, i) {
+    if (!ART) return null;
+    if (!tintedTiles[i]) {
+      if (!rockGrey) rockGrey = ART.rockTile();
+      const c = document.createElement("canvas"); c.width = 256; c.height = 160;
+      const g = c.getContext("2d");
+      const gr = g.createLinearGradient(0, 0, 0, 160); gr.addColorStop(0, th.rock[0]); gr.addColorStop(1, th.rock[1]);
+      g.fillStyle = gr; g.fillRect(0, 0, 256, 160);
+      g.globalCompositeOperation = "overlay"; g.drawImage(rockGrey, 0, 0);
+      g.globalCompositeOperation = "source-over";
+      tintedTiles[i] = { canvas: c, pat: ctx.createPattern(c, "repeat") };
+    }
+    return tintedTiles[i].pat;
+  }
 
   function renderSprite(rows, scale, glow, flip) {
     const src = flip ? rows.map((r) => r.split("").reverse().join("")) : rows;
@@ -403,12 +419,28 @@
     paint(false);
     return { img: c, w, h };
   }
+  // 16-bit art pass (defender/art.js): painted, shaded multi-frame sprites at device resolution.
+  const ART = window.DefenderArt || null;
+  function renderArt(def, frame, scale, glow) {
+    const pad = 4, w = def.w + pad * 2, h = def.h + pad * 2;
+    const c = document.createElement("canvas");
+    c.width = Math.ceil(w * scale); c.height = Math.ceil(h * scale);
+    const g = c.getContext("2d");
+    g.scale(scale, scale); g.translate(pad, pad);
+    if (def.flip) { g.translate(def.w, 0); g.scale(-1, 1); }
+    if (fxOn && glow) { g.shadowColor = glow; g.shadowBlur = 4 * scale; }
+    def.paint(g, frame);
+    return { img: c, w, h };
+  }
   function buildSprites(scale) {
     sprites = {};
     for (const name in SPRITE_DEFS) {
       const d = SPRITE_DEFS[name];
+      const a = ART && ART.SPRITES[name];
+      if (a) { sprites[name] = []; for (let f = 0; f < a.frames; f++) sprites[name].push(renderArt(a, f, scale, d.glow + "66")); continue; }
       sprites[name] = d.frames.map((f) => renderSprite(f, scale, d.glow, d.flip));
     }
+    tintedTiles = [];
     const size = 14;
     const c = document.createElement("canvas");
     c.width = c.height = Math.ceil(size * scale);
@@ -611,6 +643,10 @@
       if (parts.length > 1800) break;
       const a = rand(0, Math.PI * 2), v = rand(speed * 0.2, speed);
       parts.push({ x, y, vx: Math.cos(a) * v, vy: Math.sin(a) * v * 0.85, age: 0, life: rand(0.45, 1) * (life || 1), c: pick(colors), s: rand(2, 4.5) });
+    }
+    if (ART && parts.length < 1800) {
+      parts.push({ x, y, vx: 0, vy: 0, age: 0, life: 0.32, c: "#fff", s: Math.min(70, speed * 0.16), flash: true });
+      if (fxOn) for (let i = 0; i < 3; i++) parts.push({ x: x + rand(-6, 6), y: y + rand(-6, 6), vx: rand(-20, 20), vy: rand(-30, -8), age: 0, life: rand(0.8, 1.4), c: "#000", s: rand(6, 11), smoke: true });
     }
   }
 
@@ -1114,7 +1150,32 @@
     }
     ctx.globalAlpha = 1;
   }
+  const theme = () => (ART ? ART.THEMES[(G.state === "attract" ? 0 : G.sky || 0) % ART.THEMES.length] : null);
+  function drawSky() {
+    const th = theme();
+    if (!th) return;
+    const g = ctx.createLinearGradient(0, HUD_H, 0, 470);
+    g.addColorStop(0, th.sky[0]); g.addColorStop(0.45, th.sky[1]); g.addColorStop(0.8, th.sky[2]); g.addColorStop(1, th.sky[3]);
+    ctx.fillStyle = g; ctx.fillRect(0, HUD_H, W, H - HUD_H);
+    if (th.moon) {
+      const mx = W * 0.78 - ((G.camX * 0.04) % (W * 1.6)), my = 150;
+      const mg = ctx.createRadialGradient(mx - 8, my - 8, 2, mx, my, 34);
+      mg.addColorStop(0, th.moon); mg.addColorStop(0.55, "rgba(120,130,160,.55)"); mg.addColorStop(0.62, "rgba(60,70,100,.18)"); mg.addColorStop(1, "rgba(0,0,0,0)");
+      ctx.globalAlpha = 0.75; ctx.fillStyle = mg; ctx.beginPath(); ctx.arc(mx, my, 34, 0, Math.PI * 2); ctx.fill(); ctx.globalAlpha = 1;
+      ctx.fillStyle = "rgba(0,0,0,.18)"; ctx.beginPath(); ctx.arc(mx + 6, my + 4, 6, 0, Math.PI * 2); ctx.arc(mx - 9, my + 8, 4, 0, Math.PI * 2); ctx.fill();
+    }
+    // horizon haze band
+    const hz = ctx.createLinearGradient(0, 330, 0, 480);
+    hz.addColorStop(0, "rgba(0,0,0,0)"); hz.addColorStop(1, th.haze);
+    ctx.fillStyle = hz; ctx.fillRect(0, 330, W, 150);
+    if (th.storm && fxOn) {
+      const k = Math.sin(G.t * 0.7) * Math.sin(G.t * 2.3);
+      if (k > 0.93) { ctx.fillStyle = "rgba(200,215,255," + ((k - 0.93) * 4).toFixed(3) + ")"; ctx.fillRect(0, HUD_H, W, H - HUD_H); }
+    }
+  }
   function drawBackRange() {
+    const th = theme();
+    if (th) return drawBackRangeArt(th);
     const n2 = TN / 2, period = n2 * TSEG;
     const cam = (G.camX * 0.5) % period;
     const i0 = Math.floor(cam / TSEG) - 1;
@@ -1131,6 +1192,47 @@
     ctx.fillStyle = g; ctx.fill();
     ctx.strokeStyle = "rgba(130,100,255,0.35)"; ctx.lineWidth = 1.2; ctx.stroke();
   }
+  function drawBackRangeArt(th) {
+    const n2 = TN / 2, period = n2 * TSEG;
+    // far mesas (parallax 0.25), then the main back range (parallax 0.5) with rim light
+    for (const layer of [{ p: 0.25, lift: 46, a: 0.55 }, { p: 0.5, lift: 0, a: 1 }]) {
+      if (!layer.lift) drawSkyline(th);
+      const cam = (G.camX * layer.p + (layer.lift ? 900 : 0)) % period;
+      const i0 = Math.floor(cam / TSEG) - 1;
+      ctx.beginPath();
+      for (let j = 0; j <= W / TSEG + 3; j++) {
+        const wi = i0 + j;
+        const y = backRange[((wi % n2) + n2) % n2] - layer.lift;
+        if (j === 0) ctx.moveTo(wi * TSEG - cam, y); else ctx.lineTo(wi * TSEG - cam, y);
+      }
+      ctx.lineTo(W + 40, H); ctx.lineTo(-40, H); ctx.closePath();
+      const g = ctx.createLinearGradient(0, 330 - layer.lift, 0, H);
+      g.addColorStop(0, th.far[0]); g.addColorStop(1, th.far[1]);
+      ctx.globalAlpha = layer.a; ctx.fillStyle = g; ctx.fill();
+      ctx.strokeStyle = th.farRim; ctx.lineWidth = layer.lift ? 1 : 1.4; ctx.stroke();
+      ctx.globalAlpha = 1;
+    }
+  }
+  // distant ruined settlements between the mountain layers (parallax 0.38), lit windows flicker
+  const skyline = Array.from({ length: 70 }, (_, i) => ({ x: i * 58 + rand(0, 30), w: rand(14, 34), h: rand(16, 62), lit: Math.random(), broken: Math.random() < 0.35 }));
+  function drawSkyline(th) {
+    const period = 70 * 58, cam = (G.camX * 0.38) % period;
+    ctx.fillStyle = th.far[1];
+    for (const b of skyline) {
+      let sx = b.x - cam; if (sx < -60) sx += period; if (sx > W + 20) continue;
+      const top = 452 - b.h;
+      ctx.beginPath(); ctx.moveTo(sx, 460); ctx.lineTo(sx, top + (b.broken ? 6 : 0)); ctx.lineTo(sx + b.w * 0.4, top); ctx.lineTo(sx + b.w * (b.broken ? 0.6 : 1), top + (b.broken ? 10 : 0)); ctx.lineTo(sx + b.w, top + (b.broken ? 14 : 0)); ctx.lineTo(sx + b.w, 460); ctx.fill();
+    }
+    ctx.fillStyle = th.ridge;
+    for (const b of skyline) {
+      let sx = b.x - cam; if (sx < -60) sx += period; if (sx > W + 20) continue;
+      for (let wy = 452 - b.h + 16; wy < 452; wy += 7) for (let wx = 3; wx < b.w - 3; wx += 6) {
+        const k = (b.lit * 97 + wx * 13 + wy * 7) % 10;
+        if (k < 1.6) { ctx.globalAlpha = 0.35 + 0.3 * Math.sin(G.t * 2 + k * 9); ctx.fillRect(sx + wx, wy, 2, 2.4); }
+      }
+    }
+    ctx.globalAlpha = 1;
+  }
   function terrainPath() {
     const i0 = Math.floor(G.camX / TSEG) - 1;
     ctx.beginPath();
@@ -1142,6 +1244,24 @@
     }
   }
   function drawTerrain() {
+    const th = theme();
+    if (th) {
+      terrainPath();
+      ctx.lineTo(W + 40, H); ctx.lineTo(-40, H); ctx.closePath();
+      const pat = terrainPattern(th, (G.state === "attract" ? 0 : G.sky || 0) % ART.THEMES.length);
+      if (pat && pat.setTransform) pat.setTransform(new DOMMatrix([1, 0, 0, 1, -(G.camX % 256), 380]));
+      ctx.fillStyle = pat || th.rock[0]; ctx.fill();
+      const shade = ctx.createLinearGradient(0, 392, 0, H);
+      shade.addColorStop(0, "rgba(0,0,0,0)"); shade.addColorStop(1, "rgba(0,0,0,.55)");
+      ctx.fillStyle = shade; ctx.fill();
+      // lit ridge: glow, bright edge, and a darker under-lip for depth
+      ctx.save(); ctx.translate(0, 3); terrainPath(); ctx.strokeStyle = "rgba(0,0,0,.45)"; ctx.lineWidth = 3; ctx.stroke(); ctx.restore();
+      terrainPath(); ctx.lineJoin = "round";
+      if (fxOn) { ctx.strokeStyle = th.ridgeGlow; ctx.lineWidth = 7; ctx.stroke(); }
+      ctx.strokeStyle = th.ridge; ctx.lineWidth = 2; ctx.stroke();
+      ctx.save(); ctx.translate(0, 1.6); terrainPath(); ctx.strokeStyle = "rgba(255,240,220,.35)"; ctx.lineWidth = 0.8; ctx.stroke(); ctx.restore();
+      return;
+    }
     terrainPath();
     ctx.lineTo(W + 40, H); ctx.lineTo(-40, H); ctx.closePath();
     const g = ctx.createLinearGradient(0, 392, 0, H);
@@ -1168,9 +1288,9 @@
     ctx.globalCompositeOperation = "source-over";
   }
   function humanFrame(h) {
-    if (h.state === "walk") return Math.floor(h.t * 4) % 2;
-    if (h.state === "abducted") return Math.floor(h.t * 8) % 2 ? 2 : 0;
-    if (h.state === "falling") return 2;
+    if (h.state === "walk") return ART ? Math.floor(h.t * 7) % 4 : Math.floor(h.t * 4) % 2;
+    if (h.state === "abducted") return Math.floor(h.t * 8) % 2 ? (ART ? 4 : 2) : 0;
+    if (h.state === "falling") return ART ? 4 : 2;
     return 0;
   }
   function drawWorld() {
@@ -1251,16 +1371,50 @@
       ctx.beginPath(); ctx.moveTo(back, y - 1); ctx.lineTo(back - ship.face * L, y + 4); ctx.lineTo(back, y + 9); ctx.closePath(); ctx.fill();
       ctx.globalCompositeOperation = "source-over";
     }
-    spr(ship.face > 0 ? "shipR" : "shipL", 0, sx, y);
+    spr(ship.face > 0 ? "shipR" : "shipL", Math.floor(G.t * 2.5) % 2, sx, y);
   }
+  let flashImg = null;
   function drawParticles() {
-    ctx.globalCompositeOperation = "lighter";
-    for (const p of parts) {
-      const sx = wdx(G.camX, p.x);
-      if (sx < -10 || sx > W + 10) continue;
-      ctx.globalAlpha = Math.max(0, 1 - p.age / p.life);
-      ctx.fillStyle = p.c;
-      ctx.fillRect(sx - p.s / 2, p.y - p.s / 2, p.s, p.s);
+    if (ART) {
+      // smoke (behind sparks), then additive sparks as short motion streaks, then fireball flashes
+      for (const p of parts) {
+        if (!p.smoke) continue;
+        const sx = wdx(G.camX, p.x); if (sx < -20 || sx > W + 20) continue;
+        const k = p.age / p.life;
+        ctx.globalAlpha = Math.max(0, 0.35 * (1 - k));
+        ctx.fillStyle = "#2a2630"; ctx.beginPath(); ctx.arc(sx, p.y, p.s * (1 + k * 1.6), 0, Math.PI * 2); ctx.fill();
+      }
+      ctx.globalAlpha = 1;
+      ctx.globalCompositeOperation = "lighter"; ctx.lineCap = "round";
+      for (const p of parts) {
+        if (p.smoke || p.flash) continue;
+        const sx = wdx(G.camX, p.x); if (sx < -10 || sx > W + 10) continue;
+        ctx.globalAlpha = Math.max(0, 1 - p.age / p.life);
+        ctx.strokeStyle = p.c; ctx.lineWidth = p.s * 0.55;
+        ctx.beginPath(); ctx.moveTo(sx, p.y); ctx.lineTo(sx - p.vx * 0.022, p.y - p.vy * 0.022); ctx.stroke();
+      }
+      if (!flashImg) {
+        const c = document.createElement("canvas"); c.width = c.height = 64; const g = c.getContext("2d");
+        const gr = g.createRadialGradient(32, 32, 0, 32, 32, 32);
+        gr.addColorStop(0, "rgba(255,255,240,1)"); gr.addColorStop(0.25, "rgba(255,220,140,.9)"); gr.addColorStop(0.6, "rgba(255,110,30,.35)"); gr.addColorStop(1, "rgba(255,60,0,0)");
+        g.fillStyle = gr; g.fillRect(0, 0, 64, 64); flashImg = c;
+      }
+      for (const p of parts) {
+        if (!p.flash) continue;
+        const sx = wdx(G.camX, p.x); if (sx < -80 || sx > W + 80) continue;
+        const k = p.age / p.life, r = p.s * (0.6 + k);
+        ctx.globalAlpha = Math.max(0, 1 - k);
+        ctx.drawImage(flashImg, sx - r, p.y - r, r * 2, r * 2);
+      }
+    } else {
+      ctx.globalCompositeOperation = "lighter";
+      for (const p of parts) {
+        const sx = wdx(G.camX, p.x);
+        if (sx < -10 || sx > W + 10) continue;
+        ctx.globalAlpha = Math.max(0, 1 - p.age / p.life);
+        ctx.fillStyle = p.c;
+        ctx.fillRect(sx - p.s / 2, p.y - p.s / 2, p.s, p.s);
+      }
     }
     ctx.globalAlpha = 1;
     ctx.globalCompositeOperation = "source-over";
@@ -1322,7 +1476,7 @@
     const bombs = G.state === "attract" ? 0 : G.bombs;
     const bombX = narrow ? SC.x - 14 : 272, maxBombs = narrow ? 3 : 6;
     const maxShips = narrow ? Math.max(1, Math.floor((bombX - maxBombs * 10 - 40) / shipGap)) : 6;
-    for (let i = 0; i < Math.min(reserve, maxShips); i++) spr("shipR", 0, (narrow ? 32 : 40) + i * shipGap, 54, narrow ? 0.5 : 0.6);
+    for (let i = 0; i < Math.min(reserve, maxShips); i++) spr("shipR", 0, (narrow ? 32 : 40) + i * shipGap, 54, ART ? (narrow ? 0.44 : 0.52) : (narrow ? 0.5 : 0.6));
     for (let i = 0; i < Math.min(bombs, maxBombs); i++) {
       ctx.fillStyle = "#ff3fd4"; ctx.fillRect(bombX - i * 10, 46, 6, 14);
       ctx.fillStyle = "rgba(255,255,255,0.5)"; ctx.fillRect(bombX - i * 10, 46, 6, 3);
@@ -1422,6 +1576,7 @@
     ctx.save();
     ctx.beginPath(); ctx.rect(0, HUD_H, W, H - HUD_H); ctx.clip();
     if (G.shake > 0 && fxOn && !G.paused) ctx.translate(rand(-1, 1) * G.shake * 10, rand(-1, 1) * G.shake * 8);
+    drawSky();
     drawStars();
     drawBackRange();
     if (G.planet) drawTerrain();
