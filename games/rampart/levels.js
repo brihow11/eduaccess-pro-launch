@@ -45,7 +45,7 @@
       castles: 3, rocks: 3, seed: 11, rounds: [["sloop", "sloop", "sloop"], ["sloop", "sloop", "sloop", "sloop"]],
       sea: function (u, v, n) { return u > 0.7 + 0.04 * Math.sin(v * 6.5) + (n - 0.5) * 0.06; }, cannonT: 15, battleT: 22, repairT: 30 },
     { id: 2, name: "Twin Coves", blurb: "Two bays bite into the land. Brigantines join the sloops.", theme: "spring", weather: "clear",
-      castles: 4, rocks: 4, seed: 23, rounds: [["sloop", "sloop", "sloop", "brig"], ["sloop", "sloop", "brig", "brig"]],
+      castles: 4, rocks: 4, seed: 23, rounds: [["sloop", "sloop", "sloop", "brig"], ["sloop", "barge", "sloop", "brig", "brig"]],
       sea: function (u, v, n) { return u > 0.7 - 0.2 * bump(v, 0.27, 0.1) - 0.17 * bump(v, 0.75, 0.09) + (n - 0.5) * 0.07; }, cannonT: 15, battleT: 22, repairT: 29 },
     { id: 3, name: "Riverbend", blurb: "A river splits the meadow. The first landing barges bring sappers.", theme: "spring", weather: "clear",
       castles: 4, rocks: 4, seed: 37, rounds: [["brig", "brig", "sloop", "sloop"], ["brig", "brig", "barge", "sloop", "sloop"]],
@@ -99,6 +99,12 @@
       sea: function (u, v, n) { return inEllipse(u, v, 0.4, 0.5, 0.36, 0.44) > 1 + (n - 0.5) * 0.22; }, cannonT: 16, battleT: 32, repairT: 24 }
   ];
 
+  // Shortest firing range among the level's gunships (barges don't shoot).
+  function threatRange(L) {
+    var r = 99; L.rounds.forEach(function (rd) { rd.forEach(function (t) { var d = SHIPS[t]; if (d.shots && d.range < r) r = d.range; }); });
+    return r === 99 ? 7 : r;
+  }
+
   // Build the tile map for a level. portrait=true returns the transpose (ROWS x COLS).
   function buildMap(level, portrait) {
     var L = typeof level === "number" ? LEVELS[level - 1] : level;
@@ -140,27 +146,55 @@
       }
       return true;
     }
+    // open sea = water connected to the map edge (inland lakes don't carry ships)
+    var sea = new Uint8Array(n), sq = [];
+    for (i = 0; i < n; i++) { var ex = i % cols, ey = (i / cols) | 0; if (water[i] && (!ex || !ey || ex === cols - 1 || ey === rows - 1)) { sea[i] = 1; sq.push(i); } }
+    for (h = 0; h < sq.length; h++) {
+      var sc = sq[h], sx0 = sc % cols, sy0 = (sc / cols) | 0;
+      [[1, 0], [-1, 0], [0, 1], [0, -1]].forEach(function (dd) {
+        var ax = sx0 + dd[0], ay = sy0 + dd[1]; if (ax < 0 || ay < 0 || ax >= cols || ay >= rows) return;
+        var j = ay * cols + ax; if (water[j] && !sea[j]) { sea[j] = 1; sq.push(j); }
+      });
+    }
+    // every castle must be under the guns: some open-sea tile lies within (shortest gun range - 1)
+    // of its home ring, so no castle pick is a free wait. Barges can land beside it too.
+    var reach = threatRange(L) - 1;
+    function threatened(tx, ty) {
+      var x0 = tx - 3, x1 = tx + 4, y0 = ty - 3, y1 = ty + 4, r = Math.ceil(reach);
+      for (var yy = Math.max(0, y0 - r); yy <= Math.min(rows - 1, y1 + r); yy++)
+        for (var xx = Math.max(0, x0 - r); xx <= Math.min(cols - 1, x1 + r); xx++) {
+          if (!sea[yy * cols + xx]) continue;
+          var px = Math.max(x0, Math.min(x1, xx)), py = Math.max(y0, Math.min(y1, yy));
+          var onRing = (px === x0 || px === x1 || py === y0 || py === y1);
+          if (!onRing) continue; // sea inside the ring footprint can't happen (roomy), guard anyway
+          if (Math.hypot(xx - px, yy - py) <= reach) return true;
+        }
+      return false;
+    }
     var cand = [];
-    for (y = 4; y < rows - 5; y++) for (x = 4; x < cols - 5; x++) if (roomy(x, y)) cand.push([x, y, dist[y * cols + x] + dist[(y + 1) * cols + x + 1]]);
+    for (y = 4; y < rows - 5; y++) for (x = 4; x < cols - 5; x++) if (roomy(x, y) && threatened(x, y)) cand.push([x, y, dist[y * cols + x] + dist[(y + 1) * cols + x + 1]]);
     var castles = [];
     if (cand.length) {
       // first castle: the most central candidate closest to the sea (a classic "home" pick)
       cand.sort(function (a, b) { return a[2] - b[2] || (a[0] * 31 + a[1]) - (b[0] * 31 + b[1]); });
-      castles.push({ x: cand[(R() * Math.min(6, cand.length)) | 0][0], y: 0 });
-      castles[0].y = cand.filter(function (c2) { return c2[0] === castles[0].x; })[0][1];
-      while (castles.length < L.castles) {
-        var best = null, bd = -1;
-        for (var k = 0; k < cand.length; k++) {
-          var md = 1e9;
-          for (var m = 0; m < castles.length; m++) { var ddx = cand[k][0] - castles[m].x, ddy = cand[k][1] - castles[m].y; md = Math.min(md, ddx * ddx + ddy * ddy); }
-          md -= cand[k][2] * 1.5; // prefer castles nearer the coast
-          md += R() * 4;
-          if (md > bd) { bd = md; best = cand[k]; }
+      // greedy spread can paint itself into a corner on tight coasts: retry a few seeded layouts, keep the fullest
+      for (var attempt = 0; attempt < 16 && castles.length < L.castles; attempt++) {
+        var cs = [], f = cand[(R() * Math.min(6 + attempt * 4, cand.length)) | 0];
+        cs.push({ x: f[0], y: f[1] });
+        while (cs.length < L.castles) {
+          var best = null, bd = -1e9;
+          for (var k = 0; k < cand.length; k++) {
+            var md = 1e9;
+            for (var m = 0; m < cs.length; m++) { var ddx = cand[k][0] - cs[m].x, ddy = cand[k][1] - cs[m].y; md = Math.min(md, ddx * ddx + ddy * ddy); }
+            if (md < 36) continue; // keep castles (and their home rings) apart
+            md -= cand[k][2] * 1.5; // prefer castles nearer the coast
+            md += R() * 4;
+            if (md > bd) { bd = md; best = cand[k]; }
+          }
+          if (!best) break;
+          cs.push({ x: best[0], y: best[1] });
         }
-        if (!best) break;
-        var bdx = 0; for (var m2 = 0; m2 < castles.length; m2++) { var e1 = best[0] - castles[m2].x, e2 = best[1] - castles[m2].y; if (e1 * e1 + e2 * e2 < 36) bdx = 1; }
-        if (bdx) break;
-        castles.push({ x: best[0], y: best[1] });
+        if (cs.length > castles.length) castles = cs;
       }
     }
     // obstacles: small rock / tree clusters away from castles and their home rings
@@ -200,7 +234,7 @@
     return p;
   }
 
-  var API = { COLS: COLS, ROWS: ROWS, LEVELS: LEVELS, SHIPS: SHIPS, PIECES: PIECES, piecePool: piecePool, buildMap: buildMap, rng: rng, fbm: fbm, vnoise: vnoise, hash2: hash2 };
+  var API = { COLS: COLS, ROWS: ROWS, LEVELS: LEVELS, SHIPS: SHIPS, PIECES: PIECES, piecePool: piecePool, buildMap: buildMap, threatRange: threatRange, rng: rng, fbm: fbm, vnoise: vnoise, hash2: hash2 };
   if (typeof module !== "undefined" && module.exports) module.exports = API;
   else root.RampartLevels = API;
 })(typeof window !== "undefined" ? window : this);

@@ -211,3 +211,21 @@ test("Rampart level can never stall: surviving ships withdraw after the overtime
   assert.match(js, /THE FLEET WITHDRAWS/);
   assert.match(js, /if \(G\.timer <= 0\) ceaseFire\(\);/, "every battle phase ends on its timer");
 });
+
+test("Rampart: every selectable castle on all 12 maps (landscape and portrait) can be shelled from the sea", () => {
+  for (const lv of LV.LEVELS) for (const portrait of [false, true]) {
+    const map = LV.buildMap(lv, portrait), range = LV.threatRange(lv);
+    assert.equal(map.castles.length, lv.castles, lv.name + " keeps its castle count");
+    assert.ok(range >= 7 && lv.rounds.flat().some((t) => LV.SHIPS[t].shots && LV.SHIPS[t].range === range), lv.name + " threat range comes from a real gunship");
+    map.castles.forEach((c, home) => {
+      const where = lv.name + (portrait ? " portrait" : "") + " castle " + home;
+      const { g, sea, sd } = ringed(lv, portrait, home);
+      const spawns = sea.filter((i) => { const x = i % g.cols, y = (i / g.cols) | 0; return !x || !y || x === g.cols - 1 || y === g.rows - 1; });
+      let spot = -1;
+      for (const st of spawns) { spot = C.firingSpot(g, sea, sd, C.seaBfs(g, st).dist, range); if (spot >= 0) break; }
+      assert.ok(spot >= 0, where + ": the level's shortest-range gunship can reach a sea tile that hits the home ring");
+      assert.ok(C.hasTargetInRange(g, spot, range), where);
+    });
+  }
+  assert.ok(LV.LEVELS[1].rounds.flat().includes("barge"), "landing barges (sappers) arrive from level 2");
+});
