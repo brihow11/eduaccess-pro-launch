@@ -40,6 +40,7 @@
     bump: function (p) { A.tone({ type: "sine", f: 200, to: 70, dur: 0.2, gain: 0.45, pan: p }); A.noise({ f: 900, to: 200, dur: 0.2, gain: 0.3, pan: p }); },
     moo: function (p) { A.tone({ type: "sawtooth", f: 120, to: 85, dur: 0.9, gain: 0.2, lp: 700, q: 6, pan: p, send: 0.3, attack: 0.08 }); A.tone({ type: "sawtooth", f: 240, to: 170, dur: 0.8, gain: 0.06, lp: 900, pan: p, attack: 0.1 }); },
     hooves: function (p) { A.noise({ f: 700, dur: 0.05, gain: 0.18, pan: p }); A.noise({ f: 600, dur: 0.05, gain: 0.14, delay: 0.09, pan: p }); },
+    cheer: function () { A.noise({ f: 1400, to: 2200, dur: 1.8, gain: 0.16, ftype: "bandpass", q: 0.6, attack: 0.35, send: 0.6 }); A.noise({ f: 700, to: 900, dur: 1.6, gain: 0.12, ftype: "bandpass", q: 0.8, attack: 0.3, send: 0.6 }); for (var i = 0; i < 8; i++) A.noise({ f: 3000, dur: 0.03, gain: 0.08, ftype: "highpass", delay: 0.2 + Math.random() * 1.2, pan: Math.random() * 1.6 - 0.8 }); },
     meter: function (v) { A.tone({ type: "square", f: 300 + v * 900, dur: 0.03, gain: 0.04, lp: 3000 }); }
   };
   // ---- songs for ArcadeMusic: minor pentatonic koto plucks, taiko toms, brass and organ pads
