@@ -1,11 +1,12 @@
 /*
- * EduAccess Arcade menu: paints the posters, detects which games are live,
- * fills the Scout AI block and runs the menu music with a remembered mute.
+ * EduAccess Arcade menu: detects which games are live, fills the Scout AI
+ * block and runs the menu music with a remembered mute.
  * Written by: Howie
  *
  * A game turns on automatically once /games/<slug>/index.html returns 200.
  * Optional: a game page can carry <meta name="arcade-controls" content="...">
  * and the menu card will show that controls line instead of the default.
+ * Poster art is static WebP under /games/menu-assets/covers/.
  */
 (function () {
   "use strict";
@@ -13,17 +14,6 @@
   function lsGet(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
   function lsSet(k, v) { try { localStorage.setItem(k, v); } catch (e) { /* storage blocked */ } }
   var cards = Array.prototype.slice.call(document.querySelectorAll(".card[data-slug]"));
-
-  // ---- posters (paint when near the viewport so phones stay fast)
-  function paint(card) {
-    var cv = card.querySelector("canvas.art");
-    if (cv && !cv.dataset.painted && window.ArcadePosters) window.ArcadePosters.draw(card.dataset.slug, cv);
-  }
-  if ("IntersectionObserver" in window) {
-    var io = new IntersectionObserver(function (es) { es.forEach(function (e) { if (e.isIntersecting) { paint(e.target); io.unobserve(e.target); } }); }, { rootMargin: "300px" });
-    cards.forEach(function (c) { io.observe(c); });
-  } else cards.forEach(paint);
-  setTimeout(function () { cards.forEach(paint); }, 1200);
 
   // ---- live detection
   function setState(card, live) {

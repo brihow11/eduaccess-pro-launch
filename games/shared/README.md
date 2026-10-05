@@ -64,4 +64,4 @@ comment for the song format.
 `games/index.html` + `games/menu-assets/` show one poster card per game. A card turns
 on automatically when `/games/<slug>/index.html` returns 200, otherwise it reads
 "Coming soon". A game page may add `<meta name="arcade-controls" content="...">` and the
-menu card will show that controls line. Poster art is painted by `menu-assets/posters.js`.
+menu card will show that controls line. Poster art is static WebP files under `menu-assets/covers/<slug>.webp` (Grok Imagine). Legacy `posters.js` remains in tree unused.
