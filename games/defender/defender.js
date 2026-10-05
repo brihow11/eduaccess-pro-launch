@@ -8,13 +8,15 @@
   "use strict";
 
   // ------------------------------------------------------------ constants
-  const W = 960, H = 540;
+  let W = 960; // logical view width; 520 in phone portrait so the playfield is taller on screen
+  const H = 540;
+  const VIEW_W = 960, VIEW_W_PORTRAIT = 520;
   const HUD_H = 76;
   const PLAY_TOP = HUD_H + 8;
   const GROUND_Y = 524;
   const SHIP_MIN_Y = PLAY_TOP + 12;
   const SHIP_MAX_Y = 506;
-  const WORLD_W = W * 8;
+  const WORLD_W = VIEW_W * 8;
   const STEP = 1 / 120;
   const PX = 3;
   const FONT = 'ui-monospace, "SF Mono", Menlo, Consolas, "Liberation Mono", "DejaVu Sans Mono", monospace';
@@ -28,6 +30,7 @@
     rotate: "eduaccess.defender.rotatehint.v1"
   };
   const SC = { x: 300, y: 7, w: 360, h: 60 };
+  function fitHud() { SC.w = W < 800 ? 230 : 360; SC.x = Math.round((W - SC.w) / 2); }
 
   const lsGet = (k) => { try { return window.localStorage.getItem(k); } catch (e) { return null; } };
   const lsSet = (k, v) => { try { window.localStorage.setItem(k, v); } catch (e) { /* storage blocked */ } };
@@ -542,9 +545,10 @@
     enemies = []; bullets = []; mines = []; beams = [];
     for (const h of humans) { h.targeted = null; if (h.state !== "walk") { h.state = "walk"; h.y = GROUND_Y - 12; } }
     ship.carry = null;
-    G.toSpawn = Math.min(15 + (n - 1) * 5, 35);
-    G.spawnT = 1.4; G.waveT = 0; G.baiterT = Math.max(18, 48 - n * 4);
-    const nb = Math.min(n + 1, 6), np = Math.min(Math.ceil(n / 2), 4);
+    // Wave 1 is a gentler on-ramp: fewer landers, one bomber, no pods, a late baiter.
+    G.toSpawn = n === 1 ? 10 : Math.min(15 + (n - 1) * 5, 35);
+    G.spawnT = 1.4; G.waveT = 0; G.baiterT = n === 1 ? 70 : Math.max(18, 48 - n * 4);
+    const nb = n === 1 ? 1 : Math.min(n + 1, 6), np = n === 1 ? 0 : Math.min(Math.ceil(n / 2), 4);
     for (let i = 0; i < nb; i++) addEnemy("bomber", farX(), rand(PLAY_TOP + 70, 380));
     for (let i = 0; i < np; i++) addEnemy("pod", farX(), rand(PLAY_TOP + 40, 360));
     G.state = "playing";
@@ -758,7 +762,19 @@
         const d = wdx(b.x0, e.x) * b.dir;
         if (d >= b.tail - e.rx && d <= b.head + e.rx && Math.abs(e.y - b.y) <= e.ry + 3 && d < bestD) { best = e; bestD = d; }
       }
-      if (best) {
+      let hitHuman = null;
+      for (const h of humans) {
+        if (h.state !== "walk" && h.state !== "falling" && h.state !== "abducted") continue;
+        const d = wdx(b.x0, h.x) * b.dir;
+        if (d >= b.tail - 4 && d <= b.head + 4 && Math.abs(h.y - b.y) <= 10 && d < bestD) { hitHuman = h; bestD = d; }
+      }
+      if (hitHuman) {
+        for (const e of enemies) if (e.carry === hitHuman) { e.carry = null; e.target = null; e.state = "seek"; }
+        if (hitHuman.targeted) hitHuman.targeted.target = null;
+        killHuman(hitHuman);
+        popups.push({ x: hitHuman.x, y: hitHuman.y - 22, text: "HUMANOID HIT", t: 0 });
+        b.dead = true;
+      } else if (best) {
         killEnemy(best);
         b.dead = true;
         explode(best.x, b.y, [PAL.W, PAL.Y], 8, 140, 0.4);
@@ -862,7 +878,7 @@
       if (rate) {
         e.fireT -= dt;
         if (e.fireT <= 0) {
-          e.fireT = (rate / (1 + 0.12 * (G.wave - 1))) * rand(0.6, 1.4);
+          e.fireT = (rate / (1 + 0.12 * (G.wave - 1))) * (G.wave === 1 ? 1.4 : 1) * rand(0.6, 1.4);
           if (live && G.state === "playing" && onScreenX(e.x, -10) && Math.abs(wdx(e.x, ship.x)) > 60) enemyFire(e);
         }
       }
@@ -1246,18 +1262,21 @@
     }
     txt(String(G.score).padStart(6, "0"), 22, 24, 26, "#ffe23d", "left", 8);
     const reserve = G.state === "attract" ? 0 : Math.max(0, G.lives - 1);
-    for (let i = 0; i < Math.min(reserve, 6); i++) spr("shipR", 0, 40 + i * 34, 54, 0.6);
+    const narrow = W < 800, shipGap = narrow ? 26 : 34;
     const bombs = G.state === "attract" ? 0 : G.bombs;
-    for (let i = 0; i < Math.min(bombs, 6); i++) {
-      ctx.fillStyle = "#ff3fd4"; ctx.fillRect(272 - i * 10, 46, 6, 14);
-      ctx.fillStyle = "rgba(255,255,255,0.5)"; ctx.fillRect(272 - i * 10, 46, 6, 3);
+    const bombX = narrow ? SC.x - 14 : 272, maxBombs = narrow ? 3 : 6;
+    const maxShips = narrow ? Math.max(1, Math.floor((bombX - maxBombs * 10 - 40) / shipGap)) : 6;
+    for (let i = 0; i < Math.min(reserve, maxShips); i++) spr("shipR", 0, (narrow ? 32 : 40) + i * shipGap, 54, narrow ? 0.5 : 0.6);
+    for (let i = 0; i < Math.min(bombs, maxBombs); i++) {
+      ctx.fillStyle = "#ff3fd4"; ctx.fillRect(bombX - i * 10, 46, 6, 14);
+      ctx.fillStyle = "rgba(255,255,255,0.5)"; ctx.fillRect(bombX - i * 10, 46, 6, 3);
     }
-    txt("HIGH " + String(G.hi).padStart(6, "0"), W - 22, 24, 18, "#9fb6ff", "right", 6);
+    txt("HIGH " + String(G.hi).padStart(6, "0"), W - 22, 24, W < 800 ? 15 : 18, "#9fb6ff", "right", 6);
     if (G.state !== "attract") txt("WAVE " + G.wave, W - 22, 52, 16, "#ffffff", "right", 0, 700);
   }
   function drawLegend(y) {
     const items = [["lander", "LANDER", 150], ["mutant", "MUTANT", 150], ["bomber", "BOMBER", 250], ["pod", "POD", 1000], ["swarmer", "SWARMER", 150], ["baiter", "BAITER", 200]];
-    const gap = 128, x0 = W / 2 - (gap * (items.length - 1)) / 2;
+    const gap = Math.min(128, (W - 70) / (items.length - 1)), x0 = W / 2 - (gap * (items.length - 1)) / 2;
     items.forEach(([name, label, pts], i) => {
       const x = x0 + i * gap;
       spr(name, Math.floor(G.t * (name === "mutant" ? 12 : 5)), x, y);
@@ -1279,20 +1298,21 @@
     ctx.lineWidth = 1.5; ctx.strokeStyle = "rgba(255,255,255,0.55)";
     ctx.strokeText("DEFENDER", W / 2, 162);
     ctx.restore();
-    txt("ARCADE TRIBUTE \u00B7 SHARPER GRAPHICS \u00B7 BUILT FROM SCRATCH", W / 2, 222, 15, "#5ce1ff", "center", 8, 700);
+    txt(W < 800 ? "ARCADE TRIBUTE \u00B7 BUILT FROM SCRATCH" : "ARCADE TRIBUTE \u00B7 SHARPER GRAPHICS \u00B7 BUILT FROM SCRATCH", W / 2, 222, 15, "#5ce1ff", "center", 8, 700);
     txt("PROTECT THE HUMANOIDS FROM THE LANDERS", W / 2, 252, 14, "#c9a3ff", "center", 0, 700);
     drawLegend(300);
     if (Math.floor(G.t * 2) % 2 === 0) {
       txt(isTouchUI() ? "TAP TO START" : "PRESS " + keyOf("fire").toUpperCase() + " TO START", W / 2, 410, 24, "#ffffff", "center", 12);
     }
     const hint = isTouchUI()
-      ? "STICK MOVES \u00B7 FIRE SHOOTS \u00B7 BOMB CLEARS THE SCREEN \u00B7 HYPER WARPS YOU"
+      ? (W < 800 ? "STICK MOVES \u00B7 FIRE SHOOTS \u00B7 BOMB \u00B7 HYPER" : "STICK MOVES \u00B7 FIRE SHOOTS \u00B7 BOMB CLEARS THE SCREEN \u00B7 HYPER WARPS YOU")
       : keyOf("left") + " " + keyOf("right") + " THRUST/REVERSE \u00B7 " + keyOf("up") + " " + keyOf("down") + " CLIMB/DIVE \u00B7 " +
         keyOf("fire").toUpperCase() + " FIRE \u00B7 " + keyOf("bomb") + " SMART BOMB \u00B7 " + keyOf("hyper") + " HYPERSPACE \u00B7 " + keyOf("pause") + " PAUSE";
     ctx.fillStyle = "rgba(4,6,20,0.78)";
-    ctx.fillRect(W / 2 - 400, 436, 800, 50);
+    const hb = Math.min(800, W - 24);
+    ctx.fillRect(W / 2 - hb / 2, 436, hb, 50);
     ctx.strokeStyle = "rgba(80,100,255,0.35)"; ctx.lineWidth = 1;
-    ctx.strokeRect(W / 2 - 400 + 0.5, 436.5, 799, 49);
+    ctx.strokeRect(W / 2 - hb / 2 + 0.5, 436.5, hb - 1, 49);
     txt(hint, W / 2, 452, 13, "#c3cbf2", "center", 0, 700);
     txt("REMAP ANY KEY WITH THE CONTROLS BUTTON BELOW", W / 2, 472, 12, "#8790c4", "center", 0, 600);
   }
@@ -1622,6 +1642,8 @@
     document.body.classList.toggle("touch-ui", touch);
     const portrait = vh > vw;
     let cw, ch, left, top, box;
+    W = touch && portrait ? VIEW_W_PORTRAIT : VIEW_W;
+    fitHud();
     if (touch && portrait) {
       cw = vw; ch = (cw * H) / W;
       const minCtrl = 200;
@@ -1686,7 +1708,8 @@
   layout();
   requestAnimationFrame((t) => { last = t; frame(t); });
 
-  // Read-only hook for automated tests and debugging.
+  // Read-only hook for automated tests. Cheats (debug) only exist with ?debug=1 in the URL.
+  const DEBUG = /(?:^|[?&])debug=1(?:&|$)/.test(location.search);
   window.DefenderGame = {
     get state() { return G.state; },
     get score() { return G.score; },
@@ -1699,9 +1722,25 @@
     get counts() { return { enemies: enemies.length, humans: humans.length, beams: beams.length, bullets: bullets.length, particles: parts.length }; },
     get bindings() { return JSON.parse(JSON.stringify(bindings)); },
     get scale() { return scale; },
-    debug: {
-      clearWave() { G.toSpawn = 0; for (const e of enemies.slice()) if (e.type === "lander" || e.type === "mutant") killEnemy(e); },
-      loseShip() { if (G.state === "playing" && ship.alive) { ship.inv = 0; ship.hyper = 0; killShip(); } }
-    }
+    get view() { return { w: W, h: H }; },
+    get splash() { return !!(Splash && Splash.isOpen()); }
   };
+  if (DEBUG) {
+    window.DefenderGame.debug = {
+      clearWave() { G.toSpawn = 0; for (const e of enemies.slice()) if (e.type === "lander" || e.type === "mutant") killEnemy(e); },
+      loseShip() { if (G.state === "playing" && ship.alive) { ship.inv = 0; ship.hyper = 0; killShip(); } },
+      // place the ship low, facing a walking humanoid, for laser/humanoid tests
+      lineUpHuman() {
+        const h = humans.find((q) => q.state === "walk");
+        if (!h || !ship.alive) return false;
+        enemies = enemies.filter((e) => e.type !== "lander" || e.state === "seek");
+        ship.inv = 3; ship.x = wrapX(h.x - 160); ship.y = h.y - 3; ship.vx = 0; ship.face = 1; h.vx = 0;
+        G.shipSX = W * 0.28; G.camX = wrapX(ship.x - G.shipSX);
+        return true;
+      },
+      fire() { fire(); },
+      humans() { return humans.filter((h) => h.state !== "dead").length; },
+      spawnCount() { return { toSpawn: G.toSpawn, bombers: countType("bomber"), pods: countType("pod"), baiterT: G.baiterT }; }
+    };
+  }
 })();
