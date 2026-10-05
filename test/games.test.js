@@ -119,7 +119,7 @@ test("Defender cheats only exist behind ?debug=1, and wave 1 is the gentle on-ra
   assert.match(js, /const DEBUG = \/\(\?:\^\|\[\?&\]\)debug=1/);
   assert.match(js, /if \(DEBUG\) \{\s*window\.DefenderGame\.debug = \{/);
   assert.doesNotMatch(js, /window\.DefenderGame = \{[^}]*debug:/s);
-  assert.match(js, /G\.toSpawn = n === 1 \? 10 :/);
+  assert.match(js, /name: "FIRST CONTACT", landers: 10, mut: 0, bombers: 1, pods: 0, baiter: 70/);
   assert.match(js, /HUMANOID HIT/, "laser can hit humanoids");
   assert.match(js, /VIEW_W_PORTRAIT = 520/, "narrower logical view in phone portrait");
 });
@@ -227,4 +227,26 @@ test("Defender and Joust: Main menu buttons, remembered mute for music + SFX, sy
   }
   assert.match(read("games/defender/defender.js"), /lsSet\(LS\.mute/);
   assert.match(read("games/joust/audio.js"), /localStorage\.setItem\("joust\.muted"/);
+});
+
+test("Defender and Joust each have 12 designed levels with rising difficulty and a level-12 victory screen", () => {
+  const d = read("games/defender/defender.js"), j = read("games/joust/game.js");
+  assert.match(d, /const MAX_LEVEL = 12;/);
+  assert.match(j, /var MAX_LEVEL = 12;/);
+  const dl = [...d.matchAll(/\{ name: "([A-Z' ]+)", landers: (\d+), mut: (\d+), bombers: (\d+), pods: (\d+), baiter: (\d+), spd: ([\d.]+)/g)];
+  assert.equal(dl.length, 12);
+  assert.equal(new Set(dl.map((m) => m[1])).size, 12, "distinct Defender level names");
+  const threat = (m) => +m[2] + 2 * +m[3] + +m[4] + 2 * +m[5] + 100 * +m[7];
+  assert.ok(threat(dl[11]) > threat(dl[5]) && threat(dl[5]) > threat(dl[0]), "Defender difficulty rises");
+  assert.ok(+dl[11][6] < +dl[0][6], "baiters come sooner late in the game");
+  const jl = [...j.matchAll(/\{ name: "([A-Z' ]+)", kind: "(\w+)"/g)];
+  assert.equal(jl.length, 12);
+  assert.equal(new Set(jl.map((m) => m[1])).size, 12, "distinct Joust level names");
+  assert.ok(new Set(jl.map((m) => m[2])).size >= 4, "Joust levels vary their kind");
+  assert.match(d, /if \(G\.wave >= MAX_LEVEL\) victory\(\)/);
+  assert.match(d, /PLANET SAVED/);
+  assert.match(j, /else if \(G\.wave === MAX_LEVEL\) victory\(\)/);
+  assert.match(j, /VICTORY!/);
+  assert.match(d, /music\("victory"\)/);
+  assert.match(j, /music\("victory"\)/);
 });

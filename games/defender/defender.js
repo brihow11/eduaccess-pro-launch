@@ -481,7 +481,7 @@
     state: "attract", paused: false, t: 0, msgT: 0, score: 0, hi: Number(lsGet(LS.hi)) || 0, lives: 3, bombs: 3,
     wave: 1, nextBonus: 10000, camX: 0, shipSX: W * 0.28, planet: true, toSpawn: 0, spawnT: 0, baiterT: 0,
     waveT: 0, flash: 0, flashColor: "255,255,255", shake: 0, banner: "", sub: "", bannerT: 0, newHi: false,
-    deadT: 0, ring: null, bonusMult: 0, bonusHumans: 0, bonusShown: 0
+    deadT: 0, ring: null, bonusMult: 0, bonusHumans: 0, bonusShown: 0, sky: 0, fwT: 0
   };
   const ship = { x: 0, y: 280, vx: 0, vy: 0, face: 1, alive: false, inv: 0, hyper: 0, fireCD: 0, lastShot: -1, thrust: 0, carry: null };
   let enemies = [], humans = [], beams = [], bullets = [], mines = [], parts = [], popups = [];
@@ -535,10 +535,31 @@
     enemies.push(e);
     return e;
   }
+  // Twelve designed levels. landers = total landers this level, mut = mutants that warp in at the start,
+  // bombers / pods at the start, baiter = seconds before baiters hunt you, spd = enemy speed boost,
+  // restore = planet and humanoids restored, sky = colour theme for the level's sky and terrain.
+  const MAX_LEVEL = 12;
+  const LEVELS = [
+    { name: "FIRST CONTACT", landers: 10, mut: 0, bombers: 1, pods: 0, baiter: 70, spd: 0, sky: 0, tip: "SHOOT THE LANDERS \u2022 CATCH FALLING HUMANOIDS" },
+    { name: "NIGHT RAID", landers: 15, mut: 0, bombers: 2, pods: 1, baiter: 50, spd: 0, sky: 1, tip: "PODS BURST INTO SWARMERS" },
+    { name: "MINEFIELD", landers: 15, mut: 0, bombers: 6, pods: 0, baiter: 45, spd: 0.05, sky: 2, tip: "BOMBERS SOW MINES \u2022 WATCH YOUR PATH" },
+    { name: "SWARM FRONT", landers: 18, mut: 0, bombers: 2, pods: 4, baiter: 42, spd: 0.05, sky: 1, tip: "FOUR PODS INBOUND" },
+    { name: "THE RECKONING", landers: 20, mut: 0, bombers: 3, pods: 2, baiter: 36, spd: 0.08, sky: 3, restore: true, tip: "PLANET RESTORED \u2022 FASTER LANDERS" },
+    { name: "MUTANT TIDE", landers: 16, mut: 6, bombers: 2, pods: 2, baiter: 34, spd: 0.08, sky: 4, tip: "MUTANTS HUNT YOU DIRECTLY" },
+    { name: "BAITER ALLEY", landers: 22, mut: 0, bombers: 3, pods: 2, baiter: 16, spd: 0.1, sky: 2, tip: "BAITERS ARRIVE EARLY \u2022 KEEP MOVING" },
+    { name: "POD STORM", landers: 18, mut: 2, bombers: 2, pods: 6, baiter: 30, spd: 0.1, sky: 1, tip: "SIX PODS \u2022 SMART BOMB THE SWARMS" },
+    { name: "STORM FRONT", landers: 26, mut: 2, bombers: 4, pods: 3, baiter: 26, spd: 0.15, sky: 5, tip: "THE INVASION ACCELERATES" },
+    { name: "SECOND DAWN", landers: 28, mut: 0, bombers: 4, pods: 3, baiter: 24, spd: 0.15, sky: 3, restore: true, tip: "PLANET RESTORED \u2022 HOLD THE LINE" },
+    { name: "HUNTER KILLERS", landers: 26, mut: 8, bombers: 4, pods: 4, baiter: 20, spd: 0.2, sky: 4, tip: "EIGHT MUTANTS ON THE HUNT" },
+    { name: "LAST STAND", landers: 35, mut: 6, bombers: 6, pods: 5, baiter: 16, spd: 0.25, sky: 5, tip: "SAVE THE PLANET" }
+  ];
+  const level = (n) => LEVELS[Math.min(MAX_LEVEL, Math.max(1, n)) - 1];
   function startWave(n) {
     G.wave = n;
+    const LV = level(n);
+    G.sky = LV.sky;
     let sub = "";
-    if (n > 1 && n % 5 === 0 && (!G.planet || humans.length < 10)) {
+    if (n > 1 && LV.restore && (!G.planet || humans.length < 10)) {
       G.planet = true;
       while (humans.length < 10) humans.push(makeHuman(rand(0, WORLD_W)));
       sub = "PLANET RESTORED";
@@ -546,17 +567,17 @@
     enemies = []; bullets = []; mines = []; beams = [];
     for (const h of humans) { h.targeted = null; if (h.state !== "walk") { h.state = "walk"; h.y = GROUND_Y - 12; } }
     ship.carry = null;
-    // Wave 1 is a gentler on-ramp: fewer landers, one bomber, no pods, a late baiter.
-    G.toSpawn = n === 1 ? 10 : Math.min(15 + (n - 1) * 5, 35);
-    G.spawnT = 1.4; G.waveT = 0; G.baiterT = n === 1 ? 70 : Math.max(18, 48 - n * 4);
-    const nb = n === 1 ? 1 : Math.min(n + 1, 6), np = n === 1 ? 0 : Math.min(Math.ceil(n / 2), 4);
-    for (let i = 0; i < nb; i++) addEnemy("bomber", farX(), rand(PLAY_TOP + 70, 380));
-    for (let i = 0; i < np; i++) addEnemy("pod", farX(), rand(PLAY_TOP + 40, 360));
+    // Level 1 is a gentler on-ramp: fewer landers, one bomber, no pods, a late baiter.
+    G.toSpawn = LV.landers;
+    G.spawnT = 1.4; G.waveT = 0; G.baiterT = LV.baiter;
+    for (let i = 0; i < LV.bombers; i++) addEnemy("bomber", farX(), rand(PLAY_TOP + 70, 380));
+    for (let i = 0; i < LV.pods; i++) addEnemy("pod", farX(), rand(PLAY_TOP + 40, 360));
+    for (let i = 0; i < LV.mut; i++) addEnemy("mutant", farX(500), rand(PLAY_TOP + 30, 300), 0.9);
     G.state = "playing";
     let firstTip = false;
     if (n === 1 && lsGet("defender.tipSeen") !== "1") { firstTip = true; lsSet("defender.tipSeen", "1"); }
-    if (firstTip && !sub) sub = "SHOOT THE LANDERS \u2022 CATCH FALLING HUMANOIDS";
-    showBanner("ATTACK WAVE " + n, sub, firstTip ? 3.6 : 2.4);
+    if (!sub) sub = LV.tip;
+    showBanner("LEVEL " + n + " \u2022 " + LV.name, sub, firstTip ? 3.6 : 2.8);
     Sfx.wave();
     music("play");
   }
@@ -670,22 +691,31 @@
     G.state = "splash"; Sfx.thrust(0); clearHeld();
     Splash.show({
       kind: "defender", campaign: "defender", tag: "wave" + G.wave, accent: "#7fd8ff", glow: "rgba(120,80,255,.3)",
-      title: "ATTACK WAVE " + G.wave + " COMPLETED",
+      title: "LEVEL " + G.wave + " COMPLETED",
       sub: "Score " + G.score + " \u2022 Humanoids saved " + G.bonusHumans + " \u2022 Ships " + G.lives,
-      contLabel: "Next wave",
+      contLabel: "Level " + (G.wave + 1),
       onContinue: () => { pressed.clear(); clearHeld(); startWave(G.wave + 1); }
     });
   }
   function overSplash() {
-    if (G.state !== "gameover") return;
+    if (G.state !== "gameover" && G.state !== "victory") return;
     if (!Splash) { newGame(); return; }
+    const won = G.state === "victory";
     G.state = "splash"; Sfx.thrust(0); clearHeld();
     Splash.show({
-      kind: "defender", campaign: "defender", tag: "gameover", accent: "#ff6b9a", glow: "rgba(255,60,120,.28)",
-      title: "GAME OVER", sub: "Score " + G.score + " \u2022 High " + G.hi + " \u2022 Wave " + G.wave,
+      kind: "defender", campaign: "defender", tag: won ? "victory" : "gameover", accent: won ? "#ffd24a" : "#ff6b9a", glow: won ? "rgba(255,200,60,.3)" : "rgba(255,60,120,.28)",
+      title: won ? "PLANET SAVED" : "GAME OVER", sub: "Score " + G.score + " \u2022 High " + G.hi + " \u2022 Level " + G.wave,
       contLabel: "Play again",
       onContinue: () => { pressed.clear(); clearHeld(); newGame(); }
     });
+  }
+  function victory() {
+    G.state = "victory"; G.msgT = 0; G.fwT = 0;
+    addScore(50000, null);
+    saveHi();
+    Sfx.thrust(0);
+    G.flash = 0.8; G.flashColor = "255,240,200";
+    music("victory");
   }
   function gameOver() {
     G.state = "gameover"; G.msgT = 0;
@@ -798,7 +828,7 @@
     beams = beams.filter((b) => !b.dead);
   }
   function updateEnemies(dt) {
-    const m = Math.min(1 + (G.wave - 1) * 0.08, 1.7);
+    const m = Math.min(1 + (G.wave - 1) * 0.08, 1.7) * (1 + level(G.wave).spd);
     const live = ship.alive && ship.hyper <= 0;
     for (const e of enemies) {
       if (e.dead) continue;
@@ -1014,7 +1044,7 @@
       G.msgT += dt;
       const shouldShow = Math.min(G.bonusHumans, Math.max(0, Math.floor((G.msgT - 0.9) / 0.22) + 1));
       while (G.bonusShown < shouldShow) { G.bonusShown++; addScore(G.bonusMult); Sfx.bonus(); }
-      if (G.msgT > 1.2 + G.bonusHumans * 0.22 + 1.8) waveSplash();
+      if (G.msgT > 1.2 + G.bonusHumans * 0.22 + 1.8) { if (G.wave >= MAX_LEVEL) victory(); else waveSplash(); }
     } else if (G.state === "gameover") {
       G.msgT += dt;
     }
@@ -1035,6 +1065,17 @@
         if ((G.msgT > 1.2 && pressed.has("fire")) || G.msgT > 9) overSplash();
         break;
       case "splash":
+        break;
+      case "victory":
+        G.msgT += dt; G.fwT -= dt;
+        if (G.fwT <= 0) {
+          G.fwT = rand(0.25, 0.6);
+          const fx = wrapX(G.camX + rand(80, W - 80)), fy = rand(PLAY_TOP + 60, 330);
+          explode(fx, fy, pick([["#ffe23d", "#ffffff", "#ff8a2a"], ["#5ce1ff", "#ffffff", "#8d5bff"], ["#38f26a", "#ffffff", "#ffe23d"], ["#ff3fd4", "#ffffff", "#ff3d3d"]]), 60, 260, 1.4);
+          Sfx.explode(false);
+        }
+        updateHumans(dt);
+        if ((G.msgT > 2 && pressed.has("fire")) || G.msgT > 20) overSplash();
         break;
       default:
         stepWorld(dt);
@@ -1287,7 +1328,7 @@
       ctx.fillStyle = "rgba(255,255,255,0.5)"; ctx.fillRect(bombX - i * 10, 46, 6, 3);
     }
     txt("HIGH " + String(G.hi).padStart(6, "0"), W - 22, 24, W < 800 ? 15 : 18, "#9fb6ff", "right", 6);
-    if (G.state !== "attract") txt("WAVE " + G.wave, W - 22, 52, 16, "#ffffff", "right", 0, 700);
+    if (G.state !== "attract") txt("LEVEL " + G.wave + "/" + MAX_LEVEL, W - 22, 52, 16, "#ffffff", "right", 0, 700);
   }
   function drawLegend(y) {
     const items = [["lander", "LANDER", 150], ["mutant", "MUTANT", 150], ["bomber", "BOMBER", 250], ["pod", "POD", 1000], ["swarmer", "SWARMER", 150], ["baiter", "BAITER", 200]];
@@ -1340,13 +1381,21 @@
       ctx.globalAlpha = 1;
     }
     if (G.state === "waveEnd") {
-      txt("ATTACK WAVE " + G.wave, W / 2, 185, 30, "#ffffff", "center", 12);
+      txt("LEVEL " + G.wave + " \u2022 " + level(G.wave).name, W / 2, 185, W < 800 ? 22 : 30, "#ffffff", "center", 12);
       txt("COMPLETED", W / 2, 225, 30, "#ffffff", "center", 12);
       txt("BONUS X " + G.bonusMult, W / 2, 285, 22, "#ffe23d", "center", 8);
       const n = G.bonusHumans;
       const x0 = W / 2 - ((n - 1) * 24) / 2;
       for (let i = 0; i < G.bonusShown; i++) spr("human", 0, x0 + i * 24, 330);
       if (n === 0) txt("NO HUMANOIDS SURVIVED", W / 2, 330, 15, "#ff6b6b", "center", 0, 700);
+    }
+    if (G.state === "victory") {
+      ctx.fillStyle = "rgba(0,0,0,0.3)"; ctx.fillRect(0, HUD_H, W, H - HUD_H);
+      txt("PLANET SAVED", W / 2, 170, W < 800 ? 54 : 72, "#ffe23d", "center", 24, 900, TITLE_FONT);
+      txt("ALL " + MAX_LEVEL + " LEVELS CLEARED", W / 2, 228, 24, "#ffffff", "center", 10);
+      txt("VICTORY BONUS 50000", W / 2, 264, 20, "#38f26a", "center", 8);
+      txt("SCORE " + G.score, W / 2, 300, 22, "#ffffff", "center", 6);
+      if (G.newHi) txt("NEW HIGH SCORE!", W / 2, 334, 20, "#ffe23d", "center", 10);
     }
     if (G.state === "gameover") {
       ctx.fillStyle = "rgba(0,0,0,0.4)"; ctx.fillRect(0, HUD_H, W, H - HUD_H);
@@ -1744,6 +1793,7 @@
     get state() { return G.state; },
     get score() { return G.score; },
     get wave() { return G.wave; },
+    get level() { return { n: G.wave, max: MAX_LEVEL, name: level(G.wave).name }; },
     get lives() { return G.lives; },
     get bombs() { return G.bombs; },
     get paused() { return G.paused; },
@@ -1771,6 +1821,8 @@
         return true;
       },
       fire() { fire(); },
+      skipTo(n) { if (G.state === "attract") newGame(); startWave(n); },
+      victory() { victory(); },
       sfx: Sfx,
       humans() { return humans.filter((h) => h.state !== "dead").length; },
       spawnCount() { return { toSpawn: G.toSpawn, bombers: countType("bomber"), pods: countType("pod"), baiterT: G.baiterT }; }

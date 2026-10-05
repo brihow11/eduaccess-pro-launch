@@ -141,7 +141,7 @@
       return;
     }
     if (G.mode === "splash") return;
-    if (G.mode === "gameover") { if (G.overT <= 0 && (anyStartKey(code) || code === "Escape")) overContinue(); return; }
+    if (G.mode === "gameover" || G.mode === "victory") { if (G.overT <= 0 && (anyStartKey(code) || code === "Escape")) overContinue(); return; }
     if (code === bindings.pause || code === "Escape") { togglePause(); return; }
     if (G.mode === "paused" && anyStartKey(code)) { togglePause(); }
   }
@@ -179,7 +179,27 @@
   function sfx(name, arg) { if (!G.demo) Audio.play(name, arg); }
 
   // ---------------------------------------------------------------- waves
+  // Twelve designed levels: each one adds a new threat or twist, then level 12 ends in a victory screen.
+  // b/h/s = Bounder / Hunter / Shadow Lord riders, pt = pterodactyls allowed at once, ptT = first ptero (s),
+  // eggs = egg-wave egg count, hand = lava-troll grip strength bonus, spd = rider speed bonus.
+  var MAX_LEVEL = 12;
+  var LEVELS = [
+    { name: "THE PROVING GROUND", kind: "joust", b: 3, h: 0, s: 0, pt: 0, tip: "UNSEAT THE BOUNDERS" },
+    { name: "TRIAL BY FIRE", kind: "survival", b: 4, h: 0, s: 0, pt: 0, tip: "SURVIVE FOR A 3000 BONUS" },
+    { name: "THE BURNING BRIDGE", kind: "joust", b: 3, h: 2, s: 0, pt: 1, ptT: 60, tip: "HUNTERS JOIN THE FIGHT" },
+    { name: "THE GLADIATOR PIT", kind: "gladiator", b: 4, h: 2, s: 0, pt: 1, ptT: 50, hand: 1, tip: "THE TROLL GRIPS HARDER" },
+    { name: "THE EGG HARVEST", kind: "egg", eggs: 8, pt: 0, tip: "GRAB THEM BEFORE THEY HATCH" },
+    { name: "HUNTERS' MOON", kind: "joust", b: 2, h: 4, s: 0, pt: 1, ptT: 45, spd: 0.04, tip: "FASTER, SMARTER RIDERS" },
+    { name: "THE LONG NIGHT", kind: "survival", b: 2, h: 3, s: 1, pt: 1, ptT: 40, tip: "FIRST SHADOW LORD • STAY ALIVE" },
+    { name: "WINGS OF DREAD", kind: "ptero", b: 2, h: 3, s: 0, pt: 1, ptT: 6, tip: "PTERODACTYL HUNTS • LANCE IT IN THE MOUTH" },
+    { name: "THE SHADOW COURT", kind: "joust", b: 0, h: 3, s: 3, pt: 1, ptT: 35, hand: 2, spd: 0.06, tip: "THE SHADOW LORDS ARRIVE" },
+    { name: "THE EGG STORM", kind: "egg", eggs: 12, pt: 1, ptT: 30, tip: "TWELVE EGGS • MOVE FAST" },
+    { name: "LORDS OF THE LAVA", kind: "joust", b: 0, h: 2, s: 5, pt: 1, ptT: 20, hand: 3, spd: 0.08, tip: "THE LAVA RISES TO MEET YOU" },
+    { name: "THE FINAL JOUST", kind: "ptero", b: 0, h: 2, s: 6, pt: 2, ptT: 8, hand: 4, spd: 0.1, tip: "WIN THIS AND THE ARENA IS YOURS" }
+  ];
+  function level(n) { return LEVELS[Math.min(MAX_LEVEL, Math.max(1, n)) - 1]; }
   function waveKindFor(n) {
+    if (n <= MAX_LEVEL) { var k = level(n).kind; return k === "gladiator" && G.numPlayers !== 2 ? "joust" : k; }
     if (n % 5 === 0) return "egg";
     if (n >= 8 && n % 5 === 3) return "ptero";
     if (n % 5 === 2) return "survival";
@@ -195,6 +215,13 @@
   };
 
   function enemyMix(n) {
+    if (n <= MAX_LEVEL) {
+      var L = level(n), mix = [], i;
+      for (i = 0; i < (L.b || 0); i++) mix.push("bounder");
+      for (i = 0; i < (L.h || 0); i++) mix.push("hunter");
+      for (i = 0; i < (L.s || 0); i++) mix.push("shadow");
+      return mix;
+    }
     var count = Math.min(3 + Math.floor((n - 1) * 0.75), 9);
     var pH = clamp((n - 2) * 0.14, 0, 0.6);
     var pS = clamp((n - 5) * 0.09, 0, 0.5);
@@ -214,17 +241,19 @@
     G.players.forEach(function (p) { p.diedThisWave = false; });
     G.pteroT = G.waveKind === "ptero" ? 5 : Math.max(32, 62 - n * 2);
     var sub = WAVE_TEXT[G.waveKind];
+    var LV = n <= MAX_LEVEL ? level(n) : null;
+    if (LV) { G.pteroT = LV.pt ? (LV.ptT || 40) : 1e9; sub = LV.name + " \u2022 " + LV.tip; }
     if (n >= 3 && G.bridges) { G.burnT = 1.6; sub = "THE BRIDGE IS BURNING!"; sfx("burn"); }
     var firstTip = false;
     if (n === 1 && !G.demo) { try { firstTip = localStorage.getItem("joust.tipSeen") !== "1"; localStorage.setItem("joust.tipSeen", "1"); } catch (e) {} }
     if (firstTip) sub = "HIGHER LANCE WINS \u2022 " + (touch.active ? "HOLD FLAP TO CLIMB" : "TAP " + keyName(bindings.p1Flap).toUpperCase() + " TO FLAP");
-    G.message = { title: "WAVE " + n, sub: sub, t: firstTip ? 3.8 : 2.6 };
+    G.message = { title: (n <= MAX_LEVEL ? "LEVEL " + n + " OF " + MAX_LEVEL : "WAVE " + n), sub: sub, t: firstTip ? 3.8 : 3.0 };
     sfx("wave");
     if (!G.demo) music("play");
     G.spawnQ = [];
     if (G.waveKind === "egg") {
       var spots = LEDGES_FIXED.concat([BASE]);
-      var count = Math.min(6 + Math.floor(n / 5) * 2, 12);
+      var count = n <= MAX_LEVEL ? level(n).eggs : Math.min(6 + Math.floor(n / 5) * 2, 12);
       for (var i = 0; i < count; i++) {
         var L = spots[i % spots.length];
         var ex = L.x + 20 + ((i * 53) % Math.max(20, L.w - 40));
@@ -329,19 +358,20 @@
     var p = G.players[0];
     Splash.show({
       kind: "joust", campaign: "joust", tag: "wave" + G.wave, accent: "#ffcc33", glow: "rgba(255,110,20,.32)",
-      title: "WAVE " + G.wave + " CLEARED", sub: G.players.map(function (q, i) { return (G.players.length > 1 ? "P" + (i + 1) + " " : "Score ") + q.score; }).join(" \u2022 ") + " \u2022 Lives " + (p ? p.lives : 0),
-      contLabel: "Next wave",
+      title: "LEVEL " + G.wave + " CLEARED", sub: G.players.map(function (q, i) { return (G.players.length > 1 ? "P" + (i + 1) + " " : "Score ") + q.score; }).join(" \u2022 ") + " \u2022 Lives " + (p ? p.lives : 0),
+      contLabel: "Level " + (G.wave + 1),
       onContinue: function () { G.mode = "playing"; pressed = {}; touch.flapQ = 0; startWave(G.wave + 1); updateButtons(); }
     });
   }
   function overContinue() {
     if (G.mode === "splash") return;
     if (G.overSplash || !Splash) { toAttract(); return; }
+    var won = G.mode === "victory";
     G.overSplash = true; G.mode = "splash"; updateButtons();
     var best = 0; G.players.forEach(function (q) { best = Math.max(best, q.score); });
     Splash.show({
       kind: "joust", campaign: "joust", tag: "gameover", accent: "#ff7a3d", glow: "rgba(255,80,20,.32)",
-      title: "GAME OVER", sub: "Score " + best + " \u2022 High " + highScore + " \u2022 Wave " + G.wave,
+      title: won ? "ARENA CHAMPION" : "GAME OVER", sub: "Score " + best + " \u2022 High " + highScore + " \u2022 " + (G.wave <= MAX_LEVEL ? "Level " : "Wave ") + G.wave,
       contLabel: "Play again",
       onContinue: function () { toAttract(); pressed = {}; touch.flapQ = 0; }
     });
@@ -354,6 +384,15 @@
     if (best > highScore) { highScore = best; G.newHigh = true; try { localStorage.setItem("joust.highscore", String(highScore)); } catch (e) {} }
     sfx("gameOver");
     music("over");
+    updateButtons();
+  }
+
+  function victory() {
+    G.mode = "victory"; G.overT = 2.0; G.overSplash = false; G.message = null;
+    var best = 0;
+    G.players.forEach(function (p) { addScore(p, 25000); best = Math.max(best, p.score); });
+    if (best > highScore) { highScore = best; G.newHigh = true; try { localStorage.setItem("joust.highscore", String(highScore)); } catch (e) {} }
+    music("victory");
     updateButtons();
   }
 
@@ -476,7 +515,7 @@
   }
 
   // ---------------------------------------------------------------- physics
-  function speedMul() { return 1 + Math.min(G.wave, 25) * 0.012; }
+  function speedMul() { return 1 + Math.min(G.wave, 25) * 0.012 + (G.wave <= MAX_LEVEL ? (level(G.wave).spd || 0) : 0); }
 
   function stepRider(r, c, dt) {
     var isP = r.kind === "player";
@@ -836,7 +875,7 @@
         var r = riders[i];
         if (r.state !== "fly" || r.inv > 0) continue;
         if (r.y > LAVA_Y - 46 && overLava(r.x) && Math.random() < 3.0 * dt) {
-          G.hand = { x: r.x, y: LAVA_Y + 40, state: "rise", target: r, t: 0, escape: 0, need: Math.min(5 + Math.floor(G.wave / 3), 11) };
+          G.hand = { x: r.x, y: LAVA_Y + 40, state: "rise", target: r, t: 0, escape: 0, need: Math.min(5 + Math.floor(G.wave / 3) + (G.wave <= MAX_LEVEL ? (level(G.wave).hand || 0) : 0), 13) };
           sfx("troll");
           burst(r.x, LAVA_Y, 14, { colors: ["#ffe066", "#ff7a00", "#ff3d00"], smin: 30, smax: 150, vy: -100, lmin: 0.3, lmax: 0.8 });
           return;
@@ -946,9 +985,9 @@
     if (G.mode !== "gameover" && G.phase !== "clear" && G.wave >= 2) {
       G.pteroT -= dt;
       if (G.pteroT <= 0) {
-        var maxPt = G.waveKind === "ptero" && G.wave >= 15 ? 2 : 1;
+        var maxPt = G.wave <= MAX_LEVEL ? level(G.wave).pt : G.waveKind === "ptero" && G.wave >= 15 ? 2 : 1;
         if (G.pteros.filter(function (p) { return p.state === "fly"; }).length < maxPt) spawnPtero();
-        G.pteroT = G.waveKind === "ptero" ? 14 : 34;
+        G.pteroT = G.waveKind === "ptero" ? 14 : G.wave <= MAX_LEVEL ? Math.max(18, 40 - G.wave * 2) : 34;
       }
     }
 
@@ -958,9 +997,13 @@
       if (G.waveKind === "survival") {
         G.players.forEach(function (p) { if (!p.diedThisWave && p.state !== "out") { addScore(p, 3000); popup(viewCX(), 300 + p.idx * 40, (G.numPlayers > 1 ? "P" + (p.idx + 1) + " " : "") + "SURVIVAL BONUS 3000", "#7dff8a"); sfx("bonus"); } });
       }
-      G.message = { title: "WAVE " + G.wave + " CLEARED", sub: "", t: 2.0 };
+      G.message = { title: (G.wave <= MAX_LEVEL ? "LEVEL " + G.wave : "WAVE " + G.wave) + " CLEARED", sub: "", t: 2.0 };
     }
-    if (G.phase === "clear" && G.mode !== "gameover") { G.phaseT -= dt; if (G.phaseT <= 0) { if (G.demo) startWave(G.wave + 1); else waveSplash(); return; } }
+    if (G.phase === "clear" && G.mode !== "gameover" && G.mode !== "victory") { G.phaseT -= dt; if (G.phaseT <= 0) { if (G.demo) startWave(G.wave >= 3 ? 1 : G.wave + 1); else if (G.wave === MAX_LEVEL) victory(); else waveSplash(); return; } }
+    if (G.mode === "victory") {
+      G.overT -= dt;
+      if (Math.random() < 3 * dt) { var fx = rand(120, W - 120), fy = rand(120, 380), cols = ["#ffe066", "#ff7a3d", "#7dff8a", "#6cc4ff", "#ffffff"]; burst(fx, fy, 40, { colors: cols, smin: 80, smax: 260, lmin: 0.6, lmax: 1.4, grav: 120 }); sfx("bonus"); }
+    }
 
     if (G.mode === "playing" && G.players.length && G.players.every(function (p) { return p.state === "out"; })) {
       if (G.overDelay === null) G.overDelay = 1.8;
@@ -1492,11 +1535,11 @@
       for (var k = 0; k < n; k++) drawLifeIcon(x0 + 122 + k * 15, py + 11, p.style);
       if (p.lives > 7) text("+" + (p.lives - 7), x0 + 122 + 7 * 15, py, 14, col, "left");
     });
-    if (G.players.length < 2 && !G.demo) text("WAVE " + G.wave, BASE.x + BASE.w - 44, py, 20, "#ffb37a", "right", null, MONO);
+    if (G.players.length < 2 && !G.demo) text("LEVEL " + G.wave + "/12", BASE.x + BASE.w - 44, py, 20, "#ffb37a", "right", null, MONO);
     var hi = highScore;
     if (!G.demo) G.players.forEach(function (p) { hi = Math.max(hi, p.score); });
     text("HIGH " + pad6(hi), W / 2, 22, 18, "#ffe9b0", "center", "rgba(255,200,80,0.8)", MONO);
-    if (G.players.length > 1) text("WAVE " + G.wave, W / 2, 44, 14, "#ffb37a", "center", null, MONO);
+    if (G.players.length > 1) text("LEVEL " + G.wave, W / 2, 44, 14, "#ffb37a", "center", null, MONO);
   }
 
   // Portrait-camera HUD, in view units (VW x H): score and lives top-left, high score and wave top-centre.
@@ -1511,7 +1554,7 @@
     if (!G.demo) G.players.forEach(function (p) { hi = Math.max(hi, p.score); });
     var hx = Math.min(VW / 2, VW - 230);
     text("HIGH " + pad6(hi), hx, 20, 15, "#ffe9b0", "center", "rgba(255,200,80,0.8)", MONO);
-    if (!G.demo && G.mode !== "attract") text("WAVE " + G.wave, hx, 42, 15, "#ffb37a", "center", null, MONO);
+    if (!G.demo && G.mode !== "attract") text("LEVEL " + G.wave, hx, 42, 15, "#ffb37a", "center", null, MONO);
   }
   // Arrows on the view edges point at riders and pterodactyls that are off camera.
   function drawEdgeMarkers() {
@@ -1643,6 +1686,16 @@
       if (G.newHigh) text("NEW HIGH SCORE!", W / 2, 420, 26, "#7dff8a", "center", "rgba(100,255,120,0.8)");
       if (G.overT <= 0 && Math.sin(G.time * 5) > -0.3) text(touch.active ? "TAP TO CONTINUE" : "PRESS SPACE TO CONTINUE", W / 2, 480, 20, "#ffffff", "center");
     }
+    if (G.mode === "victory") {
+      ctx.fillStyle = "rgba(20,8,2,0.45)"; ctx.fillRect(-W, -H, W * 3, H * 3);
+      text("VICTORY!", W / 2, 200, 84, "#ffe066", "center", "rgba(255,170,40,0.95)");
+      text("ALL " + MAX_LEVEL + " LEVELS CONQUERED \u2022 ARENA CHAMPION", W / 2, 252, 24, "#ffffff", "center", "rgba(0,0,0,0.9)");
+      text("CHAMPION BONUS 25000", W / 2, 292, 22, "#7dff8a", "center", "rgba(60,200,80,0.7)");
+      G.players.forEach(function (p, i) {
+        text((G.players.length > 1 ? "P" + (i + 1) + "  " : "SCORE  ") + pad6(p.score), W / 2, 344 + i * 36, 28, i ? "#6cc4ff" : "#ffd23f", "center", null, MONO);
+      });
+      if (G.newHigh) text("NEW HIGH SCORE!", W / 2, 420, 26, "#7dff8a", "center", "rgba(100,255,120,0.8)");
+    }
   }
 
   // ---------------------------------------------------------------- layout
@@ -1710,7 +1763,7 @@
     Audio.unlock();
     if (e.pointerType === "touch") touch.active = true;
     if (G.mode === "attract") { e.preventDefault(); startGame(1); }
-    else if (G.mode === "gameover" && G.overT <= 0) { e.preventDefault(); overContinue(); }
+    else if ((G.mode === "gameover" || G.mode === "victory") && G.overT <= 0) { e.preventDefault(); overContinue(); }
     else if (G.mode === "paused") { e.preventDefault(); togglePause(); }
   });
   ["touchmove", "gesturestart", "gesturechange"].forEach(function (ev) {
@@ -1833,7 +1886,7 @@
   window.__joust = {
     state: function () {
       return {
-        mode: G.mode, wave: G.wave, waveKind: G.waveKind, phase: G.phase, bridges: G.bridges, fps: Math.round(fps),
+        mode: G.mode, wave: G.wave, waveKind: G.waveKind, level: G.wave <= MAX_LEVEL ? level(G.wave).name : null, maxLevel: MAX_LEVEL, phase: G.phase, bridges: G.bridges, fps: Math.round(fps),
         enemies: G.enemies.length, spawning: G.spawnQ.length, eggs: G.eggs.length, hatchlings: G.hatchlings.length, pteros: G.pteros.length,
         view: { w: VW, cam: CAM, camX: Math.round(G.camX || 0) }, hand: !!G.hand, handState: G.hand ? G.hand.state : null, holdFlap: holdFlap, riderScale: RSCALE, splash: !!(Splash && Splash.isOpen()), highScore: highScore, audio: Audio.state(), muted: Audio.isMuted(), touch: isTouch, music: Mus ? Mus.current : null, overlay: !!(ov && ov.visible),
         players: G.players.map(function (p) { return { x: p.x, y: p.y, vx: p.vx, vy: p.vy, onGround: p.onGround, state: p.state, score: p.score, lives: p.lives, inv: p.inv, face: p.face }; }),
@@ -1856,6 +1909,7 @@
       setAutopilot: function (b) { G.autopilot = !!b; },
       setTimeScale: function (s) { G.timeScale = s; },
       spawnPtero: spawnPtero,
+      victory: function () { victory(); },
       skipTo: function (n) { G.enemies = []; G.eggs = []; G.hatchlings = []; G.pickups = []; G.spawnQ = []; startWave(n); },
       lowRider: function () { var p = G.players[0]; p.x = 60; p.y = LAVA_Y - 30; p.vy = 0; p.vx = 0; p.onGround = false; p.inv = 0; p.state = "fly"; }
     }
