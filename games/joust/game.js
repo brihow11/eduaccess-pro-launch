@@ -220,6 +220,7 @@
     if (firstTip) sub = "HIGHER LANCE WINS \u2022 " + (touch.active ? "HOLD FLAP TO CLIMB" : "TAP " + keyName(bindings.p1Flap).toUpperCase() + " TO FLAP");
     G.message = { title: "WAVE " + n, sub: sub, t: firstTip ? 3.8 : 2.6 };
     sfx("wave");
+    if (!G.demo) music("play");
     G.spawnQ = [];
     if (G.waveKind === "egg") {
       var spots = LEDGES_FIXED.concat([BASE]);
@@ -305,6 +306,7 @@
     spawnPlayer(G.players[0]);
     startWave(1);
     G.message = null;
+    music("title");
     updateButtons();
   }
 
@@ -312,6 +314,15 @@
 
   // Job Seeker Pro Scout AI splash after every cleared wave and on game over
   var Splash = window.ScoutSplash || null;
+  // Soundtrack (games/shared/arcade-music.js + joust/music.js). Follows the mute button.
+  var Mus = window.ArcadeMusic || null, Songs = window.JoustSongs || null;
+  function music(kind) {
+    if (!Mus || !Songs) return;
+    if (kind === "title") Mus.play(Songs.title);
+    else if (kind === "play") Mus.play(Songs.play[Math.min(Songs.play.length - 1, Math.floor((G.wave - 1) / 4))]);
+    else if (kind === "victory") Mus.sting(Songs.victory, Songs.title);
+    else if (kind === "over") Mus.sting(Songs.over, Songs.title);
+  }
   function waveSplash() {
     if (!Splash || G.demo) { startWave(G.wave + 1); return; }
     G.mode = "splash"; touch.flapHeld = false; updateButtons();
@@ -342,6 +353,7 @@
     G.players.forEach(function (p) { best = Math.max(best, p.score); });
     if (best > highScore) { highScore = best; G.newHigh = true; try { localStorage.setItem("joust.highscore", String(highScore)); } catch (e) {} }
     sfx("gameOver");
+    music("over");
     updateButtons();
   }
 
@@ -1733,6 +1745,7 @@
     btnPause.setAttribute("aria-label", G.mode === "paused" ? "Resume" : "Pause");
     btnPause.disabled = !(G.mode === "playing" || G.mode === "paused");
     muteCheck.checked = m;
+    if (Mus) Mus.setMuted(m);
   }
   btnMute.addEventListener("click", function () { toggleMute(); btnMute.blur(); });
   btnPause.addEventListener("click", function () { togglePause(); btnPause.blur(); });
@@ -1796,6 +1809,19 @@
     while (acc >= DT && steps < 600) { update(DT); acc -= DT; steps++; }
     if (steps >= 600) acc = 0;
     render();
+    syncOverlay();
+  }
+  // Pause / game over / victory buttons: Resume or Play again, plus Main menu (games/shared/game-menu.js)
+  var ov = window.ArcadeOverlay ? window.ArcadeOverlay.mount(document.getElementById("canvas-wrap")) : null;
+  function syncOverlay() {
+    var splashUp = !!(Splash && Splash.isOpen());
+    if (Mus) Mus.duck(G.mode === "paused" || splashUp || settingsOpen());
+    if (!ov) return;
+    if (settingsOpen() || splashUp) ov.hide();
+    else if (G.mode === "paused") ov.show({ primary: { label: "\u25B6 Resume", onClick: function () { togglePause(); } } });
+    else if (G.mode === "gameover" && G.overT <= 0) ov.show({ primary: { label: "\u21BB Play again", onClick: function () { overContinue(); } } });
+    else if (G.mode === "victory" && G.overT <= 0) ov.show({ primary: { label: "\u21BB Play again", onClick: function () { overContinue(); } } });
+    else ov.hide();
   }
 
   layout();
@@ -1809,7 +1835,7 @@
       return {
         mode: G.mode, wave: G.wave, waveKind: G.waveKind, phase: G.phase, bridges: G.bridges, fps: Math.round(fps),
         enemies: G.enemies.length, spawning: G.spawnQ.length, eggs: G.eggs.length, hatchlings: G.hatchlings.length, pteros: G.pteros.length,
-        view: { w: VW, cam: CAM, camX: Math.round(G.camX || 0) }, hand: !!G.hand, handState: G.hand ? G.hand.state : null, holdFlap: holdFlap, riderScale: RSCALE, splash: !!(Splash && Splash.isOpen()), highScore: highScore, audio: Audio.state(), muted: Audio.isMuted(), touch: isTouch,
+        view: { w: VW, cam: CAM, camX: Math.round(G.camX || 0) }, hand: !!G.hand, handState: G.hand ? G.hand.state : null, holdFlap: holdFlap, riderScale: RSCALE, splash: !!(Splash && Splash.isOpen()), highScore: highScore, audio: Audio.state(), muted: Audio.isMuted(), touch: isTouch, music: Mus ? Mus.current : null, overlay: !!(ov && ov.visible),
         players: G.players.map(function (p) { return { x: p.x, y: p.y, vx: p.vx, vy: p.vy, onGround: p.onGround, state: p.state, score: p.score, lives: p.lives, inv: p.inv, face: p.face }; }),
         bindings: Object.assign({}, bindings), canvas: { w: canvas.width, h: canvas.height, cssW: canvas.clientWidth, cssH: canvas.clientHeight }
       };

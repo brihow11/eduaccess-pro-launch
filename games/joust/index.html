@@ -11,6 +11,7 @@
   <link rel="stylesheet" href="/games/shared/banner.css">
   <link rel="stylesheet" href="style.css">
   <link rel="stylesheet" href="/games/shared/scout-splash.css?v=20261005a">
+  <link rel="stylesheet" href="/games/shared/game-menu.css">
 </head>
 <!-- Written by: Howie -->
 <body>
@@ -19,7 +20,7 @@
     <div id="canvas-wrap">
       <canvas id="game" aria-label="Joust playfield. Press Space to start." role="img"></canvas>
       <div class="toolbar">
-        <a class="tool" href="/games/" aria-label="Back to all games" title="All games">&#8962;</a>
+        <a class="tool menu" id="btn-menu" href="/games/" aria-label="Main menu" title="Main menu (all games)"><span aria-hidden="true">&#9776;</span> Menu</a>
         <button class="tool" id="btn-pause" type="button" aria-label="Pause" title="Pause (P / Esc)">&#10074;&#10074;</button>
         <button class="tool" id="btn-mute" type="button" aria-label="Mute sound" title="Mute (M)">&#128266;</button>
         <button class="tool" id="btn-settings" type="button" aria-label="Controls and settings" title="Controls">&#9881;</button>
@@ -57,6 +58,9 @@
   <noscript><p class="noscript">Joust needs JavaScript to run.</p></noscript>
   <script src="/games/shared/banner.js" defer></script>
   <script src="/games/shared/scout-splash.js?v=20261005a" defer></script>
+  <script src="/games/shared/arcade-music.js" defer></script>
+  <script src="/games/shared/game-menu.js" defer></script>
+  <script src="music.js" defer></script>
   <script src="audio.js" defer></script>
   <script src="game.js" defer></script>
 </body>

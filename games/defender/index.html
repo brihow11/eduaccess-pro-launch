@@ -12,9 +12,18 @@
   <link rel="stylesheet" href="/games/shared/banner.css">
   <link rel="stylesheet" href="/games/defender/defender.css">
   <link rel="stylesheet" href="/games/shared/scout-splash.css?v=20261005a">
+  <link rel="stylesheet" href="/games/shared/game-menu.css">
 </head>
 <body>
   <div data-jsp-banner></div>
+  <nav class="bar" aria-label="Game menu">
+    <a class="fbtn menu" id="btn-menu" href="/games/">&#9776; Main menu</a>
+    <button class="fbtn" id="btn-pause" type="button">Pause</button>
+    <button class="fbtn" id="btn-sound" type="button" aria-pressed="true">&#128266; Sound on</button>
+    <button class="fbtn" id="btn-settings" type="button">Controls</button>
+    <button class="fbtn" id="btn-full" type="button">Fullscreen</button>
+    <span class="note">Fan-made tribute to the 1981 arcade game, built from scratch. Not affiliated with or endorsed by its makers.</span>
+  </nav>
   <main id="stage" aria-label="Defender tribute game">
     <canvas id="game" tabindex="0" aria-label="Defender-style arcade game. Arrow keys move, Space fires."></canvas>
     <div id="touch" hidden>
@@ -31,14 +40,6 @@
     </div>
     <noscript><p>This game needs JavaScript.</p></noscript>
   </main>
-  <footer class="bar">
-    <a class="fbtn" href="/games/">&larr; Games</a>
-    <button class="fbtn" id="btn-pause" type="button">Pause</button>
-    <button class="fbtn" id="btn-sound" type="button" aria-pressed="true">Sound on</button>
-    <button class="fbtn" id="btn-settings" type="button">Controls</button>
-    <button class="fbtn" id="btn-full" type="button">Fullscreen</button>
-    <span class="note">Fan-made tribute to the 1981 arcade game, built from scratch. Not affiliated with or endorsed by its makers.</span>
-  </footer>
 
   <div id="settings" hidden role="dialog" aria-modal="true" aria-labelledby="settings-title">
     <div class="panel">
@@ -70,6 +71,9 @@
 
   <script src="/games/shared/banner.js"></script>
   <script src="/games/shared/scout-splash.js?v=20261005a"></script>
+  <script src="/games/shared/arcade-music.js"></script>
+  <script src="/games/shared/game-menu.js"></script>
+  <script src="/games/defender/music.js"></script>
   <script src="/games/defender/defender.js"></script>
 </body>
 </html>
