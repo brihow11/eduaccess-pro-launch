@@ -1,0 +1,74 @@
+/* Gauntlet tribute: layout, toolbar, touch controls, settings. Written by: Howie */
+html, body { margin: 0; padding: 0; height: 100%; background: #050304; overflow: hidden; overscroll-behavior: none; }
+body {
+  position: fixed; inset: 0; display: flex; flex-direction: column; color: #dfe9ff;
+  font: 14px/1.35 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; touch-action: manipulation; -webkit-text-size-adjust: 100%;
+}
+[data-jsp-banner] { flex: none; }
+#stage { position: relative; flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column; overflow: hidden; touch-action: none; background: #050304; }
+#wrap { position: relative; flex: 1 1 auto; min-height: 0; }
+#game { position: absolute; inset: 0; width: 100%; height: 100%; display: block; background: #050304; outline: none; }
+.noscript { padding: 20px; }
+
+.toolbar { position: absolute; top: 8px; right: 8px; z-index: 6; display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end; }
+.tool {
+  appearance: none; display: inline-flex; align-items: center; gap: 5px; height: 32px; padding: 0 11px; border-radius: 8px;
+  border: 1px solid rgba(220, 170, 100, 0.4); background: rgba(20, 12, 6, 0.75); color: #f4e4c8; text-decoration: none;
+  font: 600 13px/1 system-ui, -apple-system, "Segoe UI", sans-serif; cursor: pointer; backdrop-filter: blur(4px);
+  box-shadow: 0 0 12px rgba(255, 140, 40, 0.12);
+}
+.tool:hover { border-color: rgba(255, 210, 140, 0.8); background: rgba(40, 24, 10, 0.88); }
+.tool:focus-visible { outline: 2px solid #9fd0ff; outline-offset: 1px; }
+.tool[aria-pressed="true"] { color: #ff9c8a; border-color: rgba(255, 140, 120, 0.6); }
+.tool.menu { border-color: rgba(255, 207, 90, 0.55); color: #ffe2a0; }
+@media (max-width: 640px) { .tool .lbl { display: none; } .tool { padding: 0 9px; } .tool.menu .lbl { display: inline; } }
+@media (max-width: 360px) { #btn-full { display: none; } }
+
+.bar { flex: none; display: flex; align-items: center; height: 24px; padding: 0 10px; box-sizing: border-box; background: #0a0604; border-top: 1px solid #2a1a10; font-size: 11px; color: #a08a70; white-space: nowrap; overflow: hidden; }
+.bar .note { overflow: hidden; text-overflow: ellipsis; }
+body.is-touch .bar { display: none; }
+
+/* ---------- touch controls: a strip under the dungeon in portrait, overlaid corners in landscape ---------- */
+#touch { flex: none; position: relative; display: flex; justify-content: space-between; align-items: center; gap: 8px;
+  padding: 10px 14px calc(12px + env(safe-area-inset-bottom)); background: linear-gradient(#0a0604, #140a06); border-top: 1px solid #3a2414; touch-action: none; }
+#touch[hidden] { display: none; }
+.stick { position: relative; width: min(132px, 34vw); height: min(132px, 34vw); border-radius: 50%; touch-action: none; flex: none;
+  background: radial-gradient(circle at 50% 50%, rgba(90,60,30,.35), rgba(30,18,8,.85)); border: 2px solid rgba(220,170,100,.45); box-shadow: inset 0 0 20px rgba(0,0,0,.6), 0 0 14px rgba(255,140,40,.15); }
+.stick::before { content: ""; position: absolute; inset: 14%; border-radius: 50%; border: 1px dashed rgba(220,170,100,.25); }
+.knob { position: absolute; left: 50%; top: 50%; width: 44%; height: 44%; margin: -22% 0 0 -22%; border-radius: 50%; pointer-events: none;
+  background: radial-gradient(circle at 38% 32%, #f0c890, #8a5a2a 60%, #3a2210); border: 2px solid rgba(255,220,160,.6); box-shadow: 0 4px 12px rgba(0,0,0,.6); transition: transform .04s linear; }
+.tgroup { display: flex; gap: min(14px, 3vw); align-items: flex-end; }
+.tbtn {
+  appearance: none; padding: 0; width: min(70px, 17vw); height: min(70px, 17vw); border-radius: 50%; touch-action: none; -webkit-tap-highlight-color: transparent;
+  border: 2px solid rgba(140, 190, 255, 0.6); background: radial-gradient(circle at 40% 35%, rgba(80, 140, 230, 0.55), rgba(10, 22, 60, 0.85));
+  color: #e4f0ff; font: 800 12px/1 system-ui, sans-serif; letter-spacing: 0.04em; box-shadow: 0 0 14px rgba(80, 150, 255, 0.25);
+}
+.tbtn.fire { width: min(88px, 21vw); height: min(88px, 21vw); border-color: rgba(255, 210, 150, 0.75); background: radial-gradient(circle at 40% 35%, rgba(255, 150, 70, 0.6), rgba(90, 25, 5, 0.85)); box-shadow: 0 0 18px rgba(255, 130, 40, 0.35); font-size: 14px; }
+.tbtn.magic { margin-bottom: min(36px, 8vw); }
+.tbtn.active { transform: scale(0.93); filter: brightness(1.45); }
+#touch.landscape { position: absolute; left: 0; right: 0; bottom: 0; background: none; border: 0; pointer-events: none; padding: 0 16px calc(12px + env(safe-area-inset-bottom)); z-index: 5; align-items: flex-end; }
+#touch.landscape .stick, #touch.landscape .tbtn { pointer-events: auto; opacity: 0.75; }
+#touch.landscape .stick { width: 120px; height: 120px; }
+#touch.landscape .tbtn { width: 60px; height: 60px; }
+#touch.landscape .tbtn.fire { width: 76px; height: 76px; }
+
+/* ---------- settings ---------- */
+#settings { position: fixed; inset: 0; z-index: 40; display: flex; align-items: center; justify-content: center; background: rgba(0, 0, 0, 0.72); padding: 12px; }
+#settings[hidden] { display: none; }
+.panel { width: min(520px, 100%); max-height: 100%; overflow: auto; box-sizing: border-box; padding: 18px 20px; border-radius: 14px;
+  background: linear-gradient(170deg, #22140a, #0e0804); border: 1px solid #6a4a26; box-shadow: 0 20px 60px rgba(0, 0, 0, 0.7), 0 0 40px rgba(255, 140, 40, 0.15); user-select: text; }
+.panel h2 { margin: 0 0 4px; font-size: 1.2rem; color: #fff; }
+.panel .sub, .touchnote { margin: 0 0 10px; font-size: 12.5px; color: #9fb0d6; }
+.keys { width: 100%; border-collapse: collapse; margin-bottom: 6px; }
+.keys th { text-align: left; font-size: 11.5px; font-weight: 600; color: #7f92bd; padding: 2px 4px; }
+.keys td { padding: 3px 4px; font-size: 13.5px; }
+.keycap { appearance: none; min-width: 92px; padding: 6px 10px; border-radius: 6px; border: 1px solid #2d4a7a; background: #0e1b36; color: #e6efff; font: 600 13px ui-monospace, Menlo, Consolas, monospace; cursor: pointer; }
+.keycap.empty { color: #5d6c90; }
+.keycap.listening { border-color: #ffcf5a; color: #ffcf5a; }
+.msg { min-height: 18px; font-size: 12px; color: #ffcf5a; }
+.opts { display: grid; gap: 7px; margin: 8px 0 10px; font-size: 13.5px; }
+.opts select { margin-left: 6px; background: #0e1b36; color: #e6efff; border: 1px solid #2d4a7a; border-radius: 6px; padding: 3px 6px; }
+.row { display: flex; gap: 8px; justify-content: flex-end; }
+.pbtn { appearance: none; padding: 8px 14px; border-radius: 8px; border: 1px solid #2d4a7a; background: #0e1b36; color: #e6efff; font: 600 13.5px system-ui, sans-serif; cursor: pointer; }
+.pbtn.primary { background: #b4521c; border-color: #e88a4a; }
