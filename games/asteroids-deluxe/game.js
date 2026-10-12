@@ -263,7 +263,7 @@
     var r = G.rocks[i]; G.rocks.splice(i, 1);
     if (byPlayer) { addScore(ROCK_PTS[r.size], r.x, r.y); G.stats.hits++; }
     sparks(r.x, r.y, 10 + r.size * 8, 90 + r.size * 40, 'rock', 0.9); debris(r.x, r.y, 2 + r.size * 2, r.r * 0.5, 70, 'rock');
-    if (r.size === 3) { ring(r.x, r.y, r.r, 'rock'); G.shake = Math.max(G.shake, 5); }
+    if (r.size === 3) { ring(r.x, r.y, r.r, 'rock'); G.shake = Math.max(G.shake, 5); } else if (r.size === 2) { ring(r.x, r.y, r.r * 0.7, 'rock'); G.shake = Math.max(G.shake, 2.5); }
     Sfx.boom(r.x, r.size);
     if (r.size > 1 && G.rocks.length < 44) {
       var L = LEVELS[G.level - 1] || LEVELS[0];
@@ -785,4 +785,13 @@
       state: function () { return { state: G.state, level: G.level, score: G.score, lives: G.lives, rocks: G.rocks.length, foes: G.foes.length, ufo: !!G.ufo, paused: G.paused, music: Music.name, muted: A.muted, W: W, H: H }; }
     };
   }
+})();
+
+/* Desktop: mouse pointer hides after 3 s idle (F-key fullscreen lives in shared/game-menu.js). Written by: Howie */
+(function () {
+  "use strict";
+  var idle = 0, hidden = false;
+  function wake() { idle = 0; if (hidden) { hidden = false; document.documentElement.style.cursor = ""; } }
+  document.addEventListener("mousemove", wake); document.addEventListener("mousedown", wake);
+  setInterval(function () { idle += 1; if (idle >= 3 && !hidden && window.matchMedia && matchMedia("(pointer: fine)").matches) { hidden = true; document.documentElement.style.cursor = "none"; } }, 1000);
 })();
