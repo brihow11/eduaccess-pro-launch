@@ -23,6 +23,7 @@
         <a class="tool tool-wide" href="/games/" aria-label="Main menu: back to all games">&#9664; Main menu</a>
         <button class="tool" id="btn-pause" type="button" aria-label="Pause (P or Esc)" title="Pause (P / Esc)">&#10074;&#10074;</button>
         <button class="tool" id="btn-mute" type="button" aria-label="Mute sound (M)" title="Sound on/off (M)">&#128266;</button>
+        <button class="tool" id="btn-full" type="button" aria-label="Fullscreen (F)" title="Fullscreen (F)">&#x26F6;</button>
       </div>
 
       <section id="title" class="overlay show" aria-label="Title screen">
@@ -80,5 +81,13 @@
   <script src="anim.js?v=20261005b" defer></script>
   <script src="audio.js?v=20261005b" defer></script>
   <script src="game.js?v=20261005b" defer></script>
+  <script src="/games/shared/game-menu.js?v=3" defer></script>
+  <script>
+    /* Fullscreen button for desktop monitors; F key comes from shared game-menu.js. Written by: Howie */
+    document.getElementById('btn-full').addEventListener('click', function (e) {
+      e.preventDefault(); this.blur(); var d = document;
+      if (d.fullscreenElement) d.exitFullscreen(); else if (d.documentElement.requestFullscreen) d.documentElement.requestFullscreen().catch(function () {});
+    });
+  </script>
 </body>
 </html>
