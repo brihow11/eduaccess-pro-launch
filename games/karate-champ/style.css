@@ -90,3 +90,10 @@ body.is-touch .bar { display: none; }
 .row { display: flex; gap: 8px; justify-content: flex-end; }
 .pbtn { appearance: none; padding: 8px 14px; border-radius: 8px; border: 1px solid #6a5328; background: #1e1810; color: #f6e8c4; font: 600 13.5px system-ui, sans-serif; cursor: pointer; }
 .pbtn.primary { background: #9a6a1e; border-color: #d6a24a; }
+/* Desktop letterbox: dojo wood side panels, paper-lantern glow and a lacquered frame (Written by: Howie) */
+body:not(.is-touch) #stage { background:
+  radial-gradient(ellipse 18% 30% at 6% 30%, rgba(255,150,70,.22), transparent 70%),
+  radial-gradient(ellipse 18% 30% at 94% 30%, rgba(255,150,70,.22), transparent 70%),
+  repeating-linear-gradient(90deg, rgba(0,0,0,.28) 0 3px, transparent 3px 46px),
+  linear-gradient(180deg, #3a2414 0%, #24160c 60%, #120a05 100%); }
+body:not(.is-touch) #wrap { box-shadow: 0 0 0 3px #6b1414, 0 0 0 6px #120806, 0 0 0 7px #c9a14a, 0 20px 60px rgba(0,0,0,.8); }
