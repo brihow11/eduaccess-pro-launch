@@ -1296,6 +1296,7 @@
     if (h.state === "falling") return ART ? 4 : 2;
     return 0;
   }
+  const ENEMY_GLOW = { lander: "60,255,110", mutant: "255,60,200", baiter: "120,255,120", bomber: "200,120,255", pod: "255,80,80", swarmer: "255,170,60" }, glowImgs = {};
   function drawWorld() {
     for (const h of humans) {
       const sx = wdx(G.camX, h.x);
@@ -1320,6 +1321,12 @@
         ctx.fillStyle = "#38f26a";
         ctx.beginPath(); ctx.moveTo(sx - 8, e.y + 10); ctx.lineTo(sx + 8, e.y + 10); ctx.lineTo(sx + 14, e.y + 36); ctx.lineTo(sx - 14, e.y + 36); ctx.fill();
         ctx.globalAlpha = 1;
+      }
+      if (fxOn) { // soft colored aura so each enemy type reads at a glance on big screens
+        const ac = ENEMY_GLOW[e.type]; if (ac) {
+          if (!glowImgs[ac]) { const gc = document.createElement("canvas"); gc.width = gc.height = 48; const gg = gc.getContext("2d"), gr = gg.createRadialGradient(24, 24, 0, 24, 24, 24); gr.addColorStop(0, "rgba(" + ac + ",0.38)"); gr.addColorStop(1, "rgba(" + ac + ",0)"); gg.fillStyle = gr; gg.fillRect(0, 0, 48, 48); glowImgs[ac] = gc; }
+          ctx.globalCompositeOperation = "lighter"; const pr = 22 + 3 * Math.sin(G.t * 4 + (e.ph || 0)); ctx.drawImage(glowImgs[ac], sx - pr, e.y - pr, pr * 2, pr * 2); ctx.globalCompositeOperation = "source-over";
+        }
       }
       spr(e.type, f, sx, e.y);
     }
