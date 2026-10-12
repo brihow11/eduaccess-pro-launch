@@ -17,6 +17,7 @@
     { id: 'left', label: 'Turn left', keys: ['ArrowLeft', 'KeyA'] },
     { id: 'right', label: 'Turn right', keys: ['ArrowRight', 'KeyD'] },
     { id: 'fire', label: 'Fire', keys: ['Space', 'KeyJ'] },
+    { id: 'fine', label: 'Fine aim (hold)', keys: ['ShiftLeft', 'ShiftRight'] },
     { id: 'pause', label: 'Pause', keys: ['KeyP', 'Escape'] },
     { id: 'mute', label: 'Mute / unmute', keys: ['KeyM', null] },
     { id: 'start', label: 'Start / continue', keys: ['Enter', null] }
@@ -31,10 +32,41 @@
     pad: function (gp) {
       var ax = gp.axes || [], b = gp.buttons || [];
       function p(i) { return !!(b[i] && (b[i].pressed || b[i].value > 0.5)); }
-      return { left: ax[0] < -0.45 || p(14), right: ax[0] > 0.45 || p(15), fwd: ax[1] < -0.45 || p(12), back: ax[1] > 0.45 || p(13),
+      padTurn = stickCurve(ax[0] || 0);
+      return { fine: p(4) || p(6), left: ax[0] < -0.45 || p(14), right: ax[0] > 0.45 || p(15), fwd: ax[1] < -0.45 || p(12), back: ax[1] > 0.45 || p(13),
         fire: p(0) || p(2) || p(7) || p(5), pause: p(9), start: p(9) || p(3) };
     }
   });
+
+  /* ---------------- fine-grained aiming ----------------
+     Keyboard/d-pad/touch taps nudge a little, holding ramps up; sticks and touch drags are proportional
+     with a deadzone and a response curve; holding Fine aim halves the speed; a very light snap helps
+     settle onto a tank that is already almost dead centre. */
+  var TURN_MAX = 0.95, TURN_MIN = 0.12, RAMP_T = 0.5, FINE = 0.45, DEADZONE = 0.16, CURVE = 1.8;
+  var padTurn = 0, touchTurn = { left: 1, right: 1 }, turnHoldT = 0, turnDir = 0, turnRate = 0;
+  function stickCurve(x) { var m = Math.abs(x); if (m < DEADZONE) return 0; m = (m - DEADZONE) / (1 - DEADZONE); return (x < 0 ? -1 : 1) * Math.pow(Math.min(1, m), CURVE); }
+  function aimTurn(dt) {
+    var fine = I.isDown('fine') ? FINE : 1, want;
+    if (!I.padConnected) padTurn = 0;
+    if (padTurn) { want = padTurn * TURN_MAX; turnHoldT = 0; turnDir = 0; }
+    else {
+      var d = (I.isDown('right') ? 1 : 0) - (I.isDown('left') ? 1 : 0);
+      if (d !== turnDir) { turnDir = d; turnHoldT = 0; } else if (d) turnHoldT += dt;
+      var r = Math.min(1, turnHoldT / RAMP_T); r = r * r * (3 - 2 * r);
+      var tScale = d > 0 ? touchTurn.right : d < 0 ? touchTurn.left : 1;
+      want = d * (TURN_MIN + (TURN_MAX - TURN_MIN) * r) * tScale;
+    }
+    want *= fine;
+    turnRate += K.clamp(want - turnRate, -6 * dt, 6 * dt);
+    if (!want && Math.abs(turnRate) < 0.02) turnRate = 0;
+    return turnRate;
+  }
+  function aimAssist(dt) {
+    if (Math.abs(turnRate) > 0.35) return 0;
+    var best = null, bd = 0.035;
+    G.foes.forEach(function (f) { if (f.k !== 'tank' && f.k !== 'super') return; if (dist(f, G.P) > 640) return; var e = wrapA(bearing(G.P, f) - G.P.a); if (Math.abs(e) < bd) { bd = Math.abs(e); best = e; } });
+    return best == null ? 0 : K.clamp(best, -0.1 * dt, 0.1 * dt);
+  }
 
   /* ---------------- audio: effects ---------------- */
   var A = K.audio('bz.muted', 0.7);
@@ -398,8 +430,8 @@
     if ((G.state === 'play' || G.state === 'clear') && !G.dead) {
       var tv = (I.isDown('fwd') ? 30 : 0) - (I.isDown('back') ? 20 : 0);
       P.v += K.clamp(tv - P.v, -70 * dt, 70 * dt);
-      var turn = (I.isDown('right') ? 1 : 0) - (I.isDown('left') ? 1 : 0);
-      P.a = wrapA(P.a + turn * 1.15 * dt);
+      var turn = aimTurn(dt);
+      P.a = wrapA(P.a + turn * dt + aimAssist(dt));
       if (Math.abs(P.v) > 0.1) {
         var nx = P.x + Math.sin(P.a) * P.v * dt, nz = P.z + Math.cos(P.a) * P.v * dt;
         if (isBlocked(nx, nz, 3.4)) { P.v = 0; G.blockedT = 1.4; Sfx.blocked(); } else { P.x = (nx + S) % S; P.z = (nz + S) % S; }
@@ -773,6 +805,13 @@
   optFx.checked = fxOn; optFx.addEventListener('change', function () { fxOn = optFx.checked; K.store.set('bz.fx', fxOn); resize(); });
   optTouch.value = touchPref; optTouch.addEventListener('change', function () { touchPref = optTouch.value; K.store.set('bz.touch', touchPref); resize(); });
   K.bindTouch(touchEl, I, function () { A.unlock(); });
+  // proportional touch turning: the further toward the outer edge of a turn button you press or slide, the faster it turns
+  ['left', 'right'].forEach(function (side) {
+    var b = touchEl.querySelector('[data-act="' + side + '"]'); if (!b) return;
+    function upd(e) { var r = b.getBoundingClientRect(); if (!r.width) return; var x = (e.clientX - r.left) / r.width; if (side === 'left') x = 1 - x; touchTurn[side] = K.clamp(0.3 + 0.7 * x, 0.3, 1); }
+    b.addEventListener('pointerdown', upd); b.addEventListener('pointermove', upd);
+    b.addEventListener('pointerup', function () { touchTurn[side] = 1; }); b.addEventListener('pointercancel', function () { touchTurn[side] = 1; });
+  });
   canvas.addEventListener('pointerdown', function (e) {
     A.unlock(); canvas.focus();
     if (G.state === 'title') startGame();
