@@ -35,7 +35,8 @@ body.is-touch .bar { display: none; }
 .sticklabel { font: 800 11px/1 system-ui, sans-serif; letter-spacing: 0.18em; color: #e3c27a; opacity: 0.9; }
 .dpad.attack .tbtn { border-color: rgba(232, 67, 58, 0.7); background: radial-gradient(circle at 40% 35%, rgba(180, 60, 50, 0.7), rgba(50, 16, 14, 0.9)); }
 #touch.landscape .stickblock { pointer-events: none; }
-#touch.landscape .stickblock .tbtn { pointer-events: auto; }
+#touch.landscape .stickblock .tbtn, #touch.landscape .dpad { pointer-events: auto; }
+.dpad { touch-action: none; }
 
 
 /* ---------- touch controls: a strip under the playfield in portrait, overlaid corners in landscape ---------- */
