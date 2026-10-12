@@ -90,3 +90,21 @@ kbd { font: 700 12px ui-monospace, Menlo, Consolas, monospace; padding: 1px 6px;
 footer { padding: 18px 18px 70px; text-align: center; color: #7a6e76; font-size: 12.5px; border-top: 1px solid #1e161c; }
 footer a { color: #ffb07a; }
 @media (prefers-reduced-motion: reduce) { .card, .poster .art { transition: none; } }
+/* Desktop polish (Written by: Howie): wider grid on big monitors, light sweep + glowing rim on hover, ambient embers */
+@media (min-width: 1500px) { main { width: min(1680px, 100%); } .grid { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 26px; } }
+@media (min-width: 2400px) { main { width: min(2300px, 100%); } .grid { grid-template-columns: repeat(5, minmax(0, 1fr)); } }
+.poster::before { content: ""; position: absolute; z-index: 1; inset: -20% auto -20% -60%; width: 40%; transform: skewX(-18deg); pointer-events: none;
+  background: linear-gradient(90deg, transparent, rgba(255,240,210,.22), transparent); opacity: 0; }
+@media (hover: hover) {
+  .card.is-live:hover .poster::before { animation: menu-sweep 0.9s ease forwards; }
+  .card.is-live:hover .art { filter: saturate(1.15) brightness(1.06); }
+  .card.is-live:hover { border-color: #ffb04a; box-shadow: 0 24px 60px rgba(0,0,0,.65), 0 0 0 1px rgba(255,170,80,.5), 0 0 48px rgba(255,120,40,.38); }
+}
+@keyframes menu-sweep { 0% { left: -60%; opacity: 1; } 100% { left: 130%; opacity: 1; } }
+.card.is-live:focus-visible { outline: 3px solid #ffb04a; outline-offset: 3px; }
+body::before { content: ""; position: fixed; inset: 0; pointer-events: none; z-index: 0; opacity: .5;
+  background: radial-gradient(1px 1px at 12% 80%, #ff9a4a, transparent), radial-gradient(1.5px 1.5px at 78% 64%, #ffcf7a, transparent), radial-gradient(1px 1px at 40% 30%, #ff7a3a, transparent), radial-gradient(1.5px 1.5px at 88% 20%, #ffb04a, transparent), radial-gradient(1px 1px at 25% 50%, #ffd090, transparent);
+  animation: menu-embers 14s linear infinite; }
+main { position: relative; z-index: 1; }
+@keyframes menu-embers { from { transform: translateY(0); } to { transform: translateY(-60px); } }
+@media (prefers-reduced-motion: reduce) { body::before, .card.is-live:hover .poster::before { animation: none; } }
