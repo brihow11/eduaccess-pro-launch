@@ -1524,7 +1524,7 @@
     ctx.strokeStyle = "rgba(80,100,255,0.35)"; ctx.lineWidth = 1;
     ctx.strokeRect(W / 2 - hb / 2 + 0.5, 436.5, hb - 1, 49);
     txt(hint, W / 2, 452, 13, "#c3cbf2", "center", 0, 700);
-    txt("REMAP ANY KEY WITH THE CONTROLS BUTTON BELOW", W / 2, 472, 12, "#8790c4", "center", 0, 600);
+    txt("REMAP KEYS WITH CONTROLS (TOP BAR) \u00b7 F FULLSCREEN \u00b7 GAMEPAD READY", W / 2, 472, 12, "#8790c4", "center", 0, 600);
   }
   function drawOverlays() {
     if (G.state === "attract") drawAttract();
