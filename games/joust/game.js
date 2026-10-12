@@ -1330,10 +1330,15 @@
       glowAt(g, 21.8, -40, 4.5, "rgba(255,50,20,0.85)");
     }
     if (opts.rider) drawKnight(g, opts.rider, opts);
-    var ang = flying ? (-1.15 + (1 - wingUp) * 1.75) : 0.12;
+    // wider wing sweep with a soft motion-blur ghost on the downstroke, so each flap reads clearly at any size
+    var ang = flying ? (-1.45 + (1 - wingUp) * 2.15) : 0.12, wsc = flying ? 1 + 0.18 * wingUp : 1;
+    if (flying && wingUp > 0.15) {
+      g.save(); g.globalAlpha *= 0.28 * wingUp; g.translate(1, -31); g.rotate(ang - 0.55); g.scale(wsc, wsc); wingShape(g, M, flying, wingUp); g.restore();
+    }
     g.save();
     g.translate(1, -31);
     g.rotate(ang);
+    g.scale(wsc, wsc);
     wingShape(g, M, flying, wingUp);
     g.restore();
   }
