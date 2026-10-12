@@ -532,6 +532,11 @@
     else ctx.drawImage(c, x - s / 2, y - s / 2, s, s);
     ctx.globalAlpha = 1;
   }
+  function sprAnim(name, dir, frame, rank, x, y, size, alpha, flip, ph, amp, tilt) { // squash/stretch + sway, feet anchored
+    var c = ctx, sq = Math.sin(ph) * amp, foot = y + size * 0.38;
+    c.save(); c.translate(x, foot); c.rotate(tilt || 0); c.scale(1 + sq, 1 - sq); c.translate(-x, -foot);
+    spr(name, dir, frame, rank, x, y, size, alpha, flip); c.restore();
+  }
   function render() {
     var c = ctx, W = canvas.width, H = canvas.height;
     c.setTransform(1, 0, 0, 1, 0, 0); c.globalAlpha = 1; c.globalCompositeOperation = 'source-over';
@@ -547,7 +552,7 @@
     var inV = function (x, y, m) { return x > cx - m && x < cx + view.w / view.s + m && y > cy - m && y < cy + view.h / view.s + m; };
     G.items.forEach(function (it) { if (!inV(it.x, it.y, 30)) return; var bob = it.kind === 'potion' || it.kind === 'key' ? Math.sin(it.t * 3) * 1.2 : 0; c.fillStyle = 'rgba(0,0,0,.35)'; c.beginPath(); c.ellipse(it.x, it.y + 9, 11, 4, 0, 0, TAU); c.fill(); spr(it.kind, 0, Math.floor(it.t * 3) % 2, 0, it.x, it.y - 4 + bob, 34);
       var ph = (it.t * 0.8 + (it.x + it.y) * 0.013) % 2.2; if (ph < 0.5) { var sa = Math.sin(ph / 0.5 * Math.PI), sx = it.x + 7, sy = it.y - 12 + bob; c.globalCompositeOperation = 'lighter'; c.fillStyle = 'rgba(255,250,220,' + sa + ')'; c.beginPath(); c.moveTo(sx, sy - 6 * sa); c.lineTo(sx + 1.2, sy - 1.2); c.lineTo(sx + 6 * sa, sy); c.lineTo(sx + 1.2, sy + 1.2); c.lineTo(sx, sy + 6 * sa); c.lineTo(sx - 1.2, sy + 1.2); c.lineTo(sx - 6 * sa, sy); c.lineTo(sx - 1.2, sy - 1.2); c.fill(); c.globalCompositeOperation = 'source-over'; } });
-    G.gens.forEach(function (gn) { if (!inV(gn.x, gn.y, 30)) return; spr('gen_' + gn.type, 0, Math.floor(G.t * 2.5) % 2, gn.rank, gn.x, gn.y - 3, 40); if (gn.hitT) { c.globalCompositeOperation = 'lighter'; spr('gen_' + gn.type, 0, 0, gn.rank, gn.x, gn.y - 3, 40, 0.5); c.globalCompositeOperation = 'source-over'; } });
+    G.gens.forEach(function (gn) { if (!inV(gn.x, gn.y, 30)) return; sprAnim('gen_' + gn.type, 0, Math.floor(G.t * 2.5) % 2, gn.rank, gn.x, gn.y - 3, 40, 1, false, G.t * 3 + gn.x, 0.03, 0); if (gn.hitT) { c.globalCompositeOperation = 'lighter'; spr('gen_' + gn.type, 0, 0, gn.rank, gn.x, gn.y - 3, 40, 0.5); c.globalCompositeOperation = 'source-over'; } });
     var acts = [];
     G.monsters.forEach(function (m) { if (inV(m.x, m.y, 30)) acts.push(m); });
     if (G.hero && G.state !== 'dying' && G.state !== 'over' && G.state !== 'victory') acts.push(G.hero);
@@ -560,7 +565,8 @@
         var hc = HCOL[hd.id] || '#fff', pr = 0.5 + 0.5 * Math.sin(G.t * 4);
         c.fillStyle = 'rgba(0,0,0,.45)'; c.beginPath(); c.ellipse(h.x, h.y + 12, 14, 5.5, 0, 0, TAU); c.fill();
         c.strokeStyle = GA.util.rgba(hc, 0.45 + pr * 0.35); c.lineWidth = 1.6; c.beginPath(); c.ellipse(h.x, h.y + 12, 16 + pr * 1.5, 6.5 + pr * 0.6, 0, 0, TAU); c.stroke();
-        spr(hd.id, h.dir, fr, 0, h.x, h.y - 6, size, h.hurt > 0 && Math.floor(h.hurt * 30) % 2 ? 0.55 : 1);
+        var hb = h.moving && h.atk <= 0 ? Math.abs(Math.sin(h.anim * Math.PI / 2)) * 1.6 : 0;
+        sprAnim(hd.id, h.dir, fr, 0, h.x, h.y - 6 - hb, size, h.hurt > 0 && Math.floor(h.hurt * 30) % 2 ? 0.55 : 1, false, h.moving ? h.anim * Math.PI : G.t * 2.4, h.moving ? 0.035 : 0.015, h.atk > 0 ? 0 : 0);
         return;
       }
       var m = a, f = Math.floor(m.anim) % 2, sz = m.type === 'grunt' ? 40 : m.type === 'death' ? 44 : 38, al = m.type === 'sorcerer' ? m.vis : m.type === 'ghost' ? 0.92 : 1;
@@ -569,7 +575,8 @@
       if (m.type === 'death' || m.type === 'demon' || m.type === 'sorcerer') { c.globalCompositeOperation = 'lighter'; var ag = c.createRadialGradient(m.x, m.y - 4, 0, m.x, m.y - 4, sz * 0.7); ag.addColorStop(0, m.type === 'death' ? 'rgba(160,255,140,.22)' : 'rgba(255,90,40,.2)'); ag.addColorStop(1, 'rgba(0,0,0,0)'); c.fillStyle = ag; c.fillRect(m.x - sz, m.y - sz, sz * 2, sz * 2); c.globalCompositeOperation = 'source-over'; }
       if (m.type === 'lobber' && m.throwT > 0) f = 1;
       var yy = m.y - 6 + (m.lunge ? -2 : 0) + (m.type === 'ghost' || m.type === 'death' ? Math.sin(m.anim * 0.8) * 1.5 : 0);
-      spr(m.type, 0, f, m.rank, m.x, yy, sz, al, m.face < 0);
+      var mph = m.anim * Math.PI + (m.x * 0.07), mamp = m.type === 'ghost' || m.type === 'death' ? 0.05 : m.type === 'grunt' ? 0.06 : 0.045, mtilt = (m.type === 'ghost' || m.type === 'death' ? Math.sin(mph * 0.5) * 0.08 : Math.sin(mph) * 0.05) * (m.face < 0 ? -1 : 1);
+      sprAnim(m.type, 0, f, m.rank, m.x, yy - Math.abs(Math.sin(mph)) * (m.type === 'grunt' || m.type === 'demon' ? 1.5 : 0), sz, al, m.face < 0, mph, mamp, mtilt);
       if (m.hitT) { c.globalCompositeOperation = 'lighter'; spr(m.type, 0, f, m.rank, m.x, yy, sz, 0.6, m.face < 0); c.globalCompositeOperation = 'source-over'; }
     });
     G.shots.forEach(function (sh) {
