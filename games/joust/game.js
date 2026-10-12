@@ -542,6 +542,11 @@
       r.wingT = 0.22; r.onGround = false; r.ledge = null; r.skid = false;
       if (dir) { r.vx += dir * 48; r.face = dir; }
       if (isP) sfx("flap"); else if (Math.random() < 0.35) sfx("eflap");
+      // wing downwash puff, and the odd loose feather
+      if (G.particles.length < 500) {
+        G.particles.push({ x: r.x, y: r.y + 4, vx: r.vx * 0.2, vy: 70, life: 0.35, max: 0.35, color: "rgba(255,255,255,0.5)", size: 6, type: "puff", grav: 0, rot: 0, vr: 0 });
+        if (Math.random() < 0.22) G.particles.push({ x: r.x - (r.face || 1) * 8, y: r.y - 14, vx: rand(-30, 30), vy: rand(-40, 0), life: 1.6, max: 1.6, color: isP ? "#efe2c2" : "#4a4652", size: rand(2.5, 3.5), type: "feather", grav: 40, rot: rand(0, TAU), vr: rand(-3, 3) });
+      }
     }
 
     if (r.onGround) {
@@ -1694,6 +1699,7 @@
         ctx.fillStyle = p.color;
         ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(p.rot);
         if (p.type === "feather") { ctx.beginPath(); ctx.ellipse(0, 0, p.size, p.size * 0.35, 0, 0, TAU); ctx.fill(); }
+        else if (p.type === "puff") { ctx.restore(); ctx.globalAlpha = a * 0.45; ctx.strokeStyle = "#fff"; ctx.lineWidth = 1.2; ctx.beginPath(); ctx.ellipse(p.x, p.y, p.size * (2.4 - a * 1.4), p.size * 0.5 * (2 - a), 0, 0, Math.PI); ctx.stroke(); continue; }
         else if (p.type === "halfshell") { ctx.beginPath(); ctx.ellipse(0, 0, p.size, p.size * 1.2, 0, 0, Math.PI); ctx.lineTo(-p.size, 0); for (var zz = -p.size; zz <= p.size; zz += p.size / 3) ctx.lineTo(zz, (Math.round(zz) % 2 ? -1.6 : 1)); ctx.closePath(); ctx.fill(); ctx.strokeStyle = "rgba(120,90,50,0.6)"; ctx.lineWidth = 0.7; ctx.stroke(); }
         else ctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size * 0.7);
         ctx.restore();
