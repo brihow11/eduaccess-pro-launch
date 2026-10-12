@@ -202,29 +202,29 @@
     box(m, -0.2, 0.2, 1.75, 2.05, 0.7, 5.2); loop(m, [[-0.32, 1.65, 5.2], [0.32, 1.65, 5.2], [0.32, 2.15, 5.2], [-0.32, 2.15, 5.2]], true);
     loop(m, [[-2.75, 0.95, -1.3], [-2.3, 0.15, -1.3]]); loop(m, [[2.75, 0.95, -1.3], [2.3, 0.15, -1.3]]); loop(m, [[-2.75, 0.95, 1.6], [-2.3, 0.15, 1.6]]); loop(m, [[2.75, 0.95, 1.6], [2.3, 0.15, 1.6]]);
     loop(m, [[0, 2.45, -1.3], [0, 3.0, -1.3]]);
-    MODELS.tank = m;
+    MODELS.tank = m; m.solid = true;
     m = Model(); // supertank: low, long, wedge nose, slit turret, heavier gun
     a = ring(m, 0.15, -2.2, 2.2, -3.6, 3.0); b = loop(m, [[-2.6, 0.85, -4.2], [2.6, 0.85, -4.2], [2.6, 0.85, 3.6], [0, 0.85, 6.0], [-2.6, 0.85, 3.6]], true);
     cc = loop(m, [[-2.0, 1.3, -3.6], [2.0, 1.3, -3.6], [2.0, 1.3, 2.8], [0, 1.3, 4.0], [-2.0, 1.3, 2.8]], true);
     m.e.push([a[0], b[0]], [a[1], b[1]], [a[2], b[2]], [a[3], b[4]], [a[2], b[3]], [a[3], b[3]]); join(m, b, cc);
     t0 = ring(m, 1.3, -1.45, 1.45, -2.8, 0.9); t1 = ring(m, 2.05, -0.9, 0.9, -2.3, -0.3); join(m, t0, t1);
     box(m, -0.26, 0.26, 1.5, 1.85, 0.5, 6.4); loop(m, [[-1.45, 1.3, -2.8], [-2.0, 1.3, -3.6]]); loop(m, [[-0.9, 1.7, -2.3], [0.9, 1.7, -2.3]]);
-    MODELS.super = m;
+    MODELS.super = m; m.solid = true;
     m = Model(); // cruise missile
     var r0 = circle(m, 0, 0, 1.6, 0.65, 8, 'z'), r1 = circle(m, 0, 0, -3.2, 0.65, 8, 'z'); join(m, r0, r1);
     var nose = vtx(m, 0, 0, 4.4); r0.forEach(function (i) { m.e.push([i, nose]); });
     loop(m, [[0, 0.65, -1.6], [0, 1.9, -3.4], [0, 0.65, -3.2]]); loop(m, [[0, -0.65, -1.6], [0, -1.9, -3.4], [0, -0.65, -3.2]]);
     loop(m, [[0.65, 0, -1.6], [1.9, 0, -3.4], [0.65, 0, -3.2]]); loop(m, [[-0.65, 0, -1.6], [-1.9, 0, -3.4], [-0.65, 0, -3.2]]);
-    MODELS.missile = m;
+    MODELS.missile = m; m.solid = true;
     m = Model(); // saucer
     var rim = circle(m, 0, 0, 0, 3.4, 12), top = circle(m, 0, 1.0, 0, 1.4, 12), bot = circle(m, 0, -0.7, 0, 1.6, 12);
     for (var i = 0; i < 12; i += 2) { m.e.push([rim[i], top[i]], [rim[i], bot[i]]); }
     var ap = vtx(m, 0, 1.6, 0); for (i = 0; i < 12; i += 3) m.e.push([top[i], ap]);
     MODELS.saucer = m;
-    m = Model(); box(m, -4, 4, 0, 7.5, -4, 4); MODELS.cube = m;
-    m = Model(); box(m, -5.5, 5.5, 0, 4.5, -5.5, 5.5); loop(m, [[-5.5, 4.5, -5.5], [5.5, 4.5, 5.5]]); MODELS.slab = m;
-    m = Model(); var base = ring(m, 0, -4.5, 4.5, -4.5, 4.5), apx = vtx(m, 0, 9, 0); base.forEach(function (i) { m.e.push([i, apx]); }); MODELS.pyramid = m;
-    m = Model(); base = ring(m, 0, -3, 3, -3, 3); apx = vtx(m, 0, 14, 0); base.forEach(function (i) { m.e.push([i, apx]); }); MODELS.spire = m;
+    m = Model(); box(m, -4, 4, 0, 7.5, -4, 4); m.solid = true; MODELS.cube = m;
+    m = Model(); box(m, -5.5, 5.5, 0, 4.5, -5.5, 5.5); loop(m, [[-5.5, 4.5, -5.5], [5.5, 4.5, 5.5]]); m.solid = true; MODELS.slab = m;
+    m = Model(); var base = ring(m, 0, -4.5, 4.5, -4.5, 4.5), apx = vtx(m, 0, 9, 0); base.forEach(function (i) { m.e.push([i, apx]); }); m.solid = true; MODELS.pyramid = m;
+    m = Model(); base = ring(m, 0, -3, 3, -3, 3); apx = vtx(m, 0, 14, 0); base.forEach(function (i) { m.e.push([i, apx]); }); m.solid = true; MODELS.spire = m;
     m = Model(); loop(m, [[0, 0.5, 0], [0.5, 0, 0], [0, -0.5, 0], [-0.5, 0, 0]], true);
     var tip = vtx(m, 0, 0, 1.3), tail = vtx(m, 0, 0, -0.9); [0, 1, 2, 3].forEach(function (i) { m.e.push([i, tip], [i, tail]); }); MODELS.shell = m;
   })();
@@ -576,6 +576,20 @@
     if (!inView(x, z, 16)) return;
     var ca = Math.cos(a), sa = Math.sin(a), pts = m.v.map(function (v) { return cam(x + v[0] * ca + v[2] * sa, y + v[1], z - v[0] * sa + v[2] * ca); });
     var d = Math.hypot(wrapd(x - G.P.x), wrapd(z - G.P.z)), fade = K.clamp(1.25 - d / 1100, 0.3, 1);
+    if (m.solid && fxOn) { // solid dark hull: occludes the scenery behind it, with a faint green sheen
+      var sp = []; pts.forEach(function (p) { if (p[2] > NEAR) sp.push([CX + p[0] / p[2] * F, HY - p[1] / p[2] * F]); });
+      if (sp.length === pts.length && sp.length > 2) {
+        sp.sort(function (a, b) { return a[0] - b[0] || a[1] - b[1]; });
+        var cr = function (o, a, b) { return (a[0] - o[0]) * (b[1] - o[1]) - (a[1] - o[1]) * (b[0] - o[0]); }, lo = [], up = [];
+        sp.forEach(function (p) { while (lo.length > 1 && cr(lo[lo.length - 2], lo[lo.length - 1], p) <= 0) lo.pop(); lo.push(p); });
+        for (var si = sp.length - 1; si >= 0; si--) { var p2 = sp[si]; while (up.length > 1 && cr(up[up.length - 2], up[up.length - 1], p2) <= 0) up.pop(); up.push(p2); }
+        var hull = lo.slice(0, -1).concat(up.slice(0, -1)), top = Infinity, bot = -Infinity; hull.forEach(function (p) { top = Math.min(top, p[1]); bot = Math.max(bot, p[1]); });
+        var gc = c.globalCompositeOperation; c.globalCompositeOperation = 'source-over';
+        var hg = c.createLinearGradient(0, top, 0, bot); hg.addColorStop(0, 'rgba(14,60,30,' + 0.92 * fade + ')'); hg.addColorStop(1, 'rgba(0,10,4,' + 0.95 * fade + ')');
+        c.beginPath(); hull.forEach(function (p, i) { if (i) c.lineTo(p[0], p[1]); else c.moveTo(p[0], p[1]); }); c.closePath(); c.fillStyle = hg; c.fill();
+        c.globalCompositeOperation = gc;
+      }
+    }
     c.beginPath(); m.e.forEach(function (e) { seg(pts[e[0]], pts[e[1]]); });
     if (extra) extra(function (lx, ly, lz) { return cam(x + lx * ca + lz * sa, y + ly, z - lx * sa + lz * ca); });
     stroke(col, w || 1, (alpha == null ? 1 : alpha) * fade);
@@ -668,7 +682,11 @@
   }
   function drawRadar() {
     var rr = (narrow ? 42 : 52) * hk, cx = W / 2, cy = hudTop + rr + 2;
+    var rbg = c.createRadialGradient(cx, cy, 0, cx, cy, rr); rbg.addColorStop(0, 'rgba(80,10,6,0.55)'); rbg.addColorStop(1, 'rgba(30,0,0,0.25)');
+    c.fillStyle = rbg; c.beginPath(); c.arc(cx, cy, rr, 0, TAU); c.fill();
+    if (fxOn) { c.save(); c.globalCompositeOperation = 'lighter'; c.beginPath(); c.moveTo(cx, cy); c.arc(cx, cy, rr, G.sweep - Math.PI / 2 - 0.7, G.sweep - Math.PI / 2); c.closePath(); c.fillStyle = 'rgba(255,60,40,0.16)'; c.fill(); c.restore(); }
     c.beginPath(); c.arc(cx, cy, rr, 0, TAU); stroke('red', 1, 0.9);
+    c.beginPath(); for (var tk = 0; tk < 12; tk++) { var ta = tk / 12 * TAU; c.moveTo(cx + Math.cos(ta) * rr * 0.9, cy + Math.sin(ta) * rr * 0.9); c.lineTo(cx + Math.cos(ta) * rr, cy + Math.sin(ta) * rr); } stroke('red', 0.6, 0.6);
     c.beginPath(); c.moveTo(cx + rr * 0.5, cy); c.arc(cx, cy, rr * 0.5, 0, TAU); c.moveTo(cx - rr, cy); c.lineTo(cx + rr, cy); c.moveTo(cx, cy - rr); c.lineTo(cx, cy + rr); stroke('red', 0.5, 0.35);
     var fa = FOV / 2; c.beginPath(); c.moveTo(cx + Math.sin(-fa) * rr, cy - Math.cos(fa) * rr); c.lineTo(cx, cy); c.lineTo(cx + Math.sin(fa) * rr, cy - Math.cos(fa) * rr); stroke('red', 0.6, 0.5);
     for (var k = 0; k < 6; k++) { var a = G.sweep - k * 0.06; c.beginPath(); c.moveTo(cx, cy); c.lineTo(cx + Math.sin(a) * rr, cy - Math.cos(a) * rr); stroke('red', 1, 0.8 - k * 0.13); }
