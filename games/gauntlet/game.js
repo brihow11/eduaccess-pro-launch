@@ -115,7 +115,7 @@
 
   /* ---------------- state ---------------- */
   var G = { state: 'title', sel: K.store.get('gauntlet.hero', 0) | 0, level: 0, score: 0, health: 800, keys: 0, potions: 0, t: 0, stateT: 0, paused: false,
-    monsters: [], gens: [], items: [], shots: [], eshots: [], fx: [], floats: [], torches: [], flash: 0, shake: 0, warn: {}, lastSpeech: '' };
+    monsters: [], gens: [], items: [], shots: [], eshots: [], fx: [], floats: [], torches: [], flash: 0, shake: 0, warn: {}, lastSpeech: '', rings: [] };
   var view = { w: 800, h: 600, dpr: 1, s: 2, camX: 0, camY: 0, portrait: false, hudBottom: false };
   var staticCv = document.createElement('canvas'), TPX = 48, lightCv = document.createElement('canvas'), lctx = lightCv.getContext('2d');
   var dist = null, distT = 0, heroTile = -1;
@@ -288,6 +288,8 @@
     else addScore(MON[m.type].pts * m.rank, m.x, m.y - 10);
     if (m.type === 'ghost') burst(m.x, m.y, 'rgba(190,200,255,1)', 10, 60, 0.6, 2.6);
     else burst(m.x, m.y, m.type === 'demon' ? 'rgba(255,90,40,1)' : 'rgba(60,40,30,1)', 12, 90, 0.5, 2.6);
+    burst(m.x, m.y, 'rgba(255,230,160,1)', 6, 160, 0.25, 1.6); G.rings.push({ x: m.x, y: m.y, t: 0, max: 0.3, r: 18, col: m.type === 'demon' ? '255,120,50' : '255,230,170' });
+    G.shake = Math.max(G.shake, magic ? 0 : 2.5);
     if (!magic) Sfx.kill(m.type);
   }
   function damageGen(gen, d) {
@@ -301,7 +303,7 @@
   }
   function useMagic() {
     if (G.potions <= 0) { float(G.hero.x, G.hero.y - 20, 'NO POTIONS', '#9fc8ff'); return; }
-    G.potions--; G.flash = 1; G.shake = 8; Sfx.magic();
+    G.potions--; G.flash = 1; G.shake = 10; Sfx.magic(); G.rings.push({ x: G.hero.x, y: G.hero.y, t: 0, max: 0.9, r: 420, col: '170,210,255' }, { x: G.hero.x, y: G.hero.y, t: -0.12, max: 0.9, r: 300, col: '255,240,200' });
     var hd = heroDef(), vx0 = view.camX, vy0 = view.camY, vx1 = vx0 + view.w / view.s, vy1 = vy0 + view.h / view.s;
     var inView = function (o) { return o.x > vx0 - 16 && o.x < vx1 + 16 && o.y > vy0 - 16 && o.y < vy1 + 16; };
     G.monsters.forEach(function (m) { if (!m.dead && inView(m)) killMonster(m, true); });
@@ -505,6 +507,7 @@
   }
   function updateFx(dt) {
     if (G.callout) G.callout.t += dt;
+    if (G.rings) G.rings = G.rings.filter(function (r) { r.t += dt; return r.t < r.max; });
     G.fx.forEach(function (p) { p.life -= dt; p.x += p.vx * dt; p.y += p.vy * dt; p.vx *= 0.92; p.vy *= 0.92; });
     G.fx = G.fx.filter(function (p) { return p.life > 0; });
     G.floats.forEach(function (f) { f.t += dt; f.y -= dt * 22; });
@@ -592,12 +595,13 @@
     });
     if (hd.id === 'wizard') G.shots.forEach(function (sh) { var g2 = c.createRadialGradient(sh.x, sh.y, 0, sh.x, sh.y, 18); g2.addColorStop(0, 'rgba(120,180,255,.5)'); g2.addColorStop(1, 'rgba(60,120,255,0)'); c.fillStyle = g2; c.fillRect(sh.x - 18, sh.y - 18, 36, 36); });
     G.eshots.forEach(function (sh) { if (sh.kind === 'fireball') { var g3 = c.createRadialGradient(sh.x, sh.y, 0, sh.x, sh.y, 20); g3.addColorStop(0, 'rgba(255,120,40,.55)'); g3.addColorStop(1, 'rgba(255,60,0,0)'); c.fillStyle = g3; c.fillRect(sh.x - 20, sh.y - 20, 40, 40); } });
+    (G.rings || []).forEach(function (r) { if (r.t < 0) return; var q = r.t / r.max; c.strokeStyle = 'rgba(' + r.col + ',' + (1 - q) * 0.8 + ')'; c.lineWidth = (1 - q) * (r.r > 100 ? 10 : 3) + 0.5; c.beginPath(); c.arc(r.x, r.y, 4 + r.r * (1 - Math.pow(1 - q, 3)), 0, TAU); c.stroke(); });
     c.globalCompositeOperation = 'source-over';
     c.textAlign = 'center'; c.textBaseline = 'middle';
     G.floats.forEach(function (f) { c.globalAlpha = Math.max(0, 1 - f.t / 1.3); c.font = '800 9px system-ui, sans-serif'; c.lineWidth = 2.4; c.strokeStyle = 'rgba(0,0,0,.85)'; c.strokeText(f.text, f.x, f.y); c.fillStyle = f.col; c.fillText(f.text, f.x, f.y); });
     c.globalAlpha = 1;
     c.setTransform(1, 0, 0, 1, 0, 0);
-    if (G.flash > 0) { c.fillStyle = 'rgba(200,230,255,' + (G.flash * 0.7) + ')'; c.fillRect(0, 0, W, H); }
+    if (G.flash > 0) { var fg = c.createRadialGradient(W / 2, H / 2, 0, W / 2, H / 2, Math.max(W, H) * 0.7); fg.addColorStop(0, 'rgba(255,255,255,' + (G.flash * 0.85) + ')'); fg.addColorStop(0.5, 'rgba(170,200,255,' + (G.flash * 0.6) + ')'); fg.addColorStop(1, 'rgba(140,90,255,' + (G.flash * 0.5) + ')'); c.fillStyle = fg; c.fillRect(0, 0, W, H); }
     var vmax = Math.max(W, H), vmin = Math.min(W, H);
     if (h && h.hurt > 0) { var vg = c.createRadialGradient(W / 2, H / 2, vmin * 0.3, W / 2, H / 2, vmax * 0.7); vg.addColorStop(0, 'rgba(160,0,0,0)'); vg.addColorStop(1, 'rgba(160,0,0,' + Math.min(0.5, h.hurt * 1.2) + ')'); c.fillStyle = vg; c.fillRect(0, 0, W, H); }
     if (G.health < 200 && G.state === 'play') { var pu = 0.18 + 0.12 * Math.sin(G.t * 6); var vg2 = c.createRadialGradient(W / 2, H / 2, vmin * 0.35, W / 2, H / 2, vmax * 0.75); vg2.addColorStop(0, 'rgba(120,0,0,0)'); vg2.addColorStop(1, 'rgba(120,0,0,' + pu + ')'); c.fillStyle = vg2; c.fillRect(0, 0, W, H); }
