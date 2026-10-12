@@ -759,6 +759,8 @@
   function hatch(g) {
     sfx("hatch");
     burst(g.x, g.y, 10, { colors: ["#fffbe6", "#f1e4c3"], type: "shell", smin: 40, smax: 130, lmin: 0.5, lmax: 0.9, szmin: 2, szmax: 4 });
+    burst(g.x, g.y, 8, { colors: ["#fff6c0", "#ffd36a"], type: "spark", smin: 30, smax: 90, lmin: 0.25, lmax: 0.5, szmin: 2.4, szmax: 3.2, grav: 0 });
+    [-1, 1].forEach(function (d) { G.particles.push({ x: g.x + d * 3, y: g.y, vx: d * 55, vy: -120, life: 0.9, max: 0.9, color: "#f3ead2", size: 7, type: "halfshell", grav: 420, rot: 0, vr: d * 7 }); });
     G.hatchlings.push({ x: g.x, y: g.ledge ? g.ledge.y : g.y + 9, ledge: g.ledge, tier: NEXT_TIER[g.tier], t: 0, face: Math.random() < 0.5 ? -1 : 1, called: false });
   }
 
@@ -1455,7 +1457,16 @@
       ctx.beginPath(); ctx.ellipse(0, 0, 7.2, 9, 0, 0, TAU); ctx.fill();
       ctx.fillStyle = "rgba(120,90,50,0.45)";
       ctx.beginPath(); ctx.arc(2, -2, 1.1, 0, TAU); ctx.arc(-2.5, 3, 0.9, 0, TAU); ctx.arc(3, 4, 0.8, 0, TAU); ctx.fill();
-      if (wob) { ctx.strokeStyle = "rgba(60,40,20,0.7)"; ctx.lineWidth = 0.9; ctx.beginPath(); ctx.moveTo(-6, -1); ctx.lineTo(-2, 1); ctx.lineTo(1, -2); ctx.lineTo(5, 0); ctx.stroke(); }
+      // cracks spread as the egg gets close to hatching, with light leaking through
+      var prog = g.ground ? clamp((g.restT - (hatchTime() - 3)) / 3, 0, 1) : 0;
+      if (prog > 0) {
+        ctx.strokeStyle = "rgba(60,40,20,0.8)"; ctx.lineWidth = 0.9; ctx.beginPath();
+        var pts = [[-7, -1], [-4, 1.5], [-2, -1], [1, 1.2], [3, -2], [6, 0.5]], nseg = Math.max(1, Math.round(prog * 5));
+        ctx.moveTo(pts[0][0], pts[0][1]); for (var ci = 1; ci <= nseg; ci++) ctx.lineTo(pts[ci][0], pts[ci][1]);
+        if (prog > 0.6) { ctx.moveTo(-2, -1); ctx.lineTo(-3, -5); ctx.moveTo(3, -2); ctx.lineTo(4, -6); }
+        ctx.stroke();
+        if (prog > 0.5) { ctx.globalCompositeOperation = "lighter"; ctx.strokeStyle = "rgba(255,220,120," + ((prog - 0.5) * 1.2 * (0.6 + 0.4 * Math.sin(G.time * 20))).toFixed(3) + ")"; ctx.lineWidth = 0.6; ctx.stroke(); ctx.globalCompositeOperation = "source-over"; }
+      }
       ctx.restore();
     });
   }
@@ -1683,6 +1694,7 @@
         ctx.fillStyle = p.color;
         ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(p.rot);
         if (p.type === "feather") { ctx.beginPath(); ctx.ellipse(0, 0, p.size, p.size * 0.35, 0, 0, TAU); ctx.fill(); }
+        else if (p.type === "halfshell") { ctx.beginPath(); ctx.ellipse(0, 0, p.size, p.size * 1.2, 0, 0, Math.PI); ctx.lineTo(-p.size, 0); for (var zz = -p.size; zz <= p.size; zz += p.size / 3) ctx.lineTo(zz, (Math.round(zz) % 2 ? -1.6 : 1)); ctx.closePath(); ctx.fill(); ctx.strokeStyle = "rgba(120,90,50,0.6)"; ctx.lineWidth = 0.7; ctx.stroke(); }
         else ctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size * 0.7);
         ctx.restore();
       }
@@ -1817,6 +1829,14 @@
     G.pickups.forEach(function (b) { drawFreeBuzzard({ x: b.x, y: b.y, face: b.face, wing: b.wing, mount: "buzzard" }); });
     G.enemies.forEach(drawRider);
     G.players.forEach(function (p) { if (p.state === "fly" || p.state === "spawn") drawRider(p); });
+    // warm lava light washes up over riders flying low
+    ctx.save(); ctx.globalCompositeOperation = "lighter";
+    G.enemies.concat(G.players).forEach(function (r) {
+      if (r.state !== "fly" && r.state !== "spawn") return;
+      var k = clamp(1 - (LAVA_Y - r.y) / 170, 0, 1); if (k <= 0) return;
+      drawWrapped(r.x, function (x) { var lg = ctx.createRadialGradient(x, r.y + 6, 0, x, r.y + 6, 34); lg.addColorStop(0, "rgba(255,120,30," + (0.35 * k).toFixed(3) + ")"); lg.addColorStop(1, "rgba(255,80,0,0)"); ctx.fillStyle = lg; ctx.beginPath(); ctx.arc(x, r.y + 6, 34, 0, TAU); ctx.fill(); });
+    });
+    ctx.restore();
     G.loose.forEach(drawFreeBuzzard);
     G.pteros.forEach(drawPtero);
     drawParticles();
