@@ -704,7 +704,7 @@
     var hy = H * 0.82;
     if (hiScores.length) hiScores.slice(0, 3).forEach(function (h, i) { vtext((i + 1) + '.  ' + h.s + '   LEVEL ' + h.l, W / 2, hy + i * 16, 9, i ? 'dim' : 'green', 0.5, 0.9); });
     else vtext('NO SCORES YET', W / 2, hy, 10, 'dim', 0.5);
-    var leg = K.isTouch ? 'PAD DRIVES AND TURNS   FIRE SHOOTS' : 'UP/DOWN DRIVE   LEFT/RIGHT TURN   SPACE FIRES   P PAUSE   M MUTE';
+    var leg = K.isTouch ? 'PAD DRIVES AND TURNS   FIRE SHOOTS' : 'UP/DOWN DRIVE   LEFT/RIGHT TURN   SHIFT FINE AIM   SPACE FIRES   P PAUSE   F FULLSCREEN';
     vtext(leg, W / 2, H * 0.91, fitSize(leg, narrow ? 9 : 10, W * 0.86), 'dim', 0.5, 0.8);
   }
   function render() {
