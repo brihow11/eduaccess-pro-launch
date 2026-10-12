@@ -40,3 +40,21 @@
     }
   };
 })();
+
+/* Shared F-key fullscreen for every arcade game (desktop monitors). Ignored while typing or while a
+   settings/remap dialog is open. Uses the game's own fullscreen button when present. Written by: Howie */
+(function () {
+  "use strict";
+  if (window.__arcadeFKey) return; window.__arcadeFKey = true;
+  window.addEventListener("keydown", function (e) {
+    if (e.code !== "KeyF" || e.ctrlKey || e.metaKey || e.altKey || e.repeat) return;
+    var t = e.target, tag = t && t.tagName;
+    if (tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT" || (t && t.isContentEditable)) return;
+    var dlg = document.querySelector('[role="dialog"]:not([hidden])');
+    if (dlg && dlg.offsetParent !== null) return;
+    var b = document.getElementById("btn-full");
+    if (b) { b.click(); return; }
+    var d = document;
+    if (d.fullscreenElement) d.exitFullscreen(); else if (d.documentElement.requestFullscreen) d.documentElement.requestFullscreen().catch(function () {});
+  }, true);
+})();
