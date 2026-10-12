@@ -703,6 +703,21 @@
       spr(x, r[0], Math.floor(G.t * 3) % 2, 108, y, Math.PI, 1, 1.15);
       txt(x, r[1], 146, y, 14, "#fff", "left", 700); txt(x, r[2], 300, y, 16, "#ffe060"); txt(x, r[3], 392, y, 16, "#ffe060");
     });
+    // attract demo: every 9 s a squadron swoops in on looping entry paths, settles into a breathing formation, then peels off in dives
+    var cyc = 9, dt0 = G.demoT % cyc, kinds = ["butterfly", "bee", "bee", "butterfly", "boss", "boss", "butterfly", "bee", "bee", "butterfly"];
+    for (var di = 0; di < 10; di++) {
+      var side = di < 5 ? -1 : 1, idx = di % 5, t0 = dt0 - idx * 0.18 - (side > 0 ? 0.5 : 0);
+      if (t0 < 0) continue;
+      var slotX = W / 2 + (di - 4.5) * 34 + Math.sin(G.demoT * 1.6) * 6 * (di - 4.5) / 4.5, slotY = 415, ex, ey, ea;
+      if (t0 < 1.6) { // entry swoop: in from the top edge, loop around, then home to the slot
+        var u = t0 / 1.6, lx = W / 2 + side * (W * 0.42 - u * W * 0.22), ly = -20 + u * 330, lr = 50 * Math.sin(u * Math.PI);
+        var la = u * Math.PI * 2 * side;
+        ex = lx + Math.cos(la) * lr * side; ey = ly + Math.sin(la) * lr * 0.6;
+        var hk = Math.max(0, (u - 0.7) / 0.3); ex += (slotX - ex) * hk; ey += (slotY - ey) * hk; ea = Math.PI + Math.sin(la) * 0.8;
+      } else if (dt0 < 7 + idx * 0.25) { ex = slotX; ey = slotY + Math.sin(G.demoT * 2 + di) * 2; ea = Math.PI; }
+      else { var dv = dt0 - (7 + idx * 0.25); ex = slotX + Math.sin(dv * 3) * 40 * side; ey = slotY + dv * dv * 260; ea = Math.PI - Math.cos(dv * 3) * 0.6 * side; if (ey > H + 30) continue; }
+      spr(x, kinds[di], Math.floor(G.demoT * 6 + di) % 2, ex, ey, ea, 0.9, 0.8);
+    }
     // a little tractor-beam vignette
     var bx = W / 2 + Math.sin(G.t * 0.7) * 120;
     spr(x, "fighter", 1, bx, 470, 0);
