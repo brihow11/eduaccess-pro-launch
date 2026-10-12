@@ -46,7 +46,11 @@
 (function () {
   "use strict";
   if (window.__arcadeFKey) return; window.__arcadeFKey = true;
+  // Games with their own F-key handler opt out (avoid a double toggle). Add a game here, or set
+  // window.ARCADE_OWN_FKEY = true / <html data-own-fkey> in that game.
+  var OWN = /\/games\/(joust|galaga)\//;
   window.addEventListener("keydown", function (e) {
+    if (window.ARCADE_OWN_FKEY || document.documentElement.hasAttribute("data-own-fkey") || OWN.test(location.pathname)) return;
     if (e.code !== "KeyF" || e.ctrlKey || e.metaKey || e.altKey || e.repeat) return;
     var t = e.target, tag = t && t.tagName;
     if (tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT" || (t && t.isContentEditable)) return;
