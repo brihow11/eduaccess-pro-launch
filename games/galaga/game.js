@@ -129,6 +129,12 @@
       G.parts.push({ x: x, y: y, vx: Math.cos(a) * s, vy: Math.sin(a) * s, life: rnd(0.35, big ? 1.3 : 0.75), age: 0, c: pal[(Math.random() * pal.length) | 0], r: rnd(0.8, big ? 2.6 : 1.9) });
     }
     G.parts.push({ ring: true, x: x, y: y, age: 0, life: big ? 0.7 : 0.4, R: big ? 46 : 26, c: pal[0] });
+    // hot white core flash + spinning hull shards with a little drag
+    G.parts.push({ flash: true, x: x, y: y, age: 0, life: big ? 0.28 : 0.18, R: big ? 40 : 24, c: "255,250,230" });
+    for (var j = 0; j < (big ? 12 : 7) && G.parts.length < 900; j++) {
+      var b = Math.random() * TAU, v = rnd(60, big ? 240 : 170);
+      G.parts.push({ shard: true, x: x, y: y, vx: Math.cos(b) * v, vy: Math.sin(b) * v, rot: Math.random() * TAU, vr: rnd(-14, 14), w: rnd(2, big ? 6 : 4.5), h: rnd(1.2, 2.6), life: rnd(0.5, big ? 1.2 : 0.8), age: 0, c: pal[(Math.random() * pal.length) | 0] });
+    }
   }
   var PALS = { bee: ["255,230,90", "80,140,255", "255,120,40"], butterfly: ["255,80,70", "255,255,255", "90,130,255"], boss: ["120,255,140", "255,210,60", "255,255,255"],
     boss2: ["190,140,255", "120,200,255", "255,255,255"], dragonfly: ["120,255,200", "255,220,60"], scorpion: ["255,170,60", "255,80,40"], fighter: ["255,255,255", "255,90,60", "255,220,120", "120,170,255"] };
@@ -582,6 +588,11 @@
     var frame = e.st === "form" ? (Math.floor(G.t * 2.2 + e.c * 0.3) % 2) : (Math.floor(e.t * 8) % 2);
     // soft shadow-glow under each ship for depth
     var rot = e.a + Math.PI / 2;
+    if (e.st !== "form") { // engine glow trailing behind diving ships
+      var bx = e.x - Math.cos(e.a) * 9, by = e.y - Math.sin(e.a) * 9, eg = x.createRadialGradient(bx, by, 0, bx, by, 12);
+      eg.addColorStop(0, "rgba(255,220,140,0.75)"); eg.addColorStop(1, "rgba(255,90,30,0)");
+      x.save(); x.globalCompositeOperation = "lighter"; x.fillStyle = eg; x.beginPath(); x.arc(bx, by, 12 + Math.random() * 2, 0, TAU); x.fill(); x.restore();
+    }
     spr(x, enemySprite(e), frame, e.x, e.y, rot);
     if (e.hurt > 0) { e.hurt -= 1 / 60; x.save(); x.globalCompositeOperation = "lighter"; spr(x, enemySprite(e), frame, e.x, e.y, rot, 0.6); x.restore(); }
   }
@@ -599,6 +610,15 @@
       var f = ((i / 9) + G.t * 0.9) % 1, y = top + f * len, hw = half0 + (half1 - half0) * Math.min(1, (f * len) / 230);
       x.strokeStyle = "rgba(" + (i % 2 ? "200,230,255" : "255,120,220") + "," + (0.7 * (1 - f * 0.6)) + ")"; x.lineWidth = 2.2;
       x.beginPath(); x.moveTo(e.x - hw, y); x.quadraticCurveTo(e.x, y + 6, e.x + hw, y); x.stroke();
+    }
+    // shimmering edges and drifting motes inside the tractor beam
+    var fl = 0.55 + 0.45 * Math.sin(G.t * 31);
+    x.strokeStyle = "rgba(170,220,255," + (0.5 * fl) + ")"; x.lineWidth = 1.5;
+    x.beginPath(); x.moveTo(e.x - half0, top); x.lineTo(e.x - hb, top + len); x.moveTo(e.x + half0, top); x.lineTo(e.x + hb, top + len); x.stroke();
+    for (var m = 0; m < 22; m++) {
+      var mf = ((m * 0.137 + G.t * (0.35 + (m % 5) * 0.08)) % 1), my = top + mf * len, mw = half0 + (half1 - half0) * Math.min(1, (mf * len) / 230);
+      var mx = e.x + Math.sin(m * 7.3 + G.t * 2.1) * mw * 0.85;
+      x.fillStyle = m % 3 ? "rgba(220,240,255,0.8)" : "rgba(255,150,230,0.8)"; x.fillRect(mx - 1, my - 1, 2, 2);
     }
     x.restore();
   }
@@ -621,6 +641,8 @@
     x.save(); x.globalCompositeOperation = "lighter";
     G.parts.forEach(function (p) {
       var k = 1 - p.age / p.life;
+      if (p.flash) { var fg = x.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.R * (0.6 + 0.4 * (1 - k))); fg.addColorStop(0, "rgba(" + p.c + "," + k + ")"); fg.addColorStop(0.4, "rgba(255,200,120," + k * 0.5 + ")"); fg.addColorStop(1, "rgba(255,120,40,0)"); x.fillStyle = fg; x.beginPath(); x.arc(p.x, p.y, p.R, 0, TAU); x.fill(); return; }
+      if (p.shard) { p.rot += p.vr / 60; x.save(); x.translate(p.x, p.y); x.rotate(p.rot); x.fillStyle = "rgba(" + p.c + "," + Math.min(1, k * 1.4) + ")"; x.fillRect(-p.w / 2, -p.h / 2, p.w, p.h); x.restore(); return; }
       if (p.ring) { x.strokeStyle = "rgba(" + p.c + "," + k * 0.8 + ")"; x.lineWidth = 2.5 * k + 0.5; x.beginPath(); x.arc(p.x, p.y, p.R * (1 - k * k) + 3, 0, TAU); x.stroke(); return; }
       x.fillStyle = "rgba(" + p.c + "," + k + ")"; x.beginPath(); x.arc(p.x, p.y, p.r * (0.5 + k), 0, TAU); x.fill();
     });
@@ -701,7 +723,14 @@
     if (live) G.enemies.forEach(function (e) { drawEnemy(x, e); });
     var P = G.P;
     if (live && P.alive && P.state === "ok" && (P.inv <= 0 || Math.floor(G.t * 12) % 2)) {
-      for (var i = 0; i < shipCount(); i++) spr(x, "fighter", Math.floor(G.t * 10) % 2, pX(i), PY, 0);
+      for (var i = 0; i < shipCount(); i++) {
+        // flickering twin exhaust flames under the fighter
+        var fx0 = pX(i), fl = 7 + Math.random() * 5;
+        x.save(); x.globalCompositeOperation = "lighter";
+        [-4, 4].forEach(function (o) { var fg = x.createLinearGradient(0, PY + 9, 0, PY + 9 + fl); fg.addColorStop(0, "rgba(255,240,200,0.95)"); fg.addColorStop(0.4, "rgba(120,190,255,0.8)"); fg.addColorStop(1, "rgba(60,90,255,0)"); x.fillStyle = fg; x.beginPath(); x.moveTo(fx0 + o - 2.2, PY + 9); x.lineTo(fx0 + o + 2.2, PY + 9); x.lineTo(fx0 + o, PY + 9 + fl); x.closePath(); x.fill(); });
+        x.restore();
+        spr(x, "fighter", Math.floor(G.t * 10) % 2, fx0, PY, 0);
+      }
     }
     if (live) drawShots(x);
     drawParts(x);
