@@ -263,6 +263,7 @@
     var r = G.rocks[i]; G.rocks.splice(i, 1);
     if (byPlayer) { addScore(ROCK_PTS[r.size], r.x, r.y); G.stats.hits++; }
     sparks(r.x, r.y, 10 + r.size * 8, 90 + r.size * 40, 'rock', 0.9); debris(r.x, r.y, 2 + r.size * 2, r.r * 0.5, 70, 'rock');
+    for (var ch = 0; ch < 3 + r.size * 3 && G.parts.length < 700; ch++) { var ca2 = rnd(0, TAU), cv = rnd(30, 110); G.parts.push({ k: 'c', x: r.x, y: r.y, vx: Math.cos(ca2) * cv, vy: Math.sin(ca2) * cv, a: rnd(0, TAU), va: rnd(-5, 5), sz: rnd(2, 3 + r.size * 1.6), t: rnd(0.8, 1.6), m: 1.6, col: 'rock' }); }
     if (r.size === 3) { ring(r.x, r.y, r.r, 'rock'); G.shake = Math.max(G.shake, 5); } else if (r.size === 2) { ring(r.x, r.y, r.r * 0.7, 'rock'); G.shake = Math.max(G.shake, 2.5); }
     Sfx.boom(r.x, r.size);
     if (r.size > 1 && G.rocks.length < 44) {
@@ -462,7 +463,7 @@
     // particles
     G.parts.forEach(function (p) {
       p.t -= dt; p.x += p.vx * dt; p.y += p.vy * dt;
-      if (p.k === 'g') { p.a += p.va * dt; p.vx *= Math.pow(0.6, dt); p.vy *= Math.pow(0.6, dt); }
+      if (p.k === 'g' || p.k === 'c') { p.a += p.va * dt; p.vx *= Math.pow(0.6, dt); p.vy *= Math.pow(0.6, dt); }
       else if (p.k === 'r') p.r += p.vr * dt;
       else { p.vx *= Math.pow(0.35, dt); p.vy *= Math.pow(0.35, dt); }
     });
@@ -535,6 +536,10 @@
     c.beginPath(); poly([[18, 0], [-11, 10], [-7, 6], [-7, -6], [-11, -10]], x, y, scale, sh.a, true); stroke('ship', 1.15, alpha);
     c.beginPath(); poly([[7, 0], [-3, 3.6], [-3, -3.6]], x, y, scale, sh.a, true); stroke('dim', 0.8, alpha);
     c.beginPath(); poly([[-9, 8], [-9, 5]], x, y, scale, sh.a); poly([[-9, -8], [-9, -5]], x, y, scale, sh.a); stroke('dim', 0.7, alpha);
+    if (sh.thrust && !G.paused) {
+      var bx = x - Math.cos(sh.a) * 14 * scale, by = y - Math.sin(sh.a) * 14 * scale, fg = c.createRadialGradient(bx, by, 0, bx, by, 26 * scale);
+      fg.addColorStop(0, 'rgba(255,190,90,' + (0.45 * (alpha == null ? 1 : alpha)) + ')'); fg.addColorStop(1, 'rgba(255,80,20,0)'); c.fillStyle = fg; c.beginPath(); c.arc(bx, by, 26 * scale, 0, TAU); c.fill();
+    }
     if (sh.thrust && !G.paused) { var L = rnd(10, 24); c.beginPath(); poly([[-8, 4.5], [-8 - L, 0], [-8, -4.5]], x, y, scale, sh.a); stroke('flame', 1.1, alpha); c.beginPath(); poly([[-8, 2], [-8 - L * 0.55, 0], [-8, -2]], x, y, scale, sh.a); stroke('gold', 0.8, alpha); }
   }
   function drawShield(sh, x, y) {
@@ -545,6 +550,15 @@
     stroke('shield', 0.7, 0.5 * flick);
   }
   function drawRock(r, x, y) {
+    // solid, faintly lit body (top-left light) + a few craters under the glowing outline
+    if (r.tint == null) { r.tint = Math.random(); r.craters = []; for (var ci = 0; ci < r.size + 1; ci++) r.craters.push([rnd(-0.45, 0.45), rnd(-0.45, 0.45), rnd(0.08, 0.17)]); }
+    c.beginPath(); poly(r.shape.outer, x, y, r.r, r.rot, true);
+    var rg = c.createRadialGradient(x - r.r * 0.35, y - r.r * 0.35, r.r * 0.1, x, y, r.r * 1.1);
+    var hue = 205 + r.tint * 40; rg.addColorStop(0, 'hsla(' + hue + ',35%,32%,0.30)'); rg.addColorStop(1, 'hsla(' + hue + ',40%,8%,0.10)');
+    c.save(); c.globalCompositeOperation = 'source-over'; c.fillStyle = rg; c.fill();
+    var ca = Math.cos(r.rot), sa = Math.sin(r.rot);
+    r.craters.forEach(function (k) { var cx = x + (k[0] * ca - k[1] * sa) * r.r, cy = y + (k[0] * sa + k[1] * ca) * r.r; c.beginPath(); c.arc(cx, cy, k[2] * r.r, 0, TAU); c.fillStyle = 'rgba(0,0,10,0.28)'; c.fill(); c.lineWidth = lw * 0.6; c.strokeStyle = 'hsla(' + hue + ',60%,75%,0.18)'; c.stroke(); });
+    c.restore();
     c.beginPath(); poly(r.shape.outer, x, y, r.r, r.rot, true); stroke('rock', r.size === 1 ? 1 : 1.15);
     c.beginPath(); r.shape.ridges.forEach(function (rg) { poly(rg, x, y, r.r, r.rot); }); stroke('rock', 0.65, 0.5);
   }
@@ -568,6 +582,11 @@
   }
   function drawUfo(u, x, y) {
     var k = u.r / 22;
+    // glowing canopy, hull underglow and a pulsing tractor shimmer
+    var dg = c.createRadialGradient(x, y - 9 * k, 0, x, y - 9 * k, 9 * k); dg.addColorStop(0, 'rgba(160,255,220,0.55)'); dg.addColorStop(1, 'rgba(60,200,160,0)');
+    c.fillStyle = dg; c.beginPath(); c.arc(x, y - 9 * k, 9 * k, 0, TAU); c.fill();
+    var ug = c.createRadialGradient(x, y + 7 * k, 0, x, y + 7 * k, 26 * k); ug.addColorStop(0, 'rgba(120,255,200,' + (0.25 + 0.15 * Math.sin(G.t * 8)) + ')'); ug.addColorStop(1, 'rgba(120,255,200,0)');
+    c.fillStyle = ug; c.beginPath(); c.ellipse(x, y + 9 * k, 26 * k, 12 * k, 0, 0, TAU); c.fill();
     c.beginPath(); poly([[-22, 0], [-9, -7], [9, -7], [22, 0], [9, 7], [-9, 7]], x, y, k, 0, true); stroke('ufo', 1.15);
     c.beginPath(); poly([[-22, 0], [22, 0]], x, y, k, 0); poly([[-9, -7], [-5, -14], [5, -14], [9, -7]], x, y, k, 0); stroke('ufo', 0.9, 0.85);
     c.beginPath(); poly([[-14, 3.5], [14, 3.5]], x, y, k, 0); stroke('dim', 0.6, 0.5);
@@ -588,6 +607,8 @@
       } else if (p.k === 'g') {
         var dx = Math.cos(p.a) * p.len / 2, dy = Math.sin(p.a) * p.len / 2;
         c.beginPath(); c.moveTo(p.x - dx, p.y - dy); c.lineTo(p.x + dx, p.y + dy); stroke(p.col, 1, Math.min(1, a * 1.5));
+      } else if (p.k === 'c') { // tumbling rock chip
+        c.beginPath(); poly([[1, 0], [-0.6, 0.8], [-0.5, -0.7]], p.x, p.y, p.sz, p.a, true); stroke(p.col, 0.8, Math.min(1, a * 1.3));
       } else { c.beginPath(); c.arc(p.x, p.y, p.r, 0, TAU); stroke(p.col, 0.8, a * 0.7); }
       c.globalAlpha = 1;
     });
