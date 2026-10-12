@@ -1609,6 +1609,18 @@
     ctx.fillStyle = shaft; ctx.beginPath(); ctx.moveTo(CX - 70, VY0); ctx.lineTo(CX + 70, VY0); ctx.lineTo(CX + 230, 900); ctx.lineTo(CX - 230, 900); ctx.closePath(); ctx.fill();
     ctx.fillStyle = 'rgba(255,240,210,0.35)';
     for (var mi = 0; mi < 14; mi++) { var mx = CX + Math.sin(mi * 12.9 + gt * 0.21) * 190 * ((mi % 5) / 5 + 0.2), my = 120 + ((mi * 97 + gt * 18) % 760); ctx.beginPath(); ctx.arc(mx, my, 1.4 + (mi % 3) * 0.6, 0, TAU); ctx.fill(); }
+    // visual pass (Written by: Howie): floor light pool under Scout, warm/cool grade, vignette
+    if (state !== 'title') {
+      ctx.save(); ctx.globalCompositeOperation = 'lighter';
+      var pool = ctx.createRadialGradient(scout.x, FLOOR, 0, scout.x, FLOOR, 260); pool.addColorStop(0, 'rgba(80,240,220,0.20)'); pool.addColorStop(1, 'rgba(80,240,220,0)');
+      ctx.fillStyle = pool; ctx.fillRect(scout.x - 260, FLOOR - 260, 520, 520);
+      var key = ctx.createRadialGradient(scout.x - 120, FLOOR - 300, 0, scout.x - 120, FLOOR - 300, 420); key.addColorStop(0, 'rgba(255,170,90,0.10)'); key.addColorStop(1, 'rgba(255,170,90,0)');
+      ctx.fillStyle = key; ctx.fillRect(scout.x - 540, FLOOR - 720, 840, 840);
+      ctx.restore();
+      ctx.save(); ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+      var vg = ctx.createRadialGradient(W / 2, H * 0.55, Math.min(W, H) * 0.35, W / 2, H * 0.55, Math.max(W, H) * 0.75); vg.addColorStop(0, 'rgba(0,0,0,0)'); vg.addColorStop(1, 'rgba(0,2,8,0.6)');
+      ctx.fillStyle = vg; ctx.fillRect(0, 0, W, H); ctx.restore();
+    }
     drawPops();
     drawCue();
     drawFail();
@@ -1772,7 +1784,7 @@
   }
   function drawHUD() {
     if (state === 'title') return;
-    ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+    var hk = Math.max(1, Math.min(1.7, Math.min(W / 1280, H / 720))); ctx.setTransform(DPR * hk, 0, 0, DPR * hk, 0, 0); var W0 = W; W = W / hk;
     var small = W < 480, fs = small ? 13 : 15;
     ctx.fillStyle = 'rgba(4,8,16,.62)'; rrect(8, 8, small ? 150 : 210, small ? 52 : 58, 10); ctx.fill();
     txt('SCENE ' + (G.scene + 1) + '/10', 18, 22, fs, '#6ffbea', 'left', 800);
@@ -1784,6 +1796,7 @@
     ctx.fillStyle = 'rgba(4,8,16,.62)'; rrect(W - (small ? 130 : 170), 52, small ? 122 : 162, small ? 40 : 46, 10); ctx.fill();
     txt('SCORE ' + G.score, W - 16, small ? 64 : 66, fs, '#fff', 'right', 800);
     txt('HI ' + Math.max(hi, G.score), W - 16, small ? 82 : 86, small ? 11 : 12, '#9fc6cc', 'right', 700);
+    W = W0;
   }
 
   // ---------- loop ----------
