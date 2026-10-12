@@ -69,3 +69,30 @@
 }
 /* Reserve the banner's space before banner.js mounts so layouts don't jump. */
 [data-jsp-banner] { min-height: var(--jsp-banner-h); }
+
+/* ---------- Phone landscape: give the game the whole screen (shared by every arcade page) ---------- */
+@media (orientation: landscape) and (max-height: 500px) {
+  html.jsp-game, html.jsp-game body { height: 100dvh; overflow: hidden; overscroll-behavior: none; }
+  html.jsp-game { --jsp-banner-h: 0px; --jsp-banner-real-h: 0px; }
+  html.jsp-game .jsp-banner, html.jsp-game [data-jsp-banner] { display: none !important; min-height: 0 !important; }
+  html.jsp-game body > footer, html.jsp-game footer.bar, html.jsp-game .joust-foot { display: none !important; }
+  /* top toolbars become a slim translucent overlay in the top-right corner */
+  html.jsp-game body > header.toolbar, html.jsp-game body > nav.bar {
+    position: fixed !important; top: env(safe-area-inset-top, 0px); right: env(safe-area-inset-right, 0px); left: auto !important;
+    width: auto !important; height: auto !important; min-height: 0 !important; z-index: 40; margin: 0 !important;
+    padding: 4px 6px !important; gap: 4px !important; background: rgba(0, 0, 0, 0.35) !important; border: 0 !important;
+    border-bottom-left-radius: 12px; box-shadow: none !important; opacity: 0.78; flex-wrap: nowrap !important;
+  }
+  html.jsp-game body > header.toolbar .ttl, html.jsp-game body > header.toolbar .lbl, html.jsp-game body > header.toolbar .sp,
+  html.jsp-game body > nav.bar .note { display: none !important; }
+  html.jsp-game body > header.toolbar .tool, html.jsp-game body > nav.bar .fbtn { padding: 4px 9px !important; min-height: 30px; font-size: 12px !important; }
+  html.jsp-game #stage { padding-left: env(safe-area-inset-left, 0px); padding-right: env(safe-area-inset-right, 0px); }
+}
+/* gentle "turn sideways" hint for phones held upright */
+.jsp-rotate-hint { position: fixed; left: 50%; top: calc(var(--jsp-banner-real-h, 44px) + 58px + env(safe-area-inset-top, 0px)); transform: translateX(-50%); z-index: 60;
+  display: flex; align-items: center; gap: 10px; padding: 9px 14px; border-radius: 999px; background: rgba(10, 22, 40, 0.92); color: #FAF8F3;
+  font: 600 13px/1.2 system-ui, -apple-system, Segoe UI, sans-serif; box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4); transition: opacity 0.4s; pointer-events: auto; }
+.jsp-rotate-hint .ico { display: inline-block; font-size: 18px; animation: jsp-tilt 1.8s ease-in-out infinite; }
+.jsp-rotate-hint button { appearance: none; border: 0; background: transparent; color: inherit; font-size: 16px; padding: 0 2px; cursor: pointer; }
+@keyframes jsp-tilt { 0%, 30% { transform: rotate(0); } 60%, 100% { transform: rotate(90deg); } }
+@media (orientation: landscape) { .jsp-rotate-hint { display: none !important; } }
