@@ -2186,3 +2186,19 @@
   }
   window.addEventListener("resize", size); size(); requestAnimationFrame(draw);
 })();
+
+/* Gamepad connected / disconnected toast so desktop players know the pad is live. Written by: Howie */
+(function () {
+  "use strict";
+  var MSG = "stick steers, A flaps, Start pauses; a second pad is player 2", el = null, t = 0;
+  function show(s) {
+    if (!el) {
+      el = document.createElement("div"); el.setAttribute("role", "status");
+      el.style.cssText = "position:fixed;left:50%;top:calc(var(--jsp-banner-real-h,44px) + 56px);transform:translateX(-50%);z-index:70;padding:9px 16px;border-radius:999px;background:rgba(8,14,28,.9);color:#eaf2ff;font:600 14px/1.2 system-ui,-apple-system,Segoe UI,sans-serif;box-shadow:0 6px 24px rgba(0,0,0,.45);border:1px solid rgba(140,190,255,.35);transition:opacity .4s;pointer-events:none";
+      document.body.appendChild(el);
+    }
+    el.textContent = s; el.style.opacity = "1"; clearTimeout(t); t = setTimeout(function () { el.style.opacity = "0"; }, 3800);
+  }
+  window.addEventListener("gamepadconnected", function () { show("\uD83C\uDFAE Gamepad connected \u2014 " + MSG); });
+  window.addEventListener("gamepaddisconnected", function () { show("Gamepad disconnected \u2014 keyboard still works"); });
+})();
