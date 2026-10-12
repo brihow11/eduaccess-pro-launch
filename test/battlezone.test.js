@@ -89,3 +89,13 @@ test("Battlezone uses the shared splash after every level, remappable keys, game
     assert.doesNotMatch(read(f), /@import|fonts\.googleapis|\.mp3|\.wav|\.ogg/, f);
   }
 });
+
+test("Battlezone aiming is fine-grained: ramp, analog deadzone curve, fine-aim modifier, subtle assist", () => {
+  const js = require("fs").readFileSync(require("path").join(__dirname, "..", "games", "battlezone", "game.js"), "utf8");
+  assert.match(js, /id: 'fine'/);
+  assert.match(js, /function stickCurve/);
+  assert.match(js, /DEADZONE = 0\.\d+/);
+  assert.match(js, /RAMP_T = /);
+  assert.match(js, /function aimAssist/);
+  assert.doesNotMatch(js, /turn \* 1\.15 \* dt/);
+});
