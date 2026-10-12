@@ -267,6 +267,7 @@
     capsule(x, w.H, k, 18, 15, gi, pal.line);
     capsule(x, k, along(k, A, 1.04), 15, 13.5, gi, pal.line);
     shade(x, w.H, k, 18, s, w.dir); shade(x, k, A, 14, s, w.dir);
+    if (!far) { shade(x, w.H, k, 9, "rgba(255,250,235,0.22)", -w.dir); shade(x, k, along(k, A, 0.9), 7, "rgba(255,250,235,0.18)", -w.dir); }
     if (!ref) { x.strokeStyle = s; x.lineWidth = 2; x.beginPath(); var m = along(k, A, 0.55); x.moveTo(m.x - 6, m.y - 2); x.lineTo(m.x + 5, m.y + 3); x.stroke(); }
   }
   function arm(x, sh, el, hd, pal, far, ref) {
@@ -276,6 +277,7 @@
     capsule(x, sh, el, 14, 12, gi, pal.line);
     capsule(x, el, cuff, 12, 11.5, gi, pal.line);
     shade(x, sh, el, 13, s, 1);
+    if (!far) { shade(x, sh, el, 6.5, "rgba(255,250,235,0.22)", -1); shade(x, el, cuff, 6, "rgba(255,250,235,0.16)", -1); }
     x.beginPath(); x.arc(hd.x, hd.y, 10, 0, 7); x.fillStyle = sk; x.fill(); x.strokeStyle = pal.line; x.lineWidth = 2.4; x.stroke();
     x.strokeStyle = pal.skinS; x.lineWidth = 1.6; x.beginPath(); x.arc(hd.x, hd.y, 6, -0.6, 0.9); x.stroke();
   }
