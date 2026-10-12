@@ -335,6 +335,7 @@
       G.debris.push({ x: f.x + wx, y: y0 + my, z: f.z + wz, hx: hx * ca + hz * sa, hy: hy, hz: -hx * sa + hz * ca, vx: wx / out * rnd(6, 22), vy: rnd(10, 26), vz: wz / out * rnd(6, 22), spin: rnd(-6, 6), t: rnd(1.8, 2.8) });
     }
     burst(f.x, y0 + 1.5, f.z, 60, 30, 'lava'); burst(f.x, y0 + 1.5, f.z, 30, 18, 'green');
+    (G.rings = G.rings || []).push({ x: f.x, z: f.z, R: 26, t: 0.7, m: 0.7 }); G.flashW = 0.12;
   }
   function camOf(o) { var r = rel(o), ca = Math.cos(G.P.a), sa = Math.sin(G.P.a); return [r.x * ca - r.z * sa, r.x * sa + r.z * ca]; }
   function killFoe(i, byPlayer) {
@@ -420,6 +421,8 @@
     G.t += dt; G.sweep = (G.sweep + dt * 2.4) % TAU;
     if (G.shake > 0) G.shake = Math.max(0, G.shake - dt * 30);
     if (G.recoil > 0) G.recoil = Math.max(0, G.recoil - dt * 4);
+    if (G.rings) G.rings.forEach(function (r) { r.t -= dt; });
+    if (G.flashW > 0) G.flashW = Math.max(0, G.flashW - dt);
     if (G.msgT > 0) G.msgT -= dt;
     if (G.tipT > 0) G.tipT -= dt;
     if (G.blockedT > 0) G.blockedT -= dt;
@@ -583,7 +586,10 @@
     var hy = HY;
     // moon: a crescent hung over the far range
     var mx = skyX(4.1), mr = 0.04 * F, my = hy - Math.tan(0.24) * F;
+    // faint green haze above the horizon
+    var hz = c.createLinearGradient(0, hy - F * 0.16, 0, hy); hz.addColorStop(0, 'rgba(40,255,120,0)'); hz.addColorStop(1, 'rgba(40,255,120,0.07)'); c.fillStyle = hz; c.fillRect(0, hy - F * 0.16, W, F * 0.16);
     if (mx != null) {
+      var mg = c.createRadialGradient(mx, my, mr * 0.5, mx, my, mr * 3.2); mg.addColorStop(0, 'rgba(180,255,200,0.12)'); mg.addColorStop(1, 'rgba(180,255,200,0)'); c.fillStyle = mg; c.beginPath(); c.arc(mx, my, mr * 3.2, 0, TAU); c.fill();
       c.beginPath(); c.arc(mx, my, mr, -Math.PI * 0.5, Math.PI * 0.5, false); c.arc(mx + mr * 0.42, my, mr * 0.9, Math.PI * 0.56, -Math.PI * 0.56, true); stroke('moon', 1, 0.9);
       c.beginPath(); c.moveTo(mx + mr * 0.62, my + mr * 0.3); c.arc(mx + mr * 0.5, my + mr * 0.3, mr * 0.12, 0, TAU); c.moveTo(mx + mr * 0.78, my - mr * 0.4); c.arc(mx + mr * 0.7, my - mr * 0.4, mr * 0.08, 0, TAU); stroke('moon', 0.6, 0.4);
     }
@@ -598,6 +604,7 @@
     var vx = skyX(VOLC.az);
     if (vx != null) {
       var ty = hy - Math.tan(0.115) * F, cw = Math.tan(0.03) * F;
+      var vg = c.createRadialGradient(vx, ty, 0, vx, ty, cw * 4); vg.addColorStop(0, 'rgba(255,120,40,' + (0.22 + 0.08 * Math.sin(G.t * 3)) + ')'); vg.addColorStop(1, 'rgba(255,80,20,0)'); c.fillStyle = vg; c.beginPath(); c.arc(vx, ty, cw * 4, 0, TAU); c.fill();
       c.beginPath(); c.ellipse(vx, ty, cw, cw * 0.18, 0, 0, TAU); stroke('green', 0.8, 0.8);
       c.beginPath(); for (var k = 0; k < 4; k++) { var sr = cw * (0.2 + k * 0.09), sx = vx + Math.sin(G.t * 0.4 + k) * cw * 0.6, sy = ty - (k + 1) * cw * 0.7 - (G.t * 8 % (cw * 0.7)); c.moveTo(sx + sr, sy); c.arc(sx, sy, sr, 0, TAU); } stroke('faint', 0.5, 0.25);
       c.beginPath(); G.lava.forEach(function (l) { var lx = skyX(VOLC.az + l.da), ly = hy - Math.tan(l.e) * F; if (lx != null) { c.moveTo(lx, ly); c.lineTo(lx - l.va * F * 0.05, ly + l.ve * F * 0.05); } }); stroke('lava', 1.2, 0.95);
@@ -619,6 +626,13 @@
     });
     G.shells.forEach(function (sh) { drawModel(MODELS.shell, sh.x, sh.y, sh.z, sh.a, sh.enemy ? 'red' : 'green', 1.3); });
     c.beginPath(); G.debris.forEach(function (d) { seg(cam(d.x - d.hx, d.y - d.hy, d.z - d.hz), cam(d.x + d.hx, d.y + d.hy, d.z + d.hz)); }); stroke('green', 1.1, 0.95);
+    // expanding ground shock rings from kills
+    G.rings = (G.rings || []).filter(function (r) { return r.t > 0; });
+    G.rings.forEach(function (r) {
+      var R0 = (1 - r.t / r.m) * r.R; c.beginPath(); var first = null, prev = null;
+      for (var k = 0; k <= 24; k++) { var a = k / 24 * TAU, q = cam(r.x + Math.sin(a) * R0, 0.2, r.z + Math.cos(a) * R0); if (prev) seg(prev, q); prev = q; }
+      stroke('lava', 1, Math.max(0, r.t / r.m) * 0.9);
+    });
     ['lava', 'green'].forEach(function (col) {
       c.beginPath(); G.sparks.forEach(function (p) { if (p.col === col) seg(cam(p.x, p.y, p.z), cam(p.x - p.vx * 0.04, p.y - p.vy * 0.04, p.z - p.vz * 0.04)); }); stroke(col, 1, 0.9);
     });
@@ -723,6 +737,13 @@
     }
     drawWorld();
     if (G.state !== 'title' && G.state !== 'splash' && !G.dead) drawReticle();
+    if (G.recoil > 0.55 && !G.dead) { // muzzle flash at the bottom of the periscope
+      var mfk = (G.recoil - 0.55) / 0.45, mfy = H * 0.86, mg2 = c.createRadialGradient(CX, mfy, 0, CX, mfy, W * 0.16);
+      mg2.addColorStop(0, 'rgba(255,255,210,' + 0.55 * mfk + ')'); mg2.addColorStop(0.35, 'rgba(255,170,60,' + 0.3 * mfk + ')'); mg2.addColorStop(1, 'rgba(255,90,20,0)');
+      c.fillStyle = mg2; c.fillRect(CX - W * 0.16, mfy - W * 0.16, W * 0.32, W * 0.32);
+      c.beginPath(); for (var ml = 0; ml < 7; ml++) { var ma = -Math.PI / 2 + (ml - 3) * 0.32, mlen = W * (0.04 + 0.05 * Math.random()) * mfk; c.moveTo(CX, mfy); c.lineTo(CX + Math.cos(ma) * mlen, mfy + Math.sin(ma) * mlen); } stroke('lava', 1.2, mfk);
+    }
+    if (G.flashW > 0) { c.fillStyle = 'rgba(255,190,90,' + (G.flashW * 0.6) + ')'; c.fillRect(0, 0, W, H); }
     c.restore();
     drawFrame();
     if (G.state === 'title') drawTitle();
