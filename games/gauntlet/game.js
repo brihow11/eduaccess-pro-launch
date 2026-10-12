@@ -743,6 +743,7 @@
     c.globalCompositeOperation = 'lighter';
     var tg = c.createRadialGradient(W / 2, 70, 0, W / 2, 70, 260 * fl); tg.addColorStop(0, 'rgba(255,120,30,.35)'); tg.addColorStop(1, 'rgba(255,60,0,0)'); c.fillStyle = tg; c.fillRect(0, 0, W, 360);
     c.globalCompositeOperation = 'source-over';
+    var thk = view.hk || 1; W = view.w / thk; H = view.h / thk; c.setTransform(d * thk, 0, 0, d * thk, 0, 0); // desktop: scale the hero picker up
     var portrait = view.portrait, top = view.w < 640 ? 52 : 22;
     var ts = Math.min(portrait ? 54 : 82, W / 6.2, H / 9);
     bigText(c, 'GAUNTLET', W / 2, top + ts * 0.6, ts, '#e07a28', 'rgba(255,100,20,.55)');
@@ -860,7 +861,7 @@
   canvas.addEventListener('pointerdown', function (e) {
     A.unlock(); canvas.focus();
     if (G.state === 'title') {
-      var r = canvas.getBoundingClientRect(), x = e.clientX - r.left, y = e.clientY - r.top;
+      var r = canvas.getBoundingClientRect(), thk = view.hk || 1, x = (e.clientX - r.left) / thk, y = (e.clientY - r.top) / thk;
       for (var i = 0; i < cards.length; i++) { var cd = cards[i]; if (x >= cd.x && x <= cd.x + cd.w && y >= cd.y && y <= cd.y + cd.h) { if (G.sel === cd.i || e.pointerType === 'mouse') { G.sel = cd.i; newGame(); } else { G.sel = cd.i; Sfx.tick(); } break; } }
     } else if (G.state === 'intro' && G.stateT > 0.4) { G.state = 'play'; G.stateT = 0; }
     else if (G.paused) setPaused(false);
