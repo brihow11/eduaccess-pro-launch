@@ -87,6 +87,11 @@
     g.fillStyle = lin(g, cx - 10, 0, cx + 10, 0, [[0, "rgba(0,0,0,0)"], [0.5, vis], [1, "rgba(0,0,0,0)"]]);
     g.fillRect(cx - 9, 11.6, 18, 1.4);
     glowDot(g, sx, 12.3, 3.4, mut ? "rgba(210,255,80,.8)" : "rgba(255,200,60,.85)"); dot(g, sx, 12.3, 1, "#ffffff");
+    // glass cockpit dome with a lit alien pilot silhouette and a specular glint
+    g.fillStyle = rad(g, cx - 1.5, 3, 0.5, 6, [[0, mut ? "rgba(255,200,240,.85)" : "rgba(200,255,220,.85)"], [0.6, mut ? "rgba(160,40,140,.55)" : "rgba(40,140,80,.55)"], [1, "rgba(0,0,0,.2)"]], cx - 1.5, 2);
+    g.beginPath(); g.arc(cx, 6.2, 5.2, Math.PI, 0); g.closePath(); g.fill();
+    g.fillStyle = mut ? "rgba(60,0,50,.7)" : "rgba(0,40,20,.7)"; g.beginPath(); g.arc(cx, 5.6, 1.7, 0, TAU); g.fill(); g.fillRect(cx - 2, 5.6, 4, 0.7);
+    dot(g, cx - 2.4, 3.2, 0.9, "rgba(255,255,255,.9)");
     g.restore();
   }
 
@@ -167,6 +172,11 @@
     g.fillStyle = rad(g, cx, 4.4, 0.4, 3.2, [[0, "#ffe2c4"], [0.7, "#e0a878"], [1, "#9a6440"]], cx - 1, 3.4);
     g.beginPath(); g.arc(cx, 4.6, 2.7, 0, TAU); g.fill();
     g.fillStyle = "#3a2414"; g.beginPath(); g.arc(cx, 3.9, 2.8, Math.PI * 1.05, Math.PI * 1.95); g.fill();
+    // face, collar and suit details
+    dot(g, cx + 1, 4.6, 0.45, "#2a1408"); dot(g, cx + 2.1, 4.6, 0.45, "#2a1408");
+    g.fillStyle = "#d8c8ff"; g.fillRect(cx - 1.6, 7.3, 3.2, 0.8);
+    g.fillStyle = "rgba(255,255,255,.35)"; g.fillRect(cx - 2.4, 8.4, 0.8, 4.4);
+    dot(g, cx, 13.5, 0.55, "#fff2b0");
   }
 
   // ------------------------------------------------------------------ mine

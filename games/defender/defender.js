@@ -1301,7 +1301,7 @@
     for (const h of humans) {
       const sx = wdx(G.camX, h.x);
       if (sx < -30 || sx > W + 30) continue;
-      spr("human", humanFrame(h), sx, h.y);
+      spr("human", humanFrame(h), sx, h.y - 2, 1.25); // drawn a touch larger so the new suit detail reads on big screens
     }
     for (const m of mines) {
       const sx = wdx(G.camX, m.x);
