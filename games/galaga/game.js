@@ -54,6 +54,9 @@
     msg: "", msgT: 0, newHigh: false, shake: 0, flash: 0, inputLock: 0, demoT: 0, warp: 0, results: null
   };
   var stars = [];
+  // foreground parallax layer: a few large, fast, soft-focus dust motes
+  var dust = [];
+  for (var di = 0; di < 14; di++) dust.push({ x: Math.random() * W, y: Math.random() * H, sp: 160 + Math.random() * 140, r: 1.2 + Math.random() * 1.6 });
   (function () {
     var cols = ["255,255,255", "255,220,160", "160,200,255", "255,160,160", "200,255,220", "220,180,255"];
     for (var i = 0; i < 190; i++) {
@@ -523,6 +526,7 @@
     var starSpeed = G.mode === "play" && G.phase === "intro" ? 3.2 : 1;
     G.warp += (starSpeed - G.warp) * Math.min(1, dt * 2);
     if (!G.paused) stars.forEach(function (s) { s.y += s.sp * G.warp * dt; if (s.y > H) { s.y -= H; s.x = Math.random() * W; } });
+    if (!G.paused) { dust.forEach(function (d) { d.y += d.sp * G.warp * dt; if (d.y > H + 20) { d.y = -20; d.x = Math.random() * W; } }); }
     if (G.paused || G.splash || settingsOpen) { input.clear(); return; }
     if (performance.now() < G.inputLock) input.clear();
     for (var i = G.parts.length - 1; i >= 0; i--) { var p = G.parts[i]; p.age += dt; if (!p.ring) { p.x += p.vx * dt; p.y += p.vy * dt; p.vx *= 0.97; p.vy *= 0.97; } if (p.age > p.life) G.parts.splice(i, 1); }
@@ -576,6 +580,7 @@
       if (len > 1.5) x.fillRect(s.x - s.r / 2, s.y - len, s.r, len + s.r);
       else { x.beginPath(); x.arc(s.x, s.y, s.r, 0, TAU); x.fill(); }
     }
+    for (var dj = 0; dj < dust.length; dj++) { var d = dust[dj], dl = d.sp * G.warp * 0.05; x.globalAlpha = 0.22; x.fillStyle = "rgb(190,210,255)"; x.fillRect(d.x - d.r / 2, d.y - dl, d.r, dl + d.r); }
     x.globalAlpha = 1; x.globalCompositeOperation = "source-over";
   }
   function spr(x, kind, frame, px, py, a, alpha, scale) {
