@@ -34,7 +34,7 @@ body.is-touch .bar { display: none; }
 #touch { flex: none; position: relative; display: flex; justify-content: space-between; align-items: center; gap: 8px;
   padding: 8px 14px calc(10px + env(safe-area-inset-bottom)); background: linear-gradient(#15120e, #0b0906); border-top: 1px solid #3a2f1c; touch-action: none; }
 #touch[hidden] { display: none; }
-.dpad { display: grid; grid-template-columns: repeat(3, min(54px, 14vw)); grid-template-rows: repeat(3, min(42px, 11vw)); gap: 3px; }
+.dpad { display: grid; grid-template-columns: repeat(3, min(60px, 15vw)); grid-template-rows: repeat(3, min(50px, 12vw)); gap: 4px; }
 .dpad .up { grid-column: 2; grid-row: 1; } .dpad .left { grid-column: 1; grid-row: 2; } .dpad .right { grid-column: 3; grid-row: 2; } .dpad .down { grid-column: 2; grid-row: 3; }
 .tbtn {
   appearance: none; padding: 0; touch-action: none; -webkit-tap-highlight-color: transparent; border-radius: 10px;
@@ -46,13 +46,18 @@ body.is-touch .bar { display: none; }
 .tbtn.fire { width: min(88px, 22vw); height: min(88px, 22vw); border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px;
   border-color: rgba(255, 210, 140, 0.8); background: radial-gradient(circle at 40% 35%, rgba(230, 120, 60, 0.75), rgba(90, 30, 10, 0.9)); font-size: 16px; }
 .tbtn.fire small { font-size: 10px; opacity: 0.8; }
-.tbtn.rotate { width: min(70px, 18vw); height: min(56px, 14vw); border-radius: 28px; font-size: 12px; }
+.tbtn.rotate { width: min(96px, 24vw); height: min(72px, 18vw); border-radius: 36px; font-size: 14px; font-weight: 800; }
+.tbtn.auto { width: min(64px, 16vw); height: min(56px, 14vw); border-radius: 28px; font-size: 12px; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+.tbtn.auto small { font-size: 10px; opacity: 0.85; }
+.tbtn.auto.on { filter: brightness(1.5); box-shadow: 0 0 12px rgba(255,216,106,0.7); }
 .tbtn.active { transform: scale(0.93); filter: brightness(1.4); }
 #touch.landscape { position: fixed; left: 0; right: 0; bottom: 0; background: none; border: 0; pointer-events: none; padding: 0 10px calc(8px + env(safe-area-inset-bottom)); z-index: 5; }
 #touch.landscape .tbtn { pointer-events: auto; opacity: 0.7; }
-#touch.landscape .dpad { grid-template-columns: repeat(3, 44px); grid-template-rows: repeat(3, 38px); }
-#touch.landscape .tbtn.fire { width: 70px; height: 70px; }
-#touch.landscape .tbtn.rotate { width: 60px; height: 46px; }
+#touch.landscape .dpad { grid-template-columns: repeat(3, 50px); grid-template-rows: repeat(3, 44px); }
+#touch.landscape .tbtn.fire { width: 78px; height: 78px; }
+#touch.landscape .tbtn.rotate { width: 84px; height: 60px; }
+#touch.landscape .tbtn.auto { width: 58px; height: 48px; }
+html, body { overscroll-behavior: none; }
 
 /* ---------- settings ---------- */
 #settings { position: fixed; inset: 0; z-index: 60; display: flex; align-items: center; justify-content: center; background: rgba(0, 0, 0, 0.72); padding: 12px; }
