@@ -704,7 +704,7 @@
     var hy = H * 0.82;
     if (hiScores.length) hiScores.slice(0, 3).forEach(function (h, i) { vtext((i + 1) + '.  ' + h.s + '   LEVEL ' + h.l, W / 2, hy + i * 16, 9, i ? 'dim' : 'green', 0.5, 0.9); });
     else vtext('NO SCORES YET', W / 2, hy, 10, 'dim', 0.5);
-    var leg = K.isTouch ? 'PAD DRIVES AND TURNS   FIRE SHOOTS' : 'UP/DOWN DRIVE   LEFT/RIGHT TURN   SPACE FIRES   P PAUSE   M MUTE';
+    var leg = K.isTouch ? 'PAD DRIVES AND TURNS   FIRE SHOOTS' : 'UP/DOWN DRIVE   LEFT/RIGHT TURN   SHIFT FINE AIM   SPACE FIRES   P PAUSE   F FULLSCREEN';
     vtext(leg, W / 2, H * 0.91, fitSize(leg, narrow ? 9 : 10, W * 0.86), 'dim', 0.5, 0.8);
   }
   function render() {
@@ -864,4 +864,13 @@
       state: function () { return { state: G.state, level: G.level, score: G.score, lives: G.lives, kills: G.kills, foes: G.foes.length, obst: G.obst.length, dead: G.dead, paused: G.paused, music: Music.name, muted: A.muted, W: W, H: H }; }
     };
   }
+})();
+
+/* Desktop: mouse pointer hides after 3 s idle (F-key fullscreen lives in shared/game-menu.js). Written by: Howie */
+(function () {
+  "use strict";
+  var idle = 0, hidden = false;
+  function wake() { idle = 0; if (hidden) { hidden = false; document.documentElement.style.cursor = ""; } }
+  document.addEventListener("mousemove", wake); document.addEventListener("mousedown", wake);
+  setInterval(function () { idle += 1; if (idle >= 3 && !hidden && window.matchMedia && matchMedia("(pointer: fine)").matches) { hidden = true; document.documentElement.style.cursor = "none"; } }, 1000);
 })();
