@@ -824,3 +824,53 @@
     };
   }
 })();
+
+/* Desktop: F toggles fullscreen (same as the toolbar button); mouse pointer hides when idle. Written by: Howie */
+(function () {
+  "use strict";
+  function typing(t) { return t && (t.tagName === "INPUT" || t.tagName === "TEXTAREA" || t.tagName === "SELECT" || t.isContentEditable); }
+  window.addEventListener("keydown", function (e) {
+    if (e.code !== "KeyF" || e.repeat || e.ctrlKey || e.metaKey || e.altKey || typing(e.target)) return;
+    var s = document.getElementById("settings"); if (s && !s.hidden && s.offsetParent !== null) return;
+    var b = document.getElementById("btn-full"); if (b && !b.hidden) { e.preventDefault(); b.click(); }
+  });
+  var idle = 0, hidden = false;
+  function wake() { idle = 0; if (hidden) { hidden = false; document.documentElement.style.cursor = ""; } }
+  document.addEventListener("mousemove", wake); document.addEventListener("mousedown", wake);
+  setInterval(function () { idle += 1; if (idle >= 3 && !hidden && window.matchMedia && matchMedia("(pointer: fine)").matches) { hidden = true; document.documentElement.style.cursor = "none"; } }, 1000);
+})();
+
+/* Desktop letterbox: a slow parallax starfield fills the side bars around the playfield (wide screens only). Written by: Howie */
+(function () {
+  "use strict";
+  var stage = document.getElementById("stage"), wrap = document.getElementById("wrap");
+  if (!stage || !wrap) return;
+  var c = document.createElement("canvas"); c.setAttribute("aria-hidden", "true");
+  c.style.cssText = "position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:0";
+  stage.insertBefore(c, stage.firstChild); wrap.style.zIndex = "1";
+  var x = c.getContext("2d"), stars = [], W = 0, H = 0, last = 0;
+  function size() {
+    var r = stage.getBoundingClientRect(), d = Math.min(window.devicePixelRatio || 1, 2);
+    W = r.width; H = r.height; c.width = Math.round(W * d); c.height = Math.round(H * d); x.setTransform(d, 0, 0, d, 0, 0);
+    var n = Math.min(320, Math.round(W * H / 9000)); stars = [];
+    for (var i = 0; i < n; i++) stars.push({ x: Math.random() * W, y: Math.random() * H, z: 0.2 + Math.random() * 0.8, h: Math.random() < 0.15 ? (Math.random() < 0.5 ? 200 : 330) : 0 });
+  }
+  function draw(t) {
+    requestAnimationFrame(draw);
+    var wr = wrap.getBoundingClientRect(), sr = stage.getBoundingClientRect();
+    if (W - wr.width < 160) { if (c.style.display !== "none") c.style.display = "none"; return; }
+    if (c.style.display === "none") c.style.display = "";
+    var dt = Math.min(0.05, (t - last) / 1000 || 0); last = t;
+    x.clearRect(0, 0, W, H);
+    var l = wr.left - sr.left, r = l + wr.width;
+    for (var i = 0; i < stars.length; i++) {
+      var s = stars[i]; s.y += (14 + 60 * s.z) * dt; if (s.y > H) { s.y = -2; s.x = Math.random() * W; }
+      if (s.x > l - 4 && s.x < r + 4) continue;
+      x.globalAlpha = 0.25 + 0.6 * s.z * (0.75 + 0.25 * Math.sin(t / 300 + i));
+      x.fillStyle = s.h ? "hsl(" + s.h + ",80%,75%)" : "#dfe8ff";
+      x.fillRect(s.x, s.y, 1 + s.z * 1.4, 1 + s.z * 1.4);
+    }
+    x.globalAlpha = 1;
+  }
+  window.addEventListener("resize", size); size(); requestAnimationFrame(draw);
+})();
