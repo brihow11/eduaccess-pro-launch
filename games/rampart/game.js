@@ -194,7 +194,7 @@
     G.enclosedCount = C.computeTerritory(G.grid); G.art.dirty = true;
     G.lastTick = Math.ceil(G.timer);
     banner("REBUILD!", "Close the walls around a castle", 1.6);
-    hint(isTouch ? "Drag the piece, lift to place. ROTATE turns it." : "Arrows move. Space places. " + K.keyName(input.binds.rotate[0]) + " or right-click rotates.");
+    hint(isTouch ? "Drag the piece, lift to place. Two-finger tap or ROTATE turns it." : "Arrows move. Space places. " + K.keyName(input.binds.rotate[0]) + " or right-click rotates.");
     AU.play("bell"); music();
   }
   // start the repair cursor on the breach nearest your home castle (or just outside its ring)
@@ -651,17 +651,21 @@
     for (var k = 0; k < G.castles.length; k++) { var c = G.castles[k]; if (p.x >= c.x - 0.6 && p.x <= c.x + 2.6 && p.y >= c.y - 0.6 && p.y <= c.y + 2.6) return k; }
     return -1;
   }
-  function pieceAt(p, touch) {
+  // Touch: while dragging, the piece floats above the thumb (so it stays visible) and snaps to the grid.
+  var LIFT = 2.6, touches = {}, nTouch = 0, autoFire = K.store.get("rampart.autofire", false);
+  function pieceAt(p, lift) {
     var s = C.size(G.piece);
-    G.cursor.x = Math.round(p.x - s.w / 2); G.cursor.y = Math.round(p.y - s.h / 2 - (touch ? 1.6 : 0)); clampCursor();
+    G.cursor.x = Math.round(p.x - s.w / 2); G.cursor.y = Math.round(p.y - s.h / 2 - (lift ? LIFT : 0)); clampCursor();
   }
+  function twoFingerRotate() { if (G.mode === "repair" && G.piece) { rotatePiece(); if (ptr) ptr.cancel = true; } }
   function blocked() { return G.paused || G.splash || settingsOpen || performance.now() < G.inputLock; }
   canvas.addEventListener("pointerdown", function (e) {
     unlockAudio(); try { canvas.focus({ preventScroll: true }); } catch (x) { /* old browsers */ }
     if (blocked()) return;
     e.preventDefault();
     var p = toMap(e), touch = e.pointerType !== "mouse";
-    ptr = { id: e.pointerId, touch: touch, p: p, fireT: 0.35 };
+    if (touch) { touches[e.pointerId] = 1; nTouch++; if (nTouch >= 2) { twoFingerRotate(); return; } }
+    ptr = { id: e.pointerId, touch: touch, p: p, p0: p, t0: performance.now(), moved: false, fireT: 0.35 };
     try { canvas.setPointerCapture(e.pointerId); } catch (x) { /* ignore */ }
     if (e.button === 2) { if (G.mode === "repair") rotatePiece(); ptr = null; return; }
     switch (G.mode) {
@@ -671,7 +675,7 @@
       case "select": var k = castleAt(p); if (k >= 0) { G.selIdx = k; confirmCastle(k); } ptr = null; break;
       case "cannons": G.cursor = { x: Math.floor(p.x - 0.5), y: Math.floor(p.y - 0.5) }; clampCursor(); placeCannon(G.cursor.x, G.cursor.y); ptr = null; break;
       case "battle": G.aim = { x: p.x, y: p.y }; clampAim(); fireAt(G.aim.x, G.aim.y); break;
-      case "repair": pieceAt(p, touch); if (!touch) { placePiece(); ptr = null; } break;
+      case "repair": if (!touch) { pieceAt(p, false); placePiece(); ptr = null; } else { pieceAt(p, true); ptr.drag = true; } break;
       case "gameover": case "victory": break;
       default: ptr = null;
     }
@@ -679,7 +683,7 @@
   canvas.addEventListener("pointermove", function (e) {
     if (blocked() || !G.grid) return;
     var p = toMap(e);
-    if (ptr && ptr.id === e.pointerId) ptr.p = p;
+    if (ptr && ptr.id === e.pointerId) { ptr.p = p; if (Math.hypot(p.x - ptr.p0.x, p.y - ptr.p0.y) > 0.6) ptr.moved = true; }
     else if (e.pointerType !== "mouse") return;
     if (G.mode === "select") { var k = castleAt(p); if (k >= 0) G.selIdx = k; }
     else if (G.mode === "cannons") { G.cursor = { x: Math.floor(p.x - 0.5), y: Math.floor(p.y - 0.5) }; clampCursor(); }
@@ -688,10 +692,19 @@
   });
   canvas.addEventListener("pointerup", function (e) {
     if (!ptr || ptr.id !== e.pointerId) return;
-    if (ptr.touch && G.mode === "repair" && !blocked()) placePiece();
+    if (ptr.touch && G.mode === "repair" && !blocked() && !ptr.cancel && G.piece) {
+      // quick tap = place right where you tapped; drag = place where the floating ghost shows
+      if (!ptr.moved && performance.now() - ptr.t0 < 260) pieceAt(ptr.p0, false);
+      if (!C.canPlacePiece(G.grid, G.piece, G.cursor.x, G.cursor.y)) { AU.play("deny"); hint("Red squares are blocked. Slide the piece to a clear spot."); }
+      else placePiece();
+    }
     ptr = null;
   });
+  function touchUp(e) { if (touches[e.pointerId]) { delete touches[e.pointerId]; nTouch = Math.max(0, nTouch - 1); } }
+  canvas.addEventListener("pointerup", touchUp); canvas.addEventListener("pointercancel", touchUp);
   canvas.addEventListener("pointercancel", function () { ptr = null; });
+  ["gesturestart", "gesturechange", "dblclick"].forEach(function (ev) { document.addEventListener(ev, function (e) { e.preventDefault(); }, { passive: false }); });
+  document.addEventListener("touchmove", function (e) { if (e.target === canvas || (touchEl && touchEl.contains(e.target))) e.preventDefault(); }, { passive: false });
   canvas.addEventListener("contextmenu", function (e) { e.preventDefault(); });
 
   // ---------------------------------------------------------------- main update
@@ -749,6 +762,7 @@
         if (input.hit("action")) { fireAt(G.aim.x, G.aim.y); G.autoT = 0.3; }
         else if (input.isDown("action")) { G.autoT = (G.autoT || 0) - dt; if (G.autoT <= 0) { G.autoT = 0.25; fireAt(G.aim.x, G.aim.y); } }
         if (ptr && ptr.touch) { ptr.fireT -= dt; if (ptr.fireT <= 0) { ptr.fireT = 0.35; fireAt(G.aim.x, G.aim.y); } }
+        else if (autoFire) { G.autoFT = (G.autoFT || 0) - dt; if (G.autoFT <= 0) { G.autoFT = 0.45; fireAt(G.aim.x, G.aim.y); } }
         G.cannons.forEach(function (cn) { if (cn.active && !cn.ball) { var wa = Math.atan2(G.aim.y - cn.y - 1, G.aim.x - cn.x - 1), da = Math.atan2(Math.sin(wa - cn.ang), Math.cos(wa - cn.ang)); cn.ang += K.clamp(da, -6 * dt, 6 * dt); } });
         updateGrunts(dt);
         if (G.timer <= 0) ceaseFire();
@@ -861,6 +875,10 @@
       if (G.wind) { x.save(); x.strokeStyle = "rgba(200,230,255,0.55)"; x.setLineDash([4, 4]); x.beginPath(); x.moveTo(ax, ay); x.lineTo(ax + G.wind.x * TILE, ay + G.wind.y * TILE); x.stroke(); x.restore(); }
     } else if (m === "repair" && G.piece) {
       var okp = C.canPlacePiece(g, G.piece, G.cursor.x, G.cursor.y);
+      if (ptr && ptr.drag) { var fx = ptr.p.x * TILE, fy = ptr.p.y * TILE, sz = C.size(G.piece);
+        x.save(); x.strokeStyle = okp ? "rgba(140,255,160,0.6)" : "rgba(255,110,90,0.7)"; x.setLineDash([5, 5]); x.lineWidth = 2;
+        x.beginPath(); x.moveTo(fx, fy); x.lineTo((G.cursor.x + sz.w / 2) * TILE, (G.cursor.y + sz.h) * TILE); x.stroke(); x.restore(); }
+      G.piece.forEach(function (c) { x.save(); x.strokeStyle = okp ? "rgba(120,255,140,0.95)" : "rgba(255,80,60,0.95)"; x.lineWidth = 3; x.strokeRect((G.cursor.x + c[0]) * TILE - 1, (G.cursor.y + c[1]) * TILE - 1, TILE + 2, TILE + 2); x.restore(); });
       G.castles.forEach(function (c, k) { if (!C.castleEnclosed(g, c) && k === G.home) { x.strokeStyle = "rgba(255,90,70," + (0.3 + pulse * 0.4) + ")"; x.lineWidth = 2; x.strokeRect(c.x * TILE - 2, c.y * TILE - 2, 68, 68); } });
       G.piece.forEach(function (c) {
         var px = (G.cursor.x + c[0]) * TILE, py = (G.cursor.y + c[1]) * TILE, free = C.tileFree(g, G.cursor.x + c[0], G.cursor.y + c[1]);
@@ -962,7 +980,7 @@
         band(x, LH * 0.69, 64, 0.6);
         label(x, ls, LW / 2, LH * 0.69, fitSize(x, "\u25c0   START AT LEVEL 10: THE LAST BASTION   \u25b6", 28, LW * 0.9), "#ffd98a");
       }
-      var info = isTouch ? "Drag pieces, tap ships to fire. The buttons below work too." : "Arrows move \u00b7 Space places and fires \u00b7 Z rotates \u00b7 P pauses \u00b7 M mutes";
+      var info = isTouch ? "Drag a piece (it floats above your thumb), lift to place. Two-finger tap or ROTATE turns it. Tap to aim and fire; AUTO keeps firing." : "Arrows move \u00b7 Space places and fires \u00b7 Z rotates \u00b7 P pauses \u00b7 M mutes";
       band(x, LH * 0.845, 96, 0.5);
       label(x, info, LW / 2, LH * 0.82, fitSize(x, info, 22, LW * 0.9) * 0.9, "#e8dab4");
       label(x, "12 LEVELS  \u00b7  HIGH SCORE " + highScore, LW / 2, LH * 0.87, Math.round(ts * 0.15), "#cdb98a");
@@ -1045,6 +1063,10 @@
   $("opt-touch").addEventListener("change", function (e) { touchPref = e.target.value; K.store.set("rampart.touch", touchPref); layout(); });
   settingsEl.addEventListener("keydown", function (e) { if (e.key === "Escape" && !input.listening) { e.stopPropagation(); openSettings(false); } });
   K.bindTouch(touchEl, input, unlockAudio);
+  var autoBtn = $("auto-btn");
+  function refreshAuto() { if (autoBtn) { autoBtn.classList.toggle("on", autoFire); autoBtn.setAttribute("aria-pressed", autoFire ? "true" : "false"); autoBtn.innerHTML = "AUTO<small>" + (autoFire ? "ON" : "OFF") + "</small>"; } }
+  if (autoBtn) autoBtn.addEventListener("pointerdown", function (e) { e.preventDefault(); unlockAudio(); autoFire = !autoFire; K.store.set("rampart.autofire", autoFire); refreshAuto(); });
+  refreshAuto();
   document.addEventListener("visibilitychange", function () { if (document.hidden && PLAYING[G.mode] && !G.paused) togglePause(true); });
   refreshMute();
 
