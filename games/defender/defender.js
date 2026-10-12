@@ -1984,3 +1984,12 @@
     };
   }
 })();
+
+/* Desktop: mouse pointer hides after 3 s idle (F-key fullscreen lives in shared/game-menu.js). Written by: Howie */
+(function () {
+  "use strict";
+  var idle = 0, hidden = false;
+  function wake() { idle = 0; if (hidden) { hidden = false; document.documentElement.style.cursor = ""; } }
+  document.addEventListener("mousemove", wake); document.addEventListener("mousedown", wake);
+  setInterval(function () { idle += 1; if (idle >= 3 && !hidden && window.matchMedia && matchMedia("(pointer: fine)").matches) { hidden = true; document.documentElement.style.cursor = "none"; } }, 1000);
+})();
