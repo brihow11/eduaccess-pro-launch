@@ -575,6 +575,8 @@
       if (m.type === 'death' || m.type === 'demon' || m.type === 'sorcerer') { c.globalCompositeOperation = 'lighter'; var ag = c.createRadialGradient(m.x, m.y - 4, 0, m.x, m.y - 4, sz * 0.7); ag.addColorStop(0, m.type === 'death' ? 'rgba(160,255,140,.22)' : 'rgba(255,90,40,.2)'); ag.addColorStop(1, 'rgba(0,0,0,0)'); c.fillStyle = ag; c.fillRect(m.x - sz, m.y - sz, sz * 2, sz * 2); c.globalCompositeOperation = 'source-over'; }
       if (m.type === 'lobber' && m.throwT > 0) f = 1;
       var yy = m.y - 6 + (m.lunge ? -2 : 0) + (m.type === 'ghost' || m.type === 'death' ? Math.sin(m.anim * 0.8) * 1.5 : 0);
+      if (m.type === 'ghost' || m.type === 'death') { m.trail = m.trail || []; var lt = m.trail[m.trail.length - 1]; if (!lt || Math.abs(lt[0] - m.x) + Math.abs(lt[1] - m.y) > 3) { m.trail.push([m.x, yy]); if (m.trail.length > 4) m.trail.shift(); }
+        for (var ti = 0; ti < m.trail.length - 1; ti++) spr(m.type, 0, f, m.rank, m.trail[ti][0], m.trail[ti][1], sz * (0.8 + ti * 0.05), al * (0.08 + ti * 0.06), m.face < 0); }
       var mph = m.anim * Math.PI + (m.x * 0.07), mamp = m.type === 'ghost' || m.type === 'death' ? 0.05 : m.type === 'grunt' ? 0.06 : 0.045, mtilt = (m.type === 'ghost' || m.type === 'death' ? Math.sin(mph * 0.5) * 0.08 : Math.sin(mph) * 0.05) * (m.face < 0 ? -1 : 1);
       sprAnim(m.type, 0, f, m.rank, m.x, yy - Math.abs(Math.sin(mph)) * (m.type === 'grunt' || m.type === 'demon' ? 1.5 : 0), sz, al, m.face < 0, mph, mamp, mtilt);
       if (m.hitT) { c.globalCompositeOperation = 'lighter'; spr(m.type, 0, f, m.rank, m.x, yy, sz, 0.6, m.face < 0); c.globalCompositeOperation = 'source-over'; }
@@ -600,6 +602,7 @@
       c.fillStyle = GA.util.rgba(tc, 0.9); c.beginPath(); c.moveTo(t.x - 3.2, t.y - 3); c.quadraticCurveTo(t.x - 3 + Math.sin(G.t * 9 + t.ph), t.y - 10 * fl, t.x + Math.sin(G.t * 7 + t.ph) * 1.5, t.y - 14 * fl); c.quadraticCurveTo(t.x + 3, t.y - 8, t.x + 3.2, t.y - 3); c.fill();
       c.fillStyle = 'rgba(255,250,210,.95)'; c.beginPath(); c.ellipse(t.x, t.y - 5, 1.5, 3 * fl, 0, 0, TAU); c.fill();
     });
+    G.torches.forEach(function (t) { if (!inV(t.x, t.y, 60)) return; for (var di = 0; di < 5; di++) { var dph = G.t * 0.3 + di * 1.7 + t.ph, dx = t.x + Math.sin(dph * 1.3) * 22, dy = t.y + 18 - ((G.t * 6 + di * 9 + t.ph * 10) % 40); c.fillStyle = GA.util.rgba(tc, 0.35 * (1 - Math.abs(dy - t.y) / 40)); c.fillRect(dx, dy, 1.2, 1.2); } });
     if (hd.id === 'wizard') G.shots.forEach(function (sh) { var g2 = c.createRadialGradient(sh.x, sh.y, 0, sh.x, sh.y, 18); g2.addColorStop(0, 'rgba(120,180,255,.5)'); g2.addColorStop(1, 'rgba(60,120,255,0)'); c.fillStyle = g2; c.fillRect(sh.x - 18, sh.y - 18, 36, 36); });
     G.eshots.forEach(function (sh) { if (sh.kind === 'fireball') { var g3 = c.createRadialGradient(sh.x, sh.y, 0, sh.x, sh.y, 20); g3.addColorStop(0, 'rgba(255,120,40,.55)'); g3.addColorStop(1, 'rgba(255,60,0,0)'); c.fillStyle = g3; c.fillRect(sh.x - 20, sh.y - 20, 40, 40); } });
     (G.rings || []).forEach(function (r) { if (r.t < 0) return; var q = r.t / r.max; c.strokeStyle = 'rgba(' + r.col + ',' + (1 - q) * 0.8 + ')'; c.lineWidth = (1 - q) * (r.r > 100 ? 10 : 3) + 0.5; c.beginPath(); c.arc(r.x, r.y, 4 + r.r * (1 - Math.pow(1 - q, 3)), 0, TAU); c.stroke(); });
