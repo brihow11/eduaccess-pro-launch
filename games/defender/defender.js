@@ -647,6 +647,9 @@
     if (ART && parts.length < 1800) {
       parts.push({ x, y, vx: 0, vy: 0, age: 0, life: 0.32, c: "#fff", s: Math.min(70, speed * 0.16), flash: true });
       if (fxOn) for (let i = 0; i < 3; i++) parts.push({ x: x + rand(-6, 6), y: y + rand(-6, 6), vx: rand(-20, 20), vy: rand(-30, -8), age: 0, life: rand(0.8, 1.4), c: "#000", s: rand(6, 11), smoke: true });
+      // tumbling hull chunks that arc down under gravity, plus a thin shock ring
+      if (fxOn) for (let i = 0; i < Math.min(8, Math.ceil(n / 5)); i++) { const a = rand(0, Math.PI * 2), v = rand(speed * 0.3, speed * 0.8); parts.push({ x, y, vx: Math.cos(a) * v, vy: Math.sin(a) * v - 60, age: 0, life: rand(0.7, 1.3), c: pick(colors), s: rand(3, 6), chunk: true, rot: rand(0, 6.28), vr: rand(-12, 12) }); }
+      parts.push({ x, y, vx: 0, vy: 0, age: 0, life: 0.35, c: pick(colors), s: Math.min(60, speed * 0.2), shock: true });
     }
   }
 
@@ -1340,8 +1343,13 @@
       const x1 = s0 + b.dir * b.tail, x2 = s0 + b.dir * b.head;
       const y = b.y;
       if (fxOn) {
+        ctx.strokeStyle = "rgba(120,200,255,0.10)"; ctx.lineWidth = 14;
+        ctx.beginPath(); ctx.moveTo(x1, y); ctx.lineTo(x2, y); ctx.stroke();
         ctx.strokeStyle = "rgba(255,255,255,0.16)"; ctx.lineWidth = 7;
         ctx.beginPath(); ctx.moveTo(x1, y); ctx.lineTo(x2, y); ctx.stroke();
+        // hot flare at the beam head
+        const hg = ctx.createRadialGradient(x2, y, 0, x2, y, 16); hg.addColorStop(0, "rgba(255,255,255,0.9)"); hg.addColorStop(0.4, "rgba(150,220,255,0.45)"); hg.addColorStop(1, "rgba(80,140,255,0)");
+        ctx.fillStyle = hg; ctx.beginPath(); ctx.arc(x2, y, 16, 0, Math.PI * 2); ctx.fill();
       }
       const len = Math.abs(x2 - x1);
       const headLen = Math.min(80, len);
@@ -1369,6 +1377,8 @@
       g.addColorStop(0, "rgba(255,240,150,1)"); g.addColorStop(0.4, "rgba(255,140,30,0.9)"); g.addColorStop(1, "rgba(255,40,40,0)");
       ctx.fillStyle = g;
       ctx.beginPath(); ctx.moveTo(back, y - 1); ctx.lineTo(back - ship.face * L, y + 4); ctx.lineTo(back, y + 9); ctx.closePath(); ctx.fill();
+      const eb = ctx.createRadialGradient(back, y + 4, 0, back, y + 4, 22); eb.addColorStop(0, "rgba(255,180,80,0.5)"); eb.addColorStop(1, "rgba(255,80,20,0)");
+      ctx.fillStyle = eb; ctx.beginPath(); ctx.arc(back, y + 4, 22, 0, Math.PI * 2); ctx.fill();
       ctx.globalCompositeOperation = "source-over";
     }
     spr(ship.face > 0 ? "shipR" : "shipL", Math.floor(G.t * 2.5) % 2, sx, y);
@@ -1388,6 +1398,13 @@
       ctx.globalCompositeOperation = "lighter"; ctx.lineCap = "round";
       for (const p of parts) {
         if (p.smoke || p.flash) continue;
+        if (p.chunk || p.shock) {
+          const sx2 = wdx(G.camX, p.x); if (sx2 < -60 || sx2 > W + 60) continue;
+          const kk = p.age / p.life; ctx.globalAlpha = Math.max(0, 1 - kk);
+          if (p.shock) { ctx.strokeStyle = p.c; ctx.lineWidth = 2.5 * (1 - kk) + 0.5; ctx.beginPath(); ctx.ellipse(sx2, p.y, p.s * (0.3 + kk * 1.4), p.s * (0.2 + kk), 0, 0, Math.PI * 2); ctx.stroke(); }
+          else { p.rot += p.vr / 60; p.vy += 6; ctx.save(); ctx.translate(sx2, p.y); ctx.rotate(p.rot); ctx.fillStyle = p.c; ctx.fillRect(-p.s / 2, -p.s / 3, p.s, p.s * 0.66); ctx.restore(); }
+          continue;
+        }
         const sx = wdx(G.camX, p.x); if (sx < -10 || sx > W + 10) continue;
         ctx.globalAlpha = Math.max(0, 1 - p.age / p.life);
         ctx.strokeStyle = p.c; ctx.lineWidth = p.s * 0.55;
@@ -1426,11 +1443,17 @@
       ctx.globalAlpha = 1;
     }
     if (G.ring) {
-      const r = G.ring.t * 1500;
-      ctx.globalAlpha = Math.max(0, 1 - G.ring.t / 0.5);
-      ctx.strokeStyle = "#ffffff"; ctx.lineWidth = 4;
-      ctx.beginPath(); ctx.arc(wdx(G.camX, G.ring.x), G.ring.y, r, 0, Math.PI * 2); ctx.stroke();
-      ctx.globalAlpha = 1;
+      const r = G.ring.t * 1500, rx = wdx(G.camX, G.ring.x), ka = Math.max(0, 1 - G.ring.t / 0.5);
+      ctx.globalCompositeOperation = "lighter";
+      const bg = ctx.createRadialGradient(rx, G.ring.y, 0, rx, G.ring.y, Math.max(1, r));
+      bg.addColorStop(0, "rgba(255,255,255,0)"); bg.addColorStop(0.85, "rgba(120,200,255," + 0.18 * ka + ")"); bg.addColorStop(1, "rgba(255,255,255," + 0.35 * ka + ")");
+      ctx.fillStyle = bg; ctx.beginPath(); ctx.arc(rx, G.ring.y, r, 0, Math.PI * 2); ctx.fill();
+      [["#ffffff", 0, 4], ["#7fd8ff", 0.06, 3], ["#ff6af0", 0.12, 2]].forEach(([col, lag, lw]) => {
+        const rr = Math.max(0, (G.ring.t - lag) * 1500); if (!rr) return;
+        ctx.globalAlpha = Math.max(0, 1 - (G.ring.t - lag) / 0.5); ctx.strokeStyle = col; ctx.lineWidth = lw;
+        ctx.beginPath(); ctx.arc(rx, G.ring.y, rr, 0, Math.PI * 2); ctx.stroke();
+      });
+      ctx.globalAlpha = 1; ctx.globalCompositeOperation = "source-over";
     }
   }
   function drawHUD() {
