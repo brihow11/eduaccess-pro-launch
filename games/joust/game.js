@@ -2128,3 +2128,61 @@
     }
   };
 })();
+
+/* Desktop letterbox: animated ambient backdrop in the side bars around the playfield (wide screens only, paused when hidden). Written by: Howie */
+(function () {
+  "use strict";
+  var MODE = "embers", stage = document.getElementById("stage"), frameEl = document.getElementById("canvas-wrap");
+  if (!stage || !frameEl) return;
+  var c = document.createElement("canvas"); c.setAttribute("aria-hidden", "true");
+  c.style.cssText = "position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:0";
+  stage.insertBefore(c, stage.firstChild);
+  if (getComputedStyle(frameEl).position === "static") frameEl.style.position = "relative";
+  frameEl.style.zIndex = "1";
+  var x = c.getContext("2d"), P = [], W = 0, H = 0, last = 0;
+  function seed(p, fresh) {
+    p.x = Math.random() * W; p.z = 0.25 + Math.random() * 0.75;
+    if (MODE === "embers") { p.y = fresh ? Math.random() * H : H + 6; p.vx = (Math.random() - 0.5) * 14; p.life = 0; p.max = 4 + Math.random() * 6; }
+    else { p.y = fresh ? Math.random() * H : -2; p.h = Math.random() < 0.12 ? (Math.random() < 0.5 ? 190 : 300) : 0; }
+    return p;
+  }
+  function size() {
+    var r = stage.getBoundingClientRect(), d = Math.min(window.devicePixelRatio || 1, 2);
+    W = r.width; H = r.height; c.width = Math.round(W * d); c.height = Math.round(H * d); x.setTransform(d, 0, 0, d, 0, 0);
+    var n = Math.min(MODE === "embers" ? 140 : 300, Math.round(W * H / (MODE === "embers" ? 16000 : 9000)));
+    P = []; for (var i = 0; i < n; i++) P.push(seed({}, true));
+  }
+  function draw(t) {
+    requestAnimationFrame(draw);
+    if (document.hidden) return;
+    var fr = frameEl.getBoundingClientRect(), sr = stage.getBoundingClientRect();
+    if (W - fr.width < 160) { if (c.style.display !== "none") c.style.display = "none"; return; }
+    if (c.style.display === "none") c.style.display = "";
+    var dt = Math.min(0.05, (t - last) / 1000 || 0); last = t;
+    x.clearRect(0, 0, W, H);
+    var l = fr.left - sr.left, r = l + fr.width;
+    if (MODE === "embers") {
+      var g = x.createLinearGradient(0, H * 0.55, 0, H); g.addColorStop(0, "rgba(255,80,20,0)"); g.addColorStop(1, "rgba(255,90,20," + (0.16 + 0.04 * Math.sin(t / 700)) + ")");
+      x.fillStyle = g; x.fillRect(0, H * 0.55, l, H * 0.45); x.fillRect(r, H * 0.55, W - r, H * 0.45);
+    }
+    for (var i = 0; i < P.length; i++) {
+      var p = P[i];
+      if (MODE === "embers") {
+        p.life += dt; p.y -= (18 + 40 * p.z) * dt; p.x += (p.vx + Math.sin(t / 900 + i) * 8) * dt;
+        if (p.life > p.max || p.y < -6) seed(p, false);
+        if (p.x > l - 6 && p.x < r + 6) continue;
+        var a = Math.min(1, p.life / 0.6) * (1 - p.life / p.max);
+        x.globalAlpha = Math.max(0, a) * (0.4 + 0.6 * p.z); x.fillStyle = p.z > 0.7 ? "#ffd27a" : "#ff7a2a";
+        x.beginPath(); x.arc(p.x, p.y, 0.8 + p.z * 1.6, 0, 6.283); x.fill();
+      } else {
+        p.x -= (10 + 50 * p.z) * dt; if (p.x < -2) { seed(p, false); p.x = W + 2; p.y = Math.random() * H; }
+        if (p.x > l - 4 && p.x < r + 4) continue;
+        x.globalAlpha = 0.25 + 0.6 * p.z * (0.75 + 0.25 * Math.sin(t / 300 + i));
+        x.fillStyle = p.h ? "hsl(" + p.h + ",80%,75%)" : "#dfe8ff";
+        x.fillRect(p.x, p.y, 1 + p.z * 1.4, 1 + p.z * 1.4);
+      }
+    }
+    x.globalAlpha = 1;
+  }
+  window.addEventListener("resize", size); size(); requestAnimationFrame(draw);
+})();
