@@ -27,8 +27,8 @@
 
   /* ------------------------------------------------------------------ themes */
   A.THEMES = [
-    { name: 'granite', floor: '#5b5850', wall: '#7c7466', mortar: '#2a2620', dark: 0.42, torch: '#ffb060' },
-    { name: 'barracks', floor: '#5e4b38', wall: '#6e5c49', mortar: '#241a12', dark: 0.46, torch: '#ffa850' },
+    { name: 'granite', floor: '#4e4236', wall: '#9a8a70', mortar: '#1a140e', dark: 0.5, torch: '#ffb060' },
+    { name: 'barracks', floor: '#4a3a2a', wall: '#8e7a60', mortar: '#241a12', dark: 0.46, torch: '#ffa850' },
     { name: 'pits', floor: '#4c2c24', wall: '#6c382b', mortar: '#1e0c08', dark: 0.5, torch: '#ff8a40', embers: 0.25 },
     { name: 'sandstone', floor: '#6c5c40', wall: '#8b7752', mortar: '#2e2414', dark: 0.46, torch: '#ffc070' },
     { name: 'slate', floor: '#3f4757', wall: '#5c6677', mortar: '#151a24', dark: 0.5, torch: '#ffb468' },
@@ -46,7 +46,7 @@
   function cellAt(rows, x, y) { return y < 0 || y >= rows.length || x < 0 || x >= rows[0].length ? '#' : rows[y][x]; }
 
   function floorTile(g, x, y, T, th) {
-    var R = srand(hash(x, y, 3)), base = shade(th.floor, -0.18), px = x * T, py = y * T;
+    var R = srand(hash(x, y, 3)), base = shade(th.floor, -0.3), px = x * T, py = y * T;
     // flagstones: 2x2 slabs with jittered seams, sometimes one big slab
     var big = R() < 0.25, slabs = big ? [[0, 0, 1, 1]] : [[0, 0, 0.5, 0.5], [0.5, 0, 0.5, 0.5], [0, 0.5, 0.5, 0.5], [0.5, 0.5, 0.5, 0.5]];
     if (!big && R() < 0.35) slabs = R() < 0.5 ? [[0, 0, 1, 0.5], [0, 0.5, 0.5, 0.5], [0.5, 0.5, 0.5, 0.5]] : [[0, 0, 0.5, 1], [0.5, 0, 0.5, 0.5], [0.5, 0.5, 0.5, 0.5]];
@@ -94,8 +94,8 @@
   }
   function wallTile(g, rows, x, y, T, th) {
     var R = srand(hash(x, y, 7)), px = x * T, py = y * T, ch = cellAt(rows, x, y);
-    var below = cellAt(rows, x, y + 1), face = !isWall(below), fh = face ? Math.round(T * 0.42) : 0;
-    var col = ch === 'w' ? shade(th.wall, 0.12) : th.wall;
+    var below = cellAt(rows, x, y + 1), face = !isWall(below), fh = face ? Math.round(T * 0.5) : 0;
+    var col = ch === 'w' ? shade(th.wall, 0.22) : shade(th.wall, 0.1);
     if (ch === 'D') { doorTile(g, rows, x, y, T, th, fh); return; }
     // top face: large dressed blocks
     bricks(g, px, py, T, T - fh, T, shade(col, 0.2), th.mortar, R, face ? 1 : 2, 0);
