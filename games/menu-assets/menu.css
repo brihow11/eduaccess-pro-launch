@@ -108,3 +108,10 @@ body::before { content: ""; position: fixed; inset: 0; pointer-events: none; z-i
 main { position: relative; z-index: 1; }
 @keyframes menu-embers { from { transform: translateY(0); } to { transform: translateY(-60px); } }
 @media (prefers-reduced-motion: reduce) { body::before, .card.is-live:hover .poster::before { animation: none; } }
+
+/* Full covers (Written by: Howie): the 3:4 portrait covers had titles baked in cut off ("EFEND", "OUST"),
+   so every width now uses the 16:9 landscape covers, which show the whole title. */
+.poster { aspect-ratio: 16 / 9; }
+.poster .art { object-fit: cover; object-position: center center; }
+.poster::after { height: 34%; }
+.badge { top: 8px; right: -46px; width: 140px; padding: 2px 0; font-size: 10px; }
