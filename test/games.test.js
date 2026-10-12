@@ -141,7 +141,7 @@ test("hub Joust card only advertises what Joust supports", () => {
   assert.match(card, /1&ndash;2 players/);
   assert.match(js, /2 FOR TWO PLAYERS/);
   assert.doesNotMatch(card, /Gamepad/i);
-  assert.doesNotMatch(js, /getGamepads/);
+  assert.match(js, /getGamepads/); // gamepad now supported (pads 1-2)
   for (const feature of ["egg", "hand", "ptero"]) assert.match(js, new RegExp(feature));
 });
 

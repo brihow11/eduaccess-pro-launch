@@ -429,10 +429,11 @@
     if (G.autopilot || p.demo) return autopilot(p);
     var pre = p.idx === 0 ? "p1" : "p2";
     var c = {
-      left: actionDown(pre + "Left") || (p.idx === 0 && touch.left),
-      right: actionDown(pre + "Right") || (p.idx === 0 && touch.right),
+      left: actionDown(pre + "Left") || (p.idx === 0 && touch.left) || !!(gpads[p.idx] && gpads[p.idx].left),
+      right: actionDown(pre + "Right") || (p.idx === 0 && touch.right) || !!(gpads[p.idx] && gpads[p.idx].right),
       flap: consume(pre + "Flap")
     };
+    if (gpads[p.idx] && gpads[p.idx].flapQ) { gpads[p.idx].flapQ = 0; c.flap = true; }
     if (p.idx === 0 && touch.flapQ > 0) { touch.flapQ = 0; c.flap = true; }
     if (p.idx === 0 && holdFlap && touch.flapHeld) {
       touch.holdT += DT;
@@ -2031,8 +2032,40 @@
 
   // ---------------------------------------------------------------- loop
   var last = performance.now(), acc = 0, fpsT = 0, fpsN = 0, fps = 0;
+  // ---------------------------------------------------------------- gamepads (pad 1 = player 1, pad 2 = player 2)
+  var gpads = [null, null], padPrev = [{}, {}];
+  function pollPads() {
+    if (!navigator.getGamepads) return;
+    var list = navigator.getGamepads() || [], n = 0;
+    for (var i = 0; i < list.length && n < 2; i++) {
+      var gp = list[i]; if (!gp || !gp.connected) continue;
+      var b = function (k) { return !!(gp.buttons[k] && gp.buttons[k].pressed); }, ax = gp.axes[0] || 0;
+      var st = { left: ax < -0.35 || b(14), right: ax > 0.35 || b(15), flap: b(0) || b(1) || b(2) || b(3) || b(7) || b(6), start: b(9), back: b(8) };
+      var pv = padPrev[n], cur = gpads[n] || {};
+      st.flapQ = (cur.flapQ || 0) + (st.flap && !pv.flap ? 1 : 0);
+      if (st.flap && !pv.flap && G.mode === "attract") { Audio.unlock(); onKeyCommand("Enter"); st.flapQ = 0; }
+      if (st.start && !pv.start) { Audio.unlock(); onKeyCommand(G.mode === "attract" ? "Enter" : (bindings.pause || "KeyP")); }
+      gpads[n] = st; padPrev[n] = { flap: st.flap, start: st.start }; n++;
+    }
+    for (; n < 2; n++) gpads[n] = null;
+  }
+  // ---------------------------------------------------------------- fullscreen (button + F key)
+  function toggleFullscreen() {
+    var d = document, el = d.documentElement;
+    if (d.fullscreenElement || d.webkitFullscreenElement) (d.exitFullscreen || d.webkitExitFullscreen).call(d);
+    else { var rq = el.requestFullscreen || el.webkitRequestFullscreen; if (rq) { var pr = rq.call(el); if (pr && pr.catch) pr.catch(function () {}); } }
+  }
+  var btnFull = document.getElementById("btn-full");
+  if (btnFull) btnFull.addEventListener("click", toggleFullscreen);
+  window.addEventListener("keydown", function (e) { if (e.code === "KeyF" && !e.repeat && !rebinding && !settingsOpen() && !isTypingTarget(e.target) && !bindsF()) toggleFullscreen(); });
+  function bindsF() { for (var id in bindings) if (bindings[id] === "KeyF") return true; return false; }
+  // hide the mouse pointer while playing on desktop
+  var mouseT = 0; document.addEventListener("mousemove", function () { mouseT = 0; document.body.style.cursor = ""; });
+
   function frame(ts) {
     requestAnimationFrame(frame);
+    pollPads();
+    mouseT += 1; if (mouseT === 180 && G.mode !== "attract") document.body.style.cursor = "none";
     var dt = (ts - last) / 1000; last = ts;
     if (!(dt > 0)) dt = 0;
     fpsT += dt; fpsN++; if (fpsT >= 1) { fps = fpsN / fpsT; fpsT = 0; fpsN = 0; }
