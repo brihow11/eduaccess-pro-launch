@@ -37,19 +37,19 @@
     <div class="stickblock">
       <div class="sticklabel">MOVE</div>
       <div class="dpad" role="group" aria-label="Left stick — move">
-        <button class="tbtn up" data-act="up" type="button" aria-label="Jump">&#9650;</button>
-        <button class="tbtn left" data-act="left" type="button" aria-label="Retreat">&#9664;</button>
-        <button class="tbtn right" data-act="right" type="button" aria-label="Approach">&#9654;</button>
-        <button class="tbtn down" data-act="down" type="button" aria-label="Crouch">&#9660;</button>
+        <button class="tbtn up" data-dir="up" type="button" aria-label="Jump">&#9650;</button>
+        <button class="tbtn left" data-dir="left" type="button" aria-label="Retreat">&#9664;</button>
+        <button class="tbtn right" data-dir="right" type="button" aria-label="Approach">&#9654;</button>
+        <button class="tbtn down" data-dir="down" type="button" aria-label="Crouch">&#9660;</button>
       </div>
     </div>
     <div class="stickblock right">
       <div class="sticklabel">ATTACK</div>
       <div class="dpad attack" role="group" aria-label="Right stick — attack">
-        <button class="tbtn up" data-act="rup" type="button" aria-label="Attack up">&#9650;</button>
-        <button class="tbtn left" data-act="rleft" type="button" aria-label="Attack back">&#9664;</button>
-        <button class="tbtn right" data-act="rright" type="button" aria-label="Attack forward">&#9654;</button>
-        <button class="tbtn down" data-act="rdown" type="button" aria-label="Attack down">&#9660;</button>
+        <button class="tbtn up" data-dir="rup" type="button" aria-label="Attack up">&#9650;</button>
+        <button class="tbtn left" data-dir="rleft" type="button" aria-label="Attack back">&#9664;</button>
+        <button class="tbtn right" data-dir="rright" type="button" aria-label="Attack forward">&#9654;</button>
+        <button class="tbtn down" data-dir="rdown" type="button" aria-label="Attack down">&#9660;</button>
       </div>
     </div>
   </div>
@@ -77,7 +77,7 @@
           </select>
         </label>
       </div>
-      <p class="touchnote">Dual sticks (1984 arcade style). Left stick (WASD / left touch pad): approach, retreat, jump, crouch; retreat while close = block. Right stick (Arrow keys / right touch pad): tap a direction to attack. Combinations: toward = front kick (far) or reverse punch (close); away = back kick; up = round kick; down = low kick; away+toward = back round kick; up+toward = jumping side kick; down+toward = foot sweep; approach+toward = lunge punch. Attack score 100-500 = half point, 600-1000 = full point. First to two full points in 30 seconds. Gamepad: left stick moves, right stick attacks, Start pauses.</p>
+      <p class="touchnote">Dual sticks (1984 arcade style). Left stick (WASD / left touch pad): approach, retreat, jump, crouch; retreat while close = block. Right stick (Arrow keys / right touch pad): tap a direction to attack. Combinations: toward = front kick (far) or reverse punch (close); away = back kick; up = round kick; down = low kick; away+toward = back round kick; up+toward = jumping side kick; down+toward = foot sweep; approach+toward = lunge punch. Attack score 100-500 = half point, 600-1000 = full point. First to two full points in 30 seconds. On touch, each pad is a virtual stick: press and slide your thumb to change direction. Knocked-down fighters fall to the mat, lie there briefly and get back up. Gamepad: left stick moves, right stick attacks, Start pauses.</p>
       <div class="row">
         <button class="pbtn" id="keys-reset" type="button">Reset to defaults</button>
         <button class="pbtn primary" id="settings-close" type="button">Done</button>

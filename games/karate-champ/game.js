@@ -42,7 +42,7 @@
     },
     pad: function (gp) {
       var b = function (i) { return !!(gp.buttons[i] && gp.buttons[i].pressed); };
-      var ax = gp.axes[0] || 0, ay = gp.axes[1] || 0, ax2 = gp.axes[2] != null ? gp.axes[2] : (gp.axes[3] || 0), ay2 = gp.axes[3] != null && gp.axes.length > 3 ? gp.axes[3] : (gp.axes[1] || 0);
+      var ax = gp.axes[0] || 0, ay = gp.axes[1] || 0, ax2 = gp.axes[2] != null ? gp.axes[2] : (gp.axes[3] || 0), ay2 = gp.axes.length > 3 ? (gp.axes[3] || 0) : 0;
       // Dual-stick pads: left stick move, right stick attack. Fallback: d-pad = left, face buttons nudge right stick.
       return {
         up: b(12) || ay < -0.55, down: b(13) || ay > 0.55, left: b(14) || ax < -0.5, right: b(15) || ax > 0.5,
@@ -126,7 +126,8 @@
       case "air": return Pz.jump;
       case "flip": var tp = C.mix(Pz.jump, Pz.jump, 0); tp.rot = f.flipDir * Math.min(1, f.airT / 0.62) * Math.PI * 2; return tp;
       case "hit": return Pz.hit;
-      case "down": return Pz.down;
+      case "down": return f.y < 0 ? Pz.fall : Pz.down;
+      case "rise": return Pz.rise;
       case "win": return f.stateT < 0.6 ? Pz.stance : Pz.win;
       case "kneel": return Pz.kneel;
       case "bow": return Pz.bow;
@@ -151,18 +152,22 @@
     if (airborne) {
       f.airT += dt; f.vy += 2500 * dt; f.y += f.vy * dt; f.x += f.vx * dt;
       if (f.y >= 0) {
-        f.y = 0; f.vy = 0; f.vx = 0; f.airT = 0; AU.play("land", panOf(f));
+        var knocked = f.state === "hit" || f.state === "down";
+        f.y = 0; f.vy = 0; f.vx = knocked ? f.vx * 0.35 : 0; f.airT = 0; AU.play("land", panOf(f));
         if (f.state === "air" || f.state === "flip") { f.state = "stand"; f.pose.rot = 0; }
         else if (f.state === "move" && f.mt < f.mdur * 0.86) f.mt = f.mdur * 0.86;
       }
-    } else if (f.state === "hit" || f.state === "down") {
+    } else if (f.state === "hit" || f.state === "down" || f.state === "rise") {
       f.x += f.vx * dt; f.vx *= Math.pow(0.02, dt);
     }
     if (f.state === "move") {
       f.mt += dt;
       if (f.mt >= f.mdur) { if (f.y < 0) f.state = "air"; else { f.state = "stand"; f.move = null; } }
     }
-    if (f.state === "hit" && f.stateT > 0.32) setState(f, "down");
+    // knockdown: stagger, fall with gravity to the mat, lie there a moment, then get back up
+    if (f.state === "hit" && f.stateT > 0.22) setState(f, "down");
+    if (f.state === "down" && f.y >= 0 && f.stateT > 1.0) setState(f, "rise");
+    if (f.state === "rise" && f.stateT > 0.45) setState(f, G.mode === "boutEnd" ? "kneel" : "stand");
     if (f.state === "blockstun" && f.stateT > 0.16) setState(f, "stand");
     f.x = K.clamp(f.x, BOUNDS[0], BOUNDS[1]);
   }
@@ -340,7 +345,7 @@
     var u = f.mt / f.mdur; if (!C.inActive(f.move, u)) return null;
     var w = world(f), pt = C.strikePoint(f.move, w);
     f.trail.push(pt); if (f.trail.length > 6) f.trail.shift();
-    var o = other(f); if (o.state === "down" || o.state === "hit") return null;
+    var o = other(f); if (o.state === "down" || o.state === "hit" || o.state === "rise") return null;
     var hit = C.hitTest(pt, world(o));
     return hit ? { f: f, o: o, pt: pt, zone: hit.zone } : null;
   }
@@ -374,6 +379,7 @@
     G.lastHit = f.side;
     if (f === P) { var pts = C.pointsFor(v.halves, G.level, v.score); G.score += pts; G.floats.push({ x: pt.x, y: pt.y - 30, s: "+" + pts, t: 0 }); updateHigh(); }
     setState(o, "hit"); o.vx = f.facing * (v.halves === 2 ? 420 : 300); o.move = null;
+    if (o.y >= 0) { o.y = -1; o.vy = v.halves === 2 ? -520 : -360; } else o.vy = Math.max(o.vy, -200); // knocked off the feet; gravity brings them down
     G.freeze = v.halves === 2 ? 0.16 : 0.1; G.shake = v.halves === 2 ? 10 : 5; G.flash = v.halves === 2 ? 0.18 : 0.08;
     G.sparks.push({ x: pt.x, y: pt.y, t: 0, big: v.halves === 2 });
     AU.play(v.halves === 2 ? "hitBig" : "hit", panOf(o)); if (f.kiai || v.halves === 2) AU.play("kiai", panOf(f), f === E);
@@ -408,7 +414,7 @@
   function endBout(winner, why) {
     G.mode = "boutEnd"; G.modeT = 0; G.boutWinner = winner;
     var wf = winner === "player" ? P : E, lf = other(wf);
-    setState(wf, "win"); if (lf.state !== "down") setState(lf, "kneel");
+    setState(wf, "win"); if (lf.state !== "down" && lf.state !== "rise") setState(lf, "kneel");
     G.ref.flagSide = wf.x > 640 ? 1 : -1;
     say((winner === "player" ? "WHITE" : "RED") + " WINS" + (why ? " ON " + why : "!"), G.ref.flagSide > 0 ? "pointR" : "pointL", 3);
     if (winner === "player") {
@@ -871,6 +877,26 @@
   $("opt-touch").addEventListener("change", function (e) { touchPref = e.target.value; K.store.set("karate-champ.touch", touchPref); layout(); });
   settingsEl.addEventListener("keydown", function (e) { if (e.key === "Escape" && !input.listening) { e.stopPropagation(); openSettings(false); } });
   K.bindTouch(touchEl, input, unlockAudio);
+  // Virtual sticks: each pad tracks one thumb; sliding switches direction like a real arcade stick.
+  Array.prototype.forEach.call(touchEl.querySelectorAll(".dpad"), function (pad) {
+    var cur = null, pid = null;
+    function setDir(act) {
+      if (act === cur) return;
+      if (cur) { input.setTouch(cur, false); var ob = pad.querySelector('[data-dir="' + cur + '"]'); if (ob) ob.classList.remove("active"); }
+      cur = act;
+      if (cur) { input.setTouch(cur, true); var nb = pad.querySelector('[data-dir="' + cur + '"]'); if (nb) nb.classList.add("active"); }
+    }
+    function track(e) {
+      var r = pad.getBoundingClientRect(), dx = e.clientX - (r.left + r.width / 2), dy = e.clientY - (r.top + r.height / 2);
+      var dz = Math.min(r.width, r.height) * 0.16, pre = pad.classList.contains("attack") ? "r" : "";
+      if (Math.max(Math.abs(dx), Math.abs(dy)) < dz) return setDir(null);
+      setDir(Math.abs(dx) > Math.abs(dy) ? pre + (dx < 0 ? "left" : "right") : pre + (dy < 0 ? "up" : "down"));
+    }
+    pad.addEventListener("pointerdown", function (e) { e.preventDefault(); unlockAudio(); pid = e.pointerId; try { pad.setPointerCapture(pid); } catch (x) { } track(e); });
+    pad.addEventListener("pointermove", function (e) { if (e.pointerId === pid) track(e); });
+    function end(e) { if (e.pointerId !== pid) return; pid = null; setDir(null); }
+    pad.addEventListener("pointerup", end); pad.addEventListener("pointercancel", end); pad.addEventListener("lostpointercapture", end);
+  });
   // tapping the playfield starts from the title, game over and victory screens
   canvas.addEventListener("pointerdown", function (e) {
     unlockAudio(); canvas.focus();

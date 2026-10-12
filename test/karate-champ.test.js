@@ -41,7 +41,7 @@ test("Karate Champ page: banner, splash, Main menu, mute, shared music, dual-sti
   assert.match(html, /href="\/games\/"[^>]*>(?:<span aria-hidden="true">)?&#9776;/, "top-bar main menu");
   assert.match(html, /id="btn-mute"/);
   assert.match(html, /id="settings"/);
-  for (const a of ["up", "down", "left", "right", "rup", "rdown", "rleft", "rright"]) assert.match(html, new RegExp('data-act="' + a + '"'), a);
+  for (const a of ["up", "down", "left", "right", "rup", "rdown", "rleft", "rright"]) assert.match(html, new RegExp('data-dir="' + a + '"'), a);
   assert.match(html, /ATTACK/);
   assert.match(html, /MOVE/);
   assert.ok(html.indexOf("arcade-music.js") < html.indexOf("audio.js"), "shared music loads before the game audio");
@@ -207,4 +207,20 @@ test("Karate Champ debug helpers only exist behind ?debug=1", () => {
   const js = read("game.js");
   assert.match(js, /if \(DEBUG\) \{\s*window\.KarateGame\.debug = \{/);
   assert.doesNotMatch(js, /window\.KarateGame = \{[^}]*debug:/);
+});
+
+test("Karate Champ knockdown lies flat on the mat and the move chart matches the 1984 dual-stick table", () => {
+  const C = require("../games/karate-champ/core.js");
+  const j = C.skeleton(C.POSES.down);
+  for (const k of ["H", "S", "N"]) assert.ok(j.ground - j[k].y < 30, k + " should be near the floor when down");
+  assert.ok(C.POSES.rise && C.POSES.fall);
+  const t = (l, r, close) => { const c = C.dualCommand(l, r, !!close); return c.type === "move" ? c.id : c.type + (c.back ? "-back" : ""); };
+  assert.equal(t("n", "l"), "back"); assert.equal(t("n", "r"), "front"); assert.equal(t("n", "r", 1), "reverse");
+  assert.equal(t("n", "u"), "round"); assert.equal(t("n", "d"), "lowkick");
+  assert.equal(t("l", "r"), "backround"); assert.equal(t("l", "u"), "upper");
+  assert.equal(t("r", "r"), "lunge"); assert.equal(t("r", "u"), "upperlunge"); assert.equal(t("r", "l"), "turnback");
+  assert.equal(t("u", "l"), "jumpback"); assert.equal(t("u", "r"), "jumpside"); assert.equal(t("u", "u"), "flip-back"); assert.equal(t("u", "d"), "flip");
+  assert.equal(t("d", "l"), "revsweep"); assert.equal(t("d", "r"), "sweep"); assert.equal(t("d", "u"), "revcrouch");
+  const js = fs.readFileSync(path.join(__dirname, "..", "games", "karate-champ", "game.js"), "utf8");
+  assert.match(js, /setState\(f, "rise"\)/);
 });
