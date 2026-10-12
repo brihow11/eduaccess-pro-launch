@@ -184,7 +184,7 @@
   var fx = { shake: 0, flash: 0, flashCol: '255,255,255', kick: 0, failWord: '', failT: -9 };
   var cam = { x: 0, y: 0, z: 1 };
   var autoplay = false, OUT_IMPACT = 0.32;
-  var scout = { x: CX, tx: CX, jy: 0, jt: -1, jh: 170, hang: 0, lift: 0, fall: -1, pose: 'idle', hold: 0, cur: null, hitT: -9, walkPh: 0, sx: 1, sy: 1, landT: -9, hair: 0, hem: 0, leanV: 0, prevX: CX, atkT: -9 };
+  var scout = { x: CX, tx: CX, jy: 0, jt: -1, jh: 170, hang: 0, lift: 0, fall: -1, pose: 'idle', hold: 0, cur: null, hitT: -9, walkPh: 0, sx: 1, sy: 1, landT: -9, hair: 0, hem: 0, leanV: 0, prevX: CX, atkT: -9, vx: 0, face: 1, stepPh: 0, hurtT: -9 };
 
   function inPlay() { return !!PLAY_STATES[state] && !splashOpen(); }
   function setPaused(p) {
@@ -237,7 +237,7 @@
     AU.play('alarm');
   }
   function resetScout() {
-    scout.x = scout.tx = CX; scout.jy = 0; scout.jt = -1; scout.hang = 0; scout.lift = 0; scout.fall = -1; scout.pose = 'ready'; scout.hold = 0; scout.walkPh = 0; scout.sx = scout.sy = 1; scout.landT = -9; scout.hair = 0; scout.hem = 0; scout.leanV = 0; scout.prevX = CX; scout.atkT = -9;
+    scout.x = scout.tx = CX; scout.jy = 0; scout.jt = -1; scout.hang = 0; scout.lift = 0; scout.fall = -1; scout.pose = 'ready'; scout.hold = 0; scout.walkPh = 0; scout.sx = scout.sy = 1; scout.landT = -9; scout.hair = 0; scout.hem = 0; scout.leanV = 0; scout.prevX = CX; scout.atkT = -9; scout.vx = 0; scout.face = 1; scout.stepPh = 0; scout.hurtT = -9;
   }
   function startBeat(retry) {
     var d = scene().beats[G.beat];
@@ -289,7 +289,7 @@
     B.impact = true;
     var th = THREATS[B.d.t];
     if (!B.won) {
-      scout.pose = 'hit'; scout.hitT = gt;
+      scout.pose = 'hit'; scout.hitT = gt; scout.hurtT = 0; scout.vx -= 260 * (scout.face || 1); dust(scout.x, FLOOR, 5);
       fx.flash = 0.75; fx.flashCol = '255,40,40'; fx.shake = Math.max(fx.shake, 16); fx.kick = 0.08;
       fx.failWord = B.d.fail; fx.failT = gt;
       G.lives--;
@@ -479,6 +479,10 @@
     ctx.beginPath(); ctx.moveTo(x0, y0); ctx.lineTo(x1, y1); ctx.stroke();
     ctx.lineWidth = w * 0.72;
     ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke();
+    // soft highlight along the lit side for rounded, shaded limbs
+    var hx = -w * 0.22;
+    ctx.strokeStyle = 'rgba(255,255,255,0.16)'; ctx.lineWidth = w * 0.24;
+    ctx.beginPath(); ctx.moveTo(x0 + hx, y0); ctx.lineTo(x1 + hx, y1); ctx.lineTo(x2 + hx * 0.7, y2); ctx.stroke();
     circle(x1, y1, w * 0.28, dark);
     return [x2, y2, a1 + a2];
   }
@@ -505,7 +509,9 @@
     });
     ctx.rotate(P.lean);
     // torso
+    var tg = ctx.createLinearGradient(-25, 0, 25, 0); tg.addColorStop(0, L.tee); tg.addColorStop(0.55, L.tee); tg.addColorStop(1, 'rgba(255,255,255,0.18)');
     poly([-21, 2, 21, 2, 25, -86, -25, -86], L.tee, '#050505', 2);
+    poly([-21, 2, 21, 2, 25, -86, -25, -86], tg);
     ctx.fillStyle = L.pants; ctx.fillRect(-21, -6, 42, 10);
     if (L.head === 'scout') glow(0, -110, 90, '64,240,220', 0.12);
     [-1, 1].forEach(function (s) {
@@ -527,6 +533,7 @@
     // head
     ctx.fillStyle = L.skin; ctx.fillRect(-6, -101, 12, 16);
     if (L.head === 'scout') drawScoutHead(opt); else drawOldHead(L, opt);
+    if (opt.hurt > 0 && Math.floor(opt.hurt * 12) % 2 === 0) glow(0, -60, 120, '255,70,60', 0.35 * opt.hurt);
     ctx.restore();
   }
   function drawScoutHead(opt) {
@@ -1473,7 +1480,13 @@
   function updateScout(dt) {
     if (!scout.cur) scout.cur = copyPose(POSES.idle);
     var dx = scout.tx - scout.x;
-    scout.x += dx * Math.min(1, dt * 12);
+    // Critically damped spring: eases in (acceleration) and settles without a snap (deceleration).
+    var sdt = Math.min(dt, 1 / 30), K = 170, Cd = 2 * Math.sqrt(K) * 1.05;
+    scout.vx += (K * dx - Cd * scout.vx) * sdt; scout.x += scout.vx * sdt;
+    // Facing turns through a quick horizontal squash instead of an instant flip.
+    var wantFace = scout.vx < -60 && Math.abs(dx) > 28 ? -1 : scout.vx > 60 && Math.abs(dx) > 28 ? 1 : (Math.abs(scout.vx) < 20 ? 1 : scout.face > 0 ? 1 : -1);
+    scout.face += (wantFace - scout.face) * Math.min(1, dt * 14);
+    if (scout.hurtT >= 0) { scout.hurtT += dt; if (scout.hurtT > 0.6) scout.hurtT = -9; }
     // Anticipatory lean into travel, with damping so it settles (not a permanent tip).
     var wantLean = clamp(dx * 0.0018, -0.35, 0.35);
     scout.leanV += (wantLean - scout.leanV) * Math.min(1, dt * 10);
@@ -1483,7 +1496,7 @@
       var up = 0.22, h = scout.hang, dn = 0.32;
       var jp = AN.jumpProfile(scout.jt, up, h, dn, scout.jh);
       scout.jy = jp.jy; scout.sx = jp.sx; scout.sy = jp.sy;
-      if (jp.phase === 'landed') { scout.jt = -1; scout.jy = 0; scout.landT = 0; scout.pose = 'land'; scout.hold = 0.22; }
+      if (jp.phase === 'landed') { scout.jt = -1; scout.jy = 0; scout.landT = 0; scout.pose = 'land'; scout.hold = 0.22; dust(scout.x, FLOOR, 9); }
     } else if (scout.landT >= 0 && scout.landT < 0.35) {
       var ls = AN.landSquash(scout.landT);
       scout.sx = ls.sx; scout.sy = ls.sy;
@@ -1525,6 +1538,7 @@
       var spd = clamp(Math.abs(dx) / 140, 0.35, 1.4);
       scout.walkPh += dt * 9.5 * spd;
       var wc = AN.walkCycle(scout.walkPh);
+      if (Math.floor(scout.walkPh / PI) !== scout.stepPh) { scout.stepPh = Math.floor(scout.walkPh / PI); if (scout.jt < 0) dust(scout.x - 14 * scout.face, FLOOR, 2); }
       var base = copyPose(POSES.ready);
       ['lh','lk','rh','rk','ls','le','rs','re','lean'].forEach(function (j) { base[j] = wc[j]; });
       base.lean += scout.leanV;
@@ -1538,6 +1552,7 @@
       if (target === 'idle' || target === 'ready') {
         var br = Math.sin(gt * 1.7) * 0.02;
         pose.ls += br; pose.rs -= br; pose.lean += Math.sin(gt * 1.1) * 0.012;
+        if (scout.jt < 0 && scout.landT < 0 && scout.fall < 0) { scout.sy = 1 + Math.sin(gt * 1.7) * 0.012; scout.sx = 1 - Math.sin(gt * 1.7) * 0.006; }
       }
       mixPose(scout.cur, pose, blend);
       if (target === 'punchR' || target === 'punchL' || target === 'kick' || target === 'punchU') {
@@ -1589,6 +1604,11 @@
     }
     var vg2 = ctx.createRadialGradient(CX, 540, 300, CX, 540, 820); vg2.addColorStop(0, 'rgba(0,0,0,0)'); vg2.addColorStop(1, 'rgba(0,0,0,.55)');
     ctx.fillStyle = vg2; ctx.fillRect(VX0, VY0, VX1 - VX0, VY1 - VY0);
+    // soft overhead light shaft and drifting motes for atmosphere (cheap: one gradient + a few dots)
+    var shaft = ctx.createLinearGradient(CX, VY0, CX, 900); shaft.addColorStop(0, 'rgba(255,240,210,0.06)'); shaft.addColorStop(1, 'rgba(255,240,210,0)');
+    ctx.fillStyle = shaft; ctx.beginPath(); ctx.moveTo(CX - 70, VY0); ctx.lineTo(CX + 70, VY0); ctx.lineTo(CX + 230, 900); ctx.lineTo(CX - 230, 900); ctx.closePath(); ctx.fill();
+    ctx.fillStyle = 'rgba(255,240,210,0.35)';
+    for (var mi = 0; mi < 14; mi++) { var mx = CX + Math.sin(mi * 12.9 + gt * 0.21) * 190 * ((mi % 5) / 5 + 0.2), my = 120 + ((mi * 97 + gt * 18) % 760); ctx.beginPath(); ctx.arc(mx, my, 1.4 + (mi % 3) * 0.6, 0, TAU); ctx.fill(); }
     drawPops();
     drawCue();
     drawFail();
@@ -1596,6 +1616,10 @@
     if (state === 'clear') drawClear();
     if (fx.flash > 0) { ctx.setTransform(DPR, 0, 0, DPR, 0, 0); ctx.fillStyle = 'rgba(' + fx.flashCol + ',' + Math.min(0.85, fx.flash) + ')'; ctx.fillRect(0, 0, W, H); }
     drawHUD();
+  }
+  function dust(x, y, n) {
+    if (parts.length > 260) return; // keep phones smooth
+    for (var i = 0; i < n; i++) P({ k: 'smoke', x: x + rnd(-18, 18), y: y + rnd(-4, 4), vx: rnd(-70, 70), vy: rnd(-60, -10), life: rnd(0.35, 0.7), t: 0, r: rnd(5, 11), col: '196,186,168' });
   }
   function drawScout() {
     var p = copyPose(scout.cur);
@@ -1605,7 +1629,8 @@
     if (state === 'out' && B && !B.won && B.impact && Math.floor(gt * 20) % 2 === 0) ctx.globalAlpha = 0.6;
     drawFigure(scout.x, FLOOR, 1, p, SCOUT_LOOK, {
       jy: scout.jy + scout.lift, shout: shout, smile: state === 'clear' || state === 'victory',
-      noShadow: scout.fall >= 0, sx: scout.sx, sy: scout.sy, hair: scout.hair, hem: scout.hem
+      noShadow: scout.fall >= 0, sx: scout.sx * (Math.abs(scout.face) < 0.2 ? 0.2 * (scout.face < 0 ? -1 : 1) : scout.face), sy: scout.sy, hair: scout.hair, hem: scout.hem,
+      hurt: scout.hurtT >= 0 ? 1 - scout.hurtT / 0.6 : 0
     });
     ctx.restore();
   }
