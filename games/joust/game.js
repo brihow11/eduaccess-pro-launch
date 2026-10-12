@@ -2057,7 +2057,7 @@
   }
   var btnFull = document.getElementById("btn-full");
   if (btnFull) btnFull.addEventListener("click", toggleFullscreen);
-  window.addEventListener("keydown", function (e) { if (e.code === "KeyF" && !e.repeat && !rebinding && !settingsOpen() && !isTypingTarget(e.target) && !bindsF()) toggleFullscreen(); });
+  // F key is handled once for every game in shared/game-menu.js (it clicks #btn-full)
   function bindsF() { for (var id in bindings) if (bindings[id] === "KeyF") return true; return false; }
   // hide the mouse pointer while playing on desktop
   var mouseT = 0; document.addEventListener("mousemove", function () { mouseT = 0; document.body.style.cursor = ""; });

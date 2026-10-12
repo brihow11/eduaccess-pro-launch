@@ -825,15 +825,9 @@
   }
 })();
 
-/* Desktop: F toggles fullscreen (same as the toolbar button); mouse pointer hides when idle. Written by: Howie */
+/* Desktop: mouse pointer hides after 3 s idle (F-key fullscreen lives in shared/game-menu.js). Written by: Howie */
 (function () {
   "use strict";
-  function typing(t) { return t && (t.tagName === "INPUT" || t.tagName === "TEXTAREA" || t.tagName === "SELECT" || t.isContentEditable); }
-  window.addEventListener("keydown", function (e) {
-    if (e.code !== "KeyF" || e.repeat || e.ctrlKey || e.metaKey || e.altKey || typing(e.target)) return;
-    var s = document.getElementById("settings"); if (s && !s.hidden && s.offsetParent !== null) return;
-    var b = document.getElementById("btn-full"); if (b && !b.hidden) { e.preventDefault(); b.click(); }
-  });
   var idle = 0, hidden = false;
   function wake() { idle = 0; if (hidden) { hidden = false; document.documentElement.style.cursor = ""; } }
   document.addEventListener("mousemove", wake); document.addEventListener("mousedown", wake);
