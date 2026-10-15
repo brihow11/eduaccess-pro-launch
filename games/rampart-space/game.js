@@ -921,18 +921,18 @@
     var tg = ctx.createLinearGradient(ccx, ccy, ccx + 300, ccy - 39); tg.addColorStop(0, 'rgba(200,235,255,0.55)'); tg.addColorStop(1, 'rgba(120,180,255,0)'); ctx.strokeStyle = tg; ctx.lineCap = 'round'; ctx.lineWidth = 10; ctx.beginPath(); ctx.moveTo(ccx, ccy); ctx.lineTo(ccx + 300, ccy - 39); ctx.stroke(); ctx.lineWidth = 3; ctx.stroke();
     softGlow(ccx, ccy, 26, '210,240,255', 0.6); ctx.restore(); ctx.fillStyle = '#eaf6ff'; ctx.beginPath(); ctx.arc(ccx, ccy, 4, 0, TAU); ctx.fill();
     // the station: soft shield bubble, then the fortress itself
-    var stx = 255, sty = 405, ssc = 0.64; ctx.save(); ctx.globalCompositeOperation = 'lighter'; softGlow(stx, sty, 330 * ssc, '90,170,255', 0.10); ctx.restore();
+    var stx = 215, sty = 440, ssc = 0.54; ctx.save(); ctx.globalCompositeOperation = 'lighter'; softGlow(stx, sty, 330 * ssc, '90,170,255', 0.10); ctx.restore();
     ctx.strokeStyle = 'rgba(140,200,255,0.18)'; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(stx, sty, 300 * ssc, 0, TAU); ctx.stroke();
     ctx.save(); ctx.translate(stx, sty); ctx.rotate(Math.sin(t * 0.15) * 0.04); var sw2 = SPR.titleSt.width / S * ssc, sh3 = SPR.titleSt.height / S * ssc; ctx.drawImage(SPR.titleSt, -sw2 / 2, -sh3 / 2, sw2, sh3); ctx.restore();
     ctx.save(); ctx.globalCompositeOperation = 'lighter'; softGlow(stx, sty, 46, '110,220,255', 0.35 + 0.05 * Math.sin(t * 1.2)); ctx.restore();
     // a skirmish: ships to the right, steady thin lasers + torpedo trails (no flashes)
-    var ships = [[1250, 620, 0.9], [1380, 700, 0.75], [1180, 740, 0.8], [1460, 560, 0.7]];
-    ships.forEach(function (sh, i) { var bx = sh[0] + Math.sin(t * 0.5 + i) * 30, by = sh[1] + Math.cos(t * 0.4 + i * 2) * 22; sh.x = bx; sh.y = by; spr(i === 3 ? SPR.bomber : SPR.fighter, bx, by, 0, sh[2]); });
+    var ships = [[1430, 470, 0.9], [1530, 492, 0.75], [1470, 510, 0.8], [1560, 455, 0.7]];
+    ships.forEach(function (sh, i) { var bx = sh[0] + Math.sin(t * 0.5 + i) * 18, by = sh[1] + Math.cos(t * 0.4 + i * 2) * 6; sh.x = bx; sh.y = by; spr(i === 3 ? SPR.bomber : SPR.fighter, bx, by, 0, sh[2]); });
     ctx.save(); ctx.globalCompositeOperation = 'lighter'; ctx.lineCap = 'round';
     for (var li = 0; li < 3; li++) { var ph = (t * 0.6 + li * 0.33) % 1, sh2 = ships[li], tw = 0.35 * Math.sin(ph * Math.PI), sa = li * 2.1 + 0.4, ox = stx + Math.cos(sa) * 250, oy = sty + Math.sin(sa) * 250;
-      ox = stx + 165 * Math.cos(0.2 + li * 0.35); oy = sty + 165 * Math.sin(0.2 + li * 0.35); ctx.strokeStyle = 'rgba(125,232,255,' + (0.25 + tw).toFixed(3) + ')'; ctx.lineWidth = 2.2; ctx.beginPath(); ctx.moveTo(ox, oy); ctx.lineTo(lerp(ox, sh2.x, 0.15 + ph * 0.85), lerp(oy, sh2.y, 0.15 + ph * 0.85)); ctx.stroke(); }
-    for (var ti = 0; ti < 2; ti++) { var tp = (t * 0.25 + ti * 0.5) % 1, ax = stx + 150, ay = sty + 60 + ti * 50, tx2 = ships[3 - ti * 2].x, ty2 = ships[3 - ti * 2].y, hx = lerp(ax, tx2, tp), hy2 = lerp(ay, ty2, tp) - Math.sin(tp * Math.PI) * 60;
-      for (var q = 0; q < 14; q++) { var tq = Math.max(0, tp - q * 0.012), qx = lerp(ax, tx2, tq), qy = lerp(ay, ty2, tq) - Math.sin(tq * Math.PI) * 60; ctx.fillStyle = 'rgba(255,170,90,' + (0.3 * (1 - q / 14)).toFixed(3) + ')'; ctx.beginPath(); ctx.arc(qx, qy, 4 - q * 0.2, 0, TAU); ctx.fill(); }
+      ox = stx + 150; oy = 466 + li * 12; ctx.strokeStyle = 'rgba(125,232,255,' + (0.25 + tw).toFixed(3) + ')'; ctx.lineWidth = 2.2; ctx.beginPath(); ctx.moveTo(ox, oy); ctx.lineTo(lerp(ox, sh2.x, 0.15 + ph * 0.85), lerp(oy, sh2.y, 0.15 + ph * 0.85)); ctx.stroke(); }
+    for (var ti = 0; ti < 2; ti++) { var tp = (t * 0.25 + ti * 0.5) % 1, ax = stx + 150, ay = 478 + ti * 14, tx2 = ships[3 - ti * 2].x, ty2 = ships[3 - ti * 2].y, hx = lerp(ax, tx2, tp), hy2 = lerp(ay, ty2, tp) - Math.sin(tp * Math.PI) * 8;
+      for (var q = 0; q < 14; q++) { var tq = Math.max(0, tp - q * 0.012), qx = lerp(ax, tx2, tq), qy = lerp(ay, ty2, tq) - Math.sin(tq * Math.PI) * 8; ctx.fillStyle = 'rgba(255,170,90,' + (0.3 * (1 - q / 14)).toFixed(3) + ')'; ctx.beginPath(); ctx.arc(qx, qy, 4 - q * 0.2, 0, TAU); ctx.fill(); }
       softGlow(hx, hy2, 16, '255,200,120', 0.7); }
     ctx.restore();
     // logo
