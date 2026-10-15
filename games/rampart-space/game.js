@@ -858,7 +858,7 @@
     text('S P A C E   E D I T I O N', cx, 312, 30, '#ffd36a', 'center', 800);
     text('Fortify the station. Arm the turrets. Hold the line.', cx, 362, 18, '#cfe0ff', 'center', 600);
     text('24 levels  \u2022  lasers, torpedoes, railguns, plasma  \u2022  pirates, wormholes, a black hole and a supernova', cx, 392, 14, '#9fb6e6', 'center', 600);
-    if ((t % 1.6) < 1.1) text(isTouch ? 'TAP TO START' : 'CLICK, OR PRESS SPACE OR ENTER TO START', cx, 470, 22, '#7fe8ff', 'center', 800);
+    // start prompt is the HTML .start-btn (steady, flash-safe)
     var hy = 540; text('HIGH SCORES', cx, hy, 14, '#ffe2a0', 'center', 800);
     if (hiScores.length) hiScores.slice(0, 5).forEach(function (h, i) { text((i + 1) + '.  ' + h.s.toLocaleString() + '   LEVEL ' + (h.l === SECRET ? '???' : h.l), cx, hy + 24 + i * 20, 13, i ? '#9fb6e6' : '#e6f0ff', 'center'); });
     else text('No scores yet', cx, hy + 24, 13, '#9fb6e6', 'center');
@@ -957,6 +957,9 @@
   tutEl.querySelector('.tut-next').addEventListener('click', function (e) { e.preventDefault(); tutNext(); });
   tutEl.querySelector('.tut-back').addEventListener('click', function (e) { e.preventDefault(); tutBack(); });
   tutEl.querySelector('.tut-skip').addEventListener('click', function (e) { e.preventDefault(); if (TU.card) closeCard(); else tutEnd(TU.quick ? null : 'skipped'); });
+  var startBtn = document.createElement('button'); startBtn.type = 'button'; startBtn.className = 'start-btn'; wrap.appendChild(startBtn);
+  ['pointerdown', 'touchstart', 'mousedown'].forEach(function (ev) { startBtn.addEventListener(ev, function (e) { e.stopPropagation(); }, { passive: true }); });
+  startBtn.addEventListener('click', function (e) { e.preventDefault(); unlockAudio(); startBtn.blur(); if (G.mode === 'title') act(true); });
   var howBtn = document.createElement('button'); howBtn.type = 'button'; howBtn.className = 'how-btn'; wrap.appendChild(howBtn);
   ['pointerdown', 'touchstart', 'mousedown'].forEach(function (ev) { howBtn.addEventListener(ev, function (e) { e.stopPropagation(); }, { passive: true }); });
   howBtn.addEventListener('click', function (e) { e.preventDefault(); unlockAudio(); howBtn.blur(); startTutorial(); });
@@ -1048,7 +1051,7 @@
     var splash = window.ScoutSplash && ScoutSplash.isOpen && ScoutSplash.isOpen();
     var hold = G.paused || splash || TU.card || (TU.on && TU.hold) || TU.quick;
     if (!hold) { var n = dt > 0.025 ? 2 : 1; for (var i = 0; i < n; i++) update(dt / n); } else if (TU.on) tutTick();
-    howBtn.hidden = !(G.mode === 'title' && !splash); if (!howBtn.hidden) howBtn.innerHTML = tutState === 'done' ? '&#10003; Replay How to Play' : '&#10067; How to Play';
+    howBtn.hidden = !(G.mode === 'title' && !splash); startBtn.hidden = howBtn.hidden || (tutState === 'active'); if (!startBtn.hidden) { var st = isTouch ? '&#9654; TAP TO START' : '&#9654; START <small>Space / Enter</small>'; if (startBtn.dataset.t !== st) { startBtn.dataset.t = st; startBtn.innerHTML = st; } } if (!howBtn.hidden) howBtn.innerHTML = tutState === 'done' ? '&#10003; Replay How to Play' : '&#10067; How to Play';
     syncButtons(); render();
     requestAnimationFrame(frame);
   }

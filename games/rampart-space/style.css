@@ -58,3 +58,10 @@ body.is-touch .bar { display: none; }
 .how-btn { position: absolute; left: 50%; transform: translateX(-50%); bottom: 7%; z-index: 6; appearance: none; cursor: pointer; border-radius: 10px; border: 1px solid #ffd36a; background: rgba(16, 22, 48, .9); color: #ffe2a0; font: 700 14px system-ui, sans-serif; padding: 9px 16px; }
 .how-btn[hidden] { display: none; }
 .arcade-ov button.ov-how { appearance: none; cursor: pointer; }
+.start-btn { position: absolute; left: 50%; bottom: 17%; transform: translateX(-50%); z-index: 6; appearance: none; cursor: pointer; border-radius: 14px; border: 2px solid #7dffb0; background: linear-gradient(180deg, #1f6b48, #0f3a28); color: #eafff2; font: 800 clamp(20px, 3vw, 34px) system-ui, sans-serif; letter-spacing: .08em; padding: .55em 1.6em; box-shadow: 0 0 22px rgba(125, 255, 176, .35); animation: rse-breathe 3s ease-in-out infinite; }
+.start-btn small { display: block; font-size: .42em; font-weight: 600; letter-spacing: .04em; opacity: .8; }
+.start-btn:hover, .start-btn:focus-visible { background: linear-gradient(180deg, #268256, #124430); outline: none; }
+.start-btn[hidden] { display: none; }
+@keyframes rse-breathe { 0%, 100% { transform: translateX(-50%) scale(1); } 50% { transform: translateX(-50%) scale(1.04); } }
+@media (prefers-reduced-motion: reduce) { .start-btn { animation: none; } }
+@media (max-height: 460px) { .start-btn { bottom: 21%; font-size: 19px; padding: .45em 1.3em; } }
