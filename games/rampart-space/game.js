@@ -226,7 +226,7 @@
     G.boss = null; G.escort = null; G.derelict = null; G.bh = null; G.nova = 0; G.moon = { cracked: 0 }; G.flare = null; G.special = has('emp') ? 0.35 : 0; G.emp = 0; G.over = 0; G.slow = 1;
     G.world = worldFor(n); buildBg(); newStation(); unlockWeapons(); G.wi = Math.min(G.wi, G.weapons.length - 1);
     G.drones = has('scout') ? [{ k: 'scout', x: 600, y: 450, cd: 0 }, { k: 'drone', x: 600, y: 420, cd: 0.3 }, { k: 'drone', x: 600, y: 480, cd: 0.6 }] : [];
-    if (has('blackhole') && n !== SECRET && (n === 16 || n % 2 === 0 || n === LAST)) G.bh = { x: 1080, y: n % 3 ? 300 : 600, m: 1 };
+    if (has('blackhole') && n !== SECRET && (n === 16 || (n % 2 === 0 && n !== 20) || n === LAST)) G.bh = { x: 1080, y: n % 3 ? 300 : 600, m: 1 };
     G.piece = newPiece(); G.nextPiece = newPiece();
     beginPhase('arm', true);
     if (NEW[n] && n !== 22) newThingCard(n);
@@ -324,7 +324,7 @@
     if (k === 'comet') { G.comets.push({ x: WW + 80, y: rnd(150, 750), vx: -rnd(150, 200), vy: rnd(-25, 25), r: 16, held: false, flung: false }); if (G.level === 12 && !G.cometTip) { G.cometTip = 1; } return; }
     if (k === 'portal') { var top = Math.random() < 0.5; G.portals.push({ x: rnd(260, 620), y: top ? 40 : 860, t: 0, n: 3 + Math.floor(G.level / 8), cd: 1.4 }); hint('WORMHOLE OPENING BEHIND YOUR LINES!'); Sfx.alarm(); return; }
     if (k === 'flare') { G.flare = { t: 0, warn: 3 }; say('SOLAR FLARE WARNING', 'Shields will drop'); Sfx.alarm(); return; }
-    if (k === 'derelict') { G.derelict = { x: WW + 120, y: 450, vx: -28, hp: 10, max: 10, rot: 0 }; return; }
+    if (k === 'derelict') { G.derelict = { x: WW + 120, y: G.bh ? (G.bh.y < 450 ? 660 : 240) : 450, vx: -28, hp: 10, max: 10, rot: 0 }; G.derelict.vx = -70; return; }
     if (k === 'escort' || k === 'escortStay') { G.escort = { k: 'escort', x: 760, y: 220, hp: 22, max: 22, r: 26, cd: 1, hostile: false, turnAt: k === 'escortStay' ? 14 : 999, a: 0 }; return; }
     if (k === 'mothership') { var b = { k: 'mother', x: WW + 260, y: 450, tx: 1290, hp: 90, max: 90, r: 120, cd: 3, lcd: 4, beamT: 0, phase: 1 }; G.boss = b; G.foes.push(b); say('MOTHERSHIP INBOUND', 'Hit its glowing core'); Sfx.alarm(); return; }
     var f = { k: k, x: WW + 40, y: y, vx: 0, vy: 0, cd: rnd(1.5, 3), t: 0, a: Math.PI, ph: rnd(0, TAU) };
@@ -421,6 +421,7 @@
     TU.special = 1;
   }
   function grabComet() {
+    if (G.comets.some(function (c) { return c.held; })) return false;
     for (var i = 0; i < G.comets.length; i++) { var c = G.comets[i]; if (!c.flung && hyp(c.x - G.aim.x, c.y - G.aim.y) < 60) { c.held = true; Sfx.rotate(); hint('Comet grabbed! Aim, then fire to fling it.'); return true; } }
     return false;
   }
@@ -1059,7 +1060,7 @@
     skipPhase: function () { G.timer = 0.01; }, clearRound: function () { G.spawnQ = []; G.foes.forEach(function (f) { if (f.k !== 'pod') f.dead = true; }); if (G.boss) { G.boss.hp = 0; killFoe(G.boss, true); } G.timer = 0.01; },
     seal: function () { var k = G.cores[0]; for (var x = k.c - 3; x <= k.c + 4; x++) for (var y = k.r - 3; y <= k.r + 4; y++) if ((x === k.c - 3 || x === k.c + 4 || y === k.r - 3 || y === k.r + 4) && inG(x, y) && G.grid[idx(x, y)] !== CORE) { G.grid[idx(x, y)] = HULL; G.hp[idx(x, y)] = 1; } computeSecured(); },
     special: function () { G.special = 1; }, spawn: function (k, x, y) { spawn({ k: k, x: x, y: y }); },
-    aim: function (x, y) { G.aim.x = x; G.aim.y = y; }, place: function () { return G.mode === 'arm' ? placeTurret() : placePiece(); }, fire: function () { fireAll(); }, useSpecial: useSpecial, sw: doSwitch,
+    aim: function (x, y) { G.aim.x = x; G.aim.y = y; }, place: function () { return G.mode === 'arm' ? placeTurret() : placePiece(); }, fire: function () { fireAll(); }, press: function () { if (!grabComet()) fireAll(); }, cell: function (c, r) { return { x: cellX(c), y: cellY(r) }; }, useSpecial: useSpecial, sw: doSwitch,
     state: function () { return { mode: G.mode, level: G.level, round: G.round, timer: Math.round(G.timer * 10) / 10, score: G.score, lives: G.lives, foes: G.foes.length, kinds: G.foes.map(function (f) { return f.k; }).join(','), turrets: G.turrets.length, safe: safeCores(), weapons: G.weapons.join(','), weapon: weapon(), special: G.special, shield: G.shield, bh: !!G.bh, card: TU.card && TU.card.key, tut: TU.on ? TU.i : null, muted: muted, moon: G.moon.cracked, escort: G.escort && (G.escort.hostile ? 'hostile' : 'friendly'), ion: G.ion, paused: G.paused, dpr: dpr, CW: CW, CH: CH }; }
   };
 })();
