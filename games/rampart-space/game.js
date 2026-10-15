@@ -696,6 +696,7 @@
     if (W0.moon) G.moonSpr = planetSprite({ planet: 'moon', pc: ['#c9c4bc', '#8a857c', '#5e5a54'], atm: '0,0,0' }, 46 * S);
   }
   function buildSprites() {
+    SPR.titleSt = null; SPR.logo = null;
     var c = CELL * S;
     SPR.hull = mk(c, c, function (x, w, h) { var g = x.createLinearGradient(0, 0, w, h); g.addColorStop(0, '#c8d3e2'); g.addColorStop(0.5, '#7f8da3'); g.addColorStop(1, '#4a5466'); x.fillStyle = g; x.fillRect(0, 0, w, h); x.strokeStyle = 'rgba(255,255,255,0.55)'; x.lineWidth = Math.max(1, w * 0.05); x.beginPath(); x.moveTo(1, h - 1); x.lineTo(1, 1); x.lineTo(w - 1, 1); x.stroke(); x.strokeStyle = 'rgba(0,0,0,0.6)'; x.beginPath(); x.moveTo(w - 1, 1); x.lineTo(w - 1, h - 1); x.lineTo(1, h - 1); x.stroke(); x.fillStyle = 'rgba(30,40,60,0.6)'; x.fillRect(w * 0.18, h * 0.42, w * 0.64, h * 0.16); x.fillStyle = 'rgba(120,200,255,0.75)'; x.fillRect(w * 0.22, h * 0.46, w * 0.12, h * 0.08); [[0.15, 0.15], [0.85, 0.15], [0.15, 0.85], [0.85, 0.85]].forEach(function (p) { x.fillStyle = 'rgba(30,30,40,0.7)'; x.beginPath(); x.arc(w * p[0], h * p[1], w * 0.04, 0, TAU); x.fill(); }); });
     SPR.rock = mk(c, c, function (x, w, h) { var g = x.createRadialGradient(w * 0.35, h * 0.35, 0, w / 2, h / 2, w * 0.55); g.addColorStop(0, '#8a7f72'); g.addColorStop(1, '#2e2924'); x.fillStyle = g; x.beginPath(); for (var i = 0; i < 9; i++) { var a = i / 9 * TAU, r = w * (0.36 + (i * 37 % 10) / 70); if (i) x.lineTo(w / 2 + Math.cos(a) * r, h / 2 + Math.sin(a) * r); else x.moveTo(w / 2 + Math.cos(a) * r, h / 2 + Math.sin(a) * r); } x.closePath(); x.fill(); x.fillStyle = 'rgba(0,0,0,0.35)'; x.beginPath(); x.arc(w * 0.6, h * 0.55, w * 0.08, 0, TAU); x.fill(); });
@@ -740,7 +741,7 @@
     if (G.moonSpr) { var mp = G.moonPos, k = G.moon.cracked; if (!k) spr(G.moonSpr, mp.x, mp.y); else { var off = k * 40; ctx.save(); ctx.beginPath(); ctx.rect(mp.x - 120, mp.y - 120, 120, 240); ctx.clip(); spr(G.moonSpr, mp.x - off, mp.y - off * 0.3, -k * 0.3); ctx.restore(); ctx.save(); ctx.beginPath(); ctx.rect(mp.x, mp.y - 120, 120, 240); ctx.clip(); spr(G.moonSpr, mp.x + off, mp.y + off * 0.4, k * 0.25); ctx.restore(); ctx.globalCompositeOperation = 'lighter'; softGlow(mp.x, mp.y, 40 + 30 * k, '255,140,60', 0.25 * (1 - k * 0.5)); ctx.globalCompositeOperation = 'source-over'; } }
     if (G.bh) drawBlackHole(G.bh);
     G.portals.forEach(drawPortal);
-    drawStation();
+    if (G.mode !== 'title') drawStation();
     // salvage crates
     G.salvage.forEach(function (s) { ctx.save(); ctx.translate(s.x, s.y); ctx.rotate(s.rot); ctx.fillStyle = '#c9a24a'; ctx.fillRect(-7, -7, 14, 14); ctx.strokeStyle = '#ffe2a0'; ctx.lineWidth = 1.5; ctx.strokeRect(-7, -7, 14, 14); ctx.beginPath(); ctx.moveTo(-7, 0); ctx.lineTo(7, 0); ctx.stroke(); ctx.restore(); ctx.globalCompositeOperation = 'lighter'; softGlow(s.x, s.y, 18, '255,210,110', 0.25); ctx.globalCompositeOperation = 'source-over'; });
     if (G.derelict) { var d = G.derelict; spr(SPR.derelict, d.x, d.y, d.rot, d.hitT > 0 ? 0.8 : 1); bar(d.x - 50, d.y - 82, 100, d.hp / d.max, '#7dffb0'); }
@@ -852,12 +853,92 @@
     if (m === 'gameover') { ctx.fillStyle = 'rgba(0,0,0,0.45)'; ctx.fillRect(-ext, 0, WW + ext * 2, WH); text('GAME OVER', WW / 2, WH * 0.4, 64, '#ff8a6a', 'center', 800); text(G.newHi ? 'NEW HIGH SCORE ' + G.score.toLocaleString() : 'SCORE ' + G.score.toLocaleString(), WW / 2, WH * 0.4 + 60, 22, '#ffe2a0', 'center'); }
     if (G.paused) { ctx.fillStyle = 'rgba(0,0,0,0.5)'; ctx.fillRect(-ext, 0, WW + ext * 2, WH); text('PAUSED', WW / 2, WH * 0.32, 56, '#9fe6ff', 'center', 800); }
   }
+  /* ---------------- title art: a fortified orbital rampart over the planet ---------------- */
+  function titleStationSprite() {
+    var R = 230, pad = 1.75, sz = R * 2 * pad * S;
+    return mk(sz * 1.25, sz, function (c, w, h) {
+      var k = S, cx = w / 2, cy = h / 2; c.translate(cx, cy); c.scale(k, k);
+      function metal(x0, y0, x1, y1, lo, hi) { var g = c.createLinearGradient(x0, y0, x1, y1); g.addColorStop(0, hi); g.addColorStop(0.45, lo); g.addColorStop(1, '#141a26'); return g; }
+      var rnd2 = seeded(77);
+      // solar wings
+      [-1, 1].forEach(function (sd) {
+        c.fillStyle = metal(0, -8, 0, 8, '#58657a', '#c9d4e4'); c.fillRect(sd > 0 ? R * 0.95 : -R * 1.95, -7, R, 14);
+        for (var p = 0; p < 4; p++) { var px = sd > 0 ? R * 1.18 + p * 64 : -R * 1.18 - p * 64 - 56, py = -64;
+          var g = c.createLinearGradient(px, py, px + 56, py + 128); g.addColorStop(0, '#2b4f9a'); g.addColorStop(0.5, '#0f2350'); g.addColorStop(1, '#091633'); c.fillStyle = g; c.fillRect(px, py, 56, 128);
+          c.strokeStyle = 'rgba(150,190,255,0.35)'; c.lineWidth = 0.8; for (var gx = 1; gx < 4; gx++) { c.beginPath(); c.moveTo(px + gx * 14, py); c.lineTo(px + gx * 14, py + 128); c.stroke(); } for (var gy = 1; gy < 8; gy++) { c.beginPath(); c.moveTo(px, py + gy * 16); c.lineTo(px + 56, py + gy * 16); c.stroke(); }
+          var sh = c.createLinearGradient(px, py, px + 56, py + 40); sh.addColorStop(0, 'rgba(255,240,220,0.28)'); sh.addColorStop(1, 'rgba(255,240,220,0)'); c.fillStyle = sh; c.fillRect(px, py, 56, 128);
+          c.strokeStyle = '#8b97ab'; c.lineWidth = 2; c.strokeRect(px, py, 56, 128); }
+      });
+      // spokes
+      for (var i = 0; i < 6; i++) { c.save(); c.rotate(i / 6 * TAU + 0.26); c.fillStyle = metal(0, -9, 0, 9, '#4c586c', '#b8c4d6'); c.fillRect(40, -9, R - 70, 18); c.fillStyle = 'rgba(255,200,120,0.85)'; for (var q = 0; q < 5; q++) c.fillRect(56 + q * 26, -2, 6, 4); c.restore(); }
+      // outer rampart ring (torus) with sun-lit top-right and planet-lit underside
+      var rg = c.createRadialGradient(0, 0, R - 46, 0, 0, R + 4); rg.addColorStop(0, '#2a3242'); rg.addColorStop(0.35, '#9aa7bb'); rg.addColorStop(0.6, '#d9e2ee'); rg.addColorStop(0.85, '#6c788c'); rg.addColorStop(1, '#232a38');
+      c.fillStyle = rg; c.beginPath(); c.arc(0, 0, R, 0, TAU); c.arc(0, 0, R - 46, 0, TAU, true); c.fill();
+      // panel seams + window lights on the ring
+      c.strokeStyle = 'rgba(20,26,38,0.6)'; c.lineWidth = 1.4;
+      for (i = 0; i < 48; i++) { var a = i / 48 * TAU; c.beginPath(); c.moveTo(Math.cos(a) * (R - 46), Math.sin(a) * (R - 46)); c.lineTo(Math.cos(a) * R, Math.sin(a) * R); c.stroke(); }
+      c.beginPath(); c.arc(0, 0, R - 23, 0, TAU); c.stroke();
+      for (i = 0; i < 140; i++) { var a2 = rnd2() * TAU, rr = R - 34 + rnd2() * 22; if (rnd2() < 0.55) { c.fillStyle = rnd2() < 0.7 ? 'rgba(255,214,150,0.95)' : 'rgba(150,220,255,0.95)'; c.fillRect(Math.cos(a2) * rr - 1.5, Math.sin(a2) * rr - 1, 3, 2); } }
+      // battlements (the rampart): merlons on the outer rim
+      for (i = 0; i < 36; i++) { c.save(); c.rotate(i / 36 * TAU); var mg = c.createLinearGradient(R - 2, 0, R + 18, 0); mg.addColorStop(0, '#8693a8'); mg.addColorStop(1, '#3a4456'); c.fillStyle = mg; c.fillRect(R - 2, -8, 18, 16); c.fillStyle = 'rgba(255,255,255,0.35)'; c.fillRect(R + 14, -8, 2, 16); c.restore(); }
+      // turret towers with barrels
+      for (i = 0; i < 6; i++) { c.save(); c.rotate(i / 6 * TAU + 0.78); c.translate(R + 6, 0);
+        var tg = c.createRadialGradient(-6, -6, 2, 0, 0, 24); tg.addColorStop(0, '#eef4fc'); tg.addColorStop(0.6, '#7d8aa0'); tg.addColorStop(1, '#2a3242'); c.fillStyle = tg; c.beginPath(); c.arc(0, 0, 22, 0, TAU); c.fill();
+        c.fillStyle = '#3a4456'; c.fillRect(8, -9, 34, 6); c.fillRect(8, 3, 34, 6); c.fillStyle = '#c9d4e4'; c.fillRect(8, -9, 34, 2); c.fillRect(8, 3, 34, 2);
+        c.fillStyle = 'rgba(125,255,176,0.9)'; c.beginPath(); c.arc(0, 0, 5, 0, TAU); c.fill(); c.restore(); }
+      // inner hub with reactor core
+      var hg = c.createRadialGradient(-20, -20, 6, 0, 0, 64); hg.addColorStop(0, '#e6edf7'); hg.addColorStop(0.5, '#7b879b'); hg.addColorStop(1, '#1e2532'); c.fillStyle = hg; c.beginPath(); c.arc(0, 0, 62, 0, TAU); c.fill();
+      c.strokeStyle = 'rgba(20,26,38,0.7)'; c.lineWidth = 2; c.beginPath(); c.arc(0, 0, 44, 0, TAU); c.stroke();
+      var cg = c.createRadialGradient(0, 0, 0, 0, 0, 34); cg.addColorStop(0, 'rgba(230,255,255,1)'); cg.addColorStop(0.35, 'rgba(110,220,255,0.95)'); cg.addColorStop(1, 'rgba(40,90,200,0)'); c.fillStyle = cg; c.beginPath(); c.arc(0, 0, 34, 0, TAU); c.fill();
+      // global lighting: sun from top-right, planet bounce from below, shadow lower-left
+      c.globalCompositeOperation = 'source-atop';
+      var L = c.createLinearGradient(R, -R, -R, R); L.addColorStop(0, 'rgba(255,236,210,0.28)'); L.addColorStop(0.5, 'rgba(0,0,0,0)'); L.addColorStop(1, 'rgba(0,8,24,0.55)'); c.fillStyle = L; c.fillRect(-w, -h, w * 2, h * 2);
+      var B = c.createLinearGradient(0, R * 0.4, 0, R * 1.3); B.addColorStop(0, 'rgba(90,170,255,0)'); B.addColorStop(1, 'rgba(90,170,255,0.3)'); c.fillStyle = B; c.fillRect(-w, -h, w * 2, h * 2);
+      c.globalCompositeOperation = 'source-over';
+    });
+  }
+  function titleLogo() {
+    var w = 820 * S, h = 230 * S;
+    return mk(w, h, function (c) {
+      c.scale(S, S); c.textAlign = 'center'; c.textBaseline = 'alphabetic';
+      c.font = '900 132px "Arial Black", Impact, system-ui, sans-serif';
+      var g = c.createLinearGradient(0, 22, 0, 150); g.addColorStop(0, '#ffffff'); g.addColorStop(0.45, '#cfdcef'); g.addColorStop(0.52, '#6f819c'); g.addColorStop(0.8, '#b9c8de'); g.addColorStop(1, '#e8f0fb');
+      c.shadowColor = 'rgba(80,170,255,0.55)'; c.shadowBlur = 26; c.fillStyle = '#0b1424'; c.fillText('RAMPART', 410, 146); c.shadowBlur = 0;
+      c.lineJoin = 'round'; c.lineWidth = 10; c.strokeStyle = '#0a1220'; c.strokeText('RAMPART', 410, 140);
+      c.fillStyle = g; c.fillText('RAMPART', 410, 140);
+      c.lineWidth = 2; c.strokeStyle = 'rgba(160,215,255,0.9)'; c.strokeText('RAMPART', 410, 140);
+      // gold plaque
+      var px = 190, py = 166, pw = 440, ph = 46, pg = c.createLinearGradient(0, py, 0, py + ph); pg.addColorStop(0, '#ffe7a0'); pg.addColorStop(0.5, '#d29a2e'); pg.addColorStop(1, '#7a5212');
+      c.beginPath(); c.moveTo(px + 18, py); c.lineTo(px + pw - 18, py); c.lineTo(px + pw, py + ph / 2); c.lineTo(px + pw - 18, py + ph); c.lineTo(px + 18, py + ph); c.lineTo(px, py + ph / 2); c.closePath(); c.fillStyle = pg; c.fill(); c.lineWidth = 2; c.strokeStyle = '#fff1c2'; c.stroke();
+      c.font = '800 26px system-ui, sans-serif'; c.fillStyle = '#2a1a04'; c.fillText('S P A C E   E D I T I O N', 410, py + 33);
+    });
+  }
   function drawTitle() {
     var t = G.t, cx = WW / 2 + 140;
-    text('RAMPART', cx, 230, 112, '#e6f0ff', 'center', 900);
-    text('S P A C E   E D I T I O N', cx, 312, 30, '#ffd36a', 'center', 800);
-    text('Fortify the station. Arm the turrets. Hold the line.', cx, 362, 18, '#cfe0ff', 'center', 600);
-    text('24 levels  \u2022  lasers, torpedoes, railguns, plasma  \u2022  pirates, wormholes, a black hole and a supernova', cx, 392, 14, '#9fb6e6', 'center', 600);
+    if (!SPR.titleSt) SPR.titleSt = titleStationSprite(); if (!SPR.logo) SPR.logo = titleLogo();
+    // comet streaking across the top (slow, soft)
+    var ck = (t * 0.045) % 1, ccx = 1700 - ck * 2000, ccy = 70 + ck * 260; ctx.save(); ctx.globalCompositeOperation = 'lighter';
+    var tg = ctx.createLinearGradient(ccx, ccy, ccx + 300, ccy - 39); tg.addColorStop(0, 'rgba(200,235,255,0.55)'); tg.addColorStop(1, 'rgba(120,180,255,0)'); ctx.strokeStyle = tg; ctx.lineCap = 'round'; ctx.lineWidth = 10; ctx.beginPath(); ctx.moveTo(ccx, ccy); ctx.lineTo(ccx + 300, ccy - 39); ctx.stroke(); ctx.lineWidth = 3; ctx.stroke();
+    softGlow(ccx, ccy, 26, '210,240,255', 0.6); ctx.restore(); ctx.fillStyle = '#eaf6ff'; ctx.beginPath(); ctx.arc(ccx, ccy, 4, 0, TAU); ctx.fill();
+    // the station: soft shield bubble, then the fortress itself
+    var stx = 255, sty = 405, ssc = 0.64; ctx.save(); ctx.globalCompositeOperation = 'lighter'; softGlow(stx, sty, 330 * ssc, '90,170,255', 0.10); ctx.restore();
+    ctx.strokeStyle = 'rgba(140,200,255,0.18)'; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(stx, sty, 300 * ssc, 0, TAU); ctx.stroke();
+    ctx.save(); ctx.translate(stx, sty); ctx.rotate(Math.sin(t * 0.15) * 0.04); var sw2 = SPR.titleSt.width / S * ssc, sh3 = SPR.titleSt.height / S * ssc; ctx.drawImage(SPR.titleSt, -sw2 / 2, -sh3 / 2, sw2, sh3); ctx.restore();
+    ctx.save(); ctx.globalCompositeOperation = 'lighter'; softGlow(stx, sty, 46, '110,220,255', 0.35 + 0.05 * Math.sin(t * 1.2)); ctx.restore();
+    // a skirmish: ships to the right, steady thin lasers + torpedo trails (no flashes)
+    var ships = [[1250, 620, 0.9], [1380, 700, 0.75], [1180, 740, 0.8], [1460, 560, 0.7]];
+    ships.forEach(function (sh, i) { var bx = sh[0] + Math.sin(t * 0.5 + i) * 30, by = sh[1] + Math.cos(t * 0.4 + i * 2) * 22; sh.x = bx; sh.y = by; spr(i === 3 ? SPR.bomber : SPR.fighter, bx, by, 0, sh[2]); });
+    ctx.save(); ctx.globalCompositeOperation = 'lighter'; ctx.lineCap = 'round';
+    for (var li = 0; li < 3; li++) { var ph = (t * 0.6 + li * 0.33) % 1, sh2 = ships[li], tw = 0.35 * Math.sin(ph * Math.PI), sa = li * 2.1 + 0.4, ox = stx + Math.cos(sa) * 250, oy = sty + Math.sin(sa) * 250;
+      ox = stx + 165 * Math.cos(0.2 + li * 0.35); oy = sty + 165 * Math.sin(0.2 + li * 0.35); ctx.strokeStyle = 'rgba(125,232,255,' + (0.25 + tw).toFixed(3) + ')'; ctx.lineWidth = 2.2; ctx.beginPath(); ctx.moveTo(ox, oy); ctx.lineTo(lerp(ox, sh2.x, 0.15 + ph * 0.85), lerp(oy, sh2.y, 0.15 + ph * 0.85)); ctx.stroke(); }
+    for (var ti = 0; ti < 2; ti++) { var tp = (t * 0.25 + ti * 0.5) % 1, ax = stx + 150, ay = sty + 60 + ti * 50, tx2 = ships[3 - ti * 2].x, ty2 = ships[3 - ti * 2].y, hx = lerp(ax, tx2, tp), hy2 = lerp(ay, ty2, tp) - Math.sin(tp * Math.PI) * 60;
+      for (var q = 0; q < 14; q++) { var tq = Math.max(0, tp - q * 0.012), qx = lerp(ax, tx2, tq), qy = lerp(ay, ty2, tq) - Math.sin(tq * Math.PI) * 60; ctx.fillStyle = 'rgba(255,170,90,' + (0.3 * (1 - q / 14)).toFixed(3) + ')'; ctx.beginPath(); ctx.arc(qx, qy, 4 - q * 0.2, 0, TAU); ctx.fill(); }
+      softGlow(hx, hy2, 16, '255,200,120', 0.7); }
+    ctx.restore();
+    // logo
+    var lw = SPR.logo.width / S, lh = SPR.logo.height / S; ctx.drawImage(SPR.logo, cx - lw / 2, 150, lw, lh);
+    text('Fortify the station. Arm the turrets. Hold the line.', cx, 400, 18, '#cfe0ff', 'center', 600);
+    text('24 levels  \u2022  lasers, torpedoes, railguns, plasma  \u2022  pirates, wormholes, a black hole and a supernova', cx, 428, 14, '#9fb6e6', 'center', 600);
     // start prompt is the HTML .start-btn (steady, flash-safe)
     var hy = 540; text('HIGH SCORES', cx, hy, 14, '#ffe2a0', 'center', 800);
     if (hiScores.length) hiScores.slice(0, 5).forEach(function (h, i) { text((i + 1) + '.  ' + h.s.toLocaleString() + '   LEVEL ' + (h.l === SECRET ? '???' : h.l), cx, hy + 24 + i * 20, 13, i ? '#9fb6e6' : '#e6f0ff', 'center'); });
@@ -867,7 +948,6 @@
     var sx = 1150 + Math.sin(t * 0.7) * 260, sy = 640 + Math.sin(t * 1.3) * 60; G.titleScout = { x: sx, y: sy }; spr(SPR.scout, sx, sy, Math.sin(t * 2) * 0.1);
     if (G.secretTaps > 0) text(G.secretTaps < 3 ? 'woof? (' + G.secretTaps + '/3)' : 'SECRET UNLOCKED', sx, sy - 34, 13, '#ffd36a', 'center');
     // a demo fleet drifting past
-    for (var i = 0; i < 5; i++) { var fx = ((t * 40 + i * 330) % 1900) - 150, fy = 160 + ((i * 173) % 560); spr(SPR.fighter, WW - fx, fy, 0, 0.8); }
   }
 
   /* ---------------- input: mouse, touch, keyboard, gamepad-free simple controls ---------------- */
