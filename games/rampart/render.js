@@ -537,7 +537,7 @@
     drawParts(x, G, t, 0);
     x.drawImage(A.land, 0, 0, W, Hh);
     x.drawImage(A.dyn, 0, -TILE, W, Hh + TILE);
-    if (G.claimFlash > 0) { x.save(); x.globalAlpha = G.claimFlash * 0.5; x.globalCompositeOperation = "lighter"; x.drawImage(A.dyn, 0, -TILE, W, Hh + TILE); x.restore(); }
+    if (G.claimFlash > 0) { x.save(); x.globalAlpha = G.claimFlash * 0.18; x.globalCompositeOperation = "lighter"; x.drawImage(A.dyn, 0, -TILE, W, Hh + TILE); x.restore(); }
     // fires on tiles
     var g = G.grid;
     for (var i = 0; i < g.fire.length; i++) if (g.fire[i] > 0) {
@@ -630,7 +630,7 @@
     if (w === "storm") {
       X.nextFlash -= 1 / 60; if (X.nextFlash < 0) { X.flash = 1; X.nextFlash = 6 + Math.random() * 9; if (G.onThunder) G.onThunder(); }
       x.fillStyle = "rgba(10,20,30,0.22)"; x.fillRect(0, 0, W, Hh);
-      if (X.flash > 0) { x.fillStyle = "rgba(230,240,255," + X.flash * 0.45 + ")"; x.fillRect(0, 0, W, Hh); X.flash -= 0.06; }
+      if (X.flash > 0) { var fa = Math.sin(Math.min(1, X.flash) * Math.PI) * 0.1; x.fillStyle = "rgba(200,215,235," + fa + ")"; x.fillRect(0, 0, W, Hh); X.flash -= 0.012; } // soft, slow sky glow (photosensitivity safe: no strobe)
     }
     if (w === "sunset") {
       var sg = x.createLinearGradient(0, 0, W, Hh); sg.addColorStop(0, "rgba(255,150,60,0.22)"); sg.addColorStop(0.6, "rgba(200,70,60,0.12)"); sg.addColorStop(1, "rgba(60,30,90,0.25)");
