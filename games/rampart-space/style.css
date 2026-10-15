@@ -1,0 +1,60 @@
+/* Rampart Space Edition: layout, toolbar, touch buttons, tutorial cards. Written by: Howie */
+html, body { margin: 0; padding: 0; height: 100%; background: #03040a; overflow: hidden; overscroll-behavior: none; }
+body { position: fixed; inset: 0; display: flex; flex-direction: column; color: #e6f0ff; font: 14px/1.35 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; touch-action: manipulation; -webkit-text-size-adjust: 100%; }
+[data-jsp-banner] { flex: none; }
+.toolbar { flex: none; display: flex; align-items: center; gap: 6px; padding: 5px 8px; background: linear-gradient(#070b18, #04060d); border-bottom: 1px solid #16234a; }
+.ttl { font: 800 14px/1 ui-monospace, Menlo, Consolas, monospace; letter-spacing: .14em; color: #9fe6ff; white-space: nowrap; }
+.ttl em { font-style: normal; color: #ffd36a; font-size: .8em; }
+.sp { flex: 1; }
+.tool { appearance: none; display: inline-flex; align-items: center; gap: 5px; height: 30px; padding: 0 11px; border-radius: 8px; border: 1px solid rgba(130, 190, 255, .35);
+  background: rgba(8, 14, 32, .8); color: #e6f0ff; text-decoration: none; font: 600 13px/1 system-ui, sans-serif; cursor: pointer; }
+.tool:hover { border-color: rgba(170, 220, 255, .85); }
+.tool.menu { border-color: rgba(255, 207, 90, .55); color: #ffe2a0; }
+.tool[aria-pressed="true"] { color: #ff9c8a; }
+@media (max-width: 700px) { .tool .lbl { display: none; } .tool { padding: 0 9px; } }
+@media (max-height: 460px) { .toolbar { padding: 2px 6px; } .tool { height: 26px; } .ttl { font-size: 12px; } }
+#stage { position: relative; flex: 1 1 auto; min-height: 0; display: flex; overflow: hidden; touch-action: none; }
+#wrap { position: relative; flex: 1 1 auto; min-height: 0; }
+#game { position: absolute; inset: 0; width: 100%; height: 100%; display: block; outline: none; touch-action: none; cursor: crosshair; }
+.bar { flex: none; height: 22px; display: flex; align-items: center; padding: 0 10px; font-size: 11px; color: #7f93bf; background: #03050b; border-top: 1px solid #101a36; white-space: nowrap; overflow: hidden; }
+body.is-touch .bar { display: none; }
+.noscript { padding: 20px; }
+#touch { position: absolute; right: max(10px, env(safe-area-inset-right)); bottom: max(10px, env(safe-area-inset-bottom)); z-index: 5; display: flex; flex-direction: column; gap: 10px; pointer-events: none; }
+#touch[hidden] { display: none; }
+.tbtn { pointer-events: auto; appearance: none; width: 74px; height: 74px; border-radius: 50%; border: 2px solid rgba(140, 200, 255, .7); background: radial-gradient(circle at 40% 35%, rgba(60, 120, 220, .55), rgba(6, 14, 40, .85));
+  color: #eaf4ff; font: 800 24px/1 system-ui, sans-serif; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; touch-action: none; -webkit-tap-highlight-color: transparent; opacity: .85; }
+.tbtn small { font-size: 9.5px; letter-spacing: .08em; }
+.tbtn.special { border-color: rgba(255, 210, 110, .8); background: radial-gradient(circle at 40% 35%, rgba(255, 180, 60, .5), rgba(50, 26, 4, .85)); }
+.tbtn.special.ready { box-shadow: 0 0 18px rgba(255, 200, 90, .6); }
+.tbtn.active { transform: scale(.94); }
+@media (max-height: 460px) { .tbtn { width: 62px; height: 62px; font-size: 20px; } }
+/* tutorial cards (same system as Rampart) */
+#tut { position: absolute; inset: 0; z-index: 40; pointer-events: none; }
+#tut[hidden] { display: none; }
+.tut-spot { position: absolute; border-radius: 12px; border: 3px solid #ffd86a; box-shadow: 0 0 0 4px rgba(0,0,0,.35), 0 0 22px 4px rgba(255,216,106,.6); animation: tutPulse 1.6s ease-in-out infinite; pointer-events: none; transition: left .2s, top .2s, width .2s, height .2s; }
+.tut-spot[hidden] { display: none; }
+@keyframes tutPulse { 50% { border-color: #fff3c4; } }
+@media (prefers-reduced-motion: reduce) { .tut-spot { animation: none; } }
+.tut-card { position: absolute; left: 50%; transform: translateX(-50%); bottom: 4%; width: min(600px, 92%); max-height: 60%; overflow: auto; box-sizing: border-box; pointer-events: auto;
+  padding: 12px 16px; border-radius: 14px; background: linear-gradient(170deg, rgba(14, 24, 54, .97), rgba(5, 8, 20, .97)); border: 1px solid #ffd36a; box-shadow: 0 12px 40px rgba(0, 0, 0, .7); font-size: 15px; }
+.tut-card.at-top { top: 4%; bottom: auto; }
+.tut-card.act { border-color: #8fe0ff; }
+.tut-card.small { width: min(420px, 70%); }
+.tut-step { font-size: .68em; letter-spacing: .1em; text-transform: uppercase; color: #9fb6e6; }
+.tut-new { display: inline-block; font: 800 10px ui-monospace, monospace; letter-spacing: .15em; color: #04060d; background: #ffd36a; border-radius: 4px; padding: 2px 6px; margin-right: 6px; }
+.tut-card h3 { margin: .15em 0 .25em; font: 800 1.25em/1.15 ui-monospace, Menlo, Consolas, monospace; color: #ffe2a0; letter-spacing: .03em; }
+.tut-card p { margin: 0 0 .45em; } .tut-card b { color: #ffd98a; }
+.tut-do { padding: .35em .6em; border-radius: 10px; background: rgba(120, 200, 255, .12); border: 1px solid rgba(140, 210, 255, .5); font-weight: 600; }
+.tut-do[hidden] { display: none; }
+.tut-do span { color: #9fe6ff; font-weight: 800; text-transform: uppercase; font-size: .8em; letter-spacing: .06em; }
+.tut-btns { display: flex; align-items: center; gap: 10px; margin-top: .4em; }
+.tut-btns .tut-sp { flex: 1; }
+.tut-btns button { appearance: none; cursor: pointer; border-radius: 10px; border: 1px solid #6fa8ff; background: #10204a; color: #eaf4ff; font: 700 14px system-ui, sans-serif; padding: 8px 14px; }
+.tut-btns button[hidden] { display: none; }
+.tut-btns .tut-next { background: #2a62d8; border-color: #9fd0ff; }
+.tut-btns .tut-skip { background: transparent; color: #9fb6e6; border-color: rgba(110, 160, 255, .4); }
+@media (max-height: 460px) { .tut-card { font-size: 13px; padding: 8px 12px; width: min(470px, 60%); left: 8px; transform: none; bottom: 8px; max-height: 80%; } .tut-card.at-top { top: 8px; } .tut-card h3 { font-size: 1.1em; } .tut-btns button { padding: 6px 10px; font-size: 13px; } }
+.how-btn { position: absolute; left: 50%; transform: translateX(-50%); bottom: 7%; z-index: 6; appearance: none; cursor: pointer; border-radius: 10px; border: 1px solid #ffd36a; background: rgba(16, 22, 48, .9); color: #ffe2a0; font: 700 14px system-ui, sans-serif; padding: 9px 16px; }
+.how-btn[hidden] { display: none; }
+.arcade-ov button.ov-how { appearance: none; cursor: pointer; }

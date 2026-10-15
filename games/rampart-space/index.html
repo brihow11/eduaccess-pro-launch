@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+  <title>Rampart Space Edition | EduAccess Arcade</title>
+  <meta name="description" content="Fortify an orbital station, place turrets and hold the line in space: 24 levels plus a secret one, lasers, photon torpedoes, railguns, black holes, wormholes, space pirates, a moon-cracking mothership and a supernova finale. Free in your browser.">
+  <meta name="theme-color" content="#03040a">
+  <meta name="arcade-controls" content="Click or tap to aim and fire, drag or tap to place, E switches weapon, Q special. Arrows or WASD move the aim, Space fires.">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 32 32%22%3E%3Crect width=%2232%22 height=%2232%22 rx=%226%22 fill=%22%2303040a%22/%3E%3Ccircle cx=%2222%22 cy=%2222%22 r=%229%22 fill=%22%232a6bd8%22/%3E%3Cpath d=%22M5 6h10v10H5z%22 fill=%22none%22 stroke=%22%239fe6ff%22 stroke-width=%222%22/%3E%3Ccircle cx=%2210%22 cy=%2211%22 r=%222%22 fill=%22%23ffd36a%22/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="/games/shared/banner.css">
+  <link rel="stylesheet" href="/games/rampart-space/style.css?v=1">
+  <link rel="stylesheet" href="/games/shared/scout-splash.css?v=20261005a">
+  <link rel="stylesheet" href="/games/shared/game-menu.css">
+</head>
+<!-- Written by: Howie -->
+<body>
+  <div data-jsp-banner></div>
+  <header class="toolbar" role="toolbar" aria-label="Game options">
+    <a class="tool menu" id="btn-menu" href="/games/" aria-label="Main menu" title="Main menu (all games)"><span aria-hidden="true">&#9776;</span> <span class="lbl">Main menu</span></a>
+    <span class="ttl" aria-hidden="true">RAMPART <em>SPACE EDITION</em></span>
+    <span class="sp"></span>
+    <button class="tool" id="btn-pause" type="button" title="Pause (P / Esc)">&#10074;&#10074; <span class="lbl">Pause</span></button>
+    <button class="tool" id="btn-mute" type="button" aria-pressed="false" title="Mute or unmute (M)">&#128266; <span class="lbl">Sound on</span></button>
+    <button class="tool" id="btn-full" type="button" title="Fullscreen (F)" aria-label="Fullscreen">&#x26F6;</button>
+  </header>
+  <main id="stage" aria-label="Rampart Space Edition game">
+    <div id="wrap">
+      <canvas id="game" tabindex="0" aria-label="Space station defense game. Click or tap to aim and fire. Drag or tap to place hull pieces and turrets. E switches weapon or rotates, Q fires the special weapon."></canvas>
+      <div id="touch" hidden>
+        <button class="tbtn" id="t-switch" type="button" aria-label="Switch weapon or rotate piece">&#8635;<small>SWITCH</small></button>
+        <button class="tbtn special" id="t-special" type="button" aria-label="Special weapon">&#10038;<small>SPECIAL</small></button>
+      </div>
+    </div>
+    <noscript><p class="noscript">This game needs JavaScript.</p></noscript>
+  </main>
+  <footer class="bar">
+    <span class="note">Fan-made space twist on the 1990 castle-and-cannon arcade game, built from scratch with original code, art and sound. Not affiliated with or endorsed by its makers.</span>
+  </footer>
+  <script src="/games/shared/banner.js"></script>
+  <script src="/games/shared/scout-splash.js?v=20261005a"></script>
+  <script src="/games/shared/game-menu.js?v=3"></script>
+  <script src="/games/rampart-space/game.js?v=1"></script>
+</body>
+</html>
