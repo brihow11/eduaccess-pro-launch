@@ -69,3 +69,45 @@ body.is-touch .bar { display: none; }
 .row { display: flex; gap: 8px; justify-content: flex-end; }
 .pbtn { appearance: none; padding: 8px 14px; border-radius: 8px; border: 1px solid #2d7a45; background: #0b2a14; color: #e6ffec; font: 600 13.5px system-ui, sans-serif; cursor: pointer; }
 .pbtn.primary { background: #1f9a45; border-color: #4ff07c; }
+
+/* ---------- campaign map, briefing, upgrades and tutorial cards (camp.js) ---------- */
+.bzc { position: absolute; inset: 0; z-index: 20; display: flex; align-items: center; justify-content: center; background: radial-gradient(ellipse at 50% 40%, rgba(4, 30, 12, 0.88), rgba(0, 0, 0, 0.96)); padding: max(8px, env(safe-area-inset-top)) 10px 8px; box-sizing: border-box; overflow: auto; }
+.bzc[hidden] { display: none; }
+.bzc-inner { width: min(1500px, 100%); max-height: 100%; display: flex; flex-direction: column; gap: 8px; }
+.bzc-head { display: flex; justify-content: space-between; align-items: flex-end; gap: 10px; }
+.bzc-op { font: 800 clamp(16px, 2.4vw, 34px)/1 ui-monospace, Menlo, Consolas, monospace; letter-spacing: 0.12em; color: #ffd36a; text-shadow: 0 0 14px rgba(255, 200, 80, 0.35); }
+.bzc-sub, .bzc-stat { font-size: clamp(11px, 1.2vw, 16px); color: #9fd6ab; }
+.bzc-map { width: 100%; height: auto; max-height: 50vh; border: 1px solid #1f6e35; border-radius: 12px; background: #010603; }
+.bzc-reg { font: 700 12px ui-monospace, Menlo, Consolas, monospace; letter-spacing: 0.08em; }
+.bzc-ico { font: 700 14px system-ui, sans-serif; } .bzc-num { font: 700 11px ui-monospace, monospace; }
+.bzc-pulse { animation: bzcPulse 2.4s ease-in-out infinite; transform-origin: center; }
+@keyframes bzcPulse { 0%, 100% { opacity: 0.35; transform: scale(0.9); } 50% { opacity: 0.85; transform: scale(1.1); } }
+@media (prefers-reduced-motion: reduce) { .bzc-pulse { animation: none; opacity: 0.7; } }
+.bzc-low { display: grid; grid-template-columns: 1.2fr 1fr; gap: 12px; }
+.bzc-brief, .bzc-act { background: linear-gradient(170deg, #06200d, #020a04); border: 1px solid #1f6e35; border-radius: 12px; padding: 10px 14px; }
+.bzc-brief h3 { margin: 2px 0 4px; font: 800 clamp(16px, 2vw, 28px)/1.1 ui-monospace, Menlo, monospace; color: #fff; letter-spacing: 0.06em; }
+.bzc-brief p { margin: 0 0 4px; font-size: clamp(12.5px, 1.25vw, 18px); color: #dcffe2; }
+.bzc-type { font: 700 12px ui-monospace, monospace; letter-spacing: 0.1em; text-transform: uppercase; }
+.bzc-ups { color: #9ec8ff !important; font-size: 12.5px !important; }
+.bzc-pickh { font-size: 12px; color: #ffd36a; margin-bottom: 4px; }
+.bzc-picks { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-bottom: 8px; }
+.bzc-pick { appearance: none; text-align: left; padding: 8px; border-radius: 10px; border: 1px solid #2d7a45; background: #0b2a14; color: #e6ffec; cursor: pointer; font: 12px/1.3 system-ui, sans-serif; display: flex; flex-direction: column; gap: 3px; }
+.bzc-pick b { color: #ffd36a; font-size: 12.5px; } .bzc-pick:hover, .bzc-pick:focus-visible { border-color: #ffd36a; outline: none; background: #153a1d; }
+.bzc-btns { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+.bzc-go { appearance: none; padding: 12px 26px; border-radius: 10px; border: 1px solid #4ff07c; background: #1f9a45; color: #fff; font: 800 16px system-ui, sans-serif; cursor: pointer; letter-spacing: 0.04em; }
+.bzc-go:disabled { opacity: 0.4; cursor: default; } .bzc-go:focus-visible { outline: 2px solid #ffd36a; outline-offset: 2px; }
+.bzc-alt { appearance: none; padding: 10px 14px; border-radius: 10px; border: 1px solid rgba(255, 207, 90, 0.55); background: rgba(2, 14, 6, 0.72); color: #ffe2a0; font: 600 13px system-ui, sans-serif; text-decoration: none; cursor: pointer; }
+@media (max-height: 520px), (max-width: 760px) {
+  .bzc-map { max-height: 48vh; } .bzc-low { grid-template-columns: 1fr 1fr; gap: 8px; } .bzc-brief, .bzc-act { padding: 6px 10px; }
+  .bzc-brief p { font-size: 12px; } .bzc-picks { grid-template-columns: 1fr; gap: 4px; } .bzc-pick span { display: none; } .bzc-pick { padding: 6px 8px; }
+  .bzc-go { padding: 9px 18px; font-size: 14px; } .bzc-head { display: none; }
+}
+@media (max-width: 520px) and (orientation: portrait) { .bzc-low { grid-template-columns: 1fr; } }
+.bzc-tip { position: absolute; inset: 0; z-index: 30; display: flex; align-items: flex-end; justify-content: center; padding: 0 12px 18%; background: rgba(0, 0, 0, 0.35); pointer-events: auto; }
+.bzc-tip[hidden] { display: none; }
+.bzc-tipc { width: min(520px, 100%); background: linear-gradient(170deg, #0a2a12, #020a04); border: 1px solid #ffd36a; border-radius: 14px; padding: 12px 16px; box-shadow: 0 10px 40px rgba(0, 0, 0, 0.7); }
+.bzc-tipk { display: inline-block; font: 800 10px ui-monospace, monospace; letter-spacing: 0.15em; color: #020a04; background: #ffd36a; border-radius: 4px; padding: 2px 6px; }
+.bzc-tipc h4 { margin: 6px 0 4px; font: 800 18px ui-monospace, Menlo, monospace; color: #fff; letter-spacing: 0.05em; }
+.bzc-tipc p { margin: 0 0 10px; font-size: 14.5px; color: #dcffe2; }
+.bzc-tipc button { appearance: none; padding: 9px 18px; border-radius: 9px; border: 1px solid #4ff07c; background: #1f9a45; color: #fff; font: 700 14px system-ui, sans-serif; cursor: pointer; }
+@media (max-height: 520px) { .bzc-tip { padding-bottom: 8px; align-items: flex-end; } .bzc-tipc { padding: 8px 12px; } .bzc-tipc h4 { font-size: 15px; margin: 4px 0 2px; } .bzc-tipc p { margin-bottom: 6px; } .bzc-tipc p { font-size: 13px; } }
