@@ -1,5 +1,5 @@
 /* Battlezone tribute: a real 3D wireframe tank battle seen through a periscope. Perspective-projected
-   vector models, radar sweep, volcano-and-mountain horizon, 12 levels of tanks, supertanks, missiles
+   vector models, radar sweep, volcano-and-mountain horizon, 13-mission campaign (Operation Iron Dawn) of tanks, supertanks, missiles
    and saucers. Original code, art, sound and music, built from scratch. Written by: Howie */
 (function () {
   'use strict';
@@ -165,22 +165,53 @@
   window.addEventListener('pointerdown', function () { A.unlock(); }, true);
 
   /* ---------------- levels ---------------- */
-  var LEVELS = [
-    { name: 'FIRST CONTACT', quota: 3, tanks: 1, superP: 0, missile: 0, saucer: 0, fire: 3.4, aim: 0.3, spd: 0.8, obst: 26, layout: 'scatter' },
-    { name: 'OPEN PLAIN', quota: 4, tanks: 1, superP: 0, missile: 0, saucer: 0.35, fire: 3.0, aim: 0.4, spd: 0.88, obst: 14, layout: 'sparse' },
-    { name: 'BLOCK FIELD', quota: 4, tanks: 1, superP: 0.15, missile: 0, saucer: 0.3, fire: 2.8, aim: 0.45, spd: 0.92, obst: 44, layout: 'rows' },
-    { name: 'MISSILE ALERT', quota: 5, tanks: 1, superP: 0.1, missile: 26, saucer: 0.25, fire: 2.7, aim: 0.5, spd: 0.95, obst: 30, layout: 'scatter' },
-    { name: 'TWIN THREAT', quota: 6, tanks: 2, superP: 0.15, missile: 0, saucer: 0.3, fire: 2.6, aim: 0.5, spd: 1.0, obst: 34, layout: 'ring' },
-    { name: 'SUPERTANK RIDGE', quota: 5, tanks: 1, superP: 0.65, missile: 30, saucer: 0.25, fire: 2.3, aim: 0.6, spd: 1.02, obst: 30, layout: 'pyramids' },
-    { name: 'NIGHT CROSSING', quota: 6, tanks: 2, superP: 0.3, missile: 22, saucer: 0.4, fire: 2.2, aim: 0.6, spd: 1.06, obst: 22, layout: 'sparse' },
-    { name: 'PYRAMID VALLEY', quota: 7, tanks: 2, superP: 0.35, missile: 20, saucer: 0.3, fire: 2.1, aim: 0.65, spd: 1.1, obst: 52, layout: 'pyramids' },
-    { name: 'IRON TIDE', quota: 8, tanks: 2, superP: 0.45, missile: 18, saucer: 0.3, fire: 2.0, aim: 0.7, spd: 1.12, obst: 40, layout: 'maze' },
-    { name: 'SAUCER SKIES', quota: 8, tanks: 3, superP: 0.4, missile: 16, saucer: 0.8, fire: 1.9, aim: 0.72, spd: 1.15, obst: 34, layout: 'ring' },
-    { name: 'CRATER STORM', quota: 9, tanks: 3, superP: 0.5, missile: 14, saucer: 0.4, fire: 1.75, aim: 0.78, spd: 1.2, obst: 46, layout: 'rows' },
-    { name: 'LAST STAND', quota: 10, tanks: 3, superP: 0.65, missile: 11, saucer: 0.5, fire: 1.6, aim: 0.85, spd: 1.26, obst: 44, layout: 'maze' }
+  /* Campaign "Operation Iron Dawn": 13 missions across 5 regions, each with its own objective. */
+  var BIOMES = {
+    plains: { name: 'EMERALD PLAINS', bg: '#031408', sky: 'moon', col: null },
+    dunes: { name: 'AMBER DUNES', bg: '#140c02', sky: 'sun', col: { green: ['rgba(255,190,60,', '#ffeec4'], dim: ['rgba(220,150,40,', '#e8bc72'], faint: ['rgba(160,100,20,', '#a07e44'] } },
+    glacier: { name: 'GLACIER PASS', bg: '#021018', sky: 'aurora', col: { green: ['rgba(90,220,255,', '#e0f8ff'], dim: ['rgba(60,170,220,', '#84cbea'], faint: ['rgba(40,110,160,', '#4e8aac'] } },
+    ash: { name: 'ASH WASTES', bg: '#0e0414', sky: 'ash', col: { green: ['rgba(230,130,255,', '#f6e2ff'], dim: ['rgba(170,90,210,', '#c8a0e4'], faint: ['rgba(110,60,150,', '#8460a4'] } },
+    citadel: { name: 'THE IRON CITADEL', bg: '#120e04', sky: 'citadel', col: { green: ['rgba(255,225,150,', '#fff8e8'], dim: ['rgba(220,190,120,', '#e8d6aa'], faint: ['rgba(150,130,80,', '#a49064'] } }
+  };
+  var MISSIONS = [
+    { name: 'FIRST CONTACT', biome: 'plains', type: 'destroy', quota: 3, tanks: 1, superP: 0, missile: 0, saucer: 0, fire: 3.4, aim: 0.3, spd: 0.8, obst: 26, layout: 'scatter',
+      brief: 'The Iron Legion has crossed the border. Prove the 7th Armored is still in the fight: knock out 3 scout tanks.', debrief: 'Scouts down. Command is sending you east.' },
+    { name: 'SUPPLY LINES', biome: 'plains', type: 'depots', depots: 3, tanks: 1, superP: 0, missile: 0, saucer: 0.3, fire: 3.0, aim: 0.4, spd: 0.88, obst: 22, layout: 'sparse',
+      brief: 'Three Legion fuel depots feed the front. Follow the orange radar marks and destroy all 3.', debrief: 'Depots burning. The Legion front stalls.' },
+    { name: 'CONVOY RUN', biome: 'plains', type: 'escort', route: 650, convoyHp: 10, tanks: 1, superP: 0.1, missile: 0, saucer: 0.3, fire: 2.9, aim: 0.45, spd: 0.9, obst: 30, layout: 'scatter',
+      brief: 'A supply convoy must reach the forward camp. Stay close (it waits for you) and keep enemy shells off it.', debrief: 'Convoy delivered. The road to the dunes is open.' },
+    { name: 'MISSILE ALERT', biome: 'dunes', type: 'destroy', quota: 5, tanks: 1, superP: 0.1, missile: 26, saucer: 0.25, fire: 2.7, aim: 0.5, spd: 0.95, obst: 30, layout: 'scatter',
+      brief: 'The Legion fields guided missiles in the Amber Dunes. Destroy 5 tanks and shoot the missiles before they reach you.', debrief: 'Missile crews scattered. Scouts report an oasis under threat.' },
+    { name: 'HOLD THE OASIS', biome: 'dunes', type: 'defend', hold: 70, baseHp: 12, tanks: 2, superP: 0.15, missile: 0, saucer: 0.3, fire: 2.6, aim: 0.5, spd: 1.0, obst: 28, layout: 'ring',
+      brief: 'Our water station at the oasis is the only one for 200 km. Defend the base until the timer runs out.', debrief: 'The oasis holds. Engineers fit your tank for the cold.' },
+    { name: 'FUEL DUMPS', biome: 'dunes', type: 'depots', depots: 4, depotHp: 2, tanks: 2, superP: 0.25, missile: 30, saucer: 0.3, fire: 2.4, aim: 0.55, spd: 1.02, obst: 34, layout: 'pyramids',
+      brief: 'Four armored fuel dumps fuel the Legion advance. Each takes 2 hits. Burn them all.', debrief: 'Without fuel, the Legion pulls back to the glacier.' },
+    { name: 'ICE ROAD', biome: 'glacier', type: 'escort', route: 800, convoyHp: 12, tanks: 2, superP: 0.3, missile: 24, saucer: 0.3, fire: 2.3, aim: 0.6, spd: 1.05, obst: 26, layout: 'sparse',
+      brief: 'Escort the bridge-layer across Glacier Pass. Missiles will come for you, tanks for the convoy.', debrief: 'Bridge laid. Something huge is moving on the ice.' },
+    { name: 'SUPERTANK RIDGE', biome: 'glacier', type: 'destroy', quota: 6, tanks: 2, superP: 0.65, missile: 22, saucer: 0.3, fire: 2.2, aim: 0.62, spd: 1.08, obst: 40, layout: 'pyramids',
+      brief: 'Supertanks guard the ridge. They are fast and turn quickly. Destroy 6 tanks.', debrief: 'The ridge is ours. The Crawler is coming.' },
+    { name: 'THE CRAWLER', biome: 'glacier', type: 'boss', boss: 'crawler', bossHp: 10, tanks: 1, superP: 0.3, missile: 18, saucer: 0, fire: 2.2, aim: 0.65, spd: 1.08, obst: 30, layout: 'scatter',
+      brief: 'BOSS: the Crawler, a land fortress with triple cannons. Keep moving and hit it 10 times.', debrief: 'The Crawler is scrap. On to the Ash Wastes.' },
+    { name: 'LAST BRIDGE', biome: 'ash', type: 'defend', hold: 85, baseHp: 14, tanks: 3, superP: 0.4, missile: 20, saucer: 0.3, fire: 2.0, aim: 0.7, spd: 1.12, obst: 36, layout: 'maze',
+      brief: 'Hold the last bridge into the wastes while our column crosses. Defend the base until the timer runs out.', debrief: 'The column is across. The Legion\'s eyes are its radar masts.' },
+    { name: 'BLIND THE LEGION', biome: 'ash', type: 'depots', depots: 5, depotHp: 2, depotKind: 'mast', tanks: 3, superP: 0.45, missile: 16, saucer: 0.8, fire: 1.9, aim: 0.72, spd: 1.15, obst: 34, layout: 'ring',
+      brief: 'Five radar masts warn the Citadel. Each takes 2 hits. Saucers fill the sky here: shoot them for big points.', debrief: 'The Citadel is blind. One road left.' },
+    { name: 'THROUGH THE FIRE', biome: 'ash', type: 'escort', route: 900, convoyHp: 14, tanks: 3, superP: 0.5, missile: 15, saucer: 0.4, fire: 1.8, aim: 0.78, spd: 1.2, obst: 40, layout: 'rows',
+      brief: 'Escort the siege engine to the Citadel walls. This is the hardest road of the war.', debrief: 'The siege engine is in place. Time to end this.' },
+    { name: 'IRON CITADEL', biome: 'citadel', type: 'boss', boss: 'citadel', bossHp: 12, gens: 3, tanks: 3, superP: 0.6, missile: 14, saucer: 0.4, fire: 1.7, aim: 0.85, spd: 1.25, obst: 30, layout: 'sparse',
+      brief: 'FINALE: the Citadel is shielded by 3 generators. Destroy the generators, then hit the Citadel core 12 times.', debrief: 'The Citadel has fallen. The war is over.' }
   ];
-  var PTS = { tank: 1000, super: 3000, missile: 2000, saucer: 5000 };
-  var S = 2400, EYE = 2.5, NEAR = 0.7, RADAR_RANGE = 1100;
+  var LEVELS = MISSIONS;
+  var UPGRADES = {
+    armor: { name: 'ARMOR PLATE', max: 2, desc: 'Absorbs one hit each time you deploy or respawn.' },
+    reload: { name: 'AUTOLOADER', max: 2, desc: 'Faster reload and one more shell in flight.' },
+    engine: { name: 'TURBO ENGINE', max: 2, desc: 'Drive 20% faster.' },
+    shells: { name: 'HV SHELLS', max: 2, desc: 'Shells fly 25% faster and farther.' },
+    radar: { name: 'LONG RADAR', max: 1, desc: 'Radar sees 35% farther.' },
+    repair: { name: 'FIELD REPAIR', max: 99, desc: 'Gain one extra tank (life).' }
+  };
+  var PTS = { tank: 1000, super: 3000, missile: 2000, saucer: 5000, depot: 1500, crawler: 20000, citadel: 50000 };
+  var S = 2400, EYE = 2.5, NEAR = 0.7, RADAR_RANGE = 1100, BASE_RADAR = 1100;
 
   /* ---------------- 3D models (local: x right, y up, z forward) ---------------- */
   function Model() { return { v: [], e: [] }; }
@@ -190,7 +221,7 @@
   function join(m, a, b) { for (var i = 0; i < a.length; i++) m.e.push([a[i], b[i]]); }
   function box(m, x0, x1, y0, y1, z0, z1) { join(m, ring(m, y0, x0, x1, z0, z1), ring(m, y1, x0, x1, z0, z1)); }
   function circle(m, cx, cy, cz, r, n, axis) {
-    var pts = []; for (var i = 0; i < n; i++) { var a = i / n * TAU, u = Math.cos(a) * r, w = Math.sin(a) * r; pts.push(axis === 'z' ? [cx + u, cy + w, cz] : [cx + u, cy, cz + w]); }
+    var pts = []; for (var i = 0; i < n; i++) { var a = i / n * TAU, u = Math.cos(a) * r, w = Math.sin(a) * r; pts.push(axis === 'z' ? [cx + u, cy + w, cz] : axis === 'x' ? [cx, cy + u, cz + w] : [cx + u, cy, cz + w]); }
     return loop(m, pts, true);
   }
   var MODELS = {};
@@ -225,15 +256,46 @@
     m = Model(); box(m, -5.5, 5.5, 0, 4.5, -5.5, 5.5); loop(m, [[-5.5, 4.5, -5.5], [5.5, 4.5, 5.5]]); m.solid = true; MODELS.slab = m;
     m = Model(); var base = ring(m, 0, -4.5, 4.5, -4.5, 4.5), apx = vtx(m, 0, 9, 0); base.forEach(function (i) { m.e.push([i, apx]); }); m.solid = true; MODELS.pyramid = m;
     m = Model(); base = ring(m, 0, -3, 3, -3, 3); apx = vtx(m, 0, 14, 0); base.forEach(function (i) { m.e.push([i, apx]); }); m.solid = true; MODELS.spire = m;
+    m = Model(); // fuel depot: two tanks on a pad with a pipe bridge
+    box(m, -6, 6, 0, 0.6, -4, 4);
+    [-3, 3].forEach(function (x) { var lo = circle(m, x, 0.6, 0, 2.4, 10, 'y'), hi = circle(m, x, 5.0, 0, 2.4, 10, 'y'); for (var q = 0; q < 10; q += 2) m.e.push([lo[q], hi[q]]); var cap = circle(m, x, 5.8, 0, 1.2, 10, 'y'); for (q = 0; q < 10; q += 2) m.e.push([hi[q], cap[q]]); });
+    loop(m, [[-3, 4.2, 0], [-3, 6.8, 0], [3, 6.8, 0], [3, 4.2, 0]]);
+    MODELS.depot = m; m.solid = true;
+    m = Model(); // radar mast: lattice tower with a dish
+    var mb = ring(m, 0, -2.5, 2.5, -2.5, 2.5), mt = ring(m, 14, -0.8, 0.8, -0.8, 0.8); join(m, mb, mt);
+    var mm = ring(m, 7, -1.65, 1.65, -1.65, 1.65); m.e.push([mb[0], mm[1]], [mb[1], mm[0]], [mb[2], mm[3]], [mb[3], mm[2]]);
+    loop(m, [[-3.2, 15.5, 0], [-1.6, 17.4, 0], [1.6, 17.4, 0], [3.2, 15.5, 0], [0, 14, 0]], true); loop(m, [[0, 14, 0], [0, 16.2, 1.8]]);
+    MODELS.mast = m; m.solid = true;
+    m = Model(); // convoy truck: cab, cargo box and wheels
+    box(m, -1.6, 1.6, 0.6, 3.4, -4.2, 1.6); box(m, -1.5, 1.5, 0.6, 2.6, 1.8, 4.2); loop(m, [[-1.5, 2.6, 3.0], [1.5, 2.6, 3.0]]);
+    [-3, 0, 3.3].forEach(function (z) { circle(m, -1.7, 0.6, z, 0.6, 8, 'x'); circle(m, 1.7, 0.6, z, 0.6, 8, 'x'); });
+    MODELS.truck = m; m.solid = true;
+    m = Model(); // friendly base: bunker dome, antenna and flag
+    var d0 = circle(m, 0, 0, 0, 8, 16, 'y'), d1 = circle(m, 0, 3.2, 0, 6.2, 16, 'y'), d2 = circle(m, 0, 5.4, 0, 3, 16, 'y'), dt2 = vtx(m, 0, 6.2, 0);
+    for (var q = 0; q < 16; q += 2) { m.e.push([d0[q], d1[q]], [d1[q], d2[q]], [d2[q], dt2]); }
+    loop(m, [[0, 6.2, 0], [0, 13, 0], [3.4, 12.2, 0], [0, 11.4, 0]]);
+    MODELS.base = m; m.solid = true;
+    m = Model(); // the Crawler: a huge low fortress tank with three turrets
+    a = ring(m, 0.3, -7, 7, -11, 9); b = loop(m, [[-8, 3, -12], [8, 3, -12], [8, 3, 10], [0, 3, 15], [-8, 3, 10]], true); join(m, a.concat([a[3]]).slice(0, 5), b);
+    cc = loop(m, [[-6, 4.6, -10], [6, 4.6, -10], [6, 4.6, 8], [0, 4.6, 11], [-6, 4.6, 8]], true); join(m, b, cc);
+    [[-3.5, -5], [3.5, -5], [0, 3]].forEach(function (t) { var tx = t[0], tz = t[1]; box(m, tx - 1.8, tx + 1.8, 4.6, 7, tz - 2, tz + 2); box(m, tx - 0.3, tx + 0.3, 5.6, 6.2, tz + 2, tz + 8); });
+    for (q = -9; q <= 7; q += 4) { loop(m, [[-8.4, 0.3, q], [-8.4, 2.6, q + 2]]); loop(m, [[8.4, 0.3, q], [8.4, 2.6, q + 2]]); }
+    MODELS.crawler = m; m.solid = true;
+    m = Model(); // the Iron Citadel: stepped keep with four towers and a core spire
+    var s0 = ring(m, 0, -22, 22, -22, 22), s1 = ring(m, 8, -18, 18, -18, 18), s2 = ring(m, 8, -14, 14, -14, 14), s3 = ring(m, 18, -11, 11, -11, 11), s4 = ring(m, 18, -6, 6, -6, 6);
+    join(m, s0, s1); join(m, s2, s3); m.e.push([s1[0], s2[0]], [s1[1], s2[1]], [s1[2], s2[2]], [s1[3], s2[3]]); join(m, s3, s4);
+    var cp = vtx(m, 0, 34, 0); s4.forEach(function (i2) { m.e.push([i2, cp]); });
+    [[-22, -22], [22, -22], [22, 22], [-22, 22]].forEach(function (t) { box(m, t[0] - 3, t[0] + 3, 0, 16, t[1] - 3, t[1] + 3); var tp = vtx(m, t[0], 21, t[1]); var tr = ring(m, 16, t[0] - 3, t[0] + 3, t[1] - 3, t[1] + 3); tr.forEach(function (i2) { m.e.push([i2, tp]); }); });
+    MODELS.citadel = m; m.solid = true;
     m = Model(); loop(m, [[0, 0.5, 0], [0.5, 0, 0], [0, -0.5, 0], [-0.5, 0, 0]], true);
     var tip = vtx(m, 0, 0, 1.3), tail = vtx(m, 0, 0, -0.9); [0, 1, 2, 3].forEach(function (i) { m.e.push([i, tip], [i, tail]); }); MODELS.shell = m;
   })();
-  var OBST_R = { cube: 5.4, slab: 7.2, pyramid: 5.6, spire: 4 };
+  var OBST_R = { cube: 5.4, slab: 7.2, pyramid: 5.6, spire: 4, depot: 7.5, mast: 4.5 };
 
   /* ---------------- state ---------------- */
   var G = { state: 'title', level: 1, score: 0, lives: 3, nextLife: 25000, t: 0, paused: false, foes: [], shells: [], obst: [], debris: [], sparks: [], specks: [], lava: [],
     P: { x: 0, z: 0, a: 0, v: 0 }, kills: 0, spawnT: 0, missileT: 0, saucerT: 0, msg: '', msg2: '', msgT: 0, shake: 0, recoil: 0, stateT: 0, dead: false, deadT: 0, cracks: [], crackAt: [0, 0],
-    blockedT: 0, sweep: 0, god: false, tip: '', tipT: 0, stats: { shots: 0, hits: 0, tanks: 0, supers: 0, missiles: 0, saucers: 0 }, newHi: false, fireCd: 0, pop: null };
+    blockedT: 0, sweep: 0, god: false, tip: '', tipT: 0, stats: { shots: 0, hits: 0, tanks: 0, supers: 0, missiles: 0, saucers: 0 }, newHi: false, fireCd: 0, pop: null, up: {}, armor: 0, depots: [], allies: [], obj: null, hold: 0, missionT: 0, failT: 0 };
   var hiScores = K.store.get('bz.hiscores', []);
   function best() { return hiScores.length ? hiScores[0].s : 0; }
   function rnd(a, b) { return a + Math.random() * (b - a); }
@@ -277,22 +339,88 @@
 
   function isBlocked(x, z, r, self) {
     for (var i = 0; i < G.obst.length; i++) { var o = G.obst[i]; if (Math.hypot(wrapd(o.x - x), wrapd(o.z - z)) < o.r + r) return o; }
-    for (i = 0; i < G.foes.length; i++) { var f = G.foes[i]; if (f === self || f.k === 'saucer' || f.k === 'missile') continue; if (Math.hypot(wrapd(f.x - x), wrapd(f.z - z)) < 4.6 + r) return f; }
+    for (i = 0; i < G.depots.length; i++) { o = G.depots[i]; if (Math.hypot(wrapd(o.x - x), wrapd(o.z - z)) < o.r + r) return o; }
+    for (i = 0; i < G.allies.length; i++) { o = G.allies[i]; if (o !== self && Math.hypot(wrapd(o.x - x), wrapd(o.z - z)) < o.r + r) return o; }
+    for (i = 0; i < G.foes.length; i++) { var f = G.foes[i]; if (f === self || f.k === 'saucer' || f.k === 'missile') continue; if (Math.hypot(wrapd(f.x - x), wrapd(f.z - z)) < (f.r || 4.6) + r) return f; }
     return null;
   }
 
-  function startGame() {
-    G.score = 0; G.lives = 3; G.nextLife = 25000; G.stats = { shots: 0, hits: 0, tanks: 0, supers: 0, missiles: 0, saucers: 0 }; G.newHi = false;
-    Sfx.start(); startLevel(1);
+  function upLv(k) { return G.up[k] || 0; }
+  function saveCamp(n) { K.store.set('bz.camp', { m: n, up: G.up, score: G.score, lives: G.lives, nextLife: G.nextLife, stats: G.stats }); }
+  function startGame(fresh) {
+    var sv = K.store.get('bz.camp', null);
+    G.score = 0; G.lives = 3; G.nextLife = 25000; G.stats = { shots: 0, hits: 0, tanks: 0, supers: 0, missiles: 0, saucers: 0, depots: 0, bosses: 0 }; G.newHi = false; G.up = {};
+    var n = 1;
+    if (!fresh && sv && sv.m > 1 && sv.m <= MISSIONS.length) { n = sv.m; G.up = sv.up || {}; G.score = sv.score || 0; G.lives = sv.lives || 3; G.nextLife = sv.nextLife || 25000; G.stats = sv.stats || G.stats; }
+    else K.store.set('bz.camp', null);
+    Sfx.start(); openMap(n, false, n > 1);
+  }
+  // campaign map + briefing between missions (DOM overlay in camp.js); falls back to straight play
+  function openMap(n, pick, resumed) {
+    G.state = 'map'; silence(); I.clear(); Music.play('title');
+    G.level = n; applyBiome(MISSIONS[n - 1].biome);
+    if (!window.BZCamp) { startLevel(n); return; }
+    BZCamp.open({ missions: MISSIONS, biomes: BIOMES, upgrades: UPGRADES, next: n, up: G.up, pick: pick, resumed: resumed, score: G.score, lives: G.lives,
+      onPick: function (k) { if (k === 'repair') G.lives = Math.min(6, G.lives + 1); else G.up[k] = upLv(k) + 1; saveCamp(n); },
+      onRestart: function () { startGame(true); },
+      onDeploy: function () { saveCamp(n); startLevel(n); } });
+  }
+  var BIO_DEFAULT = null;
+  function applyBiome(k) {
+    if (!BIO_DEFAULT) BIO_DEFAULT = { green: COL.green, dim: COL.dim, faint: COL.faint };
+    var b = BIOMES[k] || BIOMES.plains, cs = b.col || BIO_DEFAULT; G.biome = k;
+    COL.green = cs.green; COL.dim = cs.dim; COL.faint = cs.faint; if (bgCanvas) buildBg();
+  }
+  function placeObjectives(L, n) {
+    G.depots = []; G.allies = []; G.obj = { type: L.type }; var r = seeded(n * 104729 + 7), i;
+    function clearAround(x, z, rad) { G.obst = G.obst.filter(function (o) { return Math.hypot(wrapd(o.x - x), wrapd(o.z - z)) > rad + o.r; }); }
+    if (L.type === 'depots' || (L.type === 'boss' && L.gens)) {
+      var cnt = L.depots || L.gens, a0 = r() * TAU;
+      for (i = 0; i < cnt; i++) {
+        var a = a0 + i / cnt * TAU + (r() - 0.5) * 0.5, d = L.gens ? 120 : 260 + r() * 320, cz = L.gens ? 560 : 0;
+        var x = Math.sin(a) * d, z = cz + Math.cos(a) * d; clearAround(x, z, 22);
+        var kd = L.gens ? 'mast' : (L.depotKind || 'depot');
+        G.depots.push({ x: x, z: z, k: kd, a: r() * TAU, r: OBST_R[kd], hp: L.gens ? 3 : (L.depotHp || 1), gen: !!L.gens });
+      }
+      G.obj.total = cnt;
+    }
+    if (L.type === 'escort') {
+      for (i = 0; i < 12; i++) clearAround(0, 40 + i * L.route / 11, 26);
+      G.allies.push({ k: 'truck', x: 0, z: 40, a: 0, r: 4.4, hp: L.convoyHp, max: L.convoyHp, ally: true });
+      G.obj.dest = { x: 0, z: 40 + L.route }; G.obj.route = L.route;
+    }
+    if (L.type === 'defend') { clearAround(0, 50, 40); G.allies.push({ k: 'base', x: 0, z: 50, a: 0, r: 9, hp: L.baseHp, max: L.baseHp, ally: true, fixed: true }); G.hold = L.hold; }
+    if (L.type === 'boss') {
+      if (L.boss === 'crawler') { G.obj.boss = { k: 'crawler', x: 0, z: 460, a: Math.PI, cd: 4, hp: L.bossHp, max: L.bossHp, r: 13, radar: 0, ping: 0, mode: 'approach', modeT: 3, off: 0, dir: 1, mcd: 10 }; }
+      else { clearAround(0, 560, 60); G.obj.boss = { k: 'citadel', x: 0, z: 560, a: 0, cd: 3, hp: L.bossHp, max: L.bossHp, r: 26, radar: 0, ping: 0, mcd: 12, fixed: true }; }
+      G.foes.push(G.obj.boss);
+    }
   }
   function startLevel(n) {
     G.level = n; var L = LEVELS[n - 1];
     G.state = 'play'; G.stateT = 0; G.foes = []; G.shells = []; G.debris = []; G.sparks = []; G.kills = 0; G.dead = false; G.cracks = [];
     G.P = { x: 0, z: 0, a: 0, v: 0 }; G.obst = buildField(L, n); G.specks = buildSpecks(n);
+    applyBiome(L.biome); placeObjectives(L, n); G.armor = upLv('armor'); G.missionT = 0; G.failT = 0;
+    RADAR_RANGE = BASE_RADAR * (1 + 0.35 * upLv('radar'));
     G.spawnT = 2.5; G.missileT = L.missile ? L.missile * 0.6 : 0; G.saucerT = rnd(14, 26);
-    G.msg = 'LEVEL ' + n; G.msg2 = L.name; G.msgT = 2.8;
+    G.msg = 'MISSION ' + n; G.msg2 = L.name; G.msgT = 2.8;
     if (n === 1 && !K.store.get('bz.tipSeen', false)) { G.tip = K.isTouch ? 'WATCH THE RADAR - TURN TO FACE THE RED BLIP' : 'WATCH THE RADAR - TURN UNTIL THE ENEMY IS IN YOUR SIGHTS'; G.tipT = 7; K.store.set('bz.tipSeen', true); }
     I.clear(); Music.play('game', true);
+    if (window.BZCamp) { BZCamp.close(); BZCamp.tips(missionTips(L, n)); }
+  }
+  function missionTips(L, n) {
+    var t = [];
+    if (n === 1) t.push(['move', 'HOW TO DRIVE', K.isTouch ? 'Use the pad to drive and turn. Tap FIRE to shoot. Turn until the red radar blip is straight ahead.' : 'Up and Down drive, Left and Right turn, Space fires. Hold Shift for fine aim. Turn until the red radar blip is straight ahead.']);
+    var O = { destroy: ['DESTROY MISSION', 'Knock out the number of enemy tanks shown at the top right.'],
+      depots: ['DEPOT RAID', 'Targets show as orange squares on the radar. The arrow under the radar points to the nearest one. Shoot each until it burns.'],
+      escort: ['ESCORT MISSION', 'Protect the blue convoy. It only drives while you stay within 220 m, and enemy tanks will shoot at it. Get it to the camp.'],
+      defend: ['DEFEND MISSION', 'Keep the blue base standing until the timer runs out. Tanks will aim at the base, so hunt them down fast.'],
+      boss: L.boss === 'citadel' ? ['THE CITADEL', 'A gold shield protects the Citadel. Destroy the 3 generator masts (orange on radar), then hit the core.'] : ['BOSS: THE CRAWLER', 'It fires three shells at once. Keep moving sideways, and watch its armor bar at the top.'] };
+    t.push([L.type + (L.type === 'boss' ? L.boss : ''), O[L.type][0], O[L.type][1]]);
+    if (L.missile) t.push(['missile', 'NEW THREAT: MISSILES', 'A missile alarm means a guided missile is coming. It zig-zags and hops over blocks. Shoot it or dodge late.']);
+    if (L.superP >= 0.3) t.push(['super', 'NEW THREAT: SUPERTANKS', 'Supertanks are fast, turn quickly and fire more often. Worth 3000 points.']);
+    if (L.saucer) t.push(['saucer', 'BONUS: SAUCERS', 'Saucers do not shoot and do not show on radar. Hit one for 5000 points.']);
+    return t;
   }
   function addScore(p) {
     if (G.state !== 'play' && G.state !== 'clear') return;
@@ -315,13 +443,14 @@
   function enemyCount() { var n = 0; G.foes.forEach(function (f) { if (f.k === 'tank' || f.k === 'super') n++; }); return n; }
 
   function fireShell(from, a, enemy) {
-    var sp = enemy ? 150 : 270, nx = Math.sin(a), nz = Math.cos(a), off = enemy ? 6 : 3;
-    G.shells.push({ x: from.x + nx * off, z: from.z + nz * off, y: 1.9, vx: nx * sp, vz: nz * sp, a: a, t: enemy ? 4.2 : 2.3, enemy: enemy });
+    var sp = enemy ? 150 : 270 * (1 + 0.25 * upLv('shells')), nx = Math.sin(a), nz = Math.cos(a), off = enemy ? 6 : 3;
+    G.shells.push({ x: from.x + nx * off, z: from.z + nz * off, y: 1.9, vx: nx * sp, vz: nz * sp, a: a, t: enemy ? 4.2 : 2.3 * (1 + 0.15 * upLv('shells')), enemy: enemy });
   }
   function playerFire() {
     if (G.dead || G.fireCd > 0) return;
-    for (var i = 0; i < G.shells.length; i++) if (!G.shells[i].enemy) return; // one shell in flight, as on the cabinet
-    fireShell(G.P, G.P.a, false); G.fireCd = 0.25; G.recoil = 1; G.stats.shots++; Sfx.fire();
+    var mine = 0; for (var i = 0; i < G.shells.length; i++) if (!G.shells[i].enemy) mine++;
+    if (mine > upLv('reload')) return; // one shell in flight, as on the cabinet (the autoloader adds more)
+    fireShell(G.P, G.P.a, false); G.fireCd = 0.25 * (1 - 0.25 * upLv('reload')); G.recoil = 1; G.stats.shots++; Sfx.fire();
   }
 
   function burst(x, y, z, n, sp, col) { for (var i = 0; i < n && G.sparks.length < 600; i++) { var a = rnd(0, TAU), e = rnd(-0.3, 1.2), v = rnd(0.3, 1) * sp; G.sparks.push({ x: x, y: y, z: z, vx: Math.cos(a) * Math.cos(e) * v, vy: Math.sin(e) * v, vz: Math.sin(a) * Math.cos(e) * v, t: rnd(0.4, 1.1), m: 1.1, col: col }); } }
@@ -335,7 +464,7 @@
       G.debris.push({ x: f.x + wx, y: y0 + my, z: f.z + wz, hx: hx * ca + hz * sa, hy: hy, hz: -hx * sa + hz * ca, vx: wx / out * rnd(6, 22), vy: rnd(10, 26), vz: wz / out * rnd(6, 22), spin: rnd(-6, 6), t: rnd(1.8, 2.8) });
     }
     burst(f.x, y0 + 1.5, f.z, 60, 30, 'lava'); burst(f.x, y0 + 1.5, f.z, 30, 18, 'green');
-    (G.rings = G.rings || []).push({ x: f.x, z: f.z, R: 26, t: 0.7, m: 0.7 }); G.flashW = 0.12;
+    (G.rings = G.rings || []).push({ x: f.x, z: f.z, R: 26, t: 0.7, m: 0.7 });
   }
   function camOf(o) { var r = rel(o), ca = Math.cos(G.P.a), sa = Math.sin(G.P.a); return [r.x * ca - r.z * sa, r.x * sa + r.z * ca]; }
   function killFoe(i, byPlayer) {
@@ -346,11 +475,13 @@
       if (f.k === 'tank' || f.k === 'super') { G.kills++; G.spawnT = rnd(2, 3.5); if (f.k === 'tank') G.stats.tanks++; else G.stats.supers++; }
       if (f.k === 'missile') G.stats.missiles++;
       if (f.k === 'saucer') G.stats.saucers++;
+      if (f.k === 'crawler' || f.k === 'citadel') { G.stats.bosses = (G.stats.bosses || 0) + 1; for (var bi = 0; bi < 4; bi++) burst(f.x + rnd(-14, 14), rnd(4, 14), f.z + rnd(-14, 14), 50, 26, bi % 2 ? 'gold' : 'lava'); }
       G.pop = { txt: String(PTS[f.k]), t: 1.2 };
     }
   }
   function killPlayer(cause) {
     if (G.dead || G.god) return;
+    if (G.armor > 0) { G.armor--; G.shake = 9; Sfx.small(0); burst(G.P.x + Math.sin(G.P.a) * 6, 2, G.P.z + Math.cos(G.P.a) * 6, 24, 16, 'gold'); G.msg = 'ARMOR HIT'; G.msg2 = G.armor ? G.armor + ' PLATE LEFT' : 'NO ARMOR LEFT'; G.msgT = 1.6; return; }
     G.dead = true; G.deadT = 0; G.lives--; G.shake = 16;
     var dx = 0; if (cause) { var q = camOf(cause); dx = K.clamp(Math.atan2(q[0], Math.max(1, q[1])) / 1.2, -0.7, 0.7); }
     makeCracks(W / 2 + dx * W * 0.4 + rnd(-40, 40), HY + rnd(-60, 20));
@@ -381,11 +512,14 @@
 
   /* ---------------- update ---------------- */
   function updateFoe(f, dt, L) {
-    var P = G.P, d = dist(f, P), want = bearing(f, P);
+    if (f.k === 'crawler' || f.k === 'citadel') { updateBoss(f, dt, L); return; }
+    var P = G.P;
+    if ((f.k === 'tank' || f.k === 'super') && G.allies.length) { if (f.tgt == null) f.tgt = Math.random() < (L.type === 'defend' ? 0.6 : 0.5) ? 0 : -1; if (f.tgt >= 0 && G.allies[f.tgt]) P = G.allies[f.tgt]; }
+    var d = dist(f, P), want = bearing(f, P);
     if (f.k === 'tank' || f.k === 'super') {
       var sup = f.k === 'super', spd = (sup ? 30 : 15) * L.spd, turn = (sup ? 1.35 : 0.75) * L.spd;
       f.radar += dt * 3; f.modeT -= dt; f.cd -= dt;
-      var aimErr = wrapA(want - f.a), facing = Math.abs(wrapA(bearing(P, f) - P.a));
+      var aimErr = wrapA(want - f.a), facing = Math.abs(wrapA(bearing(G.P, f) - G.P.a));
       if (f.mode !== 'evade' && facing < 0.06 && d < 600 && Math.random() < dt * (0.4 + L.aim * 0.8)) { f.mode = 'evade'; f.modeT = rnd(1, 2); f.dir = Math.random() < 0.5 ? -1 : 1; }
       var tgtA = f.a, move = 0;
       if (f.mode === 'approach') { tgtA = want + f.off * K.clamp(d / 500, 0, 1); move = d > (sup ? 140 : 220) ? 1 : 0; if (move === 0 || f.modeT <= 0) { f.mode = 'aim'; f.modeT = rnd(2.5, 4.5); } }
@@ -394,7 +528,7 @@
       var da = wrapA(tgtA - f.a); f.a += K.clamp(da, -turn * dt, turn * dt);
       if (move) {
         var nx = f.x + Math.sin(f.a) * spd * move * dt, nz = f.z + Math.cos(f.a) * spd * move * dt;
-        if (!isBlocked(nx, nz, 4.2, f) && Math.hypot(wrapd(nx - P.x), wrapd(nz - P.z)) > 14) { f.x = nx; f.z = nz; }
+        if (!isBlocked(nx, nz, 4.2, f) && Math.hypot(wrapd(nx - G.P.x), wrapd(nz - G.P.z)) > 14) { f.x = nx; f.z = nz; }
         else { f.a += turn * dt * 2 * f.dir; if (f.mode !== 'evade') { f.mode = 'evade'; f.modeT = rnd(0.8, 1.5); f.dir = Math.random() < 0.5 ? -1 : 1; } }
       }
       if (G.state === 'play' && !G.dead && f.cd <= 0 && Math.abs(aimErr) < 0.07 && d < 640) {
@@ -403,6 +537,7 @@
         var q = camOf(f); Sfx.enemyFire(panOfRel(q[0], q[1]), d);
       }
     } else if (f.k === 'missile') {
+      d = dist(f, G.P); want = bearing(f, G.P);
       var ms = 82 * L.spd; f.ph += dt * 2.6;
       var zig = d > 160 ? Math.sin(f.ph) * 0.6 : 0;
       f.a += K.clamp(wrapA(want + zig - f.a), -2.6 * dt, 2.6 * dt);
@@ -416,6 +551,77 @@
       if (f.turnT <= 0) { f.vx = rnd(-18, 18); f.vz = rnd(-18, 18); f.turnT = rnd(1.5, 3); }
       f.x += f.vx * dt; f.z += f.vz * dt; f.y = 5.5 + Math.sin(G.t * 1.7) * 1.2;
     }
+  }
+  function updateBoss(f, dt, L) {
+    var P = G.P, d = dist(f, P), want = bearing(f, P);
+    f.cd -= dt; f.mcd -= dt; f.radar += dt * 2; if (f.hitT > 0) f.hitT -= dt;
+    if (f.k === 'crawler') {
+      var da = wrapA(want + (d < 170 ? 0.9 : 0) - f.a); f.a += K.clamp(da, -0.45 * dt, 0.45 * dt);
+      if (d > 120) { var nx = f.x + Math.sin(f.a) * 9 * L.spd * dt, nz = f.z + Math.cos(f.a) * 9 * L.spd * dt; if (!isBlocked(nx, nz, 12, f)) { f.x = nx; f.z = nz; } else { G.obst = G.obst.filter(function (o) { return Math.hypot(wrapd(o.x - nx), wrapd(o.z - nz)) > o.r + 14; }); } }
+    } else f.a = want;
+    var shield = f.k === 'citadel' && G.depots.length > 0; f.shield = shield;
+    if (G.state === 'play' && !G.dead && d < 720 && f.cd <= 0 && Math.abs(wrapA(want - f.a)) < 0.35) {
+      var org = { x: f.x + Math.sin(want) * f.r * 0.6, z: f.z + Math.cos(want) * f.r * 0.6 };
+      [-0.11, 0, 0.11].forEach(function (o) { fireShell(org, want + o + rnd(-0.02, 0.02), true); });
+      f.cd = (f.k === 'citadel' ? 2.2 : 2.6) * rnd(0.85, 1.2); var q = camOf(f); Sfx.enemyFire(panOfRel(q[0], q[1]), d * 0.6);
+    }
+    if (L.missile && f.mcd <= 0 && !G.foes.some(function (m) { return m.k === 'missile'; })) { spawnMissile(); f.mcd = L.missile * rnd(0.7, 1); }
+  }
+  function progress(L) {
+    if (L.type === 'destroy') return G.kills / L.quota;
+    if (L.type === 'depots') return 1 - G.depots.length / Math.max(1, G.obj.total);
+    if (L.type === 'escort') return G.allies[0] ? (G.allies[0].z - 40) / G.obj.route : 0;
+    if (L.type === 'defend') return 1 - G.hold / L.hold;
+    if (L.type === 'boss') return G.obj.boss ? 1 - G.obj.boss.hp / G.obj.boss.max : 0;
+    return 0;
+  }
+  function objective() { // HUD line + world target for the guide arrow
+    var L = LEVELS[G.level - 1], o = G.obj || {}, t = null, txt = '';
+    if (L.type === 'destroy') txt = 'TANKS ' + Math.min(G.kills, L.quota) + '/' + L.quota;
+    else if (L.type === 'depots') { txt = 'TARGETS ' + (o.total - G.depots.length) + '/' + o.total; var nd = 1e9; G.depots.forEach(function (d) { var dd = dist(d, G.P); if (dd < nd) { nd = dd; t = d; } }); }
+    else if (L.type === 'escort') { var cv = G.allies[0]; if (cv) { txt = 'CONVOY ' + Math.round(100 * Math.max(0, cv.hp) / cv.max) + '%  ' + Math.max(0, Math.round(o.dest.z - cv.z)) + 'M'; t = o.waiting ? cv : null; } }
+    else if (L.type === 'defend') { var b = G.allies[0], sec = Math.ceil(G.hold); txt = 'HOLD ' + Math.floor(sec / 60) + ':' + ('0' + sec % 60).slice(-2) + (b ? '  BASE ' + Math.round(100 * Math.max(0, b.hp) / b.max) + '%' : ''); if (b && dist(b, G.P) > 300) t = b; }
+    else if (L.type === 'boss') { var bs = o.boss; txt = (bs && bs.k === 'citadel' ? (G.depots.length ? 'GENERATORS ' + G.depots.length : 'CORE ') : 'CRAWLER ') ; if (bs && bs.k === 'citadel' && G.depots.length) { var nd2 = 1e9; G.depots.forEach(function (d) { var dd = dist(d, G.P); if (dd < nd2) { nd2 = dd; t = d; } }); } else t = bs && bs.hp > 0 ? bs : null; }
+    return { txt: txt, t: t };
+  }
+  function objDone() {
+    var L = LEVELS[G.level - 1];
+    if (L.type === 'destroy') return G.kills >= L.quota;
+    if (L.type === 'depots') return G.depots.length === 0;
+    if (L.type === 'escort') return G.obj.arrived;
+    if (L.type === 'defend') return G.hold <= 0;
+    if (L.type === 'boss') return G.obj.boss && G.obj.boss.hp <= 0;
+    return false;
+  }
+  function updateObjectives(dt, L) {
+    if (L.type === 'escort' && G.allies[0]) {
+      var cv = G.allies[0], dd = G.obj.dest, dz = dd.z - cv.z, near = dist(cv, G.P) < 220;
+      G.obj.waiting = !near;
+      if (near && dz > 0) { var blocked = isBlocked(cv.x, cv.z + 5, 4, cv); if (!blocked || blocked === cv) cv.z += Math.min(dz, 10 * dt); else cv.z += Math.min(dz, 4 * dt); }
+      if (dz <= 0.5) G.obj.arrived = true;
+    }
+    if (L.type === 'defend') G.hold = Math.max(0, G.hold - dt);
+    for (var i = 0; i < G.allies.length; i++) if (G.allies[i].hp <= 0) return 'failed';
+    return null;
+  }
+  function hitAlly(o, sh) {
+    o.hp--; o.hitT = 0.6; burst(sh.x, 2, sh.z, 18, 14, 'ally'); var q = camOf(o); Sfx.small(panOfRel(q[0], q[1]));
+    if (o.hp <= 0) { shatter(o); Sfx.boom(panOfRel(q[0], q[1]), true); }
+    else if (o.hp === Math.ceil(o.max / 3)) { G.msg = o.k === 'base' ? 'BASE CRITICAL' : 'CONVOY CRITICAL'; G.msg2 = 'PROTECT IT'; G.msgT = 1.8; }
+  }
+  function hitDepot(i, sh) {
+    var o = G.depots[i]; o.hp--; burst(sh.x, 3, sh.z, 20, 16, 'lava'); var q = camOf(o);
+    if (o.hp > 0) { Sfx.small(panOfRel(q[0], q[1])); G.pop = { txt: 'HIT', t: 0.8 }; return; }
+    G.depots.splice(i, 1); o.y = 0; shatter(o); Sfx.boom(panOfRel(q[0], q[1]), true); addScore(PTS.depot); G.stats.depots = (G.stats.depots || 0) + 1; G.pop = { txt: String(PTS.depot), t: 1.2 };
+    var left = G.depots.length;
+    if (o.gen) { G.msg = left ? 'GENERATOR DOWN' : 'SHIELD DOWN'; G.msg2 = left ? left + ' LEFT' : 'HIT THE CITADEL CORE'; }
+    else { G.msg = left ? 'TARGET DESTROYED' : 'ALL TARGETS DOWN'; G.msg2 = left ? left + ' LEFT' : ''; }
+    G.msgT = 2;
+  }
+  function hitBoss(f, sh, j) {
+    if (f.shield) { burst(sh.x, sh.y, sh.z, 14, 12, 'gold'); G.pop = { txt: 'SHIELDED', t: 0.9 }; Sfx.small(0); return; }
+    f.hp--; f.hitT = 0.25; burst(sh.x, sh.y + 2, sh.z, 30, 20, 'lava'); var q = camOf(f); Sfx.boom(panOfRel(q[0], q[1]), false); G.stats.hits++; addScore(500); G.pop = { txt: '500', t: 0.8 };
+    if (f.hp <= 0) killFoe(j, true);
   }
   function update(dt) {
     G.t += dt; G.sweep = (G.sweep + dt * 2.4) % TAU;
@@ -431,7 +637,7 @@
     var P = G.P, L = LEVELS[G.level - 1] || LEVELS[0];
 
     if ((G.state === 'play' || G.state === 'clear') && !G.dead) {
-      var tv = (I.isDown('fwd') ? 30 : 0) - (I.isDown('back') ? 20 : 0);
+      var spdK = 1 + 0.2 * upLv('engine'), tv = (I.isDown('fwd') ? 30 * spdK : 0) - (I.isDown('back') ? 20 * spdK : 0);
       P.v += K.clamp(tv - P.v, -70 * dt, 70 * dt);
       var turn = aimTurn(dt);
       P.a = wrapA(P.a + turn * dt + aimAssist(dt));
@@ -449,34 +655,39 @@
       if (G.dead) {
         G.deadT += dt;
         if (G.deadT > 3.2) {
-          if (G.lives <= 0) { G.state = 'over'; G.stateT = 0; recordScore(); Music.play('over', true); }
+          if (G.lives <= 0) { G.state = 'over'; G.stateT = 0; recordScore(); K.store.set('bz.camp', null); Music.play('over', true); }
           else { // respawn: push the enemy back to the horizon
-            G.dead = false; G.cracks = []; G.shells = [];
-            G.foes = G.foes.filter(function (f) { return f.k === 'tank' || f.k === 'super'; });
-            G.foes.forEach(function (f) { var p = spawnPoint(480, 800); f.x = p.x; f.z = p.z; f.cd = rnd(3, 5); f.mode = 'approach'; });
+            G.dead = false; G.cracks = []; G.shells = []; G.armor = upLv('armor');
+            G.foes = G.foes.filter(function (f) { return f.k === 'tank' || f.k === 'super' || f.k === 'crawler' || f.k === 'citadel'; });
+            G.foes.forEach(function (f) { if (f.k === 'crawler' || f.k === 'citadel') { f.cd = 5; return; } var p = spawnPoint(480, 800); f.x = p.x; f.z = p.z; f.cd = rnd(3, 5); f.mode = 'approach'; });
             G.missileT = Math.max(G.missileT, 10); G.msg = 'READY'; G.msg2 = G.lives + (G.lives === 1 ? ' TANK LEFT' : ' TANKS LEFT'); G.msgT = 2;
           }
         }
       } else {
         var active = enemyCount();
-        if (active < L.tanks && G.kills + active < L.quota) { G.spawnT -= dt; if (G.spawnT <= 0) { spawnTank(); G.spawnT = rnd(3, 6); } }
+        if (active < L.tanks && (L.type !== 'destroy' || G.kills + active < L.quota)) { G.spawnT -= dt; if (G.spawnT <= 0) { spawnTank(); G.spawnT = rnd(3, 6); } }
         if (L.missile) { G.missileT -= dt; if (G.missileT <= 0 && !G.foes.some(function (f) { return f.k === 'missile'; })) { spawnMissile(); G.missileT = L.missile * rnd(0.8, 1.2); } }
         if (L.saucer) { G.saucerT -= dt; if (G.saucerT <= 0) { if (Math.random() < L.saucer && !G.foes.some(function (f) { return f.k === 'saucer'; })) spawnSaucer(); G.saucerT = rnd(16, 28); } }
-        if (G.kills >= L.quota) {
+        var fail = updateObjectives(dt, L); G.missionT += dt;
+        if (fail) { G.state = 'failed'; G.stateT = 0; G.shells = []; G.msg = 'MISSION FAILED'; G.msg2 = G.lives > 1 ? 'RETRYING - COSTS ONE TANK' : 'NO TANKS LEFT'; G.msgT = 3; Music.play('over', true); }
+        else if (objDone()) {
           G.state = 'clear'; G.stateT = 0; G.shells = G.shells.filter(function (sh) { return !sh.enemy; });
           G.foes = G.foes.filter(function (f) { return f.k === 'saucer'; });
-          G.msg = 'LEVEL ' + G.level + ' CLEARED'; G.msg2 = 'ACCURACY ' + Math.round(100 * G.stats.hits / Math.max(1, G.stats.shots)) + '%'; G.msgT = 2.6;
+          G.msg = 'MISSION ' + G.level + ' COMPLETE'; G.msg2 = 'ACCURACY ' + Math.round(100 * G.stats.hits / Math.max(1, G.stats.shots)) + '%'; G.msgT = 2.6;
           Music.play('clear', true);
         }
       }
-      Music.setRate(1 + 0.6 * K.clamp(G.kills / L.quota, 0, 1));
+      Music.setRate(1 + 0.6 * K.clamp(progress(L), 0, 1));
     } else if (G.state === 'clear') {
       G.stateT += dt;
       if (G.stateT > 2.6) {
         engineL.set(0);
-        if (G.level >= LEVELS.length) { G.state = 'victory'; G.stateT = 0; recordScore(); Music.play('victory', true); I.clear(); }
+        if (G.level >= LEVELS.length) { G.state = 'victory'; G.stateT = 0; recordScore(); K.store.set('bz.camp', null); Music.play('victory', true); I.clear(); }
         else showSplash(false);
       }
+    } else if (G.state === 'failed') {
+      G.stateT += dt;
+      if (G.stateT > 3) { G.lives--; if (G.lives <= 0) { G.state = 'over'; G.stateT = 0; recordScore(); K.store.set('bz.camp', null); Music.play('over', true); } else { var keep = G.lives; startLevel(G.level); G.lives = keep; } }
     } else if (G.state === 'over') {
       G.stateT += dt; if (G.stateT > 3) showSplash(true);
     } else if (G.state === 'victory') {
@@ -488,7 +699,7 @@
       if (I.hit('start') || I.hit('fire')) startGame();
     }
 
-    if (G.state !== 'title' && G.state !== 'splash') G.foes.slice().forEach(function (f) { updateFoe(f, dt, L); });
+    if (G.state !== 'title' && G.state !== 'splash' && G.state !== 'map') G.foes.slice().forEach(function (f) { updateFoe(f, dt, L); });
     G.foes = G.foes.filter(function (f) { return f.k !== 'saucer' || f.life > 0; });
 
     // shells
@@ -496,7 +707,10 @@
       var sh = G.shells[i]; sh.x += sh.vx * dt; sh.z += sh.vz * dt; sh.t -= dt;
       var gone = sh.t <= 0;
       for (var j = 0; j < G.obst.length && !gone; j++) { var ob = G.obst[j]; if (Math.hypot(wrapd(ob.x - sh.x), wrapd(ob.z - sh.z)) < ob.r) { gone = true; burst(sh.x, sh.y, sh.z, 12, 14, 'green'); var q0 = camOf(sh); Sfx.small(panOfRel(q0[0], q0[1])); } }
-      if (!gone && !sh.enemy) for (j = G.foes.length - 1; j >= 0; j--) { var f = G.foes[j], fy = f.k === 'saucer' ? f.y - 3 : f.k === 'missile' ? f.y : (f.y || 0) + 1.5; if (Math.hypot(wrapd(f.x - sh.x), wrapd(f.z - sh.z)) < f.r + 0.8 && Math.abs(fy - sh.y) < 4.5) { killFoe(j, true); gone = true; break; } }
+      for (j = G.depots.length - 1; j >= 0 && !gone; j--) { var dp = G.depots[j]; if (Math.hypot(wrapd(dp.x - sh.x), wrapd(dp.z - sh.z)) < dp.r + 0.8) { gone = true; if (!sh.enemy) hitDepot(j, sh); else burst(sh.x, sh.y, sh.z, 8, 10, 'lava'); } }
+      for (j = 0; j < G.allies.length && !gone; j++) { var al = G.allies[j]; if (al.hp > 0 && Math.hypot(wrapd(al.x - sh.x), wrapd(al.z - sh.z)) < al.r + 0.8) { gone = true; if (sh.enemy && G.state === 'play') hitAlly(al, sh); else burst(sh.x, sh.y, sh.z, 6, 8, 'ally'); } }
+      if (!gone && !sh.enemy) for (j = G.foes.length - 1; j >= 0; j--) { var bf = G.foes[j]; if ((bf.k === 'crawler' || bf.k === 'citadel') && Math.hypot(wrapd(bf.x - sh.x), wrapd(bf.z - sh.z)) < bf.r + 1) { hitBoss(bf, sh, j); gone = true; break; } }
+      if (!gone && !sh.enemy) for (j = G.foes.length - 1; j >= 0; j--) { var f = G.foes[j]; if (f.k === 'crawler' || f.k === 'citadel') continue; var fy = f.k === 'saucer' ? f.y - 3 : f.k === 'missile' ? f.y : (f.y || 0) + 1.5; if (Math.hypot(wrapd(f.x - sh.x), wrapd(f.z - sh.z)) < f.r + 0.8 && Math.abs(fy - sh.y) < 4.5) { killFoe(j, true); gone = true; break; } }
       if (!gone && sh.enemy && G.state === 'play' && !G.dead && Math.hypot(wrapd(P.x - sh.x), wrapd(P.z - sh.z)) < 4.2) { gone = true; killPlayer(sh); }
       if (gone) G.shells.splice(i, 1);
     }
@@ -532,16 +746,16 @@
   function showSplash(lost, victory) {
     G.state = 'splash'; Music.stop(0.3); silence();
     var acc = Math.round(100 * G.stats.hits / Math.max(1, G.stats.shots));
-    var title = victory ? 'ALL 12 LEVELS CLEARED' : lost ? 'GAME OVER' : 'LEVEL ' + G.level + ' CLEARED';
-    var sub = 'Score ' + G.score.toLocaleString() + (lost && !victory ? ' \u2022 reached level ' + G.level : ' \u2022 accuracy ' + acc + '%') + (G.newHi ? ' \u2022 new high score' : '');
-    var done = function () { I.clear(); if (lost || victory) toTitle(); else startLevel(G.level + 1); };
+    var title = victory ? 'THE CITADEL HAS FALLEN' : lost ? 'GAME OVER' : 'MISSION ' + G.level + ' COMPLETE';
+    var sub = 'Score ' + G.score.toLocaleString() + (lost && !victory ? ' \u2022 reached mission ' + G.level : ' \u2022 accuracy ' + acc + '%') + (G.newHi ? ' \u2022 new high score' : '');
+    var done = function () { I.clear(); if (lost || victory) toTitle(); else openMap(G.level + 1, true); };
     if (window.ScoutSplash && ScoutSplash.show) {
       ScoutSplash.show({ kind: 'vector', campaign: 'battlezone', tag: victory ? 'victory' : lost ? 'gameover' : 'wave' + G.level, title: title, sub: sub,
-        accent: '#7dff9a', glow: 'rgba(60,255,120,.28)', contLabel: victory || lost ? 'Title screen' : 'Next level', onContinue: done });
+        accent: '#7dff9a', glow: 'rgba(60,255,120,.28)', contLabel: victory || lost ? 'Title screen' : 'Campaign map', onContinue: done });
     } else done();
   }
   function toTitle() {
-    G.state = 'title'; G.foes = []; G.shells = []; G.debris = []; G.sparks = []; G.dead = false; G.cracks = []; G.msgT = 0;
+    G.state = 'title'; G.foes = []; G.shells = []; G.debris = []; G.sparks = []; G.dead = false; G.cracks = []; G.msgT = 0; G.depots = []; G.allies = []; G.obj = null; applyBiome('plains');
     G.P = { x: 0, z: 0, a: 0, v: 0 }; G.obst = buildField(LEVELS[0], 99); G.specks = buildSpecks(99); G.level = 1;
     Music.play('title'); I.clear();
   }
@@ -555,7 +769,7 @@
   /* ---------------- rendering ---------------- */
   var COL = {
     green: ['rgba(40,255,90,', '#c4ffcf'], dim: ['rgba(30,200,70,', '#6fdc86'], faint: ['rgba(20,150,50,', '#3f9a52'], red: ['rgba(255,50,40,', '#ffb4a8'],
-    lava: ['rgba(255,110,30,', '#ffd9a0'], moon: ['rgba(150,255,170,', '#eaffea'], glass: ['rgba(170,255,190,', '#ffffff'], gold: ['rgba(255,200,60,', '#fff1c4']
+    lava: ['rgba(255,110,30,', '#ffd9a0'], ally: ['rgba(110,170,255,', '#e4efff'], moon: ['rgba(150,255,170,', '#eaffea'], glass: ['rgba(170,255,190,', '#ffffff'], gold: ['rgba(255,200,60,', '#fff1c4']
   };
   function stroke(col, w, alpha) {
     var cc = COL[col], a = alpha == null ? 1 : alpha;
@@ -601,12 +815,16 @@
     // moon: a crescent hung over the far range
     var mx = skyX(4.1), mr = 0.04 * F, my = hy - Math.tan(0.24) * F;
     // faint green haze above the horizon
-    var hz = c.createLinearGradient(0, hy - F * 0.16, 0, hy); hz.addColorStop(0, 'rgba(40,255,120,0)'); hz.addColorStop(1, 'rgba(40,255,120,0.07)'); c.fillStyle = hz; c.fillRect(0, hy - F * 0.16, W, F * 0.16);
-    if (mx != null) {
+    var hz = c.createLinearGradient(0, hy - F * 0.16, 0, hy); hz.addColorStop(0, COL.green[0] + '0)'); hz.addColorStop(1, COL.green[0] + '0.07)'); c.fillStyle = hz; c.fillRect(0, hy - F * 0.16, W, F * 0.16);
+    if (mx != null && (sk === 'moon' || sk === 'citadel')) {
       var mg = c.createRadialGradient(mx, my, mr * 0.5, mx, my, mr * 3.2); mg.addColorStop(0, 'rgba(180,255,200,0.12)'); mg.addColorStop(1, 'rgba(180,255,200,0)'); c.fillStyle = mg; c.beginPath(); c.arc(mx, my, mr * 3.2, 0, TAU); c.fill();
       c.beginPath(); c.arc(mx, my, mr, -Math.PI * 0.5, Math.PI * 0.5, false); c.arc(mx + mr * 0.42, my, mr * 0.9, Math.PI * 0.56, -Math.PI * 0.56, true); stroke('moon', 1, 0.9);
       c.beginPath(); c.moveTo(mx + mr * 0.62, my + mr * 0.3); c.arc(mx + mr * 0.5, my + mr * 0.3, mr * 0.12, 0, TAU); c.moveTo(mx + mr * 0.78, my - mr * 0.4); c.arc(mx + mr * 0.7, my - mr * 0.4, mr * 0.08, 0, TAU); stroke('moon', 0.6, 0.4);
     }
+    var sk = (BIOMES[G.biome] || BIOMES.plains).sky;
+    if (sk === 'sun') { var sx2 = skyX(2.3), sy2 = hy - Math.tan(0.07) * F, sr2 = 0.06 * F; if (sx2 != null) { var sg = c.createRadialGradient(sx2, sy2, sr2 * 0.3, sx2, sy2, sr2 * 3); sg.addColorStop(0, 'rgba(255,200,90,0.16)'); sg.addColorStop(1, 'rgba(255,150,40,0)'); c.fillStyle = sg; c.fillRect(sx2 - sr2 * 3, sy2 - sr2 * 3, sr2 * 6, sr2 * 6); c.beginPath(); c.arc(sx2, sy2, sr2, Math.PI, 0); for (var sl = 1; sl < 4; sl++) { c.moveTo(sx2 - sr2 * Math.cos(Math.asin(sl / 4 * 0.9)), sy2 - sr2 * sl / 4 * 0.9); c.lineTo(sx2 + sr2 * Math.cos(Math.asin(sl / 4 * 0.9)), sy2 - sr2 * sl / 4 * 0.9); } stroke('green', 0.8, 0.8); } }
+    if (sk === 'aurora') { for (var ab = 0; ab < 3; ab++) { c.beginPath(); var pa = null; for (var ax = -1.2; ax <= 1.2; ax += 0.05) { var az2 = G.P.a + ax, ex = 0.2 + ab * 0.05 + 0.03 * Math.sin(az2 * 3 + G.t * 0.25 + ab), X2 = CX + Math.tan(ax) * F, Y2 = hy - Math.tan(ex) * F; if (pa) { c.moveTo(pa[0], pa[1]); c.lineTo(X2, Y2); } pa = [X2, Y2]; } stroke(ab === 1 ? 'dim' : 'faint', 2.2, 0.28); } }
+    if (sk === 'ash') { c.beginPath(); for (var ai = 0; ai < 50; ai++) { var axx = ((ai * 97.3 + G.t * 6 * (1 + ai % 3)) % W + W) % W, ayy = ((ai * 53.1 + G.t * 14 * (1 + ai % 4)) % (hy * 0.95)); c.moveTo(axx, ayy); c.lineTo(axx - 2, ayy + 3); } stroke('faint', 0.7, 0.5); }
     // mountains
     c.beginPath(); var prev = null;
     MOUNT.forEach(function (p) { var x = skyX(p[0]), y = hy - Math.tan(p[1]) * F; if (x != null && prev) { c.moveTo(prev[0], prev[1]); c.lineTo(x, y); } prev = x != null ? [x, y] : null; });
@@ -632,10 +850,17 @@
   }
   function drawWorld() {
     G.obst.forEach(function (o) { drawModel(MODELS[o.k], o.x, 0, o.z, o.a, 'green', 1); });
+    G.depots.forEach(function (o) { drawModel(MODELS[o.k], o.x, 0, o.z, o.a + (o.k === 'mast' ? G.t * 0.6 : 0), 'lava', 1.15, 0.75 + 0.25 * Math.sin(G.t * 2)); });
+    G.allies.forEach(function (o) { if (o.hp > 0) drawModel(MODELS[o.k], o.x, 0, o.z, o.a, 'ally', 1.2, o.hitT > 0 ? 0.6 : 1); if (o.hitT > 0) o.hitT -= 1 / 60; });
+    if (G.obj && G.obj.dest) { var dz = G.obj.dest; c.beginPath(); var pv = null; for (var k2 = 0; k2 <= 20; k2++) { var a2 = k2 / 20 * TAU, q2 = cam(dz.x + Math.sin(a2) * 14, 0.3, dz.z + Math.cos(a2) * 14); if (pv) seg(pv, q2); pv = q2; } seg(cam(dz.x, 0, dz.z), cam(dz.x, 16, dz.z)); seg(cam(dz.x, 16, dz.z), cam(dz.x + 6, 13, dz.z)); seg(cam(dz.x + 6, 13, dz.z), cam(dz.x, 10, dz.z)); stroke('ally', 1, 0.8); }
     G.foes.forEach(function (f) {
       if (f.k === 'tank') drawModel(MODELS.tank, f.x, 0, f.z, f.a, 'green', 1.15, 1, radarDish(f));
       else if (f.k === 'super') drawModel(MODELS.super, f.x, 0, f.z, f.a, 'green', 1.2);
       else if (f.k === 'missile') drawModel(MODELS.missile, f.x, f.y, f.z, f.a, 'red', 1.15);
+      else if (f.k === 'crawler' || f.k === 'citadel') {
+        drawModel(MODELS[f.k], f.x, 0, f.z, f.a, f.hitT > 0 ? 'lava' : 'red', 1.35);
+        if (f.shield) { c.beginPath(); for (var ry = 0; ry < 4; ry++) { var rr0 = f.r * 1.5 * Math.cos(ry * 0.38), yy = f.r * 1.5 * Math.sin(ry * 0.38) + 2, pv2 = null; for (var k3 = 0; k3 <= 28; k3++) { var a3 = k3 / 28 * TAU + G.t * 0.2, q3 = cam(f.x + Math.sin(a3) * rr0, yy, f.z + Math.cos(a3) * rr0); if (pv2) seg(pv2, q3); pv2 = q3; } } stroke('gold', 0.9, 0.45 + 0.1 * Math.sin(G.t * 1.5)); }
+      }
       else drawModel(MODELS.saucer, f.x, f.y, f.z, f.a, 'green', 1.1, 0.6 + 0.4 * Math.abs(Math.sin(G.t * 4)));
     });
     G.shells.forEach(function (sh) { drawModel(MODELS.shell, sh.x, sh.y, sh.z, sh.a, sh.enemy ? 'red' : 'green', 1.3); });
@@ -697,6 +922,8 @@
       c.beginPath(); c.arc(bx, by, (f.k === 'missile' ? 1.6 : 2.4) * hk, 0, TAU); c.fillStyle = 'rgba(255,130,110,' + al + ')'; c.fill();
       if (fxOn) { c.beginPath(); c.arc(bx, by, 5 * hk, 0, TAU); c.fillStyle = 'rgba(255,40,30,' + al * 0.3 + ')'; c.fill(); }
     });
+    G.depots.forEach(function (o) { var q = cam(o.x, 0, o.z); if (Math.hypot(q[0], q[2]) > RADAR_RANGE) return; var bx = cx + q[0] / RADAR_RANGE * rr, by = cy - q[2] / RADAR_RANGE * rr, z = 2.6 * hk; c.fillStyle = 'rgba(255,170,60,0.95)'; c.fillRect(bx - z, by - z, z * 2, z * 2); });
+    G.allies.forEach(function (o) { if (o.hp <= 0) return; var q = cam(o.x, 0, o.z); if (Math.hypot(q[0], q[2]) > RADAR_RANGE) return; var bx = cx + q[0] / RADAR_RANGE * rr, by = cy - q[2] / RADAR_RANGE * rr; c.beginPath(); c.arc(bx, by, 3 * hk, 0, TAU); c.fillStyle = 'rgba(120,180,255,0.95)'; c.fill(); });
     return { cx: cx, cy: cy, rr: rr };
   }
   function tankIcon(tx, ty) { var u = hk; c.moveTo(tx, ty + 8 * u); c.lineTo(tx + 20 * u, ty + 8 * u); c.lineTo(tx + 17 * u, ty + 4 * u); c.lineTo(tx + 3 * u, ty + 4 * u); c.closePath(); c.moveTo(tx + 6 * u, ty + 4 * u); c.lineTo(tx + 8 * u, ty); c.lineTo(tx + 13 * u, ty); c.lineTo(tx + 14 * u, ty + 4 * u); c.moveTo(tx + 12 * u, ty + 1.5 * u); c.lineTo(tx + 21 * u, ty + 1.5 * u); }
@@ -705,8 +932,11 @@
     vtext('SCORE ' + G.score, lx, y, sz, 'green', 0);
     vtext('HIGH ' + Math.max(best(), G.score), lx, y + sz * 1.7, sz * 0.75, 'dim', 0);
     var split = !narrow, rx = split ? W - lx : lx, ra = split ? 1 : 0, ry = split ? y : y + sz * 3.3;
-    vtext('LEVEL ' + G.level + '/12', rx, ry, sz * 0.8, 'green', ra);
-    vtext('KILLS ' + Math.min(G.kills, L.quota) + '/' + L.quota, rx, ry + sz * 1.5, sz * 0.75, 'dim', ra);
+    var ob = objective();
+    vtext('MISSION ' + G.level + '/' + LEVELS.length, rx, ry, sz * 0.8, 'green', ra);
+    vtext(ob.txt, rx, ry + sz * 1.5, sz * 0.75, 'gold', ra);
+    if (G.armor > 0) vtext('ARMOR ' + G.armor, lx, y + sz * 3.1, sz * 0.7, 'ally', 0);
+    if (G.obj && G.obj.boss && G.obj.boss.hp > 0) { var bb = G.obj.boss, bw = Math.min(W * 0.3, 320), bx0 = W / 2 - bw / 2, by0 = H * 0.79; c.beginPath(); c.rect(bx0, by0, bw, 7 * hk); stroke('red', 0.8, 0.8); c.globalCompositeOperation = 'source-over'; c.fillStyle = bb.shield ? 'rgba(255,210,90,0.7)' : 'rgba(255,70,50,0.8)'; c.fillRect(bx0 + 1, by0 + 1, (bw - 2) * bb.hp / bb.max, 7 * hk - 2); c.globalCompositeOperation = 'lighter'; vtext(bb.shield ? 'SHIELDED' : (bb.k === 'citadel' ? 'CITADEL CORE' : 'THE CRAWLER'), W / 2, by0 + 16 * hk, 8 * hk, 'red', 0.5, 0.9); }
     c.beginPath(); for (var i = 0; i < Math.min(G.lives, 6); i++) tankIcon(split ? W - lx - (i + 1) * 26 * hk : lx + i * 26 * hk, ry + sz * 3); stroke('green', 0.8, 0.9);
     // warnings under the radar
     var my = rd.cy + rd.rr + 10 * hk, ms = 11 * hk, nearest = null, nd = 1e9, inRange = false;
@@ -714,6 +944,7 @@
     if (G.state === 'play' && !G.dead) {
       if (inRange && (G.t % 0.8) < 0.55) vtext('ENEMY IN RANGE', W / 2, my, fitSize('ENEMY IN RANGE', ms, W * 0.6), 'red', 0.5);
       if (nearest) { var ra2 = wrapA(bearing(G.P, nearest) - G.P.a), lab = Math.abs(ra2) < FOV / 2 ? '' : Math.abs(ra2) > 2.2 ? 'ENEMY TO REAR' : ra2 < 0 ? 'ENEMY TO LEFT' : 'ENEMY TO RIGHT'; if (lab) vtext(lab, W / 2, my + ms * 1.8, fitSize(lab, ms, W * 0.6), 'red', 0.5, 0.9); }
+      if (ob.t) { var oa = wrapA(bearing(G.P, ob.t) - G.P.a), od = Math.round(dist(ob.t, G.P)), ol = (G.obj.waiting ? 'CONVOY WAITING ' : 'OBJECTIVE ') + od + 'M ' + (Math.abs(oa) < 0.15 ? 'AHEAD' : Math.abs(oa) > 2.4 ? 'BEHIND' : oa < 0 ? 'LEFT' : 'RIGHT'); vtext(ol, W / 2, my + ms * 5.4, fitSize(ol, ms, W * 0.7), 'gold', 0.5, 0.9); }
       if (G.blockedT > 0) vtext('MOTION BLOCKED BY OBJECT', W / 2, my + ms * 3.6, fitSize('MOTION BLOCKED BY OBJECT', ms, W * 0.8), 'red', 0.5, Math.min(1, G.blockedT * 2));
     }
     if (G.pop) vtext(G.pop.txt, W / 2, HY - 90, 16, 'gold', 0.5, Math.min(1, G.pop.t * 2));
@@ -721,20 +952,21 @@
   function drawCenter(lines, yBase) { lines.forEach(function (l, i) { var sz = fitSize(l[0], l[1], W * 0.86); vtext(l[0], W / 2, yBase + (l[3] != null ? l[3] : i * 40), sz, l[2] || 'green', 0.5, l[4]); }); }
   function drawCracks() {
     var k = K.clamp(G.deadT / 0.25, 0, 1);
-    if (G.deadT < 0.2) { c.globalCompositeOperation = 'source-over'; c.fillStyle = 'rgba(255,255,255,' + (0.35 * (1 - G.deadT / 0.2)) + ')'; c.fillRect(0, 0, W, H); c.globalCompositeOperation = 'lighter'; }
     c.beginPath();
     G.cracks.forEach(function (cr) { var n = Math.max(2, Math.ceil(cr.pts.length * k)); c.moveTo(cr.pts[0][0], cr.pts[0][1]); for (var i = 1; i < Math.min(n, cr.pts.length); i++) c.lineTo(cr.pts[i][0], cr.pts[i][1]); });
     stroke('glass', 0.85, 0.85);
     c.beginPath(); c.moveTo(G.crackAt[0] + 10, G.crackAt[1]); c.arc(G.crackAt[0], G.crackAt[1], 10, 0, TAU); c.moveTo(G.crackAt[0] + 22, G.crackAt[1]); c.arc(G.crackAt[0], G.crackAt[1], 22, 0, TAU); stroke('glass', 0.8, 0.7);
   }
   function drawTitle() {
-    var t1 = 'BATTLEZONE', sz = fitSize(t1, 78, W * 0.86), ty = H * 0.26;
+    var t1 = 'BATTLEZONE', sz = fitSize(t1, 78, W * 0.86), ty = H * 0.24;
     vtext(t1, W / 2, ty, sz, 'green', 0.5, 1, 2);
-    vtext('ARCADE TRIBUTE  -  12 LEVELS', W / 2, ty + sz * 1.45, fitSize('ARCADE TRIBUTE  -  12 LEVELS', 13, W * 0.9), 'dim', 0.5);
+    vtext('OPERATION IRON DAWN', W / 2, ty + sz * 1.35, fitSize('OPERATION IRON DAWN', 22, W * 0.9), 'gold', 0.5, 1, 1.3);
+    var sub2 = 'CAMPAIGN  -  13 MISSIONS  -  5 REGIONS  -  1 CITADEL'; vtext(sub2, W / 2, ty + sz * 1.35 + 34, fitSize(sub2, 12, W * 0.9), 'dim', 0.5);
+    var sv = K.store.get('bz.camp', null); if (sv && sv.m > 1) vtext('SAVED CAMPAIGN: MISSION ' + sv.m, W / 2, ty + sz * 1.35 + 56, fitSize('SAVED CAMPAIGN: MISSION 13', 11, W * 0.9), 'green', 0.5, 0.8);
     var startTxt = K.isTouch ? 'TAP TO START' : 'PRESS SPACE OR ENTER TO START';
     if ((G.t % 1.2) < 0.8) vtext(startTxt, W / 2, H * 0.76, fitSize(startTxt, 18, W * 0.9), 'red', 0.5);
     var hy = H * 0.82;
-    if (hiScores.length) hiScores.slice(0, 3).forEach(function (h, i) { vtext((i + 1) + '.  ' + h.s + '   LEVEL ' + h.l, W / 2, hy + i * 16, 9, i ? 'dim' : 'green', 0.5, 0.9); });
+    if (hiScores.length) hiScores.slice(0, 3).forEach(function (h, i) { vtext((i + 1) + '.  ' + h.s + '   MISSION ' + h.l, W / 2, hy + i * 16, 9, i ? 'dim' : 'green', 0.5, 0.9); });
     else vtext('NO SCORES YET', W / 2, hy, 10, 'dim', 0.5);
     var leg = K.isTouch ? 'PAD DRIVES AND TURNS   FIRE SHOOTS' : 'UP/DOWN DRIVE   LEFT/RIGHT TURN   SHIFT FINE AIM   SPACE FIRES   P PAUSE   F FULLSCREEN';
     vtext(leg, W / 2, H * 0.91, fitSize(leg, narrow ? 9 : 10, W * 0.86), 'dim', 0.5, 0.8);
@@ -748,7 +980,7 @@
     camCa = Math.cos(G.P.a); camSa = Math.sin(G.P.a); camY = EYE + G.recoil * 0.15;
     c.save(); c.beginPath(); c.rect(0, 0, W, H); c.clip();
     drawSky(); drawGround();
-    if (G.state === 'title') { // a tank on patrol in front of the camera, a supertank behind it
+    if (G.state === 'title' || G.state === 'map') { // a tank on patrol in front of the camera, a supertank behind it
       var a = G.P.a, tk = { x: G.P.x + Math.sin(a) * 30, z: G.P.z + Math.cos(a) * 30, a: a + G.t * 0.5, radar: G.t * 3 };
       drawModel(MODELS.tank, tk.x, 0, tk.z, tk.a, 'green', 1.2, 1, radarDish(tk));
       var b = a + 0.3, st = { x: G.P.x + Math.sin(b) * 90, z: G.P.z + Math.cos(b) * 90 }; drawModel(MODELS.super, st.x, 0, st.z, -G.t * 0.3, 'green', 1, 0.8);
@@ -761,18 +993,17 @@
       c.fillStyle = mg2; c.fillRect(CX - W * 0.16, mfy - W * 0.16, W * 0.32, W * 0.32);
       c.beginPath(); for (var ml = 0; ml < 7; ml++) { var ma = -Math.PI / 2 + (ml - 3) * 0.32, mlen = W * (0.04 + 0.05 * Math.random()) * mfk; c.moveTo(CX, mfy); c.lineTo(CX + Math.cos(ma) * mlen, mfy + Math.sin(ma) * mlen); } stroke('lava', 1.2, mfk);
     }
-    if (G.flashW > 0) { c.fillStyle = 'rgba(255,190,90,' + (G.flashW * 0.6) + ')'; c.fillRect(0, 0, W, H); }
     c.restore();
     drawFrame();
     if (G.state === 'title') drawTitle();
-    else if (G.state !== 'splash') drawHud();
-    if (G.msgT > 0 && (G.state === 'play' || G.state === 'clear')) { var al = Math.min(1, G.msgT * 1.5); drawCenter([[G.msg, 34, G.state === 'clear' ? 'gold' : 'green', 0, al], [G.msg2, 16, 'dim', 46, al]], H * 0.66); }
+    else if (G.state !== 'splash' && G.state !== 'map') drawHud();
+    if (G.msgT > 0 && (G.state === 'play' || G.state === 'clear' || G.state === 'failed')) { var al = Math.min(1, G.msgT * 1.5); drawCenter([[G.msg, 34, G.state === 'clear' ? 'gold' : G.state === 'failed' ? 'red' : 'green', 0, al], [G.msg2, 16, 'dim', 46, al]], H * 0.66); }
     if (G.tipT > 0 && G.state === 'play') vtext(G.tip, W / 2, H * 0.86, fitSize(G.tip, 12, W * 0.86), 'green', 0.5, Math.min(1, G.tipT));
     if (G.dead && G.cracks.length) drawCracks();
     if (G.state === 'over') { c.globalCompositeOperation = 'source-over'; c.fillStyle = 'rgba(0,0,0,0.35)'; c.fillRect(0, 0, W, H); c.globalCompositeOperation = 'lighter'; drawCenter([['GAME OVER', 46, 'red'], [G.newHi ? 'NEW HIGH SCORE' : 'SCORE ' + G.score, 18, G.newHi ? 'gold' : 'dim', 64]], H * 0.42); }
     if (G.state === 'victory') {
       var acc = Math.round(100 * G.stats.hits / Math.max(1, G.stats.shots));
-      drawCenter([['VICTORY', 60, 'gold'], ['ALL 12 LEVELS CLEARED', 20, 'green', 84], ['SCORE ' + G.score + '   ACCURACY ' + acc + '%', 14, 'dim', 124], ['TANKS ' + G.stats.tanks + '  SUPERTANKS ' + G.stats.supers + '  MISSILES ' + G.stats.missiles + '  SAUCERS ' + G.stats.saucers, 13, 'dim', 152]], H * 0.34);
+      drawCenter([['VICTORY', 60, 'gold'], ['THE IRON CITADEL HAS FALLEN', 20, 'green', 84], ['SCORE ' + G.score + '   ACCURACY ' + acc + '%', 14, 'dim', 124], ['TANKS ' + G.stats.tanks + '  SUPERTANKS ' + G.stats.supers + '  MISSILES ' + G.stats.missiles + '  SAUCERS ' + G.stats.saucers, 13, 'dim', 152]], H * 0.34);
     }
     if (G.paused) {
       c.globalCompositeOperation = 'source-over'; c.fillStyle = 'rgba(0,0,0,0.5)'; c.fillRect(0, 0, W, H); c.globalCompositeOperation = 'lighter';
@@ -786,7 +1017,7 @@
     bgCanvas = document.createElement('canvas'); bgCanvas.width = R.w; bgCanvas.height = R.h;
     var b = bgCanvas.getContext('2d'), hy = oy + HY * s, f = K.clamp(hy / R.h, 0.05, 0.95);
     b.fillStyle = '#000'; b.fillRect(0, 0, R.w, R.h);
-    var g = b.createLinearGradient(0, 0, 0, R.h); g.addColorStop(0, '#000'); g.addColorStop(f - 0.02, '#031408'); g.addColorStop(f, '#010802'); g.addColorStop(1, '#000');
+    var g = b.createLinearGradient(0, 0, 0, R.h); g.addColorStop(0, '#000'); g.addColorStop(f - 0.02, (BIOMES[G.biome] || BIOMES.plains).bg); g.addColorStop(f, '#010802'); g.addColorStop(1, '#000');
     b.fillStyle = g; b.fillRect(0, 0, R.w, R.h);
     var n = Math.round(R.w * hy / 9000); for (var i = 0; i < n; i++) { var r = Math.random(); b.fillStyle = r > 0.95 ? 'rgba(200,255,210,0.6)' : 'rgba(120,200,140,0.25)'; var z = dpr * 0.8; b.fillRect(Math.random() * R.w, Math.random() * hy * 0.85, z, z); }
     var vg = b.createRadialGradient(R.w / 2, R.h / 2, Math.min(R.w, R.h) * 0.35, R.w / 2, R.h / 2, Math.max(R.w, R.h) * 0.75); vg.addColorStop(0, 'rgba(0,0,0,0)'); vg.addColorStop(1, 'rgba(0,0,0,0.6)');
@@ -801,7 +1032,8 @@
     touchEl.hidden = !touchWanted(); touchEl.classList.toggle('landscape', landscape);
     document.body.classList.toggle('is-touch', touchWanted());
     var r = wrap.getBoundingClientRect(), cw = Math.max(200, r.width), ch = Math.max(160, r.height);
-    dpr = Math.min(window.devicePixelRatio || 1, fxOn ? 2 : 1.25);
+    dpr = Math.min(window.devicePixelRatio || 1, fxOn ? 3 : 1.5);
+    var budget = fxOn ? 9.5e6 : 5e6; if (cw * ch * dpr * dpr > budget) dpr = Math.max(1, Math.sqrt(budget / (cw * ch))); // crisp up to 4K, capped for speed
     R.resize(Math.round(cw * dpr), Math.round(ch * dpr));
     portrait = ch > cw; narrow = cw < 700;
     H = portrait ? K.clamp(ch * 1.02, 560, 760) : K.clamp(ch * 1.3, 520, 760); W = K.clamp(H * cw / ch, H * 0.45, H * 2.2);
@@ -879,7 +1111,7 @@
     I.pollPad();
     if (I.hit('mute')) { A.toggle(); Music.resume(); }
     if (I.hit('pause')) setPaused(!G.paused);
-    var splash = window.ScoutSplash && ScoutSplash.isOpen && ScoutSplash.isOpen();
+    var splash = (window.ScoutSplash && ScoutSplash.isOpen && ScoutSplash.isOpen()) || (window.BZCamp && BZCamp.isOpen());
     if (!G.paused && !splash && settingsEl.hidden) { var n = dt > 0.02 ? 2 : 1; for (var i = 0; i < n; i++) update(dt / n); }
     else if (splash || !settingsEl.hidden) I.clear();
     syncOverlay(splash);
@@ -889,12 +1121,15 @@
   resize(); toTitle();
   requestAnimationFrame(frame);
 
-  window.BZGame = { version: 1, levels: LEVELS.length };
+  window.BZGame = { version: 2, levels: LEVELS.length, missions: MISSIONS.map(function (m) { return m.name; }) };
   if (DEBUG) {
     window.BZGame.debug = {
       G: G, sfx: Sfx, music: Music,
       start: function (n) { if (G.state === 'title') startGame(); if (n) startLevel(n); },
-      clearLevel: function () { G.kills = LEVELS[G.level - 1].quota; },
+      clearLevel: function () { var L = LEVELS[G.level - 1]; G.kills = L.quota || 0; G.depots = []; G.hold = 0; if (G.obj) { G.obj.arrived = true; if (G.obj.boss) G.obj.boss.hp = 0; } },
+      mission: function (n) { G.up = G.up || {}; G.lives = 3; startLevel(n); },
+      map: function (n, pick) { openMap(n, pick); },
+      objective: function () { var o = objective(); return { txt: o.txt, depots: G.depots.length, allies: G.allies.map(function (a) { return { k: a.k, hp: a.hp, z: Math.round(a.z) }; }), hold: G.hold, boss: G.obj && G.obj.boss ? G.obj.boss.hp : null, armor: G.armor, up: G.up, biome: G.biome }; },
       god: function (on) { G.god = on !== false; },
       kill: function (all) { G.god = false; if (all) G.lives = 1; G.dead = false; killPlayer(null); },
       tank: function (sup) { spawnTank(); var f = G.foes[G.foes.length - 1], a = G.P.a + 0.12; if (sup != null) f.k = sup ? 'super' : 'tank'; f.x = G.P.x + Math.sin(a) * 60; f.z = G.P.z + Math.cos(a) * 60; f.a = a + Math.PI + 0.7; f.cd = 99; return f.k; },
