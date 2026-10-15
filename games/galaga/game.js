@@ -531,7 +531,7 @@
     if (performance.now() < G.inputLock) input.clear();
     for (var i = G.parts.length - 1; i >= 0; i--) { var p = G.parts[i]; p.age += dt; if (!p.ring) { p.x += p.vx * dt; p.y += p.vy * dt; p.vx *= 0.97; p.vy *= 0.97; } if (p.age > p.life) G.parts.splice(i, 1); }
     for (var j = G.pops.length - 1; j >= 0; j--) { G.pops[j].t += dt; if (G.pops[j].t > 1.2) G.pops.splice(j, 1); }
-    G.msgT -= dt; G.shake = Math.max(0, G.shake - dt); G.flash = Math.max(0, G.flash - dt);
+    G.msgT -= dt; G.shake = Math.max(0, G.shake - dt); G.flash = Math.max(0, G.flash - dt * 0.5);
     if (G.mode === "title") {
       G.demoT += dt;
       if (input.hit("left") && maxLevel > 1) { G.startLevel = G.startLevel > 1 ? G.startLevel - 1 : maxLevel; sfx("ui"); }
@@ -617,7 +617,7 @@
       x.beginPath(); x.moveTo(e.x - hw, y); x.quadraticCurveTo(e.x, y + 6, e.x + hw, y); x.stroke();
     }
     // shimmering edges and drifting motes inside the tractor beam
-    var fl = 0.55 + 0.45 * Math.sin(G.t * 31);
+    var fl = 0.7 + 0.3 * Math.sin(G.t * 9); // under 3 pulses per second
     x.strokeStyle = "rgba(170,220,255," + (0.5 * fl) + ")"; x.lineWidth = 1.5;
     x.beginPath(); x.moveTo(e.x - half0, top); x.lineTo(e.x - hb, top + len); x.moveTo(e.x + half0, top); x.lineTo(e.x + hb, top + len); x.stroke();
     for (var m = 0; m < 22; m++) {
@@ -755,7 +755,9 @@
     if (live) drawShots(x);
     drawParts(x);
     G.pops.forEach(function (p) { txt(x, p.s, p.x, p.y - p.t * 16, 14, "#7fd8ff"); });
-    if (G.flash > 0) { x.fillStyle = "rgba(255,255,255," + G.flash * 0.6 + ")"; x.fillRect(0, 0, W, H); }
+    if (G.flash > 0) { // photosensitivity safe: soft warm edge glow instead of a full-screen white flash
+      var fa = Math.min(1, G.flash * 4) * 0.22, vg = x.createRadialGradient(W / 2, H / 2, Math.min(W, H) * 0.35, W / 2, H / 2, Math.max(W, H) * 0.75);
+      vg.addColorStop(0, "rgba(255,120,60,0)"); vg.addColorStop(1, "rgba(255,110,50," + fa + ")"); x.fillStyle = vg; x.fillRect(0, 0, W, H); }
     drawHUD(x);
     if (G.mode === "play") {
       if (G.msgT > 0) txt(x, G.msg, W / 2, H / 2 - 20, G.msg.length > 14 ? 24 : 30, G.msg === "READY" ? "#7fd8ff" : "#ff5a4a");
