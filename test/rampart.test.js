@@ -229,3 +229,15 @@ test("Rampart: every selectable castle on all 12 maps (landscape and portrait) c
   }
   assert.ok(LV.LEVELS[1].rounds.flat().includes("barge"), "landing barges (sappers) arrive from level 2");
 });
+
+test("Rampart guided tutorial: first-play auto start, How to Play on title and pause, remembered, skip/next/back", () => {
+  const g = read("game.js"), css = read("style.css");
+  assert.match(g, /rampart\.tutorial/);
+  assert.match(g, /if \(!tut && !tutState && !TU\.on\) \{ startTutorial\(\); return; \}/, "first play starts the tutorial");
+  for (const s of ["Pick your home castle", "Place your cannons", "Aim and fire", "Turn a piece", "Place a piece", "Close the wall", "Watch the timer", "How scoring works", "How you lose"]) assert.ok(g.includes(s), s);
+  for (const c of ["tut-skip", "tut-next", "tut-back", "how-btn", "ov-how"]) assert.ok(g.includes(c), c);
+  assert.match(g, /Replay How to Play/);
+  assert.match(g, /clock waits for you/);
+  assert.match(css, /\.tut-card\.short/);
+  assert.match(css, /\.tbtn\.tut-glow/);
+});

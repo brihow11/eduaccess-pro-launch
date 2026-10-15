@@ -25,7 +25,8 @@
     { id: "action", label: "Choose / place / fire", keys: ["Space", "Enter"] },
     { id: "rotate", label: "Rotate wall piece", keys: ["KeyZ", "KeyX"] },
     { id: "pause", label: "Pause", keys: ["KeyP", "Escape"] },
-    { id: "mute", label: "Mute", keys: ["KeyM", null] }
+    { id: "mute", label: "Mute", keys: ["KeyM", null] },
+    { id: "help", label: "How to Play (title)", keys: ["KeyH", null] }
   ];
   var settingsOpen = false;
   var input = K.input({
@@ -73,10 +74,11 @@
     var k = Math.min(aw / LW, ah / LH);
     var cw = Math.floor(LW * k), ch = Math.floor(LH * k);
     wrap.style.width = cw + "px"; wrap.style.height = ch + "px";
-    var dpr = Math.min(window.devicePixelRatio || 1, 2);
+    var dpr = Math.min(window.devicePixelRatio || 1, 3);
+    var px = cw * ch * dpr * dpr, cap = isTouch ? 3.2e6 : 8.3e6; if (px > cap) dpr = Math.max(1, Math.sqrt(cap / (cw * ch)));
     canvas.width = Math.max(1, Math.round(cw * dpr)); canvas.height = Math.max(1, Math.round(ch * dpr));
     G.k = canvas.width / LW;
-    var q = K.clamp(Math.round(G.k * 2) / 2, 1, 2);
+    var q = K.clamp(Math.round(G.k * 2) / 2, 1, isTouch ? 2 : 3);
     if (G.grid && G.art && Math.abs(q - artQ) > 0.3) { artQ = q; R.buildLevelArt(G, artQ); }
   }
   window.addEventListener("resize", function () { clearTimeout(resizeT); resizeT = setTimeout(layout, 120); });
@@ -94,7 +96,7 @@
     G.seaList = []; for (var i = 0; i < G.grid.sea.length; i++) if (G.grid.sea[i]) G.seaList.push(i);
     G.wind = G.levelDef.weather === "storm" ? { x: 0.9, y: 0.35 } : G.levelDef.weather === "breezy" ? { x: 0.25, y: 0.1 } : null;
     G.art = null; layout();
-    artQ = K.clamp(Math.round(G.k * 2) / 2, 1, 2); R.buildLevelArt(G, artQ);
+    artQ = K.clamp(Math.round(G.k * 2) / 2, 1, isTouch ? 2 : 3); R.buildLevelArt(G, artQ);
     C.computeTerritory(G.grid); G.art.dirty = true;
   }
   // difficulty knobs that scale with the level on top of each level's own fleet and timers
@@ -102,7 +104,8 @@
     var n = G.level - 1;
     return { spd: 1 + n * 0.035, reload: (n === 0 ? 1.25 : 1) * (1 - n * 0.03), scatter: Math.max(0.3, 1.15 - n * 0.07), grunt: Math.max(0.6, 1.3 - n * 0.05) };
   }
-  function startGame(level) {
+  function startGame(level, tut) {
+    if (!tut && !tutState && !TU.on) { startTutorial(); return; } // first play: guided tutorial
     G.score = 0; G.lives = 3; G.newHigh = false; G.demo = false;
     ov.hide();
     loadLevel(level || 1);
@@ -116,7 +119,7 @@
     music();
   }
   function banner(text, sub, dur) { G.banner = { text: text, sub: sub || "", t: 0, dur: dur || 1.8 }; }
-  function hint(s) { G.hint = s; G.hintT = (G.level <= 2 || !tipSeen) ? 7 : 0; }
+  function hint(s) { G.hint = s; G.hintT = TU.on ? 0 : (G.level <= 2 || !tipSeen) ? 7 : 0; }
 
   // ---------------------------------------------------------------- phases
   function confirmCastle(k) {
@@ -314,7 +317,7 @@
   function rotatePiece() {
     if (!G.piece) return;
     var s0 = C.size(G.piece), cx = G.cursor.x + s0.w / 2, cy = G.cursor.y + s0.h / 2;
-    G.piece = C.rotate(G.piece);
+    G.piece = C.rotate(G.piece); TU.rot++;
     var s1 = C.size(G.piece);
     G.cursor.x = Math.round(cx - s1.w / 2); G.cursor.y = Math.round(cy - s1.h / 2); clampCursor();
     AU.play("rotate");
@@ -322,7 +325,7 @@
   function placePiece() {
     var g = G.grid, before = ownedCount();
     if (!C.placePiece(g, G.piece, G.cursor.x, G.cursor.y)) { AU.play("deny"); return false; }
-    AU.play("place");
+    AU.play("place"); TU.placed++;
     G.piece.forEach(function (c) { dust(G.cursor.x + c[0] + 0.5, G.cursor.y + c[1] + 0.5, 2); });
     G.enclosedCount = C.computeTerritory(g); G.art.dirty = true;
     if (ownedCount() > before) { AU.play("claim"); G.claimFlash = 0.8; }
@@ -477,11 +480,13 @@
     G.balls.push({ x0: x0, y0: y0, x1: x1, y1: y1, t: 0, T: (enemy ? 0.55 : 0.3) + d * (enemy ? 0.1 : 0.045), peak: 18 + d * (enemy ? 9 : 6), enemy: enemy, fire: !!fire, cannon: cannon });
   }
   function sinkShip(s) {
-    s.sink = 0.001; s.path = [];
+    s.sink = 0.001; s.path = []; TU.sunk++;
     addScore(s.def.score, s.x, s.y - 0.6);
     AU.play("sink");
     for (var i = 0; i < 14; i++) G.parts.push({ k: "debris", x: s.x + K.rand(-0.6, 0.6), y: s.y + K.rand(-0.4, 0.4), z: K.rand(4, 20), vz: K.rand(10, 40), r0: K.rand(2, 5), c: "90,60,30", age: 0, life: K.rand(0.6, 1.2) });
     G.parts.push({ k: "flash", x: s.x, y: s.y, r0: 46, age: 0, life: 0.5 });
+    for (var em2 = 0; em2 < 22; em2++) { var ea2 = Math.random() * 6.28, es2 = K.rand(1, 4); G.parts.push({ k: "ember", x: s.x, y: s.y, vx: Math.cos(ea2) * es2, vy: Math.sin(ea2) * es2, z: 8, vz: K.rand(30, 80), grav: 1, r0: K.rand(1.4, 3), age: 0, life: K.rand(0.6, 1.3) }); }
+    G.parts.push({ k: "fire", x: s.x, y: s.y, r0: 34, age: 0, life: 1.1 });
     G.parts.push({ k: "ring", layer: 0, x: s.x, y: s.y, r0: 8, r1: 40, age: 0, life: 1.5 });
   }
 
@@ -517,6 +522,8 @@
     var g = G.grid, x = i % g.cols + 0.5, y = ((i / g.cols) | 0) + 0.5;
     g.wall[i] = 0; g.rubble[i] = 1; G.art.dirty = true;
     for (var k = 0; k < 8; k++) G.parts.push({ k: "debris", x: x + K.rand(-0.3, 0.3), y: y + K.rand(-0.3, 0.3), z: K.rand(2, 10), vz: K.rand(20, 50), r0: K.rand(2, 4), c: "150,144,132", age: 0, life: K.rand(0.5, 1) });
+    for (var k2 = 0; k2 < 6; k2++) { var a2 = Math.random() * 6.28, sp2 = K.rand(0.6, 1.6); G.parts.push({ k: "chunk", x: x, y: y, vx: Math.cos(a2) * sp2, vy: Math.sin(a2) * sp2 * 0.7, z: K.rand(4, 10), vz: K.rand(30, 60), grav: 1, r0: K.rand(3.5, 6.5), rot: a2, spin: K.rand(-9, 9), c: "176,168,152", age: 0, life: K.rand(0.8, 1.3) }); }
+    G.parts.push({ k: "shock", layer: 0, x: x, y: y, r0: 4, r1: 26, age: 0, life: 0.45 });
     G.parts.push({ k: "smoke", x: x, y: y, z: 4, vz: 12, r0: 6, r1: 22, c: "170,160,140", a: 0.55, age: 0, life: 1.4 });
   }
   function dust(x, y, n) { for (var k = 0; k < n; k++) G.parts.push({ k: "smoke", x: x + K.rand(-0.5, 0.5), y: y + K.rand(-0.3, 0.3), z: 1, vz: 6, r0: 2, r1: 8, c: "190,176,150", a: 0.35, age: 0, life: 0.8 }); }
@@ -543,6 +550,8 @@
   function updateBalls(dt) {
     for (var k = G.balls.length - 1; k >= 0; k--) {
       var b = G.balls[k]; b.t += dt;
+      b.puff = (b.puff || 0) - dt;
+      if (b.puff <= 0 && b.t < b.T) { b.puff = 0.045; var pp = b.t / b.T; G.parts.push({ k: "smoke", x: b.x0 + (b.x1 - b.x0) * pp, y: b.y0 + (b.y1 - b.y0) * pp, z: Math.sin(pp * Math.PI) * b.peak, vz: 2, r0: 1.5, r1: 6, c: b.fire ? "120,80,60" : "215,210,200", a: 0.32, age: 0, life: 0.7 }); }
       if (b.t >= b.T) { G.balls.splice(k, 1); land(b); }
     }
   }
@@ -560,6 +569,7 @@
           AU.play("hitShip");
           G.parts.push({ k: "flash", x: x, y: y, r0: 30, age: 0, life: 0.35 });
           G.parts.push({ k: "fire", x: x, y: y, r0: 14, age: 0, life: 0.7 });
+          for (var em = 0; em < 10; em++) { var ea = Math.random() * 6.28, es = K.rand(0.8, 2.6); G.parts.push({ k: "ember", x: x, y: y, vx: Math.cos(ea) * es, vy: Math.sin(ea) * es, z: 6, vz: K.rand(20, 60), grav: 1, r0: K.rand(1.2, 2.4), age: 0, life: K.rand(0.4, 0.9) }); }
           for (var q = 0; q < 6; q++) G.parts.push({ k: "debris", x: x, y: y, z: 6, vz: K.rand(20, 50), r0: K.rand(1.5, 3.5), c: "110,74,40", age: 0, life: K.rand(0.4, 0.9) });
           G.parts.push({ k: "smoke", x: x, y: y, z: 6, vz: 12, r0: 5, r1: 20, c: "50,46,42", a: 0.6, age: 0, life: 1.6 });
           if (s.hp <= 0.001) sinkShip(s);
@@ -658,7 +668,7 @@
     G.cursor.x = Math.round(p.x - s.w / 2); G.cursor.y = Math.round(p.y - s.h / 2 - (lift ? LIFT : 0)); clampCursor();
   }
   function twoFingerRotate() { if (G.mode === "repair" && G.piece) { rotatePiece(); if (ptr) ptr.cancel = true; } }
-  function blocked() { return G.paused || G.splash || settingsOpen || performance.now() < G.inputLock; }
+  function blocked() { return TU.hold || G.paused || G.splash || settingsOpen || performance.now() < G.inputLock; }
   canvas.addEventListener("pointerdown", function (e) {
     unlockAudio(); try { canvas.focus({ preventScroll: true }); } catch (x) { /* old browsers */ }
     if (blocked()) return;
@@ -713,7 +723,10 @@
     input.pollPad();
     if (input.hit("mute")) toggleMute();
     if (input.hit("pause") && !G.splash && !settingsOpen) togglePause();
+    tutTick();
     if (G.paused || G.splash || settingsOpen) { input.clear(); return; }
+    if (TU.hold) { input.clear(); updateParts(dt); if (G.banner) { G.banner.t += dt; if (G.banner.t > G.banner.dur) G.banner = null; } return; }
+    var tm0 = G.mode, tt0 = G.timer;
     if (performance.now() < G.inputLock) input.clear();
     if (G.banner) { G.banner.t += dt; if (G.banner.t > G.banner.dur) G.banner = null; }
     if (G.hintT > 0) G.hintT -= dt;
@@ -729,6 +742,7 @@
       if (input.hit("left") && maxLevel > 1) { G.startLevel = Math.max(1, G.startLevel - 1); AU.play("move"); }
       if (input.hit("right") && maxLevel > 1) { G.startLevel = Math.min(maxLevel, G.startLevel + 1); AU.play("move"); }
       if (input.hit("action")) startGame(G.startLevel);
+      if (input.hit("help")) startTutorial();
       input.hit("up"); input.hit("down"); input.hit("rotate");
     } else if (m === "select") {
       G.timer -= dt;
@@ -799,6 +813,7 @@
       if (Math.random() < dt * 3) firework();
       if (input.hit("action") && G.vicT > 2) startGame(1);
     }
+    if (TU.on && TU.freeze && G.mode === tm0 && tm0 !== "cease") G.timer = Math.max(G.timer, tt0); // tutorial: clock waits for you
   }
   function nearestCastle(cur, v) {
     var c0 = G.castles[cur], best = cur, bs = 1e9;
@@ -815,6 +830,7 @@
       if (p.age >= p.life) { G.parts.splice(i, 1); continue; }
       if (p.vz) { p.z = (p.z || 0) + p.vz * dt; if (p.grav || p.k === "debris") p.vz -= 120 * dt; if (p.z < 0) { p.z = 0; p.vz = 0; } }
       if (p.k === "firework") { p.x += p.vx * dt; p.y += p.vy * dt; p.vy += 2.5 * dt; }
+      else if (p.vx != null && (p.z > 0 || p.k === "ember")) { p.x += p.vx * dt; p.y += p.vy * dt; p.vx *= 1 - dt * 1.5; p.vy *= 1 - dt * 1.5; }
     }
     if (G.parts.length > 600) G.parts.splice(0, G.parts.length - 600);
   }
@@ -842,6 +858,7 @@
     x.setTransform(k, 0, 0, k, 0, 0);
     if (G.mode !== "title") drawHud(x);
     drawOverlayText(x);
+    refreshHow(); tutPlace();
   }
   function drawFireworks(x) {
     x.save(); x.globalCompositeOperation = "lighter";
@@ -980,7 +997,7 @@
         band(x, LH * 0.69, 64, 0.6);
         label(x, ls, LW / 2, LH * 0.69, fitSize(x, "\u25c0   START AT LEVEL 10: THE LAST BASTION   \u25b6", 28, LW * 0.9), "#ffd98a");
       }
-      var info = isTouch ? "Drag a piece (it floats above your thumb), lift to place. Two-finger tap or ROTATE turns it. Tap to aim and fire; AUTO keeps firing." : "Arrows move \u00b7 Space places and fires \u00b7 Z rotates \u00b7 P pauses \u00b7 M mutes";
+      var info = isTouch ? "Drag a piece (it floats above your thumb), lift to place. Two-finger tap or ROTATE turns it. Tap to aim and fire; AUTO keeps firing." : "Arrows move \u00b7 Space places and fires \u00b7 Z rotates \u00b7 P pauses \u00b7 M mutes \u00b7 H how to play";
       band(x, LH * 0.845, 96, 0.5);
       label(x, info, LW / 2, LH * 0.82, fitSize(x, info, 22, LW * 0.9) * 0.9, "#e8dab4");
       label(x, "12 LEVELS  \u00b7  HIGH SCORE " + highScore, LW / 2, LH * 0.87, Math.round(ts * 0.15), "#cdb98a");
@@ -1039,8 +1056,8 @@
     if (!PLAYING[G.mode]) return;
     G.paused = force != null ? force : !G.paused;
     input.releaseTouch();
-    if (G.paused) ov.show({ primary: { label: "Resume", onClick: function () { togglePause(false); } }, secondary: { label: "Quit to title", onClick: toTitle } });
-    else ov.hide();
+    if (G.paused) { ov.show(pauseMenu()); addPauseHow(); }
+    else { ov.hide(); if (TU.quick) tutEnd(null); }
     music();
   }
   btnMute.addEventListener("click", function (e) { e.preventDefault(); toggleMute(); btnMute.blur(); });
@@ -1069,6 +1086,196 @@
   refreshAuto();
   document.addEventListener("visibilitychange", function () { if (document.hidden && PLAYING[G.mode] && !G.paused) togglePause(true); });
   refreshMute();
+
+  // ---------------------------------------------------------------- guided tutorial (How to Play)
+  // Plays real level 1 with pop-up cards. Info cards pause the action; "your turn" cards freeze the phase
+  // timer until you do the thing. Skip any time. Finished or skipped is remembered (rampart.tutorial).
+  var TU = { on: false, i: 0, hold: false, freeze: false, sunk: 0, rot: 0, placed: 0, cannons: 0, shots: 0, quick: false, qi: 0 };
+  var tutState = K.store.get("rampart.tutorial", null); // "done" | "skipped" | null
+  function T(touch, desk) { return isTouch ? touch : desk; }
+  function rotKey() { return K.keyName(input.binds.rotate[0]); }
+  var TSTEPS = [
+    { mode: "select", info: true, hl: null, title: "Welcome to Rampart!",
+      text: function () { return "You are the castle keeper. Each round has three parts: <b>place cannons</b>, <b>battle</b> the ships, then <b>rebuild</b> your walls. This guide walks you through one round. Take your time: the clock waits for you."; } },
+    { mode: "select", info: true, hl: "castles", title: "Your goal",
+      text: function () { return "Keep at least one castle <b>fully closed in</b> by stone walls. A castle with a gap in its wall does not count."; } },
+    { mode: "select", hl: "castles", title: "Step 1: Pick your home castle", wait: function () { return G.mode !== "select"; },
+      text: function () { return "Every glowing box is a castle you can choose. Your walls will be built around the one you pick."; },
+      todo: function () { return T("Tap a castle.", "Use the arrow keys to pick, then press Space. Or just click a castle."); } },
+    { mode: "cannons", info: true, hl: "timer", title: "Watch the timer",
+      text: function () { return "This bar shows the time left in each part of the round. When it runs out, the game moves on. In this guide it waits until you finish each step."; } },
+    { mode: "cannons", hl: "home", title: "Step 2: Place your cannons", wait: function () { return G.mode !== "cannons"; },
+      text: function () { return "Cannons only work <b>inside your walls</b>. A green square means the spot is good. Red means it is blocked."; },
+      todo: function () { return T("Tap inside your walls to drop each cannon (" + G.cannonsLeft + " left).", "Move with the arrow keys and press Space, or click inside your walls (" + G.cannonsLeft + " left)."); } },
+    { mode: "battle", info: true, hl: "ships", title: "Battle!",
+      text: function () { return "Enemy ships sail in and fire at your walls. Your cannons fire wherever you aim. Bigger ships take several hits."; } },
+    { mode: "battle", hl: "ships", title: "Step 3: Aim and fire", wait: function () { return TU.sunk > 0 || G.mode !== "battle"; },
+      text: function () { return "Lead the ship a little: cannonballs take a moment to land."; },
+      todo: function () { return T("Tap a ship to fire. Hold your finger down to keep firing.", "Move the crosshair with the mouse or arrow keys. Click or press Space to fire."); } },
+    { mode: "battle", hl: null, title: "Nice shot!", small: true, wait: function () { return G.mode !== "battle"; }, live: true,
+      text: function () { return "The clock is running now. Keep firing until the battle ends."; },
+      todo: function () { return T("Keep tapping ships.", "Keep aiming and firing."); } },
+    { mode: "repair", info: true, hl: "home", title: "Rebuild time",
+      text: function () { return "The ships knocked holes in your walls. You get wall pieces, one at a time, to patch the gaps. Close the wall all the way around a castle to keep it."; } },
+    { mode: "repair", hl: "piece", title: "Step 4: Turn a piece", wait: function () { return TU.rot > 0; }, glow: "rotate",
+      text: function () { return "Pieces come in different shapes. Turn them to fit the gap. The next piece is shown in the top right."; },
+      todo: function () { return T("Tap the big ROTATE button (or tap with two fingers).", "Press " + rotKey() + " or right-click to turn the piece."); } },
+    { mode: "repair", hl: "piece", title: "Step 5: Place a piece", wait: function () { return TU.placed > 0; },
+      text: function () { return "Green outline means it fits. Red squares are blocked by water, castles or cannons."; },
+      todo: function () { return T("Drag the piece with your finger (it floats just above it so you can see it) and lift to drop it.", "Move it with the mouse or arrow keys. Click or press Space to drop it."); } },
+    { mode: "repair", hl: "home", title: "Step 6: Close the wall", wait: function () { return C.castleEnclosed(G.grid, G.castles[G.home]); },
+      text: function () { return "Fill every gap so your castle is completely surrounded. When it is closed, the ground inside turns to your color."; },
+      todo: function () { return "Keep placing pieces until the red flashing box around your castle goes away."; } },
+    { mode: "repair", info: true, hl: "timer", title: "Castle safe!",
+      text: function () { return "Great job. From now on the timer really counts. If it hits zero and <b>no castle is closed in</b>, you lose a life."; } },
+    { mode: ["resolve", "cannons", "raise", "cannonsDone"], info: true, hl: "score", title: "How scoring works",
+      text: function () { return "You earn points for sinking ships, for every square of land inside your walls, and 250 for each closed castle. Closing more castles also gives you <b>more cannons</b> next round."; } },
+    { mode: ["resolve", "cannons", "raise", "cannonsDone"], info: true, hl: "lives", title: "How you lose",
+      text: function () { return "These keep icons are your lives. You start with 3. Each round you end with no closed castle costs one. Lose all 3 and the game is over. Survive every round to clear the level."; } },
+    { mode: ["resolve", "cannons", "raise", "cannonsDone"], info: true, hl: null, title: "You're ready!", last: true,
+      text: function () { return "That's the whole game: place cannons, battle, rebuild. Keep playing this level now. You can watch this guide again any time from <b>How to Play</b> on the title screen or the pause menu."; } }
+  ];
+  var tutEl = document.createElement("div"); tutEl.id = "tut"; tutEl.hidden = true;
+  tutEl.innerHTML = '<div class="tut-spot" hidden></div><div class="tut-card" role="dialog" aria-live="polite" aria-labelledby="tut-title">' +
+    '<div class="tut-step"></div><h3 id="tut-title"></h3><p class="tut-text"></p><p class="tut-do"></p>' +
+    '<div class="tut-btns"><button type="button" class="tut-skip">Skip tutorial</button><span class="tut-sp"></span>' +
+    '<button type="button" class="tut-back">&#9664; Back</button><button type="button" class="tut-next">Next &#9654;</button></div></div>';
+  wrap.appendChild(tutEl);
+  var tutSpot = tutEl.querySelector(".tut-spot"), tutCard = tutEl.querySelector(".tut-card");
+  ["pointerdown", "touchstart", "mousedown"].forEach(function (ev) { tutCard.addEventListener(ev, function (e) { e.stopPropagation(); }, { passive: true }); });
+  tutEl.querySelector(".tut-next").addEventListener("click", function (e) { e.preventDefault(); tutNext(); });
+  tutEl.querySelector(".tut-back").addEventListener("click", function (e) { e.preventDefault(); tutBack(); });
+  tutEl.querySelector(".tut-skip").addEventListener("click", function (e) { e.preventDefault(); tutEnd(TU.quick ? null : "skipped"); });
+  var howBtn = document.createElement("button"); howBtn.type = "button"; howBtn.id = "how-btn"; howBtn.className = "how-btn";
+  wrap.appendChild(howBtn);
+  ["pointerdown", "touchstart", "mousedown"].forEach(function (ev) { howBtn.addEventListener(ev, function (e) { e.stopPropagation(); }, { passive: true }); });
+  howBtn.addEventListener("click", function (e) { e.preventDefault(); unlockAudio(); howBtn.blur(); startTutorial(); });
+  function refreshHow() {
+    var show = G.mode === "title" && !G.splash && !settingsOpen;
+    howBtn.hidden = !show;
+    if (show) howBtn.innerHTML = tutState === "done" ? "&#10003; Replay How to Play" : "&#10067; How to Play";
+  }
+  function stepModes(s) { return Array.isArray(s.mode) ? s.mode : [s.mode]; }
+  function startTutorial() {
+    ov.hide(); G.paused = false; TU.quick = false;
+    TU.on = true; TU.i = 0; TU.sunk = TU.rot = TU.placed = 0;
+    startGame(1, true); G.hintT = 0;
+    tutShow();
+  }
+  function tutStep() { return TU.quick ? TSTEPS[TU.qi] : TSTEPS[TU.i]; }
+  function tutEnd(state) {
+    if (state) { tutState = state; K.store.set("rampart.tutorial", state); }
+    TU.on = false; TU.quick = false; TU.hold = TU.freeze = false; tutEl.hidden = true;
+    clearGlow(); input.clear(); G.inputLock = performance.now() + 250;
+    if (G.paused) { ov.show(pauseMenu()); addPauseHow(); }
+  }
+  function tutNext() {
+    if (TU.quick) { if (TU.qi >= TSTEPS.length - 1) { tutEnd(null); return; } TU.qi++; tutShow(); return; }
+    var s = tutStep(); if (!s) return;
+    if (s.last) { tutEnd("done"); return; }
+    if (!s.info && !s.done) return;
+    TU.i++; tutShow();
+  }
+  function tutBack() {
+    if (TU.quick) { if (TU.qi > 0) { TU.qi--; tutShow(); } return; }
+    if (canBack()) { TU.i--; tutShow(); }
+  }
+  function canBack() {
+    if (TU.quick) return TU.qi > 0;
+    var p = TSTEPS[TU.i - 1]; return !!(p && p.info && stepModes(p).indexOf(G.mode) >= 0);
+  }
+  function clearGlow() { var r = touchEl.querySelector(".tbtn.rotate"); if (r) r.classList.remove("tut-glow"); }
+  function tutShow() {
+    var s = tutStep(); if (!s) return;
+    var n = TU.quick ? TU.qi : TU.i;
+    tutEl.querySelector(".tut-step").textContent = (TU.quick ? "How to Play: " : "Tutorial: ") + "card " + (n + 1) + " of " + TSTEPS.length;
+    tutEl.querySelector("#tut-title").textContent = s.title;
+    tutEl.querySelector(".tut-text").innerHTML = s.text();
+    var todo = tutEl.querySelector(".tut-do");
+    if (!TU.quick && s.todo) { todo.hidden = false; todo.innerHTML = "<span>Your turn:</span> " + s.todo(); } else todo.hidden = true;
+    var next = tutEl.querySelector(".tut-next");
+    next.hidden = !(TU.quick || s.info);
+    next.innerHTML = (TU.quick ? TU.qi >= TSTEPS.length - 1 : s.last) ? (TU.quick ? "Close" : "Let's play!") : "Next &#9654;";
+    tutEl.querySelector(".tut-back").hidden = !canBack();
+    tutEl.querySelector(".tut-skip").textContent = TU.quick ? "Close" : "Skip tutorial";
+    tutCard.classList.toggle("small", !!s.small && !TU.quick);
+    tutCard.classList.toggle("act", !TU.quick && !s.info);
+    clearGlow();
+    if (!TU.quick && s.glow === "rotate") { var r = touchEl.querySelector(".tbtn.rotate"); if (r) r.classList.add("tut-glow"); }
+    TU.shownKey = (TU.quick ? "q" : "t") + n + "|" + (s.todo ? s.todo() : "");
+  }
+  // quick guide from the pause menu: read the cards without restarting your game
+  function quickGuide() { TU.quick = true; TU.qi = 0; ov.hide(); tutShow(); tutEl.hidden = false; tutPlace(); }
+  function pauseMenu() {
+    return { primary: { label: "Resume", onClick: function () { togglePause(false); } }, secondary: { label: "Quit to title", onClick: toTitle } };
+  }
+  function addPauseHow() {
+    if (!ov.el || ov.el.querySelector(".ov-how")) return;
+    [["How to Play (cards)", quickGuide], ["Guided tutorial (restart level 1)", startTutorial]].forEach(function (d, k) {
+      var b = document.createElement("button"); b.type = "button"; b.className = "ov-how" + (k ? " ov-how2" : ""); b.textContent = d[0];
+      b.addEventListener("click", function (e) { e.preventDefault(); e.stopPropagation(); b.blur(); d[1](); });
+      ov.el.insertBefore(b, ov.el.querySelector("[data-main-menu]"));
+    });
+  }
+  // per-frame driver, called from update()
+  function tutTick() {
+    if (TU.quick) { TU.hold = false; TU.freeze = false; tutEl.hidden = !G.paused; if (!G.paused) TU.quick = false; return; }
+    if (!TU.on) { TU.hold = TU.freeze = false; return; }
+    if (G.mode === "title" || G.mode === "gameover" || G.mode === "victory" || G.mode === "lifelost" || G.mode === "levelclear") { tutEnd(G.mode === "title" ? null : "done"); return; }
+    var s = tutStep(); if (!s) { tutEnd("done"); return; }
+    // act steps: advance as soon as the player did it
+    while (s && !s.info && s.wait && s.wait()) { TU.i++; s = tutStep(); if (s) tutShow(); }
+    if (!s) { tutEnd("done"); return; }
+    var here = stepModes(s).indexOf(G.mode) >= 0;
+    var vis = here && !G.paused && !G.splash && !settingsOpen;
+    tutEl.hidden = !vis;
+    TU.hold = vis && !!s.info;
+    TU.freeze = here && !s.info && !s.live;
+    G.hintT = 0;
+    if (vis && s.todo) { var key = "t" + TU.i + "|" + s.todo(); if (key !== TU.shownKey) tutShow(); }
+  }
+  // where the spotlight goes, in canvas logical px
+  function tutRect(hl) {
+    var g = G.grid, Tz = TILE; if (!g) return null;
+    function box(x0, y0, x1, y1, pad) { pad = pad || 0; return { x: x0 * Tz - pad, y: HUD + y0 * Tz - pad, w: (x1 - x0) * Tz + pad * 2, h: (y1 - y0) * Tz + pad * 2 }; }
+    var portrait = g.rows > g.cols;
+    if (hl === "castles") { var a = 1e9, b = 1e9, c2 = -1e9, d = -1e9; G.castles.forEach(function (c) { a = Math.min(a, c.x); b = Math.min(b, c.y); c2 = Math.max(c2, c.x + 2); d = Math.max(d, c.y + 2); }); return box(a, b, c2, d, 14); }
+    if (hl === "home") { var h = G.castles[G.home]; if (!h) return null; return box(Math.max(0, h.x - 3), Math.max(0, h.y - 3), Math.min(g.cols, h.x + 5), Math.min(g.rows, h.y + 5), 6); }
+    if (hl === "ships") { var sh = G.ships.filter(function (s2) { return !s2.sink; }); if (!sh.length) return null;
+      var e = 1e9, f = 1e9, gx = -1e9, hy = -1e9; sh.forEach(function (s2) { e = Math.min(e, s2.x - 1.6); f = Math.min(f, s2.y - 1.6); gx = Math.max(gx, s2.x + 1.6); hy = Math.max(hy, s2.y + 1.6); });
+      return box(Math.max(0, e), Math.max(0, f), Math.min(g.cols, gx), Math.min(g.rows, hy), 4); }
+    if (hl === "piece" && G.piece) { var sz = C.size(G.piece); return box(G.cursor.x, G.cursor.y, G.cursor.x + sz.w, G.cursor.y + sz.h, 10); }
+    if (hl === "timer") { var cx = portrait ? LW - 170 : LW / 2 + 60; return { x: cx - 162, y: 4, w: 324, h: HUD - 8 }; }
+    if (hl === "score" || hl === "lives") return { x: 4, y: portrait ? 40 : 34, w: hl === "lives" ? 300 : 260, h: portrait ? 44 : 36 };
+    return null;
+  }
+  function tutPlace() {
+    if (tutEl.hidden) return;
+    var s = tutStep(), sc = wrap.clientWidth / LW, r = s && !TU.quick ? tutRect(s.hl) : null;
+    if (r) {
+      tutSpot.hidden = false;
+      tutSpot.style.left = (r.x * sc) + "px"; tutSpot.style.top = (r.y * sc) + "px";
+      tutSpot.style.width = (r.w * sc) + "px"; tutSpot.style.height = (r.h * sc) + "px";
+      tutSpot.classList.toggle("dim", !!s.info);
+    } else tutSpot.hidden = true;
+    // card goes on the side of the screen away from the spotlight
+    var mid = r ? (r.y + r.h / 2) / LH : 1, cx = r ? (r.x + r.w / 2) / LW : 0.5;
+    var top = mid > 0.5;
+    tutCard.classList.toggle("at-top", top); tutCard.classList.toggle("at-bottom", !top);
+    var side = wrap.clientHeight < 520 || (!!r && r.h / LH > 0.55); // short phone screens: card sits beside the action
+    var leftSide = r ? cx > 0.5 : true;
+    tutCard.classList.toggle("to-left", side && leftSide); tutCard.classList.toggle("to-right", side && !leftSide);
+    tutCard.classList.toggle("short", wrap.clientHeight < 520);
+    tutEl.classList.toggle("dimall", !r && !!(s && (s.info || TU.quick)));
+  }
+  window.addEventListener("keydown", function (e) {
+    if (tutEl.hidden || settingsOpen) return;
+    var s = tutStep(); if (!s) return;
+    var infoCard = TU.quick || s.info;
+    if (infoCard && (e.code === "Enter" || e.code === "Space" || e.code === "ArrowRight")) { e.preventDefault(); e.stopPropagation(); tutNext(); }
+    else if (infoCard && e.code === "ArrowLeft") { e.preventDefault(); e.stopPropagation(); tutBack(); }
+    else if (TU.quick && e.code === "Escape") { e.preventDefault(); e.stopPropagation(); tutEnd(null); }
+  }, true);
 
   // ---------------------------------------------------------------- loop
   var last = performance.now();

@@ -85,3 +85,42 @@ body:not(.is-touch) #stage { background:
   repeating-linear-gradient(0deg, rgba(0,0,0,.25) 0 2px, transparent 2px 32px),
   linear-gradient(180deg, #1d2530 0%, #0d1218 55%, #06080b 100%); }
 body:not(.is-touch) #wrap { box-shadow: 0 0 0 2px #8a6a2c, 0 0 0 5px #1a140a, 0 0 0 6px #c9a14a, 0 18px 60px rgba(0,0,0,.75), 0 0 120px rgba(255,190,90,.12); border-radius: 2px; }
+
+/* ---------- guided tutorial (How to Play). Written by: Howie ---------- */
+#tut { position: absolute; inset: 0; z-index: 40; pointer-events: none; font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+#tut[hidden] { display: none; }
+#tut.dimall { background: rgba(4, 4, 6, 0.5); }
+.tut-spot { position: absolute; border-radius: 12px; border: 3px solid #ffd86a; box-shadow: 0 0 0 4px rgba(0,0,0,.35), 0 0 22px 4px rgba(255,216,106,.7); animation: tutPulse 1.1s ease-in-out infinite; pointer-events: none; transition: left .2s, top .2s, width .2s, height .2s; }
+.tut-spot.dim { box-shadow: 0 0 0 4px rgba(0,0,0,.35), 0 0 22px 4px rgba(255,216,106,.7), 0 0 0 9999px rgba(4,4,6,.5); }
+.tut-spot[hidden] { display: none; }
+@keyframes tutPulse { 50% { border-color: #fff3c4; box-shadow: 0 0 0 4px rgba(0,0,0,.35), 0 0 34px 10px rgba(255,216,106,.9); } }
+.tut-spot.dim { animation: none; }
+.tut-card { position: absolute; left: 50%; transform: translateX(-50%); width: min(620px, 92%); max-height: 46%; overflow: auto; box-sizing: border-box; pointer-events: auto;
+  padding: clamp(10px, 1.6vmin, 22px) clamp(14px, 2.2vmin, 28px); border-radius: 16px; background: linear-gradient(170deg, rgba(48,38,24,.97), rgba(22,17,11,.97));
+  border: 2px solid #d6a24a; box-shadow: 0 14px 50px rgba(0,0,0,.75); color: #f6ead0; font-size: clamp(15px, 2.3vmin, 26px); line-height: 1.38; user-select: none; }
+.tut-card.at-top { top: 3%; } .tut-card.at-bottom { bottom: 3%; }
+.tut-card.to-left { left: 3%; transform: none; width: min(440px, 44%); max-height: 88%; top: 6%; bottom: auto; }
+.tut-card.to-right { left: auto; right: 3%; transform: none; width: min(440px, 44%); max-height: 88%; top: 6%; bottom: auto; }
+.tut-card.small { width: min(460px, 70%); }
+.tut-card.act { border-color: #8fe0a0; }
+.tut-step { font-size: .68em; letter-spacing: .08em; text-transform: uppercase; color: #c9b07a; }
+.tut-card h3 { margin: .1em 0 .25em; font: 800 1.3em/1.15 Georgia, "Times New Roman", serif; color: #ffe2a0; }
+.tut-card p { margin: 0 0 .45em; } .tut-card b { color: #ffd98a; }
+.tut-do { padding: .35em .6em; border-radius: 10px; background: rgba(120, 220, 140, .14); border: 1px solid rgba(140, 230, 160, .55); color: #e4ffe8; font-weight: 600; }
+.tut-do[hidden] { display: none; }
+.tut-do span { color: #9ff0b0; font-weight: 800; text-transform: uppercase; font-size: .8em; letter-spacing: .06em; }
+.tut-btns { display: flex; align-items: center; gap: 10px; margin-top: .4em; }
+.tut-sp { flex: 1; }
+.tut-btns button, .how-btn, .arcade-ov button.ov-how { appearance: none; cursor: pointer; border-radius: 10px; border: 1px solid #d6a24a; background: #1e1810; color: #f6e8c4;
+  font: 700 clamp(14px, 2vmin, 22px)/1 system-ui, sans-serif; padding: .6em 1em; min-height: 44px; }
+.tut-btns button[hidden] { display: none; }
+.tut-btns .tut-next { background: #b07a20; border-color: #ffd27a; color: #fff6dd; }
+.tut-btns .tut-skip { background: transparent; border-color: rgba(214,162,74,.45); color: #cdb98a; }
+.how-btn { position: absolute; left: 50%; top: 59.5%; transform: translateX(-50%); z-index: 30; background: rgba(40,30,16,.92); border: 2px solid #ffd27a; color: #ffe8b0;
+  font-size: clamp(15px, 2.6vmin, 30px); box-shadow: 0 6px 24px rgba(0,0,0,.6); }
+.how-btn:hover, .tut-btns button:hover { filter: brightness(1.25); }
+.how-btn[hidden] { display: none; }
+.tbtn.tut-glow { opacity: 1 !important; border-color: #ffe27a; box-shadow: 0 0 0 4px rgba(255,226,122,.6), 0 0 26px 8px rgba(255,216,106,.9); animation: tutPulse 1s infinite; }
+.tut-card.short { font-size: 14.5px; line-height: 1.3; padding: 8px 12px; border-radius: 12px; width: min(330px, 46%); max-height: 94%; top: 3%; }
+.tut-card.short h3 { font-size: 1.12em; } .tut-card.short .tut-btns button { min-height: 40px; padding: .45em .8em; font-size: 14px; }
+.tut-card.short .tut-btns { flex-wrap: wrap; gap: 6px; }
