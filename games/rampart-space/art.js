@@ -36,18 +36,24 @@
   // each returns {c:[r,g,b] 0..255, e:[r,g,b] emissive, sp: specular 0..1} for a texel
   var PAL = {
     terran: function (N, x, y, z, lat) {
-      var h = N.fbm(x * 1.6 + 7, y * 1.6, z * 1.6, 6), m = N.fbm(x * 2.2, y * 2.2 + 11, z * 2.2, 4), d = h - 0.52, c, sp = 0, e = [0, 0, 0];
-      if (d < 0) { c = mix([8, 28, 74], [30, 104, 160], sstep(-0.16, 0, d)); c = mix(c, [60, 140, 170], sstep(-0.012, 0, d)); sp = 0.9; }
-      else if (d < 0.012) c = mix([170, 168, 130], [120, 130, 80], d / 0.012);
-      else { var g = mix([46, 100, 40], [120, 112, 64], sstep(0.35, 0.65, m)); g = mix(g, [104, 86, 66], sstep(0.07, 0.14, d)); c = mix(g, [236, 236, 240], sstep(0.16, 0.2, d)); 
-        if (N.n3(x * 40, y * 40, z * 40) > 0.83 && d < 0.09 && Math.abs(lat) < 1.1) e = [255, 196, 110]; }
+      var h = N.fbm(x * 1.6 + 7, y * 1.6, z * 1.6, 7), m = N.fbm(x * 2.2, y * 2.2 + 11, z * 2.2, 5), d = h - 0.52, c, sp = 0, e = [0, 0, 0];
+      if (d < 0) { c = mix([4, 14, 44], [14, 54, 104], sstep(-0.28, 0, d)); c = mix(c, [34, 108, 132], sstep(-0.014, 0, d)); sp = 0.9; }
+      else {
+        var det = N.fbm(x * 11, y * 11, z * 11, 4), rg = N.ridge(x * 4 + 2, y * 4, z * 4, 6), wet = sstep(0.38, 0.62, m + 0.12 * Math.exp(-lat * lat * 8) - 0.1 * Math.exp(-Math.pow(Math.abs(lat) - 0.45, 2) * 40));
+        var g = mix([132, 106, 70], [40, 74, 30], wet); g = mix(g, [22, 50, 22], sstep(0.6, 0.8, m) * 0.6);
+        g = mix(g, [104, 88, 70], sstep(0.55, 0.82, rg) * sstep(0.015, 0.09, d)); g = mix(g, [230, 232, 238], sstep(0.86, 0.95, rg) * sstep(0.1, 0.16, d));
+        c = mix([140, 128, 96], g, sstep(0, 0.004, d)); var dm = 0.72 + 0.5 * det; c = [c[0] * dm, c[1] * dm, c[2] * dm];
+        var cl = N.fbm(x * 7 + 3, y * 7, z * 7, 3), pt = N.n3(x * 70, y * 70, z * 70), coast = 1 - sstep(0.0, 0.06, d);
+        var city = sstep(0.5, 0.66, cl) * (0.45 + 0.55 * coast) * sstep(0.45, 0.85, pt) * (Math.abs(lat) < 1.1 ? 1 : 0) * (d < 0.12 ? 1 : 0);
+        if (city > 0) e = [255 * city, 186 * city, 104 * city]; }
       var ice = sstep(1.18, 1.3, Math.abs(lat) + (N.n3(x * 6, y * 6, z * 6) - 0.5) * 0.3); c = mix(c, [236, 242, 250], ice); if (ice > 0.5) sp = 0.2;
       return { c: c, e: e, sp: sp };
     },
     desert: function (N, x, y, z, lat) {
       var h = N.fbm(x * 2, y * 2, z * 2, 6), r = N.ridge(x * 3, y * 3, z * 3, 5), c = mix([150, 84, 42], [222, 164, 98], h);
       c = mix(c, [96, 50, 30], sstep(0.62, 0.85, r) * 0.7); c = mix(c, [240, 214, 170], sstep(0.62, 0.72, h) * 0.6);
-      return { c: c, e: [0, 0, 0], sp: 0 };
+      var ct = sstep(0.7, 0.9, N.n3(x * 64, y * 64, z * 64)) * sstep(0.5, 0.75, r) * (Math.abs(lat) < 0.9 ? 1 : 0);
+      return { c: c, e: [255 * ct, 170 * ct, 90 * ct], sp: 0 };
     },
     red: function (N, x, y, z, lat) {
       var h = N.fbm(x * 2.4, y * 2.4, z * 2.4, 6), r = N.ridge(x * 2.5 + 3, y * 2.5, z * 2.5, 5), c = mix([96, 32, 20], [190, 86, 48], h);
@@ -65,8 +71,8 @@
     },
     ocean: function (N, x, y, z, lat) {
       var h = N.fbm(x * 1.8, y * 1.8, z * 1.8, 6), d = h - 0.62, c, sp = 0;
-      if (d < 0) { c = mix([4, 26, 70], [20, 104, 160], sstep(-0.25, 0, d)); sp = 1; } else c = mix([40, 120, 70], [160, 150, 100], sstep(0, 0.08, d));
-      return { c: c, e: [0, 0, 0], sp: sp };
+      var e = [0, 0, 0]; if (d < 0) { c = mix([4, 26, 70], [20, 104, 160], sstep(-0.25, 0, d)); c = mix(c, [70, 160, 180], sstep(-0.02, 0, d)); sp = 1; } else { c = mix([40, 120, 70], [160, 150, 100], sstep(0, 0.08, d)); var ct = sstep(0.6, 0.85, N.n3(x * 60, y * 60, z * 60)); if (d < 0.05) e = [255 * ct, 200 * ct, 120 * ct]; }
+      return { c: c, e: e, sp: sp };
     },
     gas: function (N, x, y, z, lat) {
       var t = N.fbm(x * 1.2, y * 1.2, z * 1.2, 4), b = Math.sin(lat * 9 + (t - 0.5) * 5) * 0.5 + 0.5, c = mix([178, 128, 84], [238, 220, 186], b);
@@ -79,11 +85,11 @@
       return { c: c, e: [0, 0, 0], sp: 0 };
     },
     toxic: function (N, x, y, z, lat) {
-      var h = N.fbm(x * 2, y * 2, z * 2, 6), b = Math.sin(lat * 5 + h * 6) * 0.5 + 0.5, c = mix([120, 130, 30], [210, 200, 90], b * 0.6 + h * 0.4);
+      var h = N.fbm(x * 2, y * 2, z * 2, 6), b = Math.sin(lat * 5 + h * 6) * 0.5 + 0.5, c = mix([96, 112, 24], [214, 204, 96], b * 0.6 + h * 0.4); c = mix(c, [70, 80, 20], sstep(0.6, 0.85, N.fbm(x * 5, y * 11, z * 5, 4)) * 0.5);
       return { c: c, e: [0, 0, 0], sp: 0 };
     },
     violet: function (N, x, y, z, lat) {
-      var h = N.fbm(x * 2, y * 2, z * 2, 6), r = N.ridge(x * 3, y * 3, z * 3, 5), c = mix([46, 20, 70], [150, 80, 170], h), k = sstep(0.82, 0.95, r);
+      var h = N.fbm(x * 2, y * 2, z * 2, 6), r = N.ridge(x * 3, y * 3, z * 3, 5), c = mix([40, 16, 64], [168, 92, 186], sstep(0.3, 0.75, h)), k = sstep(0.82, 0.95, r); c = mix(c, [24, 10, 40], sstep(0.55, 0.8, N.ridge(x * 6 + 2, y * 6, z * 6, 4)) * 0.55);
       return { c: mix(c, [80, 200, 160], k * 0.5), e: [60 * k, 255 * k, 170 * k], sp: 0 };
     },
     dark: function (N, x, y, z, lat) {
@@ -99,22 +105,34 @@
   // Planet: equirect texture + per-pixel sphere projection, rotated by shifting longitude.
   function Planet(type, seed, opt) {
     opt = opt || {};
-    var N = Noise(seed), TW = 576, TH = 288, tex = new Uint8ClampedArray(TW * TH * 3), emi = new Uint8ClampedArray(TW * TH * 3), spc = new Uint8ClampedArray(TW * TH), cld = new Uint8ClampedArray(TW * TH);
+    var N = Noise(seed), TW = 768, TH = 384, tex = new Uint8ClampedArray(TW * TH * 3), emi = new Uint8ClampedArray(TW * TH * 3), spc = new Uint8ClampedArray(TW * TH), cld = new Uint8ClampedArray(TW * TH), cld2 = new Uint8ClampedArray(TW * TH), lum = new Float32Array(TW * TH);
     var pal = PAL[type] || PAL.terran, cloudAmt = CLOUDS[type] || 0, cc = CLOUDC[type] || [246, 248, 252];
-    for (var j = 0; j < TH; j++) {
+    var i, j;
+    for (j = 0; j < TH; j++) {
       var lat = (j / (TH - 1) - 0.5) * Math.PI, cl = Math.cos(lat), sl = Math.sin(lat);
-      for (var i = 0; i < TW; i++) {
+      for (i = 0; i < TW; i++) {
         var lon = i / TW * TAU, x = cl * Math.cos(lon), y = sl, z = cl * Math.sin(lon), k = j * TW + i, s = pal(N, x, y, z, lat);
         tex[k * 3] = s.c[0]; tex[k * 3 + 1] = s.c[1]; tex[k * 3 + 2] = s.c[2]; emi[k * 3] = s.e[0]; emi[k * 3 + 1] = s.e[1]; emi[k * 3 + 2] = s.e[2]; spc[k] = s.sp * 255;
-        if (cloudAmt > 0) { var cv = N.fbm(x * 2.6 + 40, y * 5.2, z * 2.6, 5); cv = sstep(0.62 - cloudAmt * 0.16, 0.8, cv) * (0.4 + cloudAmt * 0.6); cld[k] = cv * 255; }
+        lum[k] = (s.c[0] * 0.3 + s.c[1] * 0.59 + s.c[2] * 0.11) / 255;
+        if (cloudAmt > 0) {
+          var wx = N.fbm(x * 1.3 + 9, y * 1.3, z * 1.3, 3) - 0.5, cv = N.fbm(x * 2.6 + 40 + wx * 1.4, y * 5.2 + wx, z * 2.6, 6); cv = sstep(0.62 - cloudAmt * 0.16, 0.8, cv) * (0.4 + cloudAmt * 0.6); cld[k] = cv * 255;
+          var c2 = N.fbm(x * 1.6 + 80, y * 9 + wx * 2, z * 1.6, 5); cld2[k] = sstep(0.6, 0.78, c2) * cloudAmt * 0.45 * 255;
+        }
       }
     }
-    var S = 0, can = null, cx = null, img = null, pre = null, lastRot = -1;
+    // bake relief shading from luminance slopes (light comes from the upper left); oceans stay flat
+    for (j = 1; j < TH - 1; j++) for (i = 0; i < TW; i++) {
+      var k2 = j * TW + i; if (spc[k2] > 128) continue;
+      var dl = lum[j * TW + (i + TW - 1) % TW] - lum[j * TW + (i + 1) % TW], dt = lum[(j - 1) * TW + i] - lum[(j + 1) * TW + i];
+      var sh = clamp(1 + (dl * 0.9 + dt * 0.6) * 3.4, 0.66, 1.34);
+      tex[k2 * 3] = tex[k2 * 3] * sh; tex[k2 * 3 + 1] = tex[k2 * 3 + 1] * sh; tex[k2 * 3 + 2] = tex[k2 * 3 + 2] * sh;
+    }
+    var S = 0, can = null, cx = null, img = null, pre = null, lastRot = -1, atm = opt.atm || [120, 180, 255];
     var tilt = opt.tilt == null ? 0.35 : opt.tilt, lx = -0.62, ly = -0.42, lz = 0.66, ln = Math.sqrt(lx * lx + ly * ly + lz * lz); lx /= ln; ly /= ln; lz /= ln;
     var hx = lx, hy = ly, hz = lz + 1, hn = Math.sqrt(hx * hx + hy * hy + hz * hz); hx /= hn; hy /= hn; hz /= hn;
     function setup(size) {
       S = size; can = mk(S, S); cx = can.getContext('2d'); img = cx.createImageData(S, S);
-      var n = S * S; pre = { u: new Float32Array(n), v: new Uint16Array(n), fv: new Float32Array(n), L: new Float32Array(n), sp: new Float32Array(n), a: new Float32Array(n) };
+      var n = S * S; pre = { u: new Float32Array(n), v: new Uint16Array(n), fv: new Float32Array(n), L: new Float32Array(n), sp: new Float32Array(n), a: new Float32Array(n), rim: new Float32Array(n), tw: new Float32Array(n), d: new Float32Array(n) };
       var ct = Math.cos(tilt), st = Math.sin(tilt);
       for (var py = 0; py < S; py++) for (var px = 0; px < S; px++) {
         var k = py * S + px, nx = (px + 0.5) / S * 2 - 1, ny = (py + 0.5) / S * 2 - 1, rr = nx * nx + ny * ny;
@@ -123,7 +141,8 @@
         var tx = nx * ct + ny * st, ty = -nx * st + ny * ct; // axial tilt
         var lat = Math.asin(clamp(ty, -1, 1)), lon = Math.atan2(tx, nz);
         pre.u[k] = (lon / TAU + 1) * TW; var vf = clamp((lat / Math.PI + 0.5) * (TH - 1), 0, TH - 1); pre.v[k] = vf | 0; pre.fv[k] = vf - (vf | 0);
-        var d = nx * lx + ny * ly + nz * lz; pre.L[k] = sstep(-0.18, 0.55, d) * (0.25 + 0.75 * clamp(d, 0, 1)) + 0.025;
+        var d = nx * lx + ny * ly + nz * lz; pre.L[k] = sstep(-0.12, 0.5, d) * (0.22 + 0.78 * clamp(d, 0, 1)) * (0.9 + 0.1 * nz) + 0.018; pre.d[k] = d;
+        var fr = Math.pow(1 - nz, 3.6); pre.rim[k] = fr * 0.75 * sstep(-0.35, 0.45, d); pre.tw[k] = Math.exp(-Math.pow(d / 0.16, 2)) * 0.55; // limb haze on the day side, warm band at the terminator
         var hd = clamp(nx * hx + ny * hy + nz * hz, 0, 1); pre.sp[k] = Math.pow(hd, 40) * 0.9;
         pre.a[k] = edge;
       }
@@ -136,61 +155,85 @@
         var t = v * TW + u, t1 = v * TW + u1, t2 = v1 * TW + u, t3 = v1 * TW + u1, w0 = (1 - fu) * (1 - fv), w1 = fu * (1 - fv), w2 = (1 - fu) * fv, w3 = fu * fv;
         var uc = ((pre.u[k] + csh) | 0) % TW, uc1 = (uc + 1) % TW, cv = (cld[v * TW + uc] * (1 - fu) + cld[v * TW + uc1] * fu) * (1 - fv) / 255 + (cld[v1 * TW + uc] * (1 - fu) + cld[v1 * TW + uc1] * fu) * fv / 255;
         var r = tex[t * 3] * w0 + tex[t1 * 3] * w1 + tex[t2 * 3] * w2 + tex[t3 * 3] * w3, g = tex[t * 3 + 1] * w0 + tex[t1 * 3 + 1] * w1 + tex[t2 * 3 + 1] * w2 + tex[t3 * 3 + 1] * w3, b = tex[t * 3 + 2] * w0 + tex[t1 * 3 + 2] * w1 + tex[t2 * 3 + 2] * w2 + tex[t3 * 3 + 2] * w3;
+        var uc2 = ((pre.u[k] + sh * 1.6) | 0) % TW, cv2 = cld2[v * TW + uc2] / 255;
+        var us = ((pre.u[k] + csh + 3) | 0) % TW, shd = cld[(v > 1 ? v - 1 : v) * TW + us] / 255; // cloud shadow cast toward the lower right
+        var dark = 1 - shd * 0.38 * (1 - cv); r *= dark; g *= dark; b *= dark;
         r = r + (cc[0] - r) * cv; g = g + (cc[1] - g) * cv; b = b + (cc[2] - b) * cv;
-        var spec = pre.sp[k] * (spc[t] / 255) * (1 - cv) * 255, night = clamp(1 - L * 3, 0, 1) * (1 - cv * 0.8);
-        D[o] = r * L + spec + emi[t * 3] * night; D[o + 1] = g * L + spec + emi[t * 3 + 1] * night; D[o + 2] = b * L + spec * 0.95 + emi[t * 3 + 2] * night; D[o + 3] = a * 255;
+        r = r + (cc[0] - r) * cv2; g = g + (cc[1] - g) * cv2; b = b + (cc[2] - b) * cv2;
+        var spec = pre.sp[k] * (spc[t] / 255) * (1 - cv) * 255, night = sstep(0.06, -0.2, pre.d[k]) * (1 - cv * 0.85);
+        var rim = pre.rim[k], tw = pre.tw[k] * (1 - cv * 0.5);
+        D[o] = r * L + spec + emi[t * 3] * night + atm[0] * rim * 0.95 + 70 * tw * L; D[o + 1] = g * L + spec + emi[t * 3 + 1] * night + atm[1] * rim * 0.95 + 22 * tw * L; D[o + 2] = b * L + spec * 0.95 + emi[t * 3 + 2] * night + atm[2] * rim * 0.95; D[o + 3] = a * 255;
       }
       cx.putImageData(img, 0, 0);
     }
-    var atm = opt.atm || [120, 180, 255];
     return {
       type: type,
       draw: function (ctx, x, y, r, t, pxScale) {
-        var want = clamp(Math.round(r * 2 * (pxScale || 1)), 64, 420);
+        var want = clamp(Math.round(r * 2 * (pxScale || 1)), 64, 480);
         if (Math.abs(want - S) > 24 || !can) { setup(want); lastRot = -1; }
         var rot = t * (opt.spin || 0.035);
         if (Math.abs(rot - lastRot) > 0.004 || lastRot < 0) { render(rot); lastRot = rot; }
         // soft outer atmosphere
-        var g = ctx.createRadialGradient(x, y, r * 0.9, x, y, r * 1.28);
-        g.addColorStop(0, 'rgba(' + atm + ',0.42)'); g.addColorStop(0.35, 'rgba(' + atm + ',0.14)'); g.addColorStop(1, 'rgba(' + atm + ',0)');
-        ctx.fillStyle = g; ctx.beginPath(); ctx.arc(x, y, r * 1.28, 0, TAU); ctx.fill();
+        var g = ctx.createRadialGradient(x, y, r * 0.92, x, y, r * 1.34);
+        g.addColorStop(0, 'rgba(' + atm + ',0.26)'); g.addColorStop(0.3, 'rgba(' + atm + ',0.09)'); g.addColorStop(1, 'rgba(' + atm + ',0)');
+        ctx.fillStyle = g; ctx.beginPath(); ctx.arc(x, y, r * 1.34, 0, TAU); ctx.fill();
+        var g3 = ctx.createRadialGradient(x - r * 0.18, y - r * 0.12, r * 0.95, x - r * 0.1, y - r * 0.07, r * 1.22);
+        g3.addColorStop(0, 'rgba(' + atm + ',0.34)'); g3.addColorStop(1, 'rgba(' + atm + ',0)'); ctx.fillStyle = g3; ctx.beginPath(); ctx.arc(x - r * 0.1, y - r * 0.07, r * 1.22, 0, TAU); ctx.fill();
         ctx.drawImage(can, x - r, y - r, r * 2, r * 2);
         // lit-side rim scattering
         var g2 = ctx.createRadialGradient(x + r * 0.25, y + r * 0.18, r * 0.82, x, y, r * 1.02);
-        g2.addColorStop(0, 'rgba(' + atm + ',0)'); g2.addColorStop(0.8, 'rgba(' + atm + ',0.10)'); g2.addColorStop(1, 'rgba(' + atm + ',0.5)');
+        g2.addColorStop(0, 'rgba(' + atm + ',0)'); g2.addColorStop(0.8, 'rgba(' + atm + ',0.04)'); g2.addColorStop(1, 'rgba(' + atm + ',0.3)');
         ctx.save(); ctx.beginPath(); ctx.arc(x, y, r, 0, TAU); ctx.clip();
         ctx.globalCompositeOperation = 'lighter'; ctx.fillStyle = g2; ctx.beginPath(); ctx.arc(x - r * 0.22, y - r * 0.15, r * 1.02, 0, TAU); ctx.fill(); ctx.restore();
       }
     };
   }
 
-  // ---------- nebula backdrop (low-res fbm, upscaled smooth) + crisp stars ----------
+  // ---------- nebula backdrop: a far layer (deep gas, dust lanes, star field) and a near layer
+  // (thin bright wisps and foreground stars on transparency) that the game moves at a different rate for parallax ----------
   function Backdrop(seed, theme, w, h) {
-    var N = Noise(seed), bw = 360, bh = 203, c = mk(bw, bh), x = c.getContext('2d'), im = x.createImageData(bw, bh), D = im.data;
-    var A = theme.a, B = theme.b, C = theme.c;
+    var N = Noise(seed), bw = 512, bh = 288, c = mk(bw, bh), x = c.getContext('2d'), im = x.createImageData(bw, bh), D = im.data;
+    var A = theme.a, B = theme.b, C = theme.c, E = theme.e || [200, 90, 110];
     for (var j = 0; j < bh; j++) for (var i = 0; i < bw; i++) {
-      var u = i / bw * 3.2, v = j / bh * 1.8, w1 = N.fbm(u + 3, v, 0.5, 4);
-      var f = N.fbm(u + w1 * 1.6, v + w1 * 1.2, 1.3, 6), g = N.fbm(u * 1.7 + 9, v * 1.7 - w1, 2.1, 5), dust = N.ridge(u * 1.3, v * 1.3 + 4, 3.3, 5);
-      var band = Math.exp(-Math.pow((v - 0.9 - (u - 1.6) * theme.tilt) / 0.55, 2));
-      var k = sstep(0.42, 0.85, f) * (0.35 + band * 0.9), k2 = sstep(0.5, 0.85, g) * band, dk = sstep(0.55, 0.85, dust) * band;
-      var r = A[0] * k + B[0] * k2 + C[0] * k * k2, gg = A[1] * k + B[1] * k2 + C[1] * k * k2, b = A[2] * k + B[2] * k2 + C[2] * k * k2;
-      var dd = 1 - dk * 0.75, o = (j * bw + i) * 4;
-      D[o] = 3 + r * dd; D[o + 1] = 4 + gg * dd; D[o + 2] = 10 + b * dd; D[o + 3] = 255;
+      var u = i / bw * 3.2, v = j / bh * 1.8, w1 = N.fbm(u + 3, v, 0.5, 4), w2 = N.fbm(u * 2 + 7, v * 2, 4.4, 3);
+      var f = N.fbm(u + w1 * 1.6, v + w1 * 1.2, 1.3, 7), g = N.fbm(u * 1.7 + 9, v * 1.7 - w1, 2.1, 6), dust = N.ridge(u * 1.3 + w2 * 0.5, v * 1.3 + 4, 3.3, 6);
+      var fil = N.ridge(u * 3.1 + w1 * 2, v * 3.1, 5.7, 5); // filaments
+      var band = Math.exp(-Math.pow((v - 0.9 - (u - 1.6) * theme.tilt) / 0.6, 2));
+      var k = sstep(0.4, 0.88, f) * (0.3 + band * 0.95), k2 = sstep(0.5, 0.86, g) * band, k3 = sstep(0.72, 0.95, fil) * band * 0.55, dk = sstep(0.5, 0.82, dust) * band;
+      var em = sstep(0.62, 0.9, N.fbm(u * 2.4 + 1, v * 2.4 + w1, 6.2, 5)) * band; // pockets of warm emission gas
+      var r = A[0] * k + B[0] * k2 + C[0] * k * k2 + E[0] * em * 0.55 + (A[0] + 60) * k3, gg = A[1] * k + B[1] * k2 + C[1] * k * k2 + E[1] * em * 0.55 + (A[1] + 60) * k3, b = A[2] * k + B[2] * k2 + C[2] * k * k2 + E[2] * em * 0.55 + (A[2] + 60) * k3;
+      var dd = 1 - dk * 0.85, o = (j * bw + i) * 4;
+      D[o] = 2 + r * dd; D[o + 1] = 3 + gg * dd; D[o + 2] = 8 + b * dd; D[o + 3] = 255;
     }
     x.putImageData(im, 0, 0);
     var big = mk(w, h), bx = big.getContext('2d'); bx.imageSmoothingQuality = 'high';
-    bx.filter = 'blur(2px)'; bx.drawImage(c, 0, 0, w, h); bx.filter = 'none';
-    // stars: many faint + few bright with soft halo and diffraction spikes (static, no twinkle here)
-    var rnd = N.rnd, n = Math.round(w * h / 900);
+    bx.filter = 'blur(1.4px)'; bx.drawImage(c, 0, 0, w, h); bx.filter = 'none';
+    // film-like grain so the gas doesn't look airbrushed
+    var gr0 = mk(256, 256), gx0 = gr0.getContext('2d'), gi = gx0.createImageData(256, 256); for (var q = 0; q < gi.data.length; q += 4) { var vv = N.rnd() * 255; gi.data[q] = gi.data[q + 1] = gi.data[q + 2] = vv; gi.data[q + 3] = 10; } gx0.putImageData(gi, 0, 0);
+    bx.fillStyle = bx.createPattern(gr0, 'repeat'); bx.fillRect(0, 0, w, h);
+    // far stars: many faint, clustered toward the galactic band
+    var rnd = N.rnd, n = Math.round(w * h / 700);
     for (var s = 0; s < n; s++) {
-      var sx = rnd() * w, sy = rnd() * h, m = Math.pow(rnd(), 3), col = rnd() < 0.15 ? '255,214,180' : rnd() < 0.3 ? '180,210,255' : '240,244,255';
-      bx.fillStyle = 'rgba(' + col + ',' + (0.25 + m * 0.75) + ')'; bx.fillRect(sx, sy, m > 0.6 ? 1.6 : 1, m > 0.6 ? 1.6 : 1);
-      if (m > 0.85) { var gr = bx.createRadialGradient(sx, sy, 0, sx, sy, 7); gr.addColorStop(0, 'rgba(' + col + ',0.5)'); gr.addColorStop(1, 'rgba(' + col + ',0)'); bx.fillStyle = gr; bx.fillRect(sx - 7, sy - 7, 14, 14);
-        bx.strokeStyle = 'rgba(' + col + ',0.22)'; bx.lineWidth = 0.7; bx.beginPath(); bx.moveTo(sx - 9, sy); bx.lineTo(sx + 9, sy); bx.moveTo(sx, sy - 9); bx.lineTo(sx, sy + 9); bx.stroke(); }
+      var sx = rnd() * w, sy = rnd() * h, m = Math.pow(rnd(), 3.4), col = rnd() < 0.15 ? '255,214,180' : rnd() < 0.3 ? '180,210,255' : '240,244,255';
+      var bnd = Math.exp(-Math.pow((sy / h * 1.8 - 0.9 - (sx / w * 3.2 - 1.6) * theme.tilt) / 0.6, 2)); if (rnd() > 0.35 + bnd * 0.65) continue;
+      bx.fillStyle = 'rgba(' + col + ',' + (0.2 + m * 0.6) + ')'; bx.fillRect(sx, sy, m > 0.6 ? 1.4 : 1, m > 0.6 ? 1.4 : 1);
     }
-    // a distant star cluster glow
     var gx = w * theme.gx, gy = h * theme.gy, gg2 = bx.createRadialGradient(gx, gy, 0, gx, gy, w * 0.12);
     gg2.addColorStop(0, 'rgba(255,240,220,0.16)'); gg2.addColorStop(1, 'rgba(255,240,220,0)'); bx.fillStyle = gg2; bx.fillRect(0, 0, w, h);
+    // near layer: thin bright wisps (half res, transparent) + a few bright stars with halos and diffraction spikes
+    var nw = 384, nh = 216, nc = mk(nw, nh), nx = nc.getContext('2d'), ni = nx.createImageData(nw, nh), ND = ni.data;
+    for (j = 0; j < nh; j++) for (i = 0; i < nw; i++) {
+      var u2 = i / nw * 2.4 + 11, v2 = j / nh * 1.35, ww = N.fbm(u2, v2 + 5, 8.1, 3), fw = N.ridge(u2 * 1.8 + ww * 1.5, v2 * 1.8, 9.3, 5), a2 = sstep(0.78, 0.97, fw) * sstep(0.35, 0.7, N.fbm(u2 * 0.8, v2 * 0.8, 3.7, 3));
+      var o2 = (j * nw + i) * 4; ND[o2] = lerp(A[0], 255, 0.45); ND[o2 + 1] = lerp(A[1], 255, 0.45); ND[o2 + 2] = lerp(A[2], 255, 0.45); ND[o2 + 3] = a2 * 70;
+    }
+    nx.putImageData(ni, 0, 0);
+    var near = mk(w, h), nb = near.getContext('2d'); nb.imageSmoothingQuality = 'high'; nb.filter = 'blur(2px)'; nb.drawImage(nc, 0, 0, w, h); nb.filter = 'none';
+    for (s = 0; s < Math.round(w * h / 26000); s++) {
+      var sx2 = rnd() * w, sy2 = rnd() * h, col2 = rnd() < 0.2 ? '255,214,180' : rnd() < 0.4 ? '180,210,255' : '240,244,255', rad = 5 + rnd() * 6;
+      var hg = nb.createRadialGradient(sx2, sy2, 0, sx2, sy2, rad); hg.addColorStop(0, 'rgba(' + col2 + ',0.85)'); hg.addColorStop(0.18, 'rgba(' + col2 + ',0.35)'); hg.addColorStop(1, 'rgba(' + col2 + ',0)'); nb.fillStyle = hg; nb.fillRect(sx2 - rad, sy2 - rad, rad * 2, rad * 2);
+      nb.strokeStyle = 'rgba(' + col2 + ',0.2)'; nb.lineWidth = 0.7; nb.beginPath(); nb.moveTo(sx2 - rad * 1.6, sy2); nb.lineTo(sx2 + rad * 1.6, sy2); nb.moveTo(sx2, sy2 - rad * 1.6); nb.lineTo(sx2, sy2 + rad * 1.6); nb.stroke();
+    }
+    big.near = near;
     return big;
   }
 
@@ -246,11 +289,45 @@
       for (var i = 0; i < 8; i++) { var a = i / 8 * TAU; x.fillStyle = metal(x, 0, -8, 0, 8, '#8a8a96', '#40404c', '#18181f'); x.save(); x.rotate(a); x.fillRect(52, -7, 30, 14); x.fillStyle = 'rgba(255,90,60,.9)'; x.fillRect(78, -2, 4, 4); x.restore(); }
       x.fillStyle = 'rgba(255,140,60,.95)'; x.beginPath(); x.arc(0, 0, 14, 0, TAU); x.fill(); x.fillStyle = 'rgba(255,240,200,.95)'; x.beginPath(); x.arc(0, 0, 6, 0, TAU); x.fill(); } }
   };
+  // hull detail pass, applied only where the hull already has paint: plating greebles, panel seams,
+  // a key light from the upper left with a darker underside, and a thin rim highlight.
+  function detail(x, L, kind) {
+    var N = Noise(kind.length * 977 + L * 13), h = L / 2;
+    x.save(); x.globalCompositeOperation = 'source-atop';
+    var n = Math.round(L * 2.2);
+    for (var i = 0; i < n; i++) { var gx = (N.rnd() - 0.5) * L, gy = (N.rnd() - 0.5) * L * 0.8, gw = 0.8 + N.rnd() * L * 0.08, gh = 0.6 + N.rnd() * L * 0.04, lt = N.rnd() < 0.45;
+      x.fillStyle = lt ? 'rgba(255,255,255,' + (0.05 + N.rnd() * 0.08).toFixed(3) + ')' : 'rgba(0,0,0,' + (0.08 + N.rnd() * 0.14).toFixed(3) + ')'; x.fillRect(gx, gy, gw, gh); }
+    x.strokeStyle = 'rgba(0,0,0,0.22)'; x.lineWidth = 0.35; x.beginPath();
+    for (i = 0; i < Math.round(L / 5); i++) { var px = (N.rnd() - 0.5) * L; x.moveTo(px, -h); x.lineTo(px + (N.rnd() - 0.5) * 2, h); }
+    x.stroke();
+    var g = x.createLinearGradient(-h * 0.7, -h * 0.9, h * 0.5, h * 0.9); g.addColorStop(0, 'rgba(255,250,240,0.26)'); g.addColorStop(0.45, 'rgba(255,255,255,0)'); g.addColorStop(0.62, 'rgba(0,0,0,0)'); g.addColorStop(1, 'rgba(0,4,12,0.42)');
+    x.fillStyle = g; x.fillRect(-L, -L, L * 2, L * 2);
+    var g2 = x.createRadialGradient(0, 0, h * 0.2, 0, 0, h * 1.05); g2.addColorStop(0, 'rgba(0,0,0,0)'); g2.addColorStop(0.75, 'rgba(0,0,0,0)'); g2.addColorStop(1, 'rgba(0,0,0,0.28)');
+    x.fillStyle = g2; x.fillRect(-L, -L, L * 2, L * 2);
+    x.restore();
+  }
+  // explosion billow: a soft noisy puff, white on transparency, tinted on demand
+  var billowCache = {};
+  function billow(col, v) {
+    var key = col + '#' + v; if (billowCache[key]) return billowCache[key];
+    var S = 96, c = mk(S, S), x = c.getContext('2d'), im = x.createImageData(S, S), D = im.data, N = Noise(31 + v * 17);
+    for (var j = 0; j < S; j++) for (var i = 0; i < S; i++) {
+      var nx = i / S * 2 - 1, ny = j / S * 2 - 1, r = Math.sqrt(nx * nx + ny * ny), n = N.fbm(nx * 2.2 + 5, ny * 2.2, v * 1.7, 5), cf = N.ridge(nx * 4 + 9, ny * 4, v * 2.3, 4);
+      var a = sstep(1, 0.3, r + (n - 0.5) * 0.9) * (0.7 + 0.3 * n), o = (j * S + i) * 4;
+      var lit = clamp((0.35 + 0.65 * cf) * (1.05 - 0.55 * r) + 0.18 * clamp(-(nx + ny) * 0.6, -1, 1), 0.08, 1);
+      D[o] = 255 * lit; D[o + 1] = 255 * lit; D[o + 2] = 255 * lit; D[o + 3] = a * 255;
+    }
+    x.putImageData(im, 0, 0);
+    x.globalCompositeOperation = 'multiply'; x.fillStyle = 'rgb(' + col + ')'; x.fillRect(0, 0, S, S); x.globalCompositeOperation = 'destination-in';
+    var m = mk(S, S); m.getContext('2d').putImageData(im, 0, 0); x.drawImage(m, 0, 0);
+    return (billowCache[key] = c);
+  }
   var shipCache = {};
   function ship(kind, px) {
     var key = kind + '@' + px; if (shipCache[key]) return shipCache[key];
     var s = SHIPS[kind], sc = px, size = Math.ceil(s.L * 1.6 * sc), c = mk(size, size), x = c.getContext('2d');
     x.translate(size / 2, size / 2); x.scale(sc, sc); s.d(x);
+    detail(x, s.L, kind);
     return (shipCache[key] = { c: c, L: s.L, size: size / sc });
   }
 
@@ -289,5 +366,5 @@
   function drone(px) { var key = 'drone@' + px; if (shipCache[key]) return shipCache[key]; var size = Math.ceil(20 * px), c = mk(size, size), x = c.getContext('2d'); x.translate(size / 2, size / 2); x.scale(px, px);
     poly(x, [6, 0, -4, -4, -2, 0, -4, 4]); x.fillStyle = '#d8c8f0'; x.fill(); engine(x, -3, 0, 3, '210,150,255'); return (shipCache[key] = { c: c, size: size / px }); }
 
-  window.RSArt = { Noise: Noise, Planet: Planet, Backdrop: Backdrop, glow: glow, ship: ship, platform: platform, head: head, drone: drone, TCOL: TCOL, mk: mk };
+  window.RSArt = { billow: billow, Noise: Noise, Planet: Planet, Backdrop: Backdrop, glow: glow, ship: ship, platform: platform, head: head, drone: drone, TCOL: TCOL, mk: mk };
 })();

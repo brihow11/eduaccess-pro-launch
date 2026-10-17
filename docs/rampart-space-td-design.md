@@ -73,6 +73,17 @@ New threats show up one at a time, each with a pop-up card. Each sector has a ne
 - UI: polished title, sector select with stars and best scores, pause menu (Resume / Restart /
   How to play / Main menu), high-score table (top 10, initials), tutorial cards, the Scout ad
   after every sector and on game over, the Job Seeker Pro banner, and a Main menu button.
-- Layout: a 16:9 world scaled to fit. On wide phones the HUD buttons move into the side
-  margins, and touch targets are at least 44 CSS px. Taps snap to the nearest platform.
-  Fullscreen on F.
+- Layout: a 16:9 world. The camera zooms in on the planet and its platforms as far as the
+  HUD allows. On phones in landscape (short and wider than about 1.85:1) the camera is fixed
+  at sector start about 1.4x closer than fit-to-screen and the orbital plane tilts a little
+  more (vertical squash down to 0.8; planets and ships stay round). Platforms for that
+  sector are laid out inside that view and clear of the HUD, so the outer lanes start
+  off screen. The HUD is compact there (no score line). Touch targets, including the
+  toolbar, are at least 44 CSS px (`tests/rampart-space-td/touch-targets.js`). Taps snap
+  to the nearest platform. Fullscreen on F.
+- Art (v2): planets carry relief shading, two cloud layers with cloud shadows, night-side
+  city lights, a limb glow and a warm terminator band. Nebulas have a deep layer and a
+  near layer of wisps and bright stars that move at different rates (parallax). Ships get
+  a hull detail and lighting pass. Explosions are billowing fireballs that cool into
+  smoke, with streak sparks and debris that glows then cools. All of it stays local and
+  fades over at least 0.35 s.
