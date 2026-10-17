@@ -268,3 +268,23 @@ test("Defender and Joust each have 12 designed levels with rising difficulty and
   assert.match(d, /music\("victory"\)/);
   assert.match(j, /music\("victory"\)/);
 });
+
+test("Shared thumb stick: radial dead zone, 8-way directions, analog output, clamped knob, one pointer per stick", () => {
+  const src = require("fs").readFileSync(require("path").join(__dirname, "..", "games", "shared", "joystick.js"), "utf8");
+  assert.match(src, /Written by: Howie/);
+  const win = {};
+  new Function("window", "document", "requestAnimationFrame", src)(win, {}, () => {});
+  const c = win.ArcadeStick.compute;
+  const still = c(0.1, -0.1, 0.2);
+  assert.equal(still.dir, "none"); assert.equal(still.mag, 0);
+  assert.equal(c(0, -1, 0.2).dir, "up");
+  assert.equal(c(1, 0, 0.2).dir, "right");
+  assert.equal(c(-0.7, 0.7, 0.2).dir, "downleft");
+  const ne = c(0.7, -0.7, 0.2); assert.ok(ne.up && ne.right && !ne.left && !ne.down);
+  const far = c(3, 0, 0.2); assert.equal(far.x, 1); assert.ok(far.mag <= 1);
+  const half = c(0.6, 0, 0.2); assert.ok(half.ax > 0.45 && half.ax < 0.55, "analog rescales past the dead zone");
+  assert.match(src, /setPointerCapture/); assert.match(src, /if \(id !== null\) return;/);
+  const page = require("fs").readFileSync(require("path").join(__dirname, "..", "games", "defender", "index.html"), "utf8");
+  assert.match(page, /\/games\/shared\/joystick\.js/);
+  assert.match(page, /id="stick-zone"[^>]*data-stick="analog"/);
+});

@@ -10,7 +10,8 @@
   <meta name="mobile-web-app-capable" content="yes">
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 32 32%22%3E%3Crect width=%2232%22 height=%2232%22 rx=%226%22 fill=%22%23000%22/%3E%3Cpath d=%22M5 18h16l6 2-6 2H5z%22 fill=%22%238d5bff%22/%3E%3Cpath d=%22M5 14h12l3 4H5z%22 fill=%22%23f2f5ff%22/%3E%3C/svg%3E">
   <link rel="stylesheet" href="/games/shared/banner.css">
-  <link rel="stylesheet" href="/games/defender/defender.css">
+  <link rel="stylesheet" href="/games/defender/defender.css?v=20261017j">
+  <link rel="stylesheet" href="/games/shared/joystick.css?v=20261017j">
   <link rel="stylesheet" href="/games/shared/scout-splash.css?v=20261005a">
   <link rel="stylesheet" href="/games/shared/game-menu.css">
 </head>
@@ -27,9 +28,7 @@
   <main id="stage" aria-label="Defender tribute game">
     <canvas id="game" tabindex="0" aria-label="Defender-style arcade game. Arrow keys move, Space fires."></canvas>
     <div id="touch" hidden>
-      <div id="stick-zone" class="zone" aria-hidden="true">
-        <div id="stick-base" class="stick-base"><div id="stick-knob" class="stick-knob"></div></div>
-      </div>
+      <div id="stick-zone" class="zone" aria-hidden="true" data-stick="analog"></div>
       <button class="tbtn hyper" data-act="hyper" type="button" aria-label="Hyperspace">HYPER</button>
       <button class="tbtn bomb" data-act="bomb" type="button" aria-label="Smart bomb">BOMB</button>
       <button class="tbtn fire" data-act="fire" type="button" aria-label="Fire">FIRE</button>
@@ -61,7 +60,7 @@
           </select>
         </label>
       </div>
-      <p class="touchnote">Gamepad: left stick or d-pad moves, A fires, B smart bomb, X/Y hyperspace, Start pauses.</p>
+      <p class="touchnote">Gamepad: left stick or d-pad moves, A fires, B smart bomb, X/Y hyperspace, Start pauses. Touch: put your left thumb anywhere on the left side and slide to steer (8 directions); FIRE, BOMB and HYPER are on the right.</p>
       <div class="row">
         <button class="pbtn" id="keys-reset" type="button">Reset to defaults</button>
         <button class="pbtn primary" id="settings-close" type="button">Done</button>
@@ -75,6 +74,7 @@
   <script src="/games/shared/game-menu.js"></script>
   <script src="/games/defender/music.js"></script>
   <script src="/games/defender/art.js"></script>
-  <script src="/games/defender/defender.js"></script>
+  <script src="/games/shared/joystick.js?v=20261017j"></script>
+  <script src="/games/defender/defender.js?v=20261017j"></script>
 </body>
 </html>

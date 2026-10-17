@@ -11,7 +11,8 @@
   <meta name="mobile-web-app-capable" content="yes">
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 32 32%22%3E%3Crect width=%2232%22 height=%2232%22 rx=%226%22 fill=%22%23000%22/%3E%3Cpath d=%22M5 22h22l-3-5H8zM11 17l2-4h7l2 4M20 14h7%22 fill=%22none%22 stroke=%22%2346ff70%22 stroke-width=%221.6%22/%3E%3C/svg%3E">
   <link rel="stylesheet" href="/games/shared/banner.css">
-  <link rel="stylesheet" href="/games/battlezone/style.css?v=2">
+  <link rel="stylesheet" href="/games/battlezone/style.css?v=3">
+  <link rel="stylesheet" href="/games/shared/joystick.css?v=20261017j">
   <link rel="stylesheet" href="/games/shared/scout-splash.css?v=20261005a">
   <link rel="stylesheet" href="/games/shared/game-menu.css">
 </head>
@@ -30,12 +31,7 @@
       </div>
     </div>
     <div id="touch" hidden>
-      <div class="tgroup pad">
-        <button class="tbtn up" data-act="fwd" type="button" aria-label="Drive forward">&#9650;</button>
-        <button class="tbtn left" data-act="left" type="button" aria-label="Turn left">&#9664;</button>
-        <button class="tbtn down" data-act="back" type="button" aria-label="Reverse">&#9660;</button>
-        <button class="tbtn right" data-act="right" type="button" aria-label="Turn right">&#9654;</button>
-      </div>
+      <div id="stick-zone" class="tgroup stick" aria-hidden="true" data-stick="analog" data-stick-drive="fwd back" data-stick-turn="left right"></div>
       <div class="tgroup">
         <button class="tbtn fire" data-act="fire" type="button" aria-label="Fire">FIRE</button>
       </div>
@@ -67,7 +63,7 @@
           </select>
         </label>
       </div>
-      <p class="touchnote">Gamepad: left stick turns proportionally (push gently for fine aim), d-pad drives and turns, hold LB or LT for fine aim, A or RT fires, Start pauses. Keyboard: tap to nudge, hold to turn faster, hold Shift for fine aim. Touch: press near the inner edge of a turn button to turn slowly. M mutes.</p>
+      <p class="touchnote">Gamepad: left stick turns proportionally (push gently for fine aim), d-pad drives and turns, hold LB or LT for fine aim, A or RT fires, Start pauses. Keyboard: tap to nudge, hold to turn faster, hold Shift for fine aim. Touch: put your left thumb anywhere on the left side and slide: up drives, down reverses, left and right turn (push gently for fine aim); FIRE is on the right. M mutes.</p>
       <div class="row">
         <button class="pbtn" id="keys-reset" type="button">Reset to defaults</button>
         <button class="pbtn primary" id="settings-close" type="button">Done</button>
@@ -80,6 +76,7 @@
   <script src="/games/shared/game-menu.js"></script>
   <script src="/games/battlezone/kit.js?v=2"></script>
   <script src="/games/battlezone/camp.js?v=2"></script>
-  <script src="/games/battlezone/game.js?v=2"></script>
+  <script src="/games/shared/joystick.js?v=20261017j"></script>
+  <script src="/games/battlezone/game.js?v=3"></script>
 </body>
 </html>
