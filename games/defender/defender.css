@@ -43,18 +43,6 @@ body {
 #touch[hidden] { display: none; }
 #touch .zone { position: absolute; left: 0; top: 0; height: 100%; width: 50%; pointer-events: auto; touch-action: none; }
 #touch.landscape .zone { width: 40%; }
-.stick-base {
-  position: absolute; width: 124px; height: 124px; margin: -62px 0 0 -62px; border-radius: 50%;
-  border: 2px solid rgba(140, 165, 255, 0.45);
-  background: radial-gradient(circle, rgba(80, 105, 255, 0.22) 0%, rgba(80, 105, 255, 0.06) 70%);
-  opacity: 0.55; transition: opacity 0.15s;
-}
-.stick-base.active { opacity: 1; transition: none; }
-.stick-knob {
-  position: absolute; left: 50%; top: 50%; width: 56px; height: 56px; margin: -28px 0 0 -28px; border-radius: 50%;
-  background: radial-gradient(circle at 35% 30%, #dfe6ff 0%, #6d84ff 55%, #2c3fbf 100%);
-  box-shadow: 0 0 18px rgba(100, 130, 255, 0.75);
-}
 .tbtn {
   position: absolute; pointer-events: auto; touch-action: none; appearance: none; padding: 0;
   border-radius: 50%; border: 2px solid rgba(255, 255, 255, 0.55); color: #fff;

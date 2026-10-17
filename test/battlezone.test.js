@@ -37,7 +37,10 @@ test("Battlezone page: banner, splash, Main menu, mute, touch controls and menu 
   assert.match(html, /<meta name="arcade-controls" content="[^"]+">/);
   assert.match(html, /href="\/games\/"[^>]*>(?:<span aria-hidden="true">)?&#9776;/, "top-bar main menu");
   assert.match(html, /id="btn-mute"/);
-  for (const a of ["fwd", "back", "left", "right", "fire"]) assert.match(html, new RegExp('data-act="' + a + '"'), a);
+  assert.match(html, /data-act="fire"/, "fire button");
+  assert.match(html, /id="stick-zone"[^>]*data-stick="analog"/, "analog thumb stick replaces the four arrow buttons");
+  assert.ok(html.includes("/games/shared/joystick.js") && html.includes("/games/shared/joystick.css"), "shared joystick");
+  for (const a of ["fwd", "back", "left", "right"]) assert.doesNotMatch(html, new RegExp('data-act="' + a + '"'), a);
   for (const f of ["game.js", "kit.js", "style.css"]) assert.equal((await get(port, "/games/battlezone/" + f)).statusCode, 200, f);
 });
 

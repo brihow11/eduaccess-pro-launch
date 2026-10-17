@@ -43,18 +43,18 @@
      with a deadzone and a response curve; holding Fine aim halves the speed; a very light snap helps
      settle onto a tank that is already almost dead centre. */
   var TURN_MAX = 0.95, TURN_MIN = 0.12, RAMP_T = 0.5, FINE = 0.45, DEADZONE = 0.16, CURVE = 1.8;
-  var padTurn = 0, touchTurn = { left: 1, right: 1 }, turnHoldT = 0, turnDir = 0, turnRate = 0;
+  var padTurn = 0, stickTurn = 0, turnHoldT = 0, turnDir = 0, turnRate = 0;
   function stickCurve(x) { var m = Math.abs(x); if (m < DEADZONE) return 0; m = (m - DEADZONE) / (1 - DEADZONE); return (x < 0 ? -1 : 1) * Math.pow(Math.min(1, m), CURVE); }
   function aimTurn(dt) {
     var fine = I.isDown('fine') ? FINE : 1, want;
     if (!I.padConnected) padTurn = 0;
     if (padTurn) { want = padTurn * TURN_MAX; turnHoldT = 0; turnDir = 0; }
+    else if (stickTurn) { want = stickCurve(stickTurn) * TURN_MAX; turnHoldT = 0; turnDir = 0; }
     else {
       var d = (I.isDown('right') ? 1 : 0) - (I.isDown('left') ? 1 : 0);
       if (d !== turnDir) { turnDir = d; turnHoldT = 0; } else if (d) turnHoldT += dt;
       var r = Math.min(1, turnHoldT / RAMP_T); r = r * r * (3 - 2 * r);
-      var tScale = d > 0 ? touchTurn.right : d < 0 ? touchTurn.left : 1;
-      want = d * (TURN_MIN + (TURN_MAX - TURN_MIN) * r) * tScale;
+      want = d * (TURN_MIN + (TURN_MAX - TURN_MIN) * r);
     }
     want *= fine;
     turnRate += K.clamp(want - turnRate, -6 * dt, 6 * dt);
@@ -410,7 +410,7 @@
   }
   function missionTips(L, n) {
     var t = [];
-    if (n === 1) t.push(['move', 'HOW TO DRIVE', K.isTouch ? 'Use the pad to drive and turn. Tap FIRE to shoot. Turn until the red radar blip is straight ahead.' : 'Up and Down drive, Left and Right turn, Space fires. Hold Shift for fine aim. Turn until the red radar blip is straight ahead.']);
+    if (n === 1) t.push(['move', 'HOW TO DRIVE', K.isTouch ? 'Slide the left thumb stick to drive and turn. Tap FIRE to shoot. Turn until the red radar blip is straight ahead.' : 'Up and Down drive, Left and Right turn, Space fires. Hold Shift for fine aim. Turn until the red radar blip is straight ahead.']);
     var O = { destroy: ['DESTROY MISSION', 'Knock out the number of enemy tanks shown at the top right.'],
       depots: ['DEPOT RAID', 'Targets show as orange squares on the radar. The arrow under the radar points to the nearest one. Shoot each until it burns.'],
       escort: ['ESCORT MISSION', 'Protect the blue convoy. It only drives while you stay within 220 m, and enemy tanks will shoot at it. Get it to the camp.'],
@@ -762,7 +762,7 @@
   function setPaused(p) {
     if (G.state !== 'play' && G.state !== 'clear') p = false;
     G.paused = p; pauseBtn.innerHTML = p ? '&#9654; <span class="lbl">Resume</span>' : '&#10074;&#10074; <span class="lbl">Pause</span>';
-    if (p) { silence(); I.releaseTouch(); }
+    if (p) { silence(); I.releaseTouch(); if (stick) stick.reset(); }
     Music.duck(p ? 0.3 : 1);
   }
 
@@ -968,7 +968,7 @@
     var hy = H * 0.82;
     if (hiScores.length) hiScores.slice(0, 3).forEach(function (h, i) { vtext((i + 1) + '.  ' + h.s + '   MISSION ' + h.l, W / 2, hy + i * 16, 9, i ? 'dim' : 'green', 0.5, 0.9); });
     else vtext('NO SCORES YET', W / 2, hy, 10, 'dim', 0.5);
-    var leg = K.isTouch ? 'PAD DRIVES AND TURNS   FIRE SHOOTS' : 'UP/DOWN DRIVE   LEFT/RIGHT TURN   SHIFT FINE AIM   SPACE FIRES   P PAUSE   F FULLSCREEN';
+    var leg = K.isTouch ? 'STICK DRIVES AND TURNS   FIRE SHOOTS' : 'UP/DOWN DRIVE   LEFT/RIGHT TURN   SHIFT FINE AIM   SPACE FIRES   P PAUSE   F FULLSCREEN';
     vtext(leg, W / 2, H * 0.91, fitSize(leg, narrow ? 9 : 10, W * 0.86), 'dim', 0.5, 0.8);
   }
   function render() {
@@ -1025,7 +1025,7 @@
   }
 
   /* ---------------- layout ---------------- */
-  var touchEl = document.getElementById('touch');
+  var touchEl = document.getElementById('touch'), stick = null;
   function touchWanted() { return touchPref === 'on' || (touchPref === 'auto' && K.isTouch); }
   function resize() {
     var landscape = innerWidth > innerHeight;
@@ -1043,6 +1043,7 @@
     hudTop = Math.max(14, (50 * dpr - oy) / s);
     FOV = portrait ? 1.0 : W / H > 1.9 ? 1.2 : 1.05; F = (W / 2) / Math.tan(FOV / 2); CX = W / 2; HY = H * (portrait ? 0.5 : 0.6);
     buildBg();
+    if (stick) stick.relayout();
   }
   window.addEventListener('resize', resize);
   window.addEventListener('orientationchange', function () { setTimeout(resize, 200); });
@@ -1076,20 +1077,26 @@
   optFx.checked = fxOn; optFx.addEventListener('change', function () { fxOn = optFx.checked; K.store.set('bz.fx', fxOn); resize(); });
   optTouch.value = touchPref; optTouch.addEventListener('change', function () { touchPref = optTouch.value; K.store.set('bz.touch', touchPref); resize(); });
   K.bindTouch(touchEl, I, function () { A.unlock(); });
-  // proportional touch turning: the further toward the outer edge of a turn button you press or slide, the faster it turns
-  ['left', 'right'].forEach(function (side) {
-    var b = touchEl.querySelector('[data-act="' + side + '"]'); if (!b) return;
-    function upd(e) { var r = b.getBoundingClientRect(); if (!r.width) return; var x = (e.clientX - r.left) / r.width; if (side === 'left') x = 1 - x; touchTurn[side] = K.clamp(0.3 + 0.7 * x, 0.3, 1); }
-    b.addEventListener('pointerdown', upd); b.addEventListener('pointermove', upd);
-    b.addEventListener('pointerup', function () { touchTurn[side] = 1; }); b.addEventListener('pointercancel', function () { touchTurn[side] = 1; });
-  });
-  canvas.addEventListener('pointerdown', function (e) {
+  function tapStage() {
     A.unlock(); canvas.focus();
     if (G.state === 'title') startGame();
     else if (G.state === 'victory' && G.stateT > 1.5) showSplash(true, true);
     else if (G.paused) setPaused(false);
-    e.preventDefault();
+  }
+  /* touch: shared analog thumb stick (games/shared/joystick.js). Up/down drive and reverse, left/right turn
+     proportionally (same deadzone + curve as a gamepad stick), so diagonals drive and turn together. */
+  var drive = { fwd: false, back: false };
+  function setDrive(id, on) { if (drive[id] !== on) { drive[id] = on; I.setTouch(id, on); } }
+  stick = window.ArcadeStick.mount(document.getElementById('stick-zone'), {
+    theme: 'battlezone', deadZone: 0.18,
+    home: function (r) { return touchEl.classList.contains('landscape') ? { x: 92, y: r.height - 84 } : { x: r.width * 0.42, y: r.height / 2 }; },
+    onDown: function () { if (G.state === 'title' || G.paused || G.state === 'victory') tapStage(); },
+    onChange: function (st) {
+      setDrive('fwd', st.active && st.ay < -0.3); setDrive('back', st.active && st.ay > 0.45);
+      stickTurn = st.active ? st.x : 0;
+    }
   });
+  canvas.addEventListener('pointerdown', function (e) { tapStage(); e.preventDefault(); });
   document.addEventListener('visibilitychange', function () { if (document.hidden && (G.state === 'play' || G.state === 'clear')) setPaused(true); });
   syncMute();
 
