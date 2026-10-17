@@ -77,4 +77,8 @@ body.is-touch .bar { display: none; }
 .tut-btns .tut-next { background: #2a62d8; border-color: #9fd0ff; }
 .tut-btns .tut-skip { background: transparent; color: #9fb6e6; border-color: rgba(110, 160, 255, .4); }
 .tut-btns button:focus-visible { outline: 3px solid #ffd24a; outline-offset: 2px; }
-@media (max-height: 460px) { .tut-card { font-size: 13px; padding: 8px 12px; width: min(520px, 66%); bottom: 6px; } .tut-card h3 { font-size: 1.12em; } .tut-btns button { min-height: 40px; padding: 6px 12px; font-size: 13px; } }
+@media (max-height: 460px) { .tut-card { font-size: 13px; padding: 8px 12px; width: min(520px, 66%); bottom: 6px; } .tut-card h3 { font-size: 1.12em; } .tut-btns button { min-height: 44px; padding: 6px 12px; font-size: 13px; } }
+/* phone landscape: keep every toolbar button a comfortable touch target (about 44px) */
+@media (orientation: landscape) and (max-height: 500px) {
+  html.jsp-game body > header.toolbar .tool { min-height: 44px !important; height: 44px !important; min-width: 44px !important; justify-content: center; }
+}

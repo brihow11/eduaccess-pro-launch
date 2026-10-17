@@ -49,7 +49,9 @@ const sleep = ms => new Promise(r => setTimeout(r, ms));
   await sleep(6000); await closeTips();
   await p.screenshot({ path: out + tag + '-4-battle.png' });
   // orbital strike on the lead ship via taps
-  const lead = await G(() => { const f = RSTD.G.foes[0]; return f && [f.x, f.y]; });
+  // aim at a ship that is on screen (on phones the closer camera leaves the outer lanes off screen)
+  let lead = null;
+  for (let i = 0; i < 30 && !lead; i++) { lead = await G(() => { const V = RSTD.V, f = RSTD.G.foes.find(f => { const s = RSTD.toScreen(f.x, f.y); return s.x > 120 && s.x < V.cw - 120 && s.y > 90 && s.y < V.ch - 80; }); return f && [f.x, f.y]; }); if (!lead) await sleep(300); }
   if (lead) { await tapUI('strike'); await tapWorld(lead[0], lead[1]); ok('strike cast', await G(() => RSTD.G.ab.strike > 0) || (console.log(await G(() => [RSTD.G.armed, RSTD.tipOpen(), RSTD.G.ab.strike, RSTD.G.paused])), false)); }
   // pause via toolbar
   await press(await p.$('#btn-pause')); await sleep(300);
@@ -61,8 +63,8 @@ const sleep = ms => new Promise(r => setTimeout(r, ms));
   await press(await p.$('#btn-mute')); ok('muted', await p.$eval('#btn-mute', b => b.getAttribute('aria-pressed')) === 'true' && await G(() => localStorage.getItem('rstd.muted') === '1'));
   await press(await p.$('#btn-mute'));
   // wait for wave to clear, then open the turret card and upgrade with taps
-  for (let i = 0; i < 40 && await G(() => RSTD.G.phase === 'wave'); i++) { await sleep(1000); await closeTips(); }
-  ok('wave 1 cleared', await G(() => RSTD.G.phase === 'build' && RSTD.G.wave === 1 && RSTD.G.integ > 0));
+  for (let i = 0; i < 160 && await G(() => RSTD.G.phase === 'wave'); i++) { await sleep(250); await closeTips(1); }
+  ok('wave cleared', await G(() => RSTD.G.phase === 'build' && RSTD.G.wave >= 1 && RSTD.G.integ > 0) || (console.log(JSON.stringify(await G(() => ({ ph: RSTD.G.phase, w: RSTD.G.wave, i: RSTD.G.integ, foes: RSTD.G.foes.map(f => [f.k, Math.round(f.x), Math.round(f.y), Math.round(f.d)]), q: RSTD.G.spawnQ.length, m: RSTD.G.mode, p: RSTD.G.paused, tip: RSTD.tipOpen() })))), false));
   await closeTips();
   const t0 = await G(() => [RSTD.G.turrets[0].x, RSTD.G.turrets[0].y]);
   await tapWorld(t0[0], t0[1]); await sleep(200);

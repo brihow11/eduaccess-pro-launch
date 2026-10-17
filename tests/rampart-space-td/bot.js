@@ -5,7 +5,8 @@ const { chromium } = require(PW);
 const base = process.argv[2] || 'http://127.0.0.1:3601', from = +(process.argv[3] || 1), to = +(process.argv[4] || 12);
 (async () => {
   const b = await chromium.launch({ executablePath: '/usr/bin/google-chrome', args: ['--no-sandbox'] });
-  const p = await (await b.newContext({ viewport: { width: 960, height: 540 } })).newPage(); const errs = [];
+  const [vw, vh] = (process.env.VP || '960x540').split('x').map(Number);
+  const p = await (await b.newContext({ viewport: { width: vw, height: vh } })).newPage(); const errs = [];
   p.on('pageerror', e => errs.push(e.stack));
   await p.goto(base + '/games/rampart-space/'); await new Promise(r => setTimeout(r, 800));
   const res = [];
