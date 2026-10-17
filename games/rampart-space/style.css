@@ -1,5 +1,5 @@
-/* Rampart Space Edition: layout, toolbar, touch buttons, tutorial cards. Written by: Howie */
-html, body { margin: 0; padding: 0; height: 100%; background: #03040a; overflow: hidden; overscroll-behavior: none; }
+/* Rampart: Space Edition (orbital tower defense): layout, toolbar, menus, tutorial cards. Written by: Howie */
+html, body { margin: 0; padding: 0; height: 100%; background: #02030a; overflow: hidden; overscroll-behavior: none; }
 body { position: fixed; inset: 0; display: flex; flex-direction: column; color: #e6f0ff; font: 14px/1.35 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; touch-action: manipulation; -webkit-text-size-adjust: 100%; }
 [data-jsp-banner] { flex: none; }
@@ -13,55 +13,68 @@ body { position: fixed; inset: 0; display: flex; flex-direction: column; color: 
 .tool.menu { border-color: rgba(255, 207, 90, .55); color: #ffe2a0; }
 .tool[aria-pressed="true"] { color: #ff9c8a; }
 @media (max-width: 700px) { .tool .lbl { display: none; } .tool { padding: 0 9px; } }
-@media (max-height: 460px) { .toolbar { padding: 2px 6px; } .tool { height: 26px; } .ttl { font-size: 12px; } }
+@media (max-height: 460px) { .toolbar { padding: 2px 6px; } .tool { height: 28px; min-width: 36px; justify-content: center; } .ttl { font-size: 12px; } }
+@media (max-height: 460px) and (max-width: 760px) { .ttl { display: none; } }
 #stage { position: relative; flex: 1 1 auto; min-height: 0; display: flex; overflow: hidden; touch-action: none; }
 #wrap { position: relative; flex: 1 1 auto; min-height: 0; }
 #game { position: absolute; inset: 0; width: 100%; height: 100%; display: block; outline: none; touch-action: none; cursor: crosshair; }
 .bar { flex: none; height: 22px; display: flex; align-items: center; padding: 0 10px; font-size: 11px; color: #7f93bf; background: #03050b; border-top: 1px solid #101a36; white-space: nowrap; overflow: hidden; }
 body.is-touch .bar { display: none; }
+@media (max-height: 520px) { .bar { display: none; } }
 .noscript { padding: 20px; }
-#touch { position: absolute; right: max(10px, env(safe-area-inset-right)); bottom: max(10px, env(safe-area-inset-bottom)); z-index: 5; display: flex; flex-direction: column; gap: 10px; pointer-events: none; }
-#touch[hidden] { display: none; }
-.tbtn { pointer-events: auto; appearance: none; width: 74px; height: 74px; border-radius: 50%; border: 2px solid rgba(140, 200, 255, .7); background: radial-gradient(circle at 40% 35%, rgba(60, 120, 220, .55), rgba(6, 14, 40, .85));
-  color: #eaf4ff; font: 800 24px/1 system-ui, sans-serif; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; touch-action: none; -webkit-tap-highlight-color: transparent; opacity: .85; }
-.tbtn small { font-size: 9.5px; letter-spacing: .08em; }
-.tbtn.special { border-color: rgba(255, 210, 110, .8); background: radial-gradient(circle at 40% 35%, rgba(255, 180, 60, .5), rgba(50, 26, 4, .85)); }
-.tbtn.special.ready { box-shadow: 0 0 18px rgba(255, 200, 90, .6); }
-.tbtn.active { transform: scale(.94); }
-@media (max-height: 460px) { .tbtn { width: 62px; height: 62px; font-size: 20px; } }
-/* tutorial cards (same system as Rampart) */
+
+/* title / sector select / high scores (HTML over the canvas) */
+.scr { position: absolute; inset: 0; z-index: 20; pointer-events: none; }
+.scr[hidden] { display: none; }
+.scr .menu { position: absolute; left: var(--menu-left, 6%); top: var(--menu-top, 46%); display: flex; flex-direction: column; align-items: flex-start; gap: 10px; pointer-events: auto; max-width: 92%; }
+.scr .panel { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); width: min(720px, 94%); max-height: 94%; overflow: auto; box-sizing: border-box; pointer-events: auto;
+  padding: 16px 20px; border-radius: 16px; background: linear-gradient(170deg, rgba(12, 22, 52, .96), rgba(4, 7, 18, .96)); border: 1px solid rgba(140, 200, 255, .45); box-shadow: 0 16px 50px rgba(0, 0, 0, .7); }
+.scr h2 { margin: 0 0 10px; font: 800 22px/1.1 system-ui, sans-serif; letter-spacing: .06em; color: #ffe2a0; text-transform: uppercase; }
+.scr .big { font: 800 40px/1 system-ui, sans-serif; color: #fff; margin: 4px 0 12px; }
+.start-btn { appearance: none; cursor: pointer; border-radius: 14px; border: 2px solid #7dffb0; background: linear-gradient(180deg, #1f6b48, #0f3a28); color: #eafff2;
+  font: 800 clamp(20px, 2.6vw, 34px) system-ui, sans-serif; letter-spacing: .08em; padding: .5em 1.5em; box-shadow: 0 0 22px rgba(125, 255, 176, .3); animation: rstd-breathe 3.2s ease-in-out infinite; text-align: left; }
+.start-btn small { display: block; font-size: .4em; font-weight: 600; letter-spacing: .04em; opacity: .85; }
+.start-btn:hover, .start-btn:focus-visible { background: linear-gradient(180deg, #268256, #124430); outline: 3px solid #ffd24a; outline-offset: 2px; }
+@keyframes rstd-breathe { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.03); } }
+@media (prefers-reduced-motion: reduce) { .start-btn { animation: none; } }
+.mbtn { appearance: none; cursor: pointer; min-height: 44px; padding: 8px 18px; border-radius: 12px; border: 1px solid rgba(140, 200, 255, .55); background: rgba(10, 18, 42, .9); color: #eaf4ff; font: 700 15px system-ui, sans-serif; letter-spacing: .03em; }
+.mbtn.hi { border-color: #ffd36a; color: #ffe2a0; }
+.mbtn:hover, .mbtn:focus-visible { border-color: #fff; outline: none; background: rgba(24, 40, 84, .95); }
+.scr .row { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 12px; justify-content: center; }
+.grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+.sec { appearance: none; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 2px; min-height: 64px; padding: 6px 4px; border-radius: 12px; border: 1px solid rgba(140, 200, 255, .45); background: rgba(10, 20, 46, .9); color: #eaf4ff; font: 600 13px system-ui, sans-serif; }
+.sec b { font-size: 20px; color: #9fe6ff; } .sec i { font-style: normal; color: #ffd36a; letter-spacing: .1em; }
+.sec.boss { border-color: rgba(255, 140, 110, .6); } .sec.boss b { color: #ffb8a0; }
+.sec:disabled { opacity: .45; cursor: default; }
+.sec:not(:disabled):hover, .sec:focus-visible { border-color: #fff; outline: none; }
+.scr table { width: 100%; border-collapse: collapse; font: 600 15px system-ui, sans-serif; }
+.scr th { text-align: left; color: #9fb6e6; font-size: 12px; letter-spacing: .1em; text-transform: uppercase; padding: 4px 8px; }
+.scr td { padding: 4px 8px; border-top: 1px solid rgba(140, 200, 255, .12); } .scr tr.me td { color: #ffd36a; }
+.ini { display: flex; gap: 10px; align-items: flex-end; flex-wrap: wrap; }
+.ini label { display: flex; flex-direction: column; gap: 4px; color: #9fb6e6; font-size: 13px; }
+.ini input { width: 6ch; font: 800 28px ui-monospace, monospace; text-transform: uppercase; letter-spacing: .2em; padding: 6px 10px; border-radius: 10px; border: 1px solid #ffd36a; background: #050a18; color: #fff; }
+@media (max-height: 460px) {
+  .scr .menu { flex-direction: row; flex-wrap: wrap; gap: 6px; max-width: 70%; }
+  .start-btn { font-size: 18px; padding: .35em 1em; flex-basis: 100%; max-width: max-content; }
+  .mbtn { min-height: 44px; padding: 6px 12px; font-size: 13px; }
+  .scr .panel { padding: 10px 14px; } .scr h2 { font-size: 17px; margin-bottom: 6px; } .scr .big { font-size: 28px; }
+  .grid { grid-template-columns: repeat(6, 1fr); gap: 5px; } .sec { min-height: 48px; font-size: 10px; } .sec b { font-size: 15px; }
+  .scr table { font-size: 12px; } .scr td { padding: 1px 6px; }
+}
+
+/* tutorial cards */
 #tut { position: absolute; inset: 0; z-index: 40; pointer-events: none; }
 #tut[hidden] { display: none; }
-.tut-spot { position: absolute; border-radius: 12px; border: 3px solid #ffd86a; box-shadow: 0 0 0 4px rgba(0,0,0,.35), 0 0 22px 4px rgba(255,216,106,.6); animation: tutPulse 1.6s ease-in-out infinite; pointer-events: none; transition: left .2s, top .2s, width .2s, height .2s; }
-.tut-spot[hidden] { display: none; }
-@keyframes tutPulse { 50% { border-color: #fff3c4; } }
-@media (prefers-reduced-motion: reduce) { .tut-spot { animation: none; } }
-.tut-card { position: absolute; left: 50%; transform: translateX(-50%); bottom: 4%; width: min(600px, 92%); max-height: 60%; overflow: auto; box-sizing: border-box; pointer-events: auto;
-  padding: 12px 16px; border-radius: 14px; background: linear-gradient(170deg, rgba(14, 24, 54, .97), rgba(5, 8, 20, .97)); border: 1px solid #ffd36a; box-shadow: 0 12px 40px rgba(0, 0, 0, .7); font-size: 15px; }
-.tut-card.at-top { top: 4%; bottom: auto; }
-.tut-card.act { border-color: #8fe0ff; }
-.tut-card.small { width: min(420px, 70%); }
-.tut-step { font-size: .68em; letter-spacing: .1em; text-transform: uppercase; color: #9fb6e6; }
+.tut-card { position: absolute; left: 50%; transform: translateX(-50%); bottom: 13%; width: min(560px, 92%); max-height: 86%; overflow: auto; box-sizing: border-box; pointer-events: auto;
+  padding: 14px 18px; border-radius: 14px; background: linear-gradient(170deg, rgba(14, 24, 54, .97), rgba(5, 8, 20, .97)); border: 1px solid #ffd36a; box-shadow: 0 12px 40px rgba(0, 0, 0, .7); font-size: 15px; }
+.tut-step { font-size: .7em; letter-spacing: .1em; text-transform: uppercase; color: #9fb6e6; }
 .tut-new { display: inline-block; font: 800 10px ui-monospace, monospace; letter-spacing: .15em; color: #04060d; background: #ffd36a; border-radius: 4px; padding: 2px 6px; margin-right: 6px; }
-.tut-card h3 { margin: .15em 0 .25em; font: 800 1.25em/1.15 ui-monospace, Menlo, Consolas, monospace; color: #ffe2a0; letter-spacing: .03em; }
-.tut-card p { margin: 0 0 .45em; } .tut-card b { color: #ffd98a; }
-.tut-do { padding: .35em .6em; border-radius: 10px; background: rgba(120, 200, 255, .12); border: 1px solid rgba(140, 210, 255, .5); font-weight: 600; }
-.tut-do[hidden] { display: none; }
-.tut-do span { color: #9fe6ff; font-weight: 800; text-transform: uppercase; font-size: .8em; letter-spacing: .06em; }
+.tut-card h3 { margin: .2em 0 .3em; font: 800 1.3em/1.15 system-ui, sans-serif; color: #ffe2a0; letter-spacing: .02em; }
+.tut-card p { margin: 0 0 .5em; } .tut-card b { color: #ffd98a; }
 .tut-btns { display: flex; align-items: center; gap: 10px; margin-top: .4em; }
 .tut-btns .tut-sp { flex: 1; }
-.tut-btns button { appearance: none; cursor: pointer; border-radius: 10px; border: 1px solid #6fa8ff; background: #10204a; color: #eaf4ff; font: 700 14px system-ui, sans-serif; padding: 8px 14px; }
-.tut-btns button[hidden] { display: none; }
+.tut-btns button { appearance: none; cursor: pointer; min-height: 44px; border-radius: 10px; border: 1px solid #6fa8ff; background: #10204a; color: #eaf4ff; font: 700 15px system-ui, sans-serif; padding: 8px 16px; }
 .tut-btns .tut-next { background: #2a62d8; border-color: #9fd0ff; }
 .tut-btns .tut-skip { background: transparent; color: #9fb6e6; border-color: rgba(110, 160, 255, .4); }
-@media (max-height: 460px) { .tut-card { font-size: 13px; padding: 8px 12px; width: min(470px, 60%); left: 8px; transform: none; bottom: 8px; max-height: 80%; } .tut-card.at-top { top: 8px; } .tut-card h3 { font-size: 1.1em; } .tut-btns button { padding: 6px 10px; font-size: 13px; } }
-.how-btn { position: absolute; left: 50%; transform: translateX(-50%); bottom: 7%; z-index: 6; appearance: none; cursor: pointer; border-radius: 10px; border: 1px solid #ffd36a; background: rgba(16, 22, 48, .9); color: #ffe2a0; font: 700 14px system-ui, sans-serif; padding: 9px 16px; }
-.how-btn[hidden] { display: none; }
-.arcade-ov button.ov-how { appearance: none; cursor: pointer; }
-.start-btn { position: absolute; left: 50%; bottom: 17%; transform: translateX(-50%); z-index: 6; appearance: none; cursor: pointer; border-radius: 14px; border: 2px solid #7dffb0; background: linear-gradient(180deg, #1f6b48, #0f3a28); color: #eafff2; font: 800 clamp(20px, 3vw, 34px) system-ui, sans-serif; letter-spacing: .08em; padding: .55em 1.6em; box-shadow: 0 0 22px rgba(125, 255, 176, .35); animation: rse-breathe 3s ease-in-out infinite; }
-.start-btn small { display: block; font-size: .42em; font-weight: 600; letter-spacing: .04em; opacity: .8; }
-.start-btn:hover, .start-btn:focus-visible { background: linear-gradient(180deg, #268256, #124430); outline: none; }
-.start-btn[hidden] { display: none; }
-@keyframes rse-breathe { 0%, 100% { transform: translateX(-50%) scale(1); } 50% { transform: translateX(-50%) scale(1.04); } }
-@media (prefers-reduced-motion: reduce) { .start-btn { animation: none; } }
-@media (max-height: 460px) { .start-btn { bottom: 21%; font-size: 19px; padding: .45em 1.3em; } }
+.tut-btns button:focus-visible { outline: 3px solid #ffd24a; outline-offset: 2px; }
+@media (max-height: 460px) { .tut-card { font-size: 13px; padding: 8px 12px; width: min(520px, 66%); bottom: 6px; } .tut-card h3 { font-size: 1.12em; } .tut-btns button { min-height: 40px; padding: 6px 12px; font-size: 13px; } }
