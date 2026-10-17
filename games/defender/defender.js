@@ -1680,51 +1680,16 @@
     tapStage();
   });
 
-  // touch controls
-  const touchEl = $("touch"), zone = $("stick-zone"), base = $("stick-base"), knob = $("stick-knob");
-  let stickId = null, stickCX = 0, stickCY = 0;
-  const STICK_R = 52;
-  function placeStickHome() {
-    const r = zone.getBoundingClientRect();
-    const portrait = touchEl.classList.contains("portrait");
-    base.style.left = (portrait ? r.width * 0.45 : Math.min(100, r.width * 0.5)) + "px";
-    base.style.top = (portrait ? r.height * 0.5 : r.height - 104) + "px";
-  }
-  function stickMove(e) {
-    const r = zone.getBoundingClientRect();
-    let dx = e.clientX - r.left - stickCX, dy = e.clientY - r.top - stickCY;
-    const d = Math.hypot(dx, dy);
-    if (d > STICK_R) { dx = (dx / d) * STICK_R; dy = (dy / d) * STICK_R; }
-    knob.style.transform = "translate(" + dx + "px," + dy + "px)";
-    const nx = dx / STICK_R, ny = dy / STICK_R;
-    touchHeld.left = nx < -0.35; touchHeld.right = nx > 0.35;
-    touchHeld.up = ny < -0.4; touchHeld.down = ny > 0.4;
-  }
-  zone.addEventListener("pointerdown", (e) => {
-    e.preventDefault();
-    Sfx.unlock();
-    if (G.paused || G.state === "attract" || G.state === "gameover") tapStage();
-    if (stickId !== null) return;
-    stickId = e.pointerId;
-    try { zone.setPointerCapture(stickId); } catch (err) { /* ignore */ }
-    const r = zone.getBoundingClientRect();
-    stickCX = e.clientX - r.left; stickCY = e.clientY - r.top;
-    base.style.left = stickCX + "px"; base.style.top = stickCY + "px";
-    base.classList.add("active");
-    stickMove(e);
+  // touch controls: shared analog thumb stick (games/shared/joystick.js) on the left, buttons on the right
+  const touchEl = $("touch"), zone = $("stick-zone");
+  const stick = window.ArcadeStick.mount(zone, {
+    theme: "defender", deadZone: 0.22,
+    home: (r) => touchEl.classList.contains("portrait") ? { x: r.width * 0.45, y: r.height * 0.5 } : { x: Math.min(100, r.width * 0.5), y: r.height - 96 },
+    onDown: () => { Sfx.unlock(); if (G.paused || G.state === "attract" || G.state === "gameover") tapStage(); },
+    // 8-way: left/right thrust (or reverse), up/down climb and dive
+    onChange: (s) => { touchHeld.left = s.left; touchHeld.right = s.right; touchHeld.up = s.up; touchHeld.down = s.down; }
   });
-  zone.addEventListener("pointermove", (e) => { if (e.pointerId === stickId) { e.preventDefault(); stickMove(e); } });
-  const stickEnd = (e) => {
-    if (e.pointerId !== stickId) return;
-    stickId = null;
-    knob.style.transform = "";
-    base.classList.remove("active");
-    touchHeld.left = touchHeld.right = touchHeld.up = touchHeld.down = false;
-    placeStickHome();
-  };
-  zone.addEventListener("pointerup", stickEnd);
-  zone.addEventListener("pointercancel", stickEnd);
-  zone.addEventListener("lostpointercapture", stickEnd);
+  function placeStickHome() { stick.relayout(); }
   for (const btn of document.querySelectorAll(".tbtn")) {
     const a = btn.dataset.act;
     btn.addEventListener("pointerdown", (e) => {

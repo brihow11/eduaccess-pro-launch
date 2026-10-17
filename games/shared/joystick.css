@@ -1,0 +1,94 @@
+/* Shared virtual analog joystick (see joystick.js). Themes: defender (chrome + neon blue ball top),
+   battlezone (green vector wireframe). Sized for phone landscape. No flashing. Written by: Howie */
+.astick-zone { touch-action: none; -webkit-user-select: none; user-select: none; -webkit-tap-highlight-color: transparent; }
+.astick {
+  --astick-size: 132px; --astick-knob: 62px;
+  position: absolute; width: var(--astick-size); height: var(--astick-size);
+  margin: calc(var(--astick-size) / -2) 0 0 calc(var(--astick-size) / -2);
+  border-radius: 50%; pointer-events: none; opacity: 0.62;
+  transition: opacity 0.18s ease, left 0.16s ease-out, top 0.16s ease-out;
+}
+.astick.is-active { opacity: 1; transition: opacity 0.08s ease; }
+.astick-ring, .astick-ticks, .astick-glow { position: absolute; inset: 0; border-radius: 50%; }
+.astick-glow {
+  opacity: 0; transition: opacity 0.12s ease;
+  -webkit-mask: radial-gradient(circle, transparent 0 58%, #000 60% 71%, transparent 73%);
+  mask: radial-gradient(circle, transparent 0 58%, #000 60% 71%, transparent 73%);
+}
+.astick-chev { position: absolute; left: 50%; top: 50%; width: 0; height: 0; border: 6px solid transparent; opacity: 0.7; }
+.astick-chev.n { transform: translate(-50%, calc(var(--astick-size) / -2 + 9px)); border-bottom-width: 8px; border-top-width: 0; }
+.astick-chev.s { transform: translate(-50%, calc(var(--astick-size) / 2 - 17px)); border-top-width: 8px; border-bottom-width: 0; }
+.astick-chev.w { transform: translate(calc(var(--astick-size) / -2 + 9px), -50%); border-right-width: 8px; border-left-width: 0; }
+.astick-chev.e { transform: translate(calc(var(--astick-size) / 2 - 17px), -50%); border-left-width: 8px; border-right-width: 0; }
+.astick-knob {
+  position: absolute; left: 50%; top: 50%; width: var(--astick-knob); height: var(--astick-knob);
+  margin: calc(var(--astick-knob) / -2) 0 0 calc(var(--astick-knob) / -2); border-radius: 50%;
+  transition: transform 0.14s cubic-bezier(.3, 1.6, .5, 1);
+}
+.astick.is-active .astick-knob { transition: none; }
+.astick-cap { position: absolute; inset: 0; border-radius: 50%; }
+@media (max-height: 340px) { .astick { --astick-size: 116px; --astick-knob: 56px; } }
+@media (min-height: 520px) and (min-width: 900px) { .astick { --astick-size: 148px; --astick-knob: 68px; } }
+
+/* ---------- Defender: dark glass well, chrome bezel, glossy blue ball top ---------- */
+.astick--defender .astick-ring {
+  background: radial-gradient(circle at 50% 50%, rgba(8, 12, 40, 0.88) 0 56%, rgba(26, 34, 92, 0.85) 62%, rgba(10, 14, 46, 0.9) 70%);
+  border: 3px solid transparent;
+  background-clip: padding-box;
+  box-shadow: 0 0 0 2px rgba(190, 205, 255, 0.55), 0 0 0 5px rgba(40, 52, 130, 0.9), 0 0 0 6px rgba(160, 180, 255, 0.35),
+    0 0 22px rgba(90, 120, 255, 0.45), inset 0 6px 14px rgba(0, 0, 0, 0.75), inset 0 -3px 10px rgba(120, 140, 255, 0.25);
+}
+.astick--defender .astick-ticks {
+  inset: 9px;
+  background: repeating-conic-gradient(from -2deg, rgba(150, 175, 255, 0.55) 0 4deg, transparent 4deg 45deg);
+  -webkit-mask: radial-gradient(circle, transparent 0 86%, #000 88% 100%);
+  mask: radial-gradient(circle, transparent 0 86%, #000 88% 100%);
+}
+.astick--defender .astick-chev.n { border-bottom-color: #9fb3ff; }
+.astick--defender .astick-chev.s { border-top-color: #9fb3ff; }
+.astick--defender .astick-chev.w { border-right-color: #9fb3ff; }
+.astick--defender .astick-chev.e { border-left-color: #9fb3ff; }
+.astick--defender .astick-glow { background: conic-gradient(from 60deg, rgba(110, 200, 255, 0.95) 0 60deg, transparent 60deg 360deg); }
+.astick--defender .astick-knob {
+  background: radial-gradient(circle at 50% 60%, rgba(0, 0, 0, 0.55), transparent 70%);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.6);
+}
+.astick--defender .astick-cap {
+  background: radial-gradient(circle at 34% 28%, #ffffff 0 7%, #c9d6ff 14%, #6f8bff 40%, #2b3fc4 72%, #131c6e 100%);
+  box-shadow: inset 0 -5px 10px rgba(5, 10, 60, 0.7), inset 0 2px 3px rgba(255, 255, 255, 0.5), 0 0 16px rgba(100, 140, 255, 0.7);
+  border: 1px solid rgba(220, 230, 255, 0.6);
+}
+.astick--defender .astick-cap::after {
+  content: ""; position: absolute; left: 22%; top: 22%; right: 22%; bottom: 22%; border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.18); box-shadow: inset 0 0 6px rgba(0, 0, 30, 0.35);
+}
+
+/* ---------- Battlezone: green vector wireframe, crosshair knob ---------- */
+.astick--battlezone .astick-ring {
+  background: radial-gradient(circle, rgba(0, 18, 6, 0.55) 0 66%, rgba(0, 40, 14, 0.5) 70%, rgba(0, 10, 3, 0.4) 72%);
+  border: 2px solid rgba(90, 255, 140, 0.75);
+  box-shadow: 0 0 10px rgba(70, 255, 120, 0.45), inset 0 0 12px rgba(70, 255, 120, 0.25);
+}
+.astick--battlezone .astick-ring::before {
+  content: ""; position: absolute; inset: 24%; border-radius: 50%; border: 1px dashed rgba(90, 255, 140, 0.35);
+}
+.astick--battlezone .astick-ticks {
+  background:
+    linear-gradient(rgba(90, 255, 140, 0.28), rgba(90, 255, 140, 0.28)) center / 1px 76% no-repeat,
+    linear-gradient(90deg, rgba(90, 255, 140, 0.28), rgba(90, 255, 140, 0.28)) center / 76% 1px no-repeat;
+}
+.astick--battlezone .astick-chev.n { border-bottom-color: #5aff8c; }
+.astick--battlezone .astick-chev.s { border-top-color: #5aff8c; }
+.astick--battlezone .astick-chev.w { border-right-color: #5aff8c; }
+.astick--battlezone .astick-chev.e { border-left-color: #5aff8c; }
+.astick--battlezone .astick-glow { background: conic-gradient(from 60deg, rgba(120, 255, 160, 0.9) 0 60deg, transparent 60deg 360deg); }
+.astick--battlezone .astick-cap {
+  background: radial-gradient(circle at 40% 35%, rgba(60, 200, 100, 0.55), rgba(2, 30, 10, 0.85) 70%);
+  border: 2px solid #6dff98;
+  box-shadow: 0 0 14px rgba(80, 255, 130, 0.55), inset 0 0 10px rgba(80, 255, 130, 0.35);
+}
+.astick--battlezone .astick-cap::before, .astick--battlezone .astick-cap::after {
+  content: ""; position: absolute; left: 50%; top: 50%; background: rgba(160, 255, 190, 0.85);
+}
+.astick--battlezone .astick-cap::before { width: 46%; height: 2px; margin: -1px 0 0 -23%; }
+.astick--battlezone .astick-cap::after { width: 2px; height: 46%; margin: -23% 0 0 -1px; }

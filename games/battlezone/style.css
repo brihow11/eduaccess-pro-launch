@@ -40,15 +40,15 @@ body.is-touch .bar { display: none; }
   color: #e2ffe8; font: 800 12px/1 system-ui, sans-serif; letter-spacing: 0.04em; box-shadow: 0 0 14px rgba(60, 255, 120, 0.25);
 }
 .tbtn.fire { width: min(96px, 23vw); height: min(96px, 23vw); font-size: 15px; border-color: rgba(255, 140, 120, 0.75); background: radial-gradient(circle at 40% 35%, rgba(255, 90, 70, 0.55), rgba(70, 10, 5, 0.8)); box-shadow: 0 0 18px rgba(255, 80, 60, 0.35); }
-.tgroup.pad { display: grid; grid-template-columns: repeat(3, min(62px, 15vw)); grid-template-rows: repeat(2, min(56px, 13.5vw)); gap: min(6px, 1.4vw); align-items: center; justify-items: center; }
-.tgroup.pad .tbtn { width: min(62px, 15vw); height: min(56px, 13.5vw); border-radius: 14px; font-size: 20px; }
-.tgroup.pad .up { grid-column: 2; grid-row: 1; } .tgroup.pad .left { grid-column: 1; grid-row: 2; } .tgroup.pad .down { grid-column: 2; grid-row: 2; } .tgroup.pad .right { grid-column: 3; grid-row: 2; }
 .tbtn.active { transform: scale(0.93); filter: brightness(1.45); }
 #touch.landscape { position: absolute; left: 0; right: 0; bottom: 0; background: none; border: 0; pointer-events: none; padding: 0 14px calc(10px + env(safe-area-inset-bottom)); z-index: 5; }
 #touch.landscape .tbtn { pointer-events: auto; opacity: 0.72; }
-#touch.landscape .tgroup.pad { grid-template-columns: repeat(3, 54px); grid-template-rows: repeat(2, 48px); }
-#touch.landscape .tgroup.pad .tbtn { width: 54px; height: 48px; }
-#touch.landscape .tbtn.fire { width: 74px; height: 74px; }
+#touch.landscape .tbtn.fire { width: 84px; height: 84px; margin: 0 6px 6px 0; }
+/* left thumb stick zone (shared/joystick.css draws the stick): left half of the strip in portrait,
+   the left 42% of the screen below the toolbar in landscape; FIRE stays bottom-right */
+.tgroup.stick { position: relative; flex: 0 0 52%; align-self: stretch; min-height: 150px; touch-action: none; }
+#touch.landscape { top: 58px; align-items: flex-end; }
+#touch.landscape .tgroup.stick { flex-basis: 42%; height: 100%; pointer-events: auto; }
 
 /* ---------- settings ---------- */
 #settings { position: fixed; inset: 0; z-index: 40; display: flex; align-items: center; justify-content: center; background: rgba(0, 0, 0, 0.72); padding: 12px; }
