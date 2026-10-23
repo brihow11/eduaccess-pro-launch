@@ -49,6 +49,15 @@ function resolveFile(urlPath) {
   return filePath;
 }
 
+// SocialSplash one-snippet page tracker (SS-F088). Cookieless; reads no form values.
+const SOCIALSPLASH_TRACKER = '<script defer src="https://social-engine-staging-staging.up.railway.app/conversions/snippet.js"></script>';
+
+function withTracker(html) {
+  if (html.includes("/conversions/snippet.js")) return html;
+  const at = html.search(/<\/head>/i);
+  return at === -1 ? html : html.slice(0, at) + SOCIALSPLASH_TRACKER + "\n" + html.slice(at);
+}
+
 function createServer() {
   return http.createServer((req, res) => {
     const filePath = resolveFile(req.url || "/");
@@ -102,6 +111,17 @@ function createServer() {
       return;
     }
 
+    if (ext === ".html") {
+      const body = Buffer.from(withTracker(fs.readFileSync(filePath, "utf8")), "utf8");
+      res.writeHead(status, {
+        "Cache-Control": "public, max-age=300",
+        "Content-Length": body.length,
+        "Content-Type": types[ext]
+      });
+      res.end(req.method === "HEAD" ? undefined : body);
+      return;
+    }
+
     res.writeHead(status, {
       ...(status === 200 && (ext === ".mp4" || ext === ".webm") ? { "Accept-Ranges": "bytes" } : {}),
       "Cache-Control": "public, max-age=300",
@@ -126,4 +146,4 @@ if (require.main === module) {
   });
 }
 
-module.exports = { createServer, resolveFile };
+module.exports = { createServer, resolveFile, withTracker, SOCIALSPLASH_TRACKER };
