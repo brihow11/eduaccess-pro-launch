@@ -49,13 +49,36 @@ function resolveFile(urlPath) {
   return filePath;
 }
 
+// Google Analytics 4 site tag. Measurement ID from Howie 10/24 GA setup (EduAccess.pro stream). Unverified in Admin this turn.
+const GA4_MEASUREMENT_ID = "G-E5XRNFHQD8";
+const GA4_GTAG = [
+  "<!-- Google tag (gtag.js) -->",
+  '<script async src="https://www.googletagmanager.com/gtag/js?id=' + GA4_MEASUREMENT_ID + '"></script>',
+  "<script>",
+  "  window.dataLayer = window.dataLayer || [];",
+  "  function gtag(){dataLayer.push(arguments);}",
+  "  gtag('js', new Date());",
+  "  gtag('config', '" + GA4_MEASUREMENT_ID + "');",
+  "</script>"
+].join("\n");
+
 // SocialSplash one-snippet page tracker (SS-F088). Cookieless; reads no form values.
 const SOCIALSPLASH_TRACKER = '<script defer src="https://social-engine-staging-staging.up.railway.app/conversions/snippet.js"></script>';
 
 function withTracker(html) {
-  if (html.includes("/conversions/snippet.js")) return html;
-  const at = html.search(/<\/head>/i);
-  return at === -1 ? html : html.slice(0, at) + SOCIALSPLASH_TRACKER + "\n" + html.slice(at);
+  let out = html;
+  const insertBeforeHeadClose = (snippet) => {
+    const at = out.search(/<\/head>/i);
+    if (at === -1) return;
+    out = out.slice(0, at) + snippet + "\n" + out.slice(at);
+  };
+  if (!/googletagmanager\.com\/gtag\/js/i.test(out) && !out.includes(GA4_MEASUREMENT_ID)) {
+    insertBeforeHeadClose(GA4_GTAG);
+  }
+  if (!out.includes("/conversions/snippet.js")) {
+    insertBeforeHeadClose(SOCIALSPLASH_TRACKER);
+  }
+  return out;
 }
 
 function createServer() {
@@ -146,4 +169,4 @@ if (require.main === module) {
   });
 }
 
-module.exports = { createServer, resolveFile, withTracker, SOCIALSPLASH_TRACKER };
+module.exports = { createServer, resolveFile, withTracker, SOCIALSPLASH_TRACKER, GA4_MEASUREMENT_ID, GA4_GTAG };
