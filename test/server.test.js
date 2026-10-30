@@ -4,7 +4,7 @@ const http = require("node:http");
 const path = require("node:path");
 const test = require("node:test");
 
-const { createServer, resolveFile } = require("../server");
+const { createServer, resolveFile, withTracker, GA4_MEASUREMENT_ID } = require("../server");
 
 function request(port, reqPath, headers = {}) {
   return new Promise((resolve, reject) => {
@@ -171,4 +171,26 @@ test("fictional institute assessment has no person tracking or data capture", ()
   assert.doesNotMatch(html, /<form\b/i);
   assert.doesNotMatch(html, /\b(?:user_id|contact_id|student_id|person_id)\b/i);
   assert.doesNotMatch(html, /document\.cookie|navigator\.sendBeacon|\bfetch\s*\(/i);
+});
+
+test("served HTML pages get GA4 gtag and SocialSplash tracker inject", async (t) => {
+  const server = createServer();
+  await new Promise((resolve) => server.listen(0, "127.0.0.1", resolve));
+  t.after(() => server.close());
+  const { port } = server.address();
+
+  for (const pathName of ["/", "/apps/", "/quizzes/readiness-score/"]) {
+    const page = await request(port, pathName);
+    assert.equal(page.statusCode, 200);
+    assert.match(page.body, /googletagmanager\.com\/gtag\/js\?id=G-E5XRNFHQD8/);
+    assert.match(page.body, /gtag\('config', 'G-E5XRNFHQD8'\)/);
+    assert.match(page.body, /\/conversions\/snippet\.js/);
+  }
+
+  const alreadyTagged = "<!doctype html><html><head><title>x</title></head><body></body></html>";
+  const once = withTracker(alreadyTagged);
+  const twice = withTracker(once);
+  assert.equal((once.match(/googletagmanager\.com\/gtag\/js/g) || []).length, 1);
+  assert.equal((twice.match(/googletagmanager\.com\/gtag\/js/g) || []).length, 1);
+  assert.equal(GA4_MEASUREMENT_ID, "G-E5XRNFHQD8");
 });
